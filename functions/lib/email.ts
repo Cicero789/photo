@@ -1,23 +1,19 @@
 /**
- * Email sending via Resend (https://resend.com).
+ * Email sending via Zoho ZeptoMail (https://www.zoho.com/zeptomail/).
  *
  * Setup:
- *   wrangler pages secret put RESEND_API_KEY --project-name photo
+ *   wrangler pages secret put ZOHO_API_KEY --project-name photo
+ *     (the full "Zoho-enczapikey ..." send-mail token from ZeptoMail → Mail
+ *     Agent → SMTP/API; the code accepts it with or without the prefix)
  *   wrangler pages secret put EMAIL_FROM --project-name photo   (optional)
  *
- * EMAIL_FROM defaults to Resend's shared onboarding address, which can only
- * deliver to the email address of the Resend account owner. To email real
- * users, verify a domain you own in Resend (DNS records in Cloudflare) and
- * set EMAIL_FROM to e.g. "Photo <no-reply@yourdomain.com>".
- * A *.pages.dev address cannot be used as a sender — its DNS is owned by
- * Cloudflare, so SPF/DKIM verification is impossible.
- *
- * Note: the old MailChannels fallback was removed — MailChannels shut down
- * its free Cloudflare Workers API in August 2024.
+ * The sender domain must be verified in ZeptoMail (SPF/DKIM records added in
+ * Cloudflare DNS). EMAIL_FROM defaults to "Photo <noreply@framenest.photos>";
+ * accepts "Name <addr@domain>" or a bare address.
  */
 
 export interface EmailEnv {
-  RESEND_API_KEY?: string;
+  ZOHO_API_KEY?: string;
   EMAIL_FROM?: string;
 }
 
@@ -27,36 +23,49 @@ interface EmailOptions {
   htmlBody: string;
 }
 
-const DEFAULT_FROM = "Photo <onboarding@resend.dev>";
+const DEFAULT_FROM = "Photo <noreply@framenest.photos>";
+const ZEPTOMAIL_API = "https://api.zeptomail.com/v1.1/email";
+
+function parseFrom(from: string): { address: string; name?: string } {
+  const match = from.match(/^\s*(.*?)\s*<\s*([^<>\s]+@[^<>\s]+)\s*>\s*$/);
+  if (match && match[2]) {
+    return { address: match[2], name: match[1] || undefined };
+  }
+  return { address: from.trim() };
+}
 
 export async function sendEmail(opts: EmailOptions, env?: EmailEnv): Promise<boolean> {
-  if (!env?.RESEND_API_KEY) {
-    console.error("sendEmail: RESEND_API_KEY is not configured — email not sent.");
+  if (!env?.ZOHO_API_KEY) {
+    console.error("sendEmail: ZOHO_API_KEY is not configured — email not sent.");
     return false;
   }
 
+  const key = env.ZOHO_API_KEY.trim();
+  const authorization = key.startsWith("Zoho-enczapikey") ? key : `Zoho-enczapikey ${key}`;
+  const from = parseFrom(env.EMAIL_FROM || DEFAULT_FROM);
+
   try {
-    const res = await fetch("https://api.resend.com/emails", {
+    const res = await fetch(ZEPTOMAIL_API, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${env.RESEND_API_KEY}`,
+        Authorization: authorization,
       },
       body: JSON.stringify({
-        from: env.EMAIL_FROM || DEFAULT_FROM,
-        to: [opts.to],
+        from: { address: from.address, name: from.name ?? "Photo" },
+        to: [{ email_address: { address: opts.to } }],
         subject: opts.subject,
-        html: opts.htmlBody,
+        htmlbody: opts.htmlBody,
       }),
     });
 
     if (!res.ok) {
-      console.error("Resend error:", res.status, await res.text());
+      console.error("ZeptoMail error:", res.status, await res.text());
       return false;
     }
     return true;
   } catch (err) {
-    console.error("Resend send failed:", err);
+    console.error("ZeptoMail send failed:", err);
     return false;
   }
 }

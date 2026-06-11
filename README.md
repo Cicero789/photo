@@ -202,7 +202,7 @@ set with wrangler (or in the Pages dashboard → Settings → Variables):
 ```bash
 wrangler pages secret put JWT_SECRET --project-name photo        # 32+ chars, signs auth tokens
 wrangler pages secret put DEEPSEEK_API_KEY --project-name photo  # AI summaries
-wrangler pages secret put RESEND_API_KEY --project-name photo    # password-reset email
+wrangler pages secret put ZOHO_API_KEY --project-name photo      # password-reset email (ZeptoMail)
 wrangler pages secret put EMAIL_FROM --project-name photo        # optional, see Email below
 ```
 
@@ -213,20 +213,21 @@ and local frontend keys — it never reaches the deployed Functions.
 
 ## Email (password reset)
 
-Outgoing email uses [Resend](https://resend.com) (`functions/lib/email.ts`).
-The old MailChannels fallback was removed — its free Cloudflare Workers API
-shut down in August 2024.
+Outgoing email uses [Zoho ZeptoMail](https://www.zoho.com/zeptomail/)
+(`functions/lib/email.ts`) — transactional email priced ~$2.50 per 10,000
+sends, with the sender domain `framenest.photos` verified via SPF/DKIM
+records in Cloudflare DNS.
 
-1. Create a free Resend account (3,000 emails/month) and an API key, then
-   `wrangler pages secret put RESEND_API_KEY --project-name photo`.
-2. Without a verified domain, mail is sent from `onboarding@resend.dev` and
-   can only be delivered to **your own** Resend account email — fine for
-   testing, not for real users.
-3. To email real users, verify a domain you own in Resend (it gives you
-   SPF/DKIM DNS records to add in Cloudflare), then set
-   `EMAIL_FROM="Photo <no-reply@yourdomain.com>"` as a Pages secret.
-   A `*.pages.dev` address can never be verified — Cloudflare owns that DNS —
-   so a custom domain is required for production email.
+1. In ZeptoMail, create a Mail Agent for the domain and copy the send-mail
+   token ("Zoho-enczapikey ..."), then
+   `wrangler pages secret put ZOHO_API_KEY --project-name photo`.
+2. The default sender is `Photo <noreply@framenest.photos>`; override with an
+   `EMAIL_FROM` secret if needed. The sender domain must be verified in
+   ZeptoMail — a `*.pages.dev` address can never be verified (Cloudflare owns
+   that DNS), which is why a custom domain is used.
+
+(The earlier Resend integration was replaced; the old MailChannels free
+Workers API shut down in August 2024.)
 
 ## Tech Stack
 

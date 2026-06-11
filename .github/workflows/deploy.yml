@@ -64,10 +64,10 @@ jobs:
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ZOHO_API_KEY: ${{ secrets.ZOHO_API_KEY }}
           EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
         run: |
-          for s in JWT_SECRET DEEPSEEK_API_KEY RESEND_API_KEY EMAIL_FROM; do
+          for s in JWT_SECRET DEEPSEEK_API_KEY ZOHO_API_KEY EMAIL_FROM; do
             v="${!s}"
             if [ -n "$v" ]; then
               printf '%s' "$v" | npx wrangler pages secret put "$s" --project-name photo

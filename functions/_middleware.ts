@@ -6,6 +6,9 @@ import { verifyToken, getJwtSecret } from "./lib/jwt";
 const ALLOWED_ORIGINS = [
   "https://fotods.no",
   "https://www.fotods.no",
+  "https://framenest.photos",
+  "https://www.framenest.photos",
+  "https://photo-ll2.pages.dev",
 ];
 
 function getAllowedOrigin(request: Request): string {
