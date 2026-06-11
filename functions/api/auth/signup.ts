@@ -9,7 +9,7 @@ const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export async function onRequestPost(context: {
   request: Request;
-  env: { DB?: D1Database };
+  env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string };
 }): Promise<Response> {
   try {
     const db = context.env.DB!;

@@ -2,9 +2,9 @@ import { json } from "../../lib/response"; import { requireAuth, requireRole } f
 
 function getDeepSeekKey(env?: { DEEPSEEK_API_KEY?: string }): string { return env?.DEEPSEEK_API_KEY ?? ""; }
 
-export async function onRequestPost(context: { request: Request; env: { DB?: D1Database } }): Promise<Response> {
+export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string } }): Promise<Response> {
   try {
-    const authResult = await requireAuth(context.request, context.env); if ("error" in authResult) return authResult;
+    const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const roleCheck = requireRole(authResult, "staff"); if (roleCheck) return roleCheck;
     const body = await context.request.json() as { eventId: string }; if (!body.eventId) return json({ error: "eventId is required" }, 400);
     const db = context.env.DB!;

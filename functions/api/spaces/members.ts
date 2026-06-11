@@ -1,8 +1,8 @@
 import { hashPassword } from "../../lib/password"; import { json } from "../../lib/response"; import { validateMember, sanitize, MAX_NAME, MAX_EMAIL } from "../../lib/validate"; import { requireAuth, requireRole } from "../../lib/auth";
 
-export async function onRequestGet(context: { request: Request; env: { DB?: D1Database } }): Promise<Response> {
+export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string } }): Promise<Response> {
   try {
-    const authResult = await requireAuth(context.request, context.env); if ("error" in authResult) return authResult;
+    const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const roleCheck = requireRole(authResult, "staff"); if (roleCheck) return roleCheck;
     const db = context.env.DB!;
     const result = await db.prepare("SELECT sm.id, sm.space_id, sm.user_id, sm.role, u.name, u.email, u.created_at FROM space_members sm JOIN users u ON sm.user_id = u.id WHERE sm.space_id = ? ORDER BY sm.role, u.created_at").bind(authResult.spaceId).all<{id:string;space_id:string;user_id:string;role:string;name:string;email:string;created_at:string}>();
@@ -11,9 +11,9 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
   } catch (err) { console.error("List members error:", err); return json({ error: "Something went wrong" }, 500); }
 }
 
-export async function onRequestPost(context: { request: Request; env: { DB?: D1Database } }): Promise<Response> {
+export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string } }): Promise<Response> {
   try {
-    const authResult = await requireAuth(context.request, context.env); if ("error" in authResult) return authResult;
+    const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const roleCheck = requireRole(authResult, "page_admin"); if (roleCheck) return roleCheck;
     const rawBody = await context.request.json() as { name: string; email: string; role: string; password: string };
     const validationError = validateMember(rawBody); if (validationError) return json({ error: validationError }, 400);
@@ -27,9 +27,9 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
   } catch (err) { console.error("Add member error:", err); return json({ error: "Something went wrong" }, 500); }
 }
 
-export async function onRequestDelete(context: { request: Request; env: { DB?: D1Database } }): Promise<Response> {
+export async function onRequestDelete(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string } }): Promise<Response> {
   try {
-    const authResult = await requireAuth(context.request, context.env); if ("error" in authResult) return authResult;
+    const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const roleCheck = requireRole(authResult, "page_admin"); if (roleCheck) return roleCheck;
     const url = new URL(context.request.url); const memberId = url.searchParams.get("id"); if (!memberId) return json({ error: "Member ID is required" }, 400);
     const db = context.env.DB!;

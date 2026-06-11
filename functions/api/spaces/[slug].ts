@@ -1,15 +1,15 @@
 import { getSpaceBySlug } from "../../lib/db"; import { json } from "../../lib/response"; import { hashPassword } from "../../lib/password"; import { requireAuth } from "../../lib/auth";
 
-export async function onRequestGet(context: { request: Request; env: { DB?: D1Database }; params: { slug: string } }): Promise<Response> {
+export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string }; params: { slug: string } }): Promise<Response> {
   try {
     const space = await getSpaceBySlug(context.env, context.params.slug) as Record<string,unknown> | null; if (!space) return json({ error: "Space not found" }, 404);
     return json({ space: { id: space.id, name: space.name, slug: space.slug, customDomain: space.custom_domain, logoUrl: space.logo_url, themeColor: space.theme_color, createdAt: space.created_at } });
   } catch (err) { console.error("Get space error:", err); return json({ error: "Something went wrong" }, 500); }
 }
 
-export async function onRequestPut(context: { request: Request; env: { DB?: D1Database }; params: { slug: string } }): Promise<Response> {
+export async function onRequestPut(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string }; params: { slug: string } }): Promise<Response> {
   try {
-    const authResult = await requireAuth(context.request, context.env); if ("error" in authResult) return authResult;
+    const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const space = await getSpaceBySlug(context.env, context.params.slug) as Record<string,unknown> | null; if (!space) return json({ error: "Space not found" }, 404);
     if (space.owner_id !== authResult.userId && authResult.role !== "platform_owner") return json({ error: "You don't have permission to edit this space" }, 403);
     const body = await context.request.json() as { name?: string; gateKey?: string; themeColor?: string; customDomain?: string };

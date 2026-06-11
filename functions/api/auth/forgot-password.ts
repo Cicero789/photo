@@ -6,11 +6,11 @@
 import { getUserByEmail } from "../../lib/db";
 import { json } from "../../lib/response";
 import { checkRateLimit, getClientIP } from "../../lib/rate-limit";
-import { sendEmail } from "../../lib/email";
+import { sendEmail, type EmailEnv } from "../../lib/email";
 
 export async function onRequestPost(context: {
   request: Request;
-  env: { DB?: D1Database; RESEND_API_KEY?: string };
+  env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string } & EmailEnv;
 }): Promise<Response> {
   try {
     const db = context.env.DB!;
@@ -40,10 +40,10 @@ export async function onRequestPost(context: {
       .bind(crypto.randomUUID(), user.id as string, token, expires)
       .run();
 
-    const resetUrl = `https://photo-ll2.pages.dev/reset-password?token=${token}`;
+    const resetUrl = `${new URL(context.request.url).origin}/reset-password?token=${token}`;
 
-    // Try sending email (Resend if configured, else MailChannels)
-    const sent = await sendEmail({
+    // Send via Resend (requires RESEND_API_KEY secret)
+    await sendEmail({
       to: body.email,
       subject: "Reset your Photo password",
       htmlBody: `
@@ -62,10 +62,11 @@ export async function onRequestPost(context: {
       `,
     }, context.env);
 
+    // Never include resetUrl in the response — returning it would let anyone
+    // take over an account by requesting a reset for that email.
     return json({
       success: true,
       message: "If that email exists, a reset link has been sent.",
-      resetUrl: sent ? undefined : resetUrl, // Show URL if email failed
     });
   } catch (err) {
     console.error("Forgot password error:", err);

@@ -39,6 +39,9 @@ echo ""
 echo "6️⃣ Setting secrets..."
 npx wrangler pages secret put JWT_SECRET --project-name photo
 npx wrangler pages secret put DEEPSEEK_API_KEY --project-name photo
+npx wrangler pages secret put RESEND_API_KEY --project-name photo
+# Optional — only after verifying your domain in Resend:
+# npx wrangler pages secret put EMAIL_FROM --project-name photo
 echo ""
 
 # Step 7: Build and deploy

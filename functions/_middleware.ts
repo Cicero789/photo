@@ -20,7 +20,9 @@ function getAllowedOrigin(request: Request): string {
 
 function addCorsHeaders(response: Response, origin: string): Response {
   const headers = new Headers(response.headers);
-  headers.set("Access-Control-Allow-Origin", origin || "*");
+  // No ACAO header for origins outside the allowlist — falling back to "*"
+  // would defeat the allowlist entirely.
+  if (origin) headers.set("Access-Control-Allow-Origin", origin);
   headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
   headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
   headers.set("Access-Control-Max-Age", "86400");
@@ -52,7 +54,13 @@ const PROTECTED_PREFIXES = [
 
 function requiresAuth(request: Request): boolean {
   const url = new URL(request.url);
-  return PROTECTED_PREFIXES.some((prefix) => url.pathname.startsWith(prefix));
+  const path = url.pathname;
+  // GET /api/spaces/:slug is public — the gate page must show the space
+  // before the viewer has a token. /api/spaces/members stays protected.
+  if (request.method === "GET" && /^\/api\/spaces\/[^/]+$/.test(path) && path !== "/api/spaces/members") {
+    return false;
+  }
+  return PROTECTED_PREFIXES.some((prefix) => path.startsWith(prefix));
 }
 
 // ── Middleware entry ──────────────────────────────────────────────

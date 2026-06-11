@@ -8,7 +8,7 @@ import { json } from "../../lib/response";
 
 export async function onRequestPost(context: {
   request: Request;
-  env: { DB?: D1Database };
+  env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string };
 }): Promise<Response> {
   try {
     const body = await context.request.json() as { token: string; password: string };

@@ -1,6 +1,6 @@
 import { verifyPassword } from "../../lib/password"; import { signToken, getJwtSecret } from "../../lib/jwt"; import { getUserByEmail, getSpaceById } from "../../lib/db"; import { json } from "../../lib/response"; import { checkRateLimit, getClientIP } from "../../lib/rate-limit";
 
-export async function onRequestPost(context: { request: Request; env: { DB?: D1Database } }): Promise<Response> {
+export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string } }): Promise<Response> {
   try {
     const db = context.env.DB!; const ip = getClientIP(context.request); const limit = await checkRateLimit(db, ip, "login"); if (!limit.allowed) return json({ error: `Too many attempts. Retry in ${limit.retryAfter}s.` }, 429);
     const body = await context.request.json() as { email: string; password: string };

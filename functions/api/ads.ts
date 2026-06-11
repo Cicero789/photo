@@ -1,6 +1,6 @@
 import { json } from "../lib/response";
 
-export async function onRequestGet(context: { request: Request; env: { DB?: D1Database } }): Promise<Response> {
+export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string } }): Promise<Response> {
   try {
     const db = context.env.DB!;
     const result = await db.prepare("SELECT * FROM ad_tiles WHERE active = 1 ORDER BY position ASC").all();

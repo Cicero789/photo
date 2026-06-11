@@ -7,3 +7,4 @@ dist/
 .cache/
 .turbo/
 wrangler.toml.local
+.wrangler/

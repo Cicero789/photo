@@ -1,6 +1,6 @@
 import { verifyToken, getJwtSecret } from "../../lib/jwt"; import { getUserById, getSpaceById } from "../../lib/db"; import { json } from "../../lib/response";
 
-export async function onRequestGet(context: { request: Request; env: { DB?: D1Database } }): Promise<Response> {
+export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string } }): Promise<Response> {
   try {
     const authHeader = context.request.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) return json({ user: null }, 200);

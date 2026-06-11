@@ -194,17 +194,39 @@ npx wrangler d1 create photo-db
 npx wrangler d1 execute photo-db --local --file=./db/schema.sql
 ```
 
-## Environment Variables (.env)
+## Environment Variables & Secrets
 
+Cloudflare Pages Functions do **not** read `.env` — production secrets must be
+set with wrangler (or in the Pages dashboard → Settings → Variables):
+
+```bash
+wrangler pages secret put JWT_SECRET --project-name photo        # 32+ chars, signs auth tokens
+wrangler pages secret put DEEPSEEK_API_KEY --project-name photo  # AI summaries
+wrangler pages secret put RESEND_API_KEY --project-name photo    # password-reset email
+wrangler pages secret put EMAIL_FROM --project-name photo        # optional, see Email below
 ```
-DEEPSEEK_API_KEY=sk-...    # DeepSeek AI for summaries
-MAPBOX_API_KEY=sk-...      # Mapbox for photo maps (use pk.* for frontend!)
-CLOUDFLARE_API_KEY=cfut-... # Cloudflare API
-GITHUB_API_KEY=ghp-...     # GitHub
-OPENAI_API_KEY=sk-...      # OpenAI (reserved for future use)
-```
+
+A local `.env` (gitignored, see `.env.example`) is only for your own tooling
+and local frontend keys — it never reaches the deployed Functions.
 
 **⚠️ Never commit `.env` to version control.** It is in `.gitignore`.
+
+## Email (password reset)
+
+Outgoing email uses [Resend](https://resend.com) (`functions/lib/email.ts`).
+The old MailChannels fallback was removed — its free Cloudflare Workers API
+shut down in August 2024.
+
+1. Create a free Resend account (3,000 emails/month) and an API key, then
+   `wrangler pages secret put RESEND_API_KEY --project-name photo`.
+2. Without a verified domain, mail is sent from `onboarding@resend.dev` and
+   can only be delivered to **your own** Resend account email — fine for
+   testing, not for real users.
+3. To email real users, verify a domain you own in Resend (it gives you
+   SPF/DKIM DNS records to add in Cloudflare), then set
+   `EMAIL_FROM="Photo <no-reply@yourdomain.com>"` as a Pages secret.
+   A `*.pages.dev` address can never be verified — Cloudflare owns that DNS —
+   so a custom domain is required for production email.
 
 ## Tech Stack
 

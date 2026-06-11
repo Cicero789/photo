@@ -4,11 +4,11 @@ function getDeepSeekKey(env?: { DEEPSEEK_API_KEY?: string }): string { return en
 
 interface EventRow { id: string; space_id: string; title: string; category: string; event_date: string; description: string; ai_summary: string | null; cover_photo_id: string | null; created_at: string; updated_at: string; }
 
-export async function onRequestGet(context: { request: Request; env: { DB?: D1Database } }): Promise<Response> {
+export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string } }): Promise<Response> {
   try {
     const url = new URL(context.request.url); const spaceId = url.searchParams.get("spaceId");
     const db = context.env.DB!;
-    const authResult = await requireAuth(context.request, context.env); if ("error" in authResult) return authResult;
+    const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const targetSpaceId = spaceId ?? authResult.spaceId;
     if (spaceId) { const spaceCheck = requireSpaceOwnership(authResult, spaceId); if (spaceCheck) return spaceCheck; }
     const result = await db.prepare("SELECT * FROM events WHERE space_id = ? ORDER BY event_date DESC").bind(targetSpaceId).all<EventRow>();
@@ -22,9 +22,9 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
   } catch (err) { console.error("List events error:", err); return json({ error: "Something went wrong" }, 500); }
 }
 
-export async function onRequestPost(context: { request: Request; env: { DB?: D1Database } }): Promise<Response> {
+export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string } }): Promise<Response> {
   try {
-    const authResult = await requireAuth(context.request, context.env); if ("error" in authResult) return authResult;
+    const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const roleCheck = requireRole(authResult, "staff"); if (roleCheck) return roleCheck;
     const body = await context.request.json() as { title: string; category: string; eventDate: string; description: string };
     if (!body.title || !body.category || !body.eventDate) return json({ error: "Title, category, and event date are required" }, 400);

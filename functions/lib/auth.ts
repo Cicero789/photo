@@ -20,7 +20,8 @@ export async function requireAuth(request: Request, env?: AuthEnv): Promise<Auth
 
 export function requireRole(payload: AuthPayload, minRole: Role): Response | null {
   const ROLES: Record<Role, number> = { platform_owner: 4, page_admin: 3, staff: 2, viewer: 1 };
-  if (ROLES[payload.role] < ROLES[minRole]) return json({ error: "You don't have permission to perform this action." }, 403);
+  // Unknown/missing roles rank 0 so they are denied rather than slipping past the comparison.
+  if ((ROLES[payload.role] ?? 0) < ROLES[minRole]) return json({ error: "You don't have permission to perform this action." }, 403);
   return null;
 }
 
