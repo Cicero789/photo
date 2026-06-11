@@ -13,7 +13,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - run: npm ci
@@ -24,9 +24,22 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
-          ACCOUNT_ID=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-            https://api.cloudflare.com/client/v4/accounts | jq -r '.result[0].id')
-          echo "CLOUDFLARE_ACCOUNT_ID=$ACCOUNT_ID" >> "$GITHUB_ENV"
+          ACCOUNTS=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+            https://api.cloudflare.com/client/v4/accounts)
+          ID=$(echo "$ACCOUNTS" | jq -r '.result[0].id // empty')
+          if [ -z "$ID" ]; then
+            echo "accounts API returned no account; errors:" >&2
+            echo "$ACCOUNTS" | jq '.errors' >&2 || true
+            MEMBERSHIPS=$(curl -s -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+              https://api.cloudflare.com/client/v4/memberships)
+            ID=$(echo "$MEMBERSHIPS" | jq -r '.result[0].account.id // empty')
+          fi
+          if [ -n "$ID" ]; then
+            echo "CLOUDFLARE_ACCOUNT_ID=$ID" >> "$GITHUB_ENV"
+            echo "Resolved account ID."
+          else
+            echo "Could not resolve account ID; wrangler will attempt discovery."
+          fi
 
       # Pages secrets live on the Pages project, not in this repo. Re-putting
       # them on each deploy is idempotent; empty GH secrets are skipped.
