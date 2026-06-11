@@ -80,7 +80,7 @@ export function PhotographerPage() {
       <section className="bg-white py-16 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <h2 className="text-center font-display text-3xl font-bold text-neutral-900 sm:text-4xl">
-            Why photographers love Photo
+            Why photographers love FrameNest
           </h2>
           <div className="mt-14 grid gap-8 sm:grid-cols-3">
             {BENEFITS.map((b, i) => (
@@ -177,7 +177,7 @@ export function PhotographerPage() {
         <section className="bg-white py-16 sm:py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6">
             <h2 className="text-center font-display text-2xl font-bold text-neutral-900 sm:text-3xl">
-              Photographers on Photo
+              Photographers on FrameNest
             </h2>
             <p className="mt-3 text-center text-neutral-500">
               Find a photographer for your next event.
@@ -215,7 +215,7 @@ export function PhotographerPage() {
             Ready to give your clients something better?
           </h2>
           <p className="mt-4 text-lg text-accent-100">
-            Join Photo and offer every client their own beautiful, private photo space.
+            Join FrameNest and offer every client their own beautiful, private photo space.
           </p>
           <a href="#apply"
             className="mt-8 inline-block rounded-xl bg-white px-8 py-4 text-lg font-semibold text-accent-700 shadow-lg transition-all hover:bg-accent-50 active:scale-[0.98]">

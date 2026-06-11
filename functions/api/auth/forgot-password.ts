@@ -42,14 +42,14 @@ export async function onRequestPost(context: {
 
     const resetUrl = `${new URL(context.request.url).origin}/reset-password?token=${token}`;
 
-    // Send via Resend (requires RESEND_API_KEY secret)
+    // Send via ZeptoMail (requires ZOHO_API_KEY secret)
     await sendEmail({
       to: body.email,
-      subject: "Reset your Photo password",
+      subject: "Reset your FrameNest password",
       htmlBody: `
         <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
-          <h2 style="color:#2563eb">📸 Photo</h2>
-          <p>You requested a password reset for your Photo account.</p>
+          <h2 style="color:#2563eb">📸 FrameNest</h2>
+          <p>You requested a password reset for your FrameNest account.</p>
           <p style="margin:24px 0">
             <a href="${resetUrl}" style="background:#2563eb;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold">
               Reset your password
@@ -57,7 +57,7 @@ export async function onRequestPost(context: {
           </p>
           <p style="color:#666;font-size:14px">This link expires in 1 hour. If you didn't request this, you can safely ignore this email.</p>
           <hr style="border:0;border-top:1px solid #eee;margin:24px 0">
-          <p style="color:#999;font-size:12px">Photo — A home for your life's moments.</p>
+          <p style="color:#999;font-size:12px">FrameNest — A home for your life's moments.</p>
         </div>
       `,
     }, context.env);

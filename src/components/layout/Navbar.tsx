@@ -27,17 +27,27 @@ export function Navbar() {
         >
           <svg className="h-8 w-8" viewBox="0 0 32 32" fill="none">
             <rect width="32" height="32" rx="8" fill="currentColor" className="text-primary-100" />
+            <rect
+              x="6.5"
+              y="6.5"
+              width="19"
+              height="19"
+              rx="4"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="text-primary-600"
+            />
             <path
-              d="M8 22V12l6 4 6-4v10"
+              d="M10.5 20.5l3.5-4.5 2.5 3 2.5-3.5 2.5 5"
               stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
               className="text-primary-600"
             />
-            <circle cx="22" cy="10" r="2" fill="currentColor" className="text-accent-400" />
+            <circle cx="20.5" cy="11.5" r="1.8" fill="currentColor" className="text-accent-400" />
           </svg>
-          Photo
+          FrameNest
         </Link>
 
         {/* Nav Links */}

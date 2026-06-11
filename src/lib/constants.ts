@@ -1,7 +1,7 @@
 import type { EventCategory } from "@/types";
 
-export const APP_NAME = "Photo";
-export const APP_URL = "https://photo.app";
+export const APP_NAME = "FrameNest";
+export const APP_URL = "https://framenest.photos";
 
 export const MAX_PHOTO_SIZE_MB = 100;
 export const MAX_VIDEO_DURATION_SEC = 60;

@@ -112,7 +112,7 @@ export function DashboardPage() {
           {space?.name ?? "Dashboard"}
         </h1>
         <p className="mt-1 text-sm text-neutral-500">
-          {space?.slug ? `photo.app/s/${space.slug}` : ""}
+          {space?.slug ? `framenest.photos/s/${space.slug}` : ""}
         </p>
       </div>
 
@@ -448,7 +448,7 @@ function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: (
         <div>
           <label className="block text-sm font-medium text-neutral-700">Your link</label>
           <div className="mt-1 flex rounded-lg border border-border bg-muted">
-            <span className="flex items-center px-3 text-sm text-neutral-500">photo.app/s/</span>
+            <span className="flex items-center px-3 text-sm text-neutral-500">framenest.photos/s/</span>
             <span className="flex items-center px-3 text-sm font-medium text-neutral-700 bg-white rounded-r-lg">{space.slug}</span>
           </div>
         </div>

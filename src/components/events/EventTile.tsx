@@ -62,7 +62,7 @@ export function EventTile({
         )}
         <div className="border-t border-accent-200 bg-accent-50/50 px-4 py-2">
           <p className="text-center text-xs text-accent-600">
-            {adLinkUrl ? "Tap to learn more →" : "Message from Photo"}
+            {adLinkUrl ? "Tap to learn more →" : "Message from FrameNest"}
           </p>
         </div>
       </div>

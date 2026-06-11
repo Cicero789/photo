@@ -95,7 +95,7 @@ export function SignupPage() {
               </label>
               <div className="mt-1.5 flex rounded-lg border border-border focus-within:border-primary-500 focus-within:ring-2 focus-within:ring-primary-100">
                 <span className="flex items-center rounded-l-lg bg-muted px-3 text-sm text-neutral-500">
-                  photo.app/s/
+                  framenest.photos/s/
                 </span>
                 <input
                   id="spaceSlug"

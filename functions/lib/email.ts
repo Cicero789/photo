@@ -8,7 +8,7 @@
  *   wrangler pages secret put EMAIL_FROM --project-name photo   (optional)
  *
  * The sender domain must be verified in ZeptoMail (SPF/DKIM records added in
- * Cloudflare DNS). EMAIL_FROM defaults to "Photo <noreply@framenest.photos>";
+ * Cloudflare DNS). EMAIL_FROM defaults to "FrameNest <noreply@framenest.photos>";
  * accepts "Name <addr@domain>" or a bare address.
  */
 
@@ -23,7 +23,7 @@ interface EmailOptions {
   htmlBody: string;
 }
 
-const DEFAULT_FROM = "Photo <noreply@framenest.photos>";
+const DEFAULT_FROM = "FrameNest <noreply@framenest.photos>";
 const ZEPTOMAIL_API = "https://api.zeptomail.com/v1.1/email";
 
 function parseFrom(from: string): { address: string; name?: string } {
@@ -52,7 +52,7 @@ export async function sendEmail(opts: EmailOptions, env?: EmailEnv): Promise<boo
         Authorization: authorization,
       },
       body: JSON.stringify({
-        from: { address: from.address, name: from.name ?? "Photo" },
+        from: { address: from.address, name: from.name ?? "FrameNest" },
         to: [{ email_address: { address: opts.to } }],
         subject: opts.subject,
         htmlbody: opts.htmlBody,
