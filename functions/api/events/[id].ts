@@ -1,0 +1,40 @@
+import { json } from "../../lib/response"; import { requireAuth, requireRole, requireSpaceOwnership } from "../../lib/auth";
+
+export async function onRequestGet(context: { request: Request; env: { DB?: D1Database }; params: { id: string } }): Promise<Response> {
+  try {
+    const authResult = await requireAuth(context.request, context.env); if ("error" in authResult) return authResult;
+    const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ?").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
+    const spaceCheck = requireSpaceOwnership(authResult, (event as Record<string,unknown>).space_id as string); if (spaceCheck) return spaceCheck;
+    const photos = await db.prepare("SELECT * FROM photos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
+    const videos = await db.prepare("SELECT * FROM videos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
+    return json({ event: { id: (event as Record<string,unknown>).id, spaceId: (event as Record<string,unknown>).space_id, title: (event as Record<string,unknown>).title, category: (event as Record<string,unknown>).category, eventDate: (event as Record<string,unknown>).event_date, description: (event as Record<string,unknown>).description, aiSummary: (event as Record<string,unknown>).ai_summary, coverPhotoId: (event as Record<string,unknown>).cover_photo_id, createdAt: (event as Record<string,unknown>).created_at, updatedAt: (event as Record<string,unknown>).updated_at }, photos: photos.results ?? [], videos: videos.results ?? [] });
+  } catch (err) { console.error("Get event error:", err); return json({ error: "Something went wrong" }, 500); }
+}
+
+export async function onRequestPut(context: { request: Request; env: { DB?: D1Database }; params: { id: string } }): Promise<Response> {
+  try {
+    const authResult = await requireAuth(context.request, context.env); if ("error" in authResult) return authResult;
+    const roleCheck = requireRole(authResult, "staff"); if (roleCheck) return roleCheck;
+    const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ? AND space_id = ?").bind(context.params.id, authResult.spaceId).first(); if (!event) return json({ error: "Event not found or access denied" }, 404);
+    const body = await context.request.json() as { title?: string; category?: string; eventDate?: string; description?: string };
+    const parts: string[] = []; const values: (string|null)[] = [];
+    if (body.title !== undefined) { parts.push("title = ?"); values.push(body.title); }
+    if (body.category !== undefined) { parts.push("category = ?"); values.push(body.category); }
+    if (body.eventDate !== undefined) { parts.push("event_date = ?"); values.push(body.eventDate); }
+    if (body.description !== undefined) { parts.push("description = ?"); values.push(body.description); }
+    if (parts.length > 0) { parts.push("updated_at = datetime('now')"); values.push(context.params.id); await db.prepare(`UPDATE events SET ${parts.join(", ")} WHERE id = ?`).bind(...(values as [string])).run(); }
+    return json({ success: true });
+  } catch (err) { console.error("Update event error:", err); return json({ error: "Something went wrong" }, 500); }
+}
+
+export async function onRequestDelete(context: { request: Request; env: { DB?: D1Database }; params: { id: string } }): Promise<Response> {
+  try {
+    const authResult = await requireAuth(context.request, context.env); if ("error" in authResult) return authResult;
+    const roleCheck = requireRole(authResult, "page_admin"); if (roleCheck) return roleCheck;
+    const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ? AND space_id = ?").bind(context.params.id, authResult.spaceId).first(); if (!event) return json({ error: "Event not found or access denied" }, 404);
+    await db.prepare("DELETE FROM photos WHERE event_id = ?").bind(context.params.id).run();
+    await db.prepare("DELETE FROM videos WHERE event_id = ?").bind(context.params.id).run();
+    await db.prepare("DELETE FROM events WHERE id = ?").bind(context.params.id).run();
+    return json({ success: true });
+  } catch (err) { console.error("Delete event error:", err); return json({ error: "Something went wrong" }, 500); }
+}

@@ -1,0 +1,38 @@
+name = "photo"
+compatibility_date = "2025-06-09"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "./dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "photo-db"
+database_id = "075806fa-1702-4c71-84c3-7ac84aeb4c33"
+
+[[r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "photo-uploads"
+
+[[r2_buckets]]
+binding = "VIDEOS"
+bucket_name = "video-uploads"
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
+# Set JWT_SECRET via: wrangler pages secret put JWT_SECRET --env production
+# Set DEEPSEEK_API_KEY via: wrangler pages secret put DEEPSEEK_API_KEY --env production
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "photo-db"
+database_id = "075806fa-1702-4c71-84c3-7ac84aeb4c33"
+
+[[env.production.r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "photo-uploads"
+
+[[env.production.r2_buckets]]
+binding = "VIDEOS"
+bucket_name = "video-uploads"
+
+[env.preview]
+vars = { ENVIRONMENT = "preview" }
