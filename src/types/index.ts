@@ -65,6 +65,7 @@ export interface Photo {
   spaceId: string;
   originalFilename: string;
   storageKey: string; // R2 key
+  url: string; // /api/media/photos/<storageKey>
   thumbnailKey?: string;
   width: number;
   height: number;
@@ -83,6 +84,7 @@ export interface Video {
   spaceId: string;
   originalFilename: string;
   storageKey: string; // R2 key
+  url: string; // /api/media/videos/<storageKey>
   thumbnailKey?: string;
   duration: number; // seconds
   fileSize: number; // bytes (compressed)

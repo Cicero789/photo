@@ -22,7 +22,7 @@ export function EventMap({ photos, className }: EventMapProps) {
     .filter((p) => p.latitude != null && p.longitude != null)
     .map((p) => ({
       id: p.id,
-      url: p.storageKey,
+      url: p.url,
       latitude: p.latitude!,
       longitude: p.longitude!,
       filename: p.originalFilename,

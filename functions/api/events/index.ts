@@ -16,7 +16,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     const enriched = await Promise.all(events.map(async (e) => {
       const pc = await db.prepare("SELECT COUNT(*) as count FROM photos WHERE event_id = ?").bind(e.id).first<{count:number}>();
       const cp = await db.prepare("SELECT storage_key FROM photos WHERE event_id = ? LIMIT 1").bind(e.id).first<{storage_key:string}>();
-      return { id: e.id, spaceId: e.space_id, title: e.title, category: e.category, eventDate: e.event_date, description: e.description, aiSummary: e.ai_summary, coverPhotoId: e.cover_photo_id, coverPhotoUrl: cp?.storage_key ?? null, photoCount: pc?.count ?? 0, createdAt: e.created_at, updatedAt: e.updated_at };
+      return { id: e.id, spaceId: e.space_id, title: e.title, category: e.category, eventDate: e.event_date, description: e.description, aiSummary: e.ai_summary, coverPhotoId: e.cover_photo_id, coverPhotoUrl: cp?.storage_key ? `/api/media/photos/${cp.storage_key}` : null, photoCount: pc?.count ?? 0, createdAt: e.created_at, updatedAt: e.updated_at };
     }));
     return json({ events: enriched });
   } catch (err) { console.error("List events error:", err); return json({ error: "Something went wrong" }, 500); }

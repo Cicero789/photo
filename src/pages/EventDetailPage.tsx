@@ -223,7 +223,7 @@ export function EventDetailPage() {
                 className="group relative aspect-square overflow-hidden rounded-xl bg-neutral-100"
               >
                 <img
-                  src={photo.storageKey}
+                  src={photo.url}
                   alt={photo.originalFilename}
                   className="h-full w-full object-cover transition-transform group-hover:scale-105"
                   loading="lazy"
@@ -250,7 +250,7 @@ export function EventDetailPage() {
                 className="overflow-hidden rounded-xl bg-neutral-900"
               >
                 <video
-                  src={video.storageKey}
+                  src={video.url}
                   controls
                   className="w-full"
                   preload="metadata"
