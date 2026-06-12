@@ -1,6 +1,11 @@
 /**
- * Lightweight EXIF GPS extraction from JPEG files.
- * Reads GPS coordinates and date taken from JPEG binary data.
+ * Lightweight EXIF GPS + capture-date extraction from JPEG files.
+ *
+ * Parses the APP1/TIFF structure by hand (no dependencies):
+ *   JPEG markers -> APP1 "Exif\0\0" -> TIFF header -> IFD0
+ *   IFD0 holds pointers to the Exif sub-IFD (0x8769) and GPS IFD (0x8825).
+ *   GPS IFD holds latitude/longitude (+ N/S, E/W refs);
+ *   Exif sub-IFD holds DateTimeOriginal (0x9003).
  */
 
 export interface ExifData {
@@ -9,142 +14,153 @@ export interface ExifData {
   takenAt: string | null;
 }
 
-/** Extract GPS and date from a JPEG file's EXIF data. */
+const EMPTY: ExifData = { latitude: null, longitude: null, takenAt: null };
+
+// TIFF field type -> bytes per component.
+const TYPE_SIZE: Record<number, number> = { 1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 7: 1, 9: 4, 10: 8 };
+
+/** Extract GPS + date from a JPEG File (reads only the header bytes). */
 export function extractExif(file: File): Promise<ExifData> {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = () => {
-      const result: ExifData = { latitude: null, longitude: null, takenAt: null };
       try {
-        const view = new DataView(reader.result as ArrayBuffer);
-
-        // Check JPEG SOI marker
-        if (view.getUint16(0, false) !== 0xffd8) {
-          resolve(result);
-          return;
-        }
-
-        let offset = 2;
-        while (offset < view.byteLength) {
-          if (view.getUint16(offset, false) !== 0xffe1) {
-            offset += 2 + view.getUint16(offset + 2, false);
-            continue;
-          }
-
-          // Found EXIF (APP1 marker)
-          const exifStart = offset + 4;
-          const tiffHeader = view.getUint16(exifStart, false);
-
-          // Check byte order
-          const littleEndian = tiffHeader === 0x4949; // "II"
-          const bigEndian = tiffHeader === 0x4d4d; // "MM"
-          if (!littleEndian && !bigEndian) break;
-          const le = littleEndian;
-
-          const ifd0Offset = exifStart + view.getUint32(exifStart + 4, le);
-          if (ifd0Offset >= view.byteLength) break;
-
-          // Read IFD0 entries for date
-          const entries0 = view.getUint16(ifd0Offset, le);
-          for (let i = 0; i < entries0; i++) {
-            const entryOffset = ifd0Offset + 2 + i * 12;
-            const tag = view.getUint16(entryOffset, le);
-            if (tag === 0x9003) {
-              // DateTimeOriginal
-              const valueOffset = exifStart + view.getUint32(entryOffset + 8, le);
-              const dateStr = readString(view, valueOffset, 19);
-              if (dateStr) {
-                result.takenAt = dateStr.replace(/^(\d{4}):(\d{2}):(\d{2})/, "$1-$2-$3");
-              }
-            }
-            if (tag === 0x8769) {
-              // ExifIFD pointer → GPS IFD
-              const exifIfdOffset = exifStart + view.getUint32(entryOffset + 8, le);
-              const gpsEntries = view.getUint16(exifIfdOffset, le);
-              let gpsIfdOffset = 0;
-              for (let j = 0; j < gpsEntries; j++) {
-                const gpsEntry = exifIfdOffset + 2 + j * 12;
-                if (view.getUint16(gpsEntry, le) === 0x8825) {
-                  gpsIfdOffset = exifStart + view.getUint32(gpsEntry + 8, le);
-                  break;
-                }
-              }
-              if (gpsIfdOffset > 0) {
-                const gpsData = readGPS(view, gpsIfdOffset, exifStart, le);
-                result.latitude = gpsData.latitude;
-                result.longitude = gpsData.longitude;
-              }
-            }
-          }
-          break;
-        }
+        resolve(parseExif(new DataView(reader.result as ArrayBuffer)));
       } catch {
-        // Silently fail — EXIF parsing is best-effort
+        resolve(EMPTY); // best-effort: never throw
       }
-      resolve(result);
     };
-    reader.onerror = () => resolve({ latitude: null, longitude: null, takenAt: null });
-    reader.readAsArrayBuffer(file.slice(0, 65536)); // First 64KB is enough for EXIF
+    reader.onerror = () => resolve(EMPTY);
+    // GPS/date live in IFD0 at the very start of APP1; 256KB is ample even
+    // with large MakerNote/thumbnail blocks following.
+    reader.readAsArrayBuffer(file.slice(0, 256 * 1024));
   });
 }
 
-function readString(view: DataView, offset: number, maxLen: number): string | null {
-  let str = "";
-  for (let i = 0; i < maxLen; i++) {
-    const char = view.getUint8(offset + i);
-    if (char === 0) break;
-    str += String.fromCharCode(char);
+/** Pure parser over a DataView of the JPEG's leading bytes. Exported for tests. */
+export function parseExif(view: DataView): ExifData {
+  const result: ExifData = { latitude: null, longitude: null, takenAt: null };
+
+  // JPEG must start with SOI.
+  if (view.byteLength < 4 || view.getUint16(0, false) !== 0xffd8) return result;
+
+  // Walk JPEG segments to find APP1 (0xFFE1) carrying "Exif\0\0".
+  let offset = 2;
+  while (offset + 4 <= view.byteLength) {
+    const marker = view.getUint16(offset, false);
+    if ((marker & 0xff00) !== 0xff00) break; // not a marker — bail
+    const size = view.getUint16(offset + 2, false);
+    if (marker === 0xffe1 && view.getUint32(offset + 4, false) === 0x45786966) {
+      // "Exif" matched; TIFF header starts after "Exif\0\0" (6 bytes).
+      parseTiff(view, offset + 10, result);
+      return result;
+    }
+    if (size < 2) break;
+    offset += 2 + size;
   }
-  return str || null;
+  return result;
 }
 
-function readGPS(
+function parseTiff(view: DataView, tiff: number, result: ExifData): void {
+  if (tiff + 8 > view.byteLength) return;
+  const order = view.getUint16(tiff, false);
+  let le: boolean;
+  if (order === 0x4949) le = true; // "II"
+  else if (order === 0x4d4d) le = false; // "MM"
+  else return;
+
+  const ifd0 = tiff + view.getUint32(tiff + 4, le);
+  let gpsPtr = 0;
+  let exifPtr = 0;
+
+  forEachEntry(view, ifd0, le, (tag, entry) => {
+    if (tag === 0x8825) gpsPtr = tiff + view.getUint32(entry + 8, le); // GPS IFD pointer
+    if (tag === 0x8769) exifPtr = tiff + view.getUint32(entry + 8, le); // Exif sub-IFD pointer
+  });
+
+  if (gpsPtr > 0) readGps(view, gpsPtr, tiff, le, result);
+  if (exifPtr > 0) {
+    forEachEntry(view, exifPtr, le, (tag, entry) => {
+      if (tag === 0x9003) {
+        const o = valueOffset(view, entry, tiff, le);
+        const s = readAscii(view, o, 19);
+        if (s) result.takenAt = s.replace(/^(\d{4}):(\d{2}):(\d{2})/, "$1-$2-$3");
+      }
+    });
+  }
+}
+
+function forEachEntry(
   view: DataView,
-  gpsIfdOffset: number,
-  exifStart: number,
+  ifd: number,
   le: boolean,
-): { latitude: number | null; longitude: number | null } {
-  let latitude: number | null = null;
-  let longitude: number | null = null;
+  fn: (tag: number, entryOffset: number) => void,
+): void {
+  if (ifd <= 0 || ifd + 2 > view.byteLength) return;
+  const count = view.getUint16(ifd, le);
+  for (let i = 0; i < count; i++) {
+    const entry = ifd + 2 + i * 12;
+    if (entry + 12 > view.byteLength) return;
+    fn(view.getUint16(entry, le), entry);
+  }
+}
+
+/** Absolute offset of an entry's value: inline when <=4 bytes, else a pointer. */
+function valueOffset(view: DataView, entry: number, tiff: number, le: boolean): number {
+  const type = view.getUint16(entry + 2, le);
+  const count = view.getUint32(entry + 4, le);
+  const bytes = (TYPE_SIZE[type] ?? 1) * count;
+  return bytes <= 4 ? entry + 8 : tiff + view.getUint32(entry + 8, le);
+}
+
+function readGps(view: DataView, gps: number, tiff: number, le: boolean, result: ExifData): void {
+  let lat: number | null = null;
+  let lon: number | null = null;
   let latRef = "N";
   let lonRef = "E";
 
-  const entries = view.getUint16(gpsIfdOffset, le);
-  for (let i = 0; i < entries; i++) {
-    const entryOffset = gpsIfdOffset + 2 + i * 12;
-    const tag = view.getUint16(entryOffset, le);
-    const valueOffset = exifStart + view.getUint32(entryOffset + 8, le);
+  forEachEntry(view, gps, le, (tag, entry) => {
+    switch (tag) {
+      case 0x0001: // GPSLatitudeRef (inline ASCII)
+        latRef = String.fromCharCode(view.getUint8(entry + 8)) || "N";
+        break;
+      case 0x0003: // GPSLongitudeRef
+        lonRef = String.fromCharCode(view.getUint8(entry + 8)) || "E";
+        break;
+      case 0x0002: // GPSLatitude (3 rationals: deg, min, sec)
+        lat = readDMS(view, valueOffset(view, entry, tiff, le), le);
+        break;
+      case 0x0004: // GPSLongitude
+        lon = readDMS(view, valueOffset(view, entry, tiff, le), le);
+        break;
+    }
+  });
 
-    if (tag === 0x0001) {
-      latRef = String.fromCharCode(view.getUint8(valueOffset));
-    }
-    if (tag === 0x0003) {
-      lonRef = String.fromCharCode(view.getUint8(valueOffset));
-    }
-    if (tag === 0x0002) {
-      latitude = readRational(view, valueOffset, le);
-      if (latitude !== null && latRef === "S") latitude = -latitude;
-    }
-    if (tag === 0x0004) {
-      longitude = readRational(view, valueOffset, le);
-      if (longitude !== null && lonRef === "W") longitude = -longitude;
-    }
-  }
-
-  return { latitude, longitude };
+  if (lat !== null) result.latitude = latRef === "S" ? -lat : lat;
+  if (lon !== null) result.longitude = lonRef === "W" ? -lon : lon;
 }
 
-function readRational(view: DataView, offset: number, le: boolean): number | null {
-  const num = [
-    view.getUint32(offset, le),
-    view.getUint32(offset + 8, le),
-    view.getUint32(offset + 16, le),
-  ];
-  const den = [
-    view.getUint32(offset + 4, le),
-    view.getUint32(offset + 12, le),
-    view.getUint32(offset + 20, le),
-  ];
-  if (!den[0] || !den[1] || !den[2]) return null;
-  return num[0]! / den[0]! + num[1]! / den[1]! / 60 + num[2]! / den[2]! / 3600;
+function readDMS(view: DataView, o: number, le: boolean): number | null {
+  if (o + 24 > view.byteLength) return null;
+  const deg = rational(view, o, le);
+  const min = rational(view, o + 8, le);
+  const sec = rational(view, o + 16, le);
+  if (deg === null || min === null || sec === null) return null;
+  return deg + min / 60 + sec / 3600;
+}
+
+function rational(view: DataView, o: number, le: boolean): number | null {
+  const den = view.getUint32(o + 4, le);
+  if (den === 0) return null;
+  return view.getUint32(o, le) / den;
+}
+
+function readAscii(view: DataView, o: number, maxLen: number): string | null {
+  let s = "";
+  for (let i = 0; i < maxLen && o + i < view.byteLength; i++) {
+    const c = view.getUint8(o + i);
+    if (c === 0) break;
+    s += String.fromCharCode(c);
+  }
+  return s || null;
 }
