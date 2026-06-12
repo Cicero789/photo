@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { api } from "@/lib/api";
+import { api, getToken } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import { getCategoryInfo } from "@/lib/constants";
 import { PhotoUploader } from "@/components/photos/PhotoUploader";
 import { VideoUploader } from "@/components/videos/VideoUploader";
+import { lazy, Suspense } from "react";
+const PhotoEditorModal = lazy(() => import("@/components/photos/PhotoEditorModal"));
 import { EventMap } from "@/components/map/EventMap";
 import type { EventCategory, Photo, Video } from "@/types";
 
@@ -17,6 +19,8 @@ interface EventDetail {
   description: string;
   aiSummary: string | null;
   coverPhotoId: string | null;
+  address?: string;
+  addressLocked?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -30,6 +34,10 @@ export function EventDetailPage() {
   const [error, setError] = useState("");
   const [showUploader, setShowUploader] = useState<"photo" | "video" | null>(null);
   const [summarizing, setSummarizing] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(false);
+  const [editAddress, setEditAddress] = useState("");
+  const [savingAddress, setSavingAddress] = useState(false);
+  const [editingPhoto, setEditingPhoto] = useState<{ url: string; filename: string } | null>(null);
 
   const fetchEvent = () => {
     if (!eventId) return;
@@ -60,10 +68,38 @@ export function EventDetailPage() {
       await api.post("/events/summarize", { eventId });
       fetchEvent();
     } catch {
-      // error shown via re-fetch
     } finally {
       setSummarizing(false);
     }
+  };
+
+  const handleSaveAddress = async () => {
+    if (!eventId || savingAddress) return;
+    setSavingAddress(true);
+    try {
+      await api.put(`/events/${eventId}`, { address: editAddress });
+      setEditingAddress(false);
+      fetchEvent();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to save address");
+    } finally {
+      setSavingAddress(false);
+    }
+  };
+
+  const handleEditPhotoSave = async (blob: Blob, filename: string) => {
+    if (!eventId) return;
+    const formData = new FormData();
+    formData.append("eventId", eventId);
+    formData.append("files", new File([blob], filename, { type: "image/jpeg" }));
+    const token = getToken();
+    const res = await fetch("/api/photos/upload", {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData,
+    });
+    if (!res.ok) throw new Error("Upload failed");
+    fetchEvent();
   };
 
   if (loading) {
@@ -124,6 +160,68 @@ export function EventDetailPage() {
         <p className="mt-2 text-sm text-neutral-500">{formatDate(event.eventDate)}</p>
       </div>
 
+      {/* Address — editable by logged-in users */}
+      <div className="mb-6">
+        {event.address ? (
+          <div className="rounded-2xl border border-border bg-white p-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">📍</span>
+                <div>
+                  <p className="text-sm font-semibold text-neutral-700">{event.address}</p>
+                  {!spaceSlug && (
+                    <button onClick={() => setEditingAddress(true)}
+                      className="mt-1 text-xs text-primary-600 hover:text-primary-700">
+                      Edit address
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+            {editingAddress && (
+              <div className="mt-3 flex gap-2">
+                <input type="text" value={editAddress} onChange={(e) => setEditAddress(e.target.value)}
+                  className="flex-1 rounded-lg border border-border px-3 py-2 text-sm focus:border-primary-500 focus:outline-none"
+                  placeholder="123 Main St, Austin, TX" />
+                <button onClick={handleSaveAddress} disabled={savingAddress}
+                  className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-50">
+                  {savingAddress ? "Saving..." : "Save"}
+                </button>
+                <button onClick={() => setEditingAddress(false)}
+                  className="rounded-lg border px-3 py-2 text-sm text-neutral-500 hover:bg-neutral-50">Cancel</button>
+              </div>
+            )}
+          </div>
+        ) : !spaceSlug ? (
+          <div className="rounded-2xl border-2 border-dashed border-border bg-muted/30 p-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">📍</span>
+                <p className="text-sm text-neutral-400">No location set</p>
+              </div>
+              {!editingAddress ? (
+                <button onClick={() => setEditingAddress(true)}
+                  className="rounded-lg border border-primary-300 bg-white px-3 py-1.5 text-xs font-semibold text-primary-600 hover:bg-primary-50">
+                  + Add address
+                </button>
+              ) : (
+                <div className="flex gap-2">
+                  <input type="text" value={editAddress} onChange={(e) => setEditAddress(e.target.value)}
+                    className="rounded-lg border border-border px-3 py-2 text-sm focus:border-primary-500 focus:outline-none w-64"
+                    placeholder="123 Main St, Austin, TX" />
+                  <button onClick={handleSaveAddress} disabled={savingAddress}
+                    className="rounded-lg bg-primary-600 px-3 py-2 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-50">
+                    {savingAddress ? "..." : "Save"}
+                  </button>
+                  <button onClick={() => setEditingAddress(false)}
+                    className="rounded-lg border px-3 py-2 text-sm text-neutral-500 hover:bg-neutral-50">Cancel</button>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : null}
+      </div>
+
       {/* AI Summary */}
       <div className="mb-10">
         {event.aiSummary ? (
@@ -167,6 +265,15 @@ export function EventDetailPage() {
         ) : null}
       </div>
 
+      {/* Action buttons */}
+      {!spaceSlug && (
+        <div className="mb-6 flex gap-3">
+          <Link to={`/dashboard/events/${event.id}/gallery`}
+            className="rounded-xl border-2 border-accent-500 bg-white px-5 py-3 text-sm font-semibold text-accent-700 transition-colors hover:bg-accent-50">
+            🖼️ Gallery & Slideshow
+          </Link>
+        </div>
+      )}
       {/* Upload buttons */}
       {!spaceSlug && (
         <div className="mb-6">
@@ -228,6 +335,14 @@ export function EventDetailPage() {
                   className="h-full w-full object-cover transition-transform group-hover:scale-105"
                   loading="lazy"
                 />
+                {!spaceSlug && (
+                  <button
+                    onClick={() => setEditingPhoto({ url: photo.url, filename: photo.originalFilename })}
+                    className="absolute top-2 left-2 rounded-lg bg-black/60 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 backdrop-blur-sm"
+                  >
+                    ✏️ Edit
+                  </button>
+                )}
                 {photo.latitude != null && (
                   <span className="absolute bottom-2 left-2 rounded-md bg-black/50 px-1.5 py-0.5 text-[10px] text-white backdrop-blur-sm">
                     📍
@@ -275,6 +390,26 @@ export function EventDetailPage() {
             </button>
           )}
         </div>
+      )}
+
+      {/* Photo Editor Modal — lazy loaded */}
+      {editingPhoto && (
+        <Suspense fallback={
+          <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+            <div className="rounded-xl bg-white px-6 py-4 shadow-xl text-center">
+              <div className="mb-2 h-8 w-8 mx-auto animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
+              <p className="text-sm font-medium text-neutral-700">Loading editor...</p>
+            </div>
+          </div>
+        }>
+          <PhotoEditorModal
+            open={true}
+            imageUrl={editingPhoto.url}
+            filename={editingPhoto.filename}
+            onClose={() => setEditingPhoto(null)}
+            onSave={handleEditPhotoSave}
+          />
+        </Suspense>
       )}
     </div>
   );

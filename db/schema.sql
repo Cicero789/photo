@@ -47,6 +47,8 @@ CREATE TABLE IF NOT EXISTS events (
   description   TEXT NOT NULL DEFAULT '',
   ai_summary    TEXT,
   cover_photo_id TEXT,
+  address       TEXT NOT NULL DEFAULT '',
+  address_locked INTEGER NOT NULL DEFAULT 0,
   created_at    TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );

@@ -6,6 +6,8 @@ import { LoginPage } from "./pages/LoginPage";
 import { SignupPage } from "./pages/SignupPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
+import { GalleryPage } from "./pages/GalleryPage";
+import { SpaceGalleryPage } from "./pages/SpaceGalleryPage";
 import { SpacePage } from "./pages/SpacePage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { EventDetailPage } from "./pages/EventDetailPage";
@@ -29,6 +31,8 @@ export default function App() {
           {/* Public space routes */}
           <Route path="/s/:spaceSlug" element={<SpacePage />} />
           <Route path="/s/:spaceSlug/e/:eventId" element={<EventDetailPage />} />
+          <Route path="/s/:spaceSlug/e/:eventId/gallery" element={<GalleryPage />} />
+          <Route path="/s/:spaceSlug/gallery" element={<SpaceGalleryPage />} />
           {/* Protected dashboard routes */}
           <Route
             path="/dashboard"
@@ -43,6 +47,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <EventDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/events/:eventId/gallery"
+            element={
+              <ProtectedRoute>
+                <GalleryPage />
               </ProtectedRoute>
             }
           />

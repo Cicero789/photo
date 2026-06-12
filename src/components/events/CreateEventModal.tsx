@@ -8,6 +8,7 @@ interface CreateEventForm {
   category: EventCategory;
   eventDate: string;
   description: string;
+  address?: string;
 }
 
 interface CreateEventModalProps {
@@ -22,6 +23,7 @@ export function CreateEventModal({ open, onClose, onSubmit }: CreateEventModalPr
     category: "other",
     eventDate: new Date().toISOString().slice(0, 10),
     description: "",
+    address: "",
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -143,8 +145,22 @@ export function CreateEventModal({ open, onClose, onSubmit }: CreateEventModalPr
               placeholder="Tell the story of this event. What happened? Who was there? What made it special?"
               className="mt-1.5 block w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm placeholder:text-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
             />
+          </div>
+
+          {/* Address */}
+          <div>
+            <label className="block text-sm font-medium text-neutral-700">
+              📍 Location / Address
+            </label>
+            <input
+              type="text"
+              value={form.address || ""}
+              onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))}
+              placeholder="123 Main St, Austin, TX — or leave blank"
+              className="mt-1.5 block w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm placeholder:text-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
+            />
             <p className="mt-1 text-xs text-neutral-400">
-              An AI summary will be generated from your description.
+              Any team member can set the address. The space owner can lock it in Settings.
             </p>
           </div>
 

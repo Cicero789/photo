@@ -4,7 +4,8 @@ import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { EventGrid } from "@/components/events/EventGrid";
 import { CreateEventModal } from "@/components/events/CreateEventModal";
-import type { EventCategory } from "@/types";
+import { SpaceEventMap } from "@/components/map/SpaceEventMap";
+import type { EventCategory, Photo } from "@/types";
 
 // ─── Types ───
 interface Member {
@@ -35,6 +36,8 @@ interface GridEvent {
   aiSummary?: string | null;
   coverPhotoUrl?: string | null;
   photoCount: number;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 interface AdTileData {
@@ -148,6 +151,7 @@ export function DashboardPage() {
           loading={eventsLoading}
           ads={ads}
           onCreateClick={() => setShowCreateEvent(true)}
+          onEventsRefresh={setEvents}
         />
       )}
       {activeTab === "members" && (
@@ -195,12 +199,37 @@ function EventsTabContent({
   loading,
   ads,
   onCreateClick,
+  onEventsRefresh,
 }: {
   events: GridEvent[];
   loading: boolean;
   ads: AdTileData[];
   onCreateClick: () => void;
+  onEventsRefresh?: (events: GridEvent[]) => void;
 }) {
+  const [viewMode, setViewMode] = useState<"tile" | "map">("tile");
+  const [mapPhotos, setMapPhotos] = useState<Photo[]>([]);
+  const [mapLoading, setMapLoading] = useState(false);
+
+  const fetchMapData = async () => {
+    setMapLoading(true);
+    try {
+      const [photoData, eventData] = await Promise.all([
+        api.get<{ photos: Photo[] }>("/photos?hasLocation=true"),
+        api.get<{ events: GridEvent[] }>("/events"),
+      ]);
+      setMapPhotos(photoData.photos);
+      // Update parent events with fresh data (includes lat/lng)
+      // We use a callback ref to update parent
+      onEventsRefresh?.(eventData.events);
+    } catch { /* ignore */ }
+    finally { setMapLoading(false); }
+  };
+
+  useEffect(() => {
+    if (viewMode === "map") fetchMapData();
+  }, [viewMode]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -212,17 +241,29 @@ function EventsTabContent({
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-neutral-900">
-          {events.length > 0 ? `${events.length} event${events.length !== 1 ? "s" : ""}` : ""}
-        </h2>
-        <button
-          onClick={onCreateClick}
-          className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700 active:bg-primary-800"
-        >
-          + New Event
-        </button>
+        <div className="flex items-center gap-3">
+          <h2 className="text-lg font-semibold text-neutral-900">
+            {events.length > 0 ? `${events.length} event${events.length !== 1 ? "s" : ""}` : ""}
+          </h2>
+          {/* View toggle */}
+          <div className="flex items-center gap-2 rounded-lg border-2 border-primary-200 bg-primary-50/50 px-1 py-1">
+            <span className="ml-1 text-[10px] font-semibold text-primary-600 uppercase tracking-wider">View:</span>
+            <div className="flex gap-0.5 rounded-md bg-white p-0.5 shadow-sm">
+              <button onClick={() => setViewMode("tile")} className={cn("rounded px-3 py-1.5 text-xs font-semibold transition-all", viewMode === "tile" ? "bg-primary-600 text-white shadow-md" : "text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100")}>🎨 Tiles</button>
+              <button onClick={() => setViewMode("map")} className={cn("rounded px-3 py-1.5 text-xs font-semibold transition-all", viewMode === "map" ? "bg-primary-600 text-white shadow-md" : "text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100")}>🗺️ Map</button>
+            </div>
+          </div>
+        </div>
+        <button onClick={onCreateClick} className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700 active:bg-primary-800">+ New Event</button>
       </div>
-      <EventGrid events={events} ads={ads} emptyMessage="No events yet. Create your first event to start building your photo collection!" />
+
+      {viewMode === "tile" ? (
+        <EventGrid events={events} ads={ads} emptyMessage="No events yet. Create your first event to start building your photo collection!" />
+      ) : mapLoading ? (
+        <div className="flex items-center justify-center py-20"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" /></div>
+      ) : (
+        <SpaceEventMap photos={mapPhotos} events={events.map(e => ({ id: e.id, title: e.title, latitude: e.latitude ?? null, longitude: e.longitude ?? null, photoCount: e.photoCount, coverPhotoUrl: e.coverPhotoUrl }))} emptyMessage="No locations yet." />
+      )}
     </div>
   );
 }

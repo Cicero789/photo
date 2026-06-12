@@ -1,4 +1,4 @@
-import { json } from "../../lib/response"; import { requireAuth, requireRole, requireSpaceOwnership } from "../../lib/auth";
+import { json } from "../../lib/response"; import { requireAuth, requireRole, requireSpaceOwnership } from "../../lib/auth"; import { geocodeAddress } from "../../lib/geocode";
 
 type Row = Record<string, unknown>;
 function mapPhoto(p: Row) {
@@ -15,7 +15,8 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     const spaceCheck = requireSpaceOwnership(authResult, (event as Record<string,unknown>).space_id as string); if (spaceCheck) return spaceCheck;
     const photos = await db.prepare("SELECT * FROM photos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
     const videos = await db.prepare("SELECT * FROM videos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
-    return json({ event: { id: (event as Record<string,unknown>).id, spaceId: (event as Record<string,unknown>).space_id, title: (event as Record<string,unknown>).title, category: (event as Record<string,unknown>).category, eventDate: (event as Record<string,unknown>).event_date, description: (event as Record<string,unknown>).description, aiSummary: (event as Record<string,unknown>).ai_summary, coverPhotoId: (event as Record<string,unknown>).cover_photo_id, createdAt: (event as Record<string,unknown>).created_at, updatedAt: (event as Record<string,unknown>).updated_at }, photos: (photos.results ?? []).map(mapPhoto), videos: (videos.results ?? []).map(mapVideo) });
+    const ev = event as Record<string,unknown>;
+    return json({ event: { id: ev.id, spaceId: ev.space_id, title: ev.title, category: ev.category, eventDate: ev.event_date, description: ev.description, aiSummary: ev.ai_summary, coverPhotoId: ev.cover_photo_id, address: ev.address || "", addressLocked: (ev.address_locked as number) === 1, createdAt: ev.created_at, updatedAt: ev.updated_at }, photos: (photos.results ?? []).map(mapPhoto), videos: (videos.results ?? []).map(mapVideo) });
   } catch (err) { console.error("Get event error:", err); return json({ error: "Something went wrong" }, 500); }
 }
 
@@ -24,12 +25,18 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
     const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const roleCheck = requireRole(authResult, "staff"); if (roleCheck) return roleCheck;
     const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ? AND space_id = ?").bind(context.params.id, authResult.spaceId).first(); if (!event) return json({ error: "Event not found or access denied" }, 404);
-    const body = await context.request.json() as { title?: string; category?: string; eventDate?: string; description?: string };
+    const body = await context.request.json() as { title?: string; category?: string; eventDate?: string; description?: string; address?: string };
     const parts: string[] = []; const values: (string|null)[] = [];
     if (body.title !== undefined) { parts.push("title = ?"); values.push(body.title); }
     if (body.category !== undefined) { parts.push("category = ?"); values.push(body.category); }
     if (body.eventDate !== undefined) { parts.push("event_date = ?"); values.push(body.eventDate); }
     if (body.description !== undefined) { parts.push("description = ?"); values.push(body.description); }
+    if (body.address !== undefined) {
+      parts.push("address = ?"); values.push(body.address);
+      const geo = await geocodeAddress(body.address);
+      if (geo) { parts.push("latitude = ?"); values.push(geo.lat.toString()); parts.push("longitude = ?"); values.push(geo.lng.toString()); }
+      else { parts.push("latitude = NULL"); parts.push("longitude = NULL"); }
+    }
     if (parts.length > 0) { parts.push("updated_at = datetime('now')"); values.push(context.params.id); await db.prepare(`UPDATE events SET ${parts.join(", ")} WHERE id = ?`).bind(...(values as [string])).run(); }
     return json({ success: true });
   } catch (err) { console.error("Update event error:", err); return json({ error: "Something went wrong" }, 500); }
