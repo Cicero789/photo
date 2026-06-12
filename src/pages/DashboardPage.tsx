@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 import { EventGrid } from "@/components/events/EventGrid";
 import { CreateEventModal } from "@/components/events/CreateEventModal";
 import { SpaceEventMap } from "@/components/map/SpaceEventMap";
+import { ConnectionsTab } from "@/components/community/ConnectionsTab";
+import { CommunityFeed } from "@/components/community/CommunityFeed";
 import type { EventCategory, Photo } from "@/types";
 
 // ─── Types ───
@@ -48,7 +50,7 @@ interface AdTileData {
   position: number;
 }
 
-type Tab = "events" | "members" | "settings";
+type Tab = "feed" | "events" | "members" | "connections" | "settings";
 
 // ─── Dashboard ───
 export function DashboardPage() {
@@ -145,6 +147,11 @@ export function DashboardPage() {
       </div>
 
       {/* Tab Content */}
+      {activeTab === "feed" && (
+        <div className="rounded-2xl border border-border bg-white p-6">
+          <CommunityFeed />
+        </div>
+      )}
       {activeTab === "events" && (
         <EventsTabContent
           events={events}
@@ -156,6 +163,9 @@ export function DashboardPage() {
       )}
       {activeTab === "members" && (
         <MembersTab members={members} onUpdate={fetchMembers} />
+      )}
+      {activeTab === "connections" && (
+        <ConnectionsTab />
       )}
       {activeTab === "settings" && (
         <SettingsTab space={spaceInfo} onUpdate={fetchSpace} />
@@ -173,8 +183,10 @@ export function DashboardPage() {
 
 // ─── Tabs config ───
 const TABS = [
+  { key: "feed", label: "Feed" },
   { key: "events", label: "Events" },
   { key: "members", label: "Members" },
+  { key: "connections", label: "Connections" },
   { key: "settings", label: "Settings" },
 ];
 
@@ -488,9 +500,8 @@ function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: (
         </div>
         <div>
           <label className="block text-sm font-medium text-neutral-700">Your link</label>
-          <div className="mt-1 flex rounded-lg border border-border bg-muted">
-            <span className="flex items-center px-3 text-sm text-neutral-500">framenest.photos/s/</span>
-            <span className="flex items-center px-3 text-sm font-medium text-neutral-700 bg-white rounded-r-lg">{space.slug}</span>
+          <div className="mt-1 rounded-lg border border-border bg-muted px-3 py-2.5">
+            <span className="text-sm whitespace-nowrap text-neutral-500">framenest.photos/s/<span className="font-medium text-neutral-700">{space.slug}</span></span>
           </div>
         </div>
         <div>

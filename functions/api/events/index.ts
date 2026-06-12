@@ -2,7 +2,7 @@ import { json } from "../../lib/response"; import { generateSummary } from "../.
 
 function getDeepSeekKey(env?: { DEEPSEEK_API_KEY?: string }): string { return env?.DEEPSEEK_API_KEY ?? ""; }
 
-interface EventRow { id: string; space_id: string; title: string; category: string; event_date: string; description: string; ai_summary: string | null; cover_photo_id: string | null; address: string; address_locked: number; latitude: number | null; longitude: number | null; created_at: string; updated_at: string; }
+interface EventRow { id: string; space_id: string; title: string; category: string; event_date: string; description: string; ai_summary: string | null; cover_photo_id: string | null; address: string; address_locked: number; public: number; latitude: number | null; longitude: number | null; created_at: string; updated_at: string; }
 
 export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string } }): Promise<Response> {
   try {
@@ -10,13 +10,17 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     const db = context.env.DB!;
     const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const targetSpaceId = spaceId ?? authResult.spaceId;
+    const isViewer = authResult.role === "viewer";
     if (spaceId) { const spaceCheck = requireSpaceOwnership(authResult, spaceId); if (spaceCheck) return spaceCheck; }
-    const result = await db.prepare("SELECT * FROM events WHERE space_id = ? ORDER BY event_date DESC").bind(targetSpaceId).all<EventRow>();
+    const query = isViewer
+      ? "SELECT * FROM events WHERE space_id = ? AND public = 1 ORDER BY event_date DESC"
+      : "SELECT * FROM events WHERE space_id = ? ORDER BY event_date DESC";
+    const result = await db.prepare(query).bind(targetSpaceId).all<EventRow>();
     const events = result.results ?? [];
     const enriched = await Promise.all(events.map(async (e) => {
       const pc = await db.prepare("SELECT COUNT(*) as count FROM photos WHERE event_id = ?").bind(e.id).first<{count:number}>();
       const cp = await db.prepare("SELECT storage_key FROM photos WHERE event_id = ? LIMIT 1").bind(e.id).first<{storage_key:string}>();
-      return { id: e.id, spaceId: e.space_id, title: e.title, category: e.category, eventDate: e.event_date, description: e.description, aiSummary: e.ai_summary, coverPhotoId: e.cover_photo_id, coverPhotoUrl: cp?.storage_key ? `/api/media/photos/${cp.storage_key}` : null, photoCount: pc?.count ?? 0, address: e.address || "", addressLocked: e.address_locked === 1, latitude: e.latitude, longitude: e.longitude, createdAt: e.created_at, updatedAt: e.updated_at };
+      return { id: e.id, spaceId: e.space_id, title: e.title, category: e.category, eventDate: e.event_date, description: e.description, aiSummary: e.ai_summary, coverPhotoId: e.cover_photo_id, coverPhotoUrl: cp?.storage_key ? `/api/media/photos/${cp.storage_key}` : null, photoCount: pc?.count ?? 0, address: e.address || "", addressLocked: e.address_locked === 1, public: e.public !== 0, latitude: e.latitude, longitude: e.longitude, createdAt: e.created_at, updatedAt: e.updated_at };
     }));
     return json({ events: enriched });
   } catch (err) { console.error("List events error:", err); return json({ error: "Something went wrong" }, 500); }
@@ -26,7 +30,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
   try {
     const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const roleCheck = requireRole(authResult, "staff"); if (roleCheck) return roleCheck;
-    const body = await context.request.json() as { title: string; category: string; eventDate: string; description: string; address?: string };
+    const body = await context.request.json() as { title: string; category: string; eventDate: string; description: string; address?: string; public?: boolean };
     if (!body.title || !body.category || !body.eventDate) return json({ error: "Title, category, and event date are required" }, 400);
     const VALID = ["holiday","birthday","graduation","wedding","celebration","sports","school","travel","vacation","work","restaurant","party","family","kids","parents","other"];
     if (!VALID.includes(body.category)) return json({ error: "Invalid category" }, 400);
@@ -38,7 +42,8 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
       if (geo) { lat = geo.lat; lng = geo.lng; }
     }
 
-    await db.prepare("INSERT INTO events (id, space_id, title, category, event_date, description, address, latitude, longitude) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(eventId, authResult.spaceId, body.title, body.category, body.eventDate, body.description ?? "", body.address ?? "", lat, lng).run();
+    const isPublic = body.public !== false ? 1 : 0;
+    await db.prepare("INSERT INTO events (id, space_id, title, category, event_date, description, address, latitude, longitude, public) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(eventId, authResult.spaceId, body.title, body.category, body.eventDate, body.description ?? "", body.address ?? "", lat, lng, isPublic).run();
     if (body.description && body.description.trim().length >= 10) {
       generateSummary(body.description, body.title, body.category, getDeepSeekKey(context.env)).then(async (summary) => { if (summary) await db.prepare("UPDATE events SET ai_summary = ? WHERE id = ?").bind(summary, eventId).run(); }).catch(() => {});
     }

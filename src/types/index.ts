@@ -74,6 +74,7 @@ export interface Photo {
   longitude?: number;
   takenAt?: string; // EXIF date
   uploadedBy: string;
+  favorite?: boolean;
   createdAt: string;
 }
 

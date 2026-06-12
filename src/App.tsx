@@ -7,6 +7,7 @@ import { SignupPage } from "./pages/SignupPage";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { GalleryPage } from "./pages/GalleryPage";
+import { DashboardGalleryPage } from "./pages/DashboardGalleryPage";
 import { SpaceGalleryPage } from "./pages/SpaceGalleryPage";
 import { SpacePage } from "./pages/SpacePage";
 import { DashboardPage } from "./pages/DashboardPage";
@@ -55,6 +56,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <GalleryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/gallery"
+            element={
+              <ProtectedRoute>
+                <DashboardGalleryPage />
               </ProtectedRoute>
             }
           />

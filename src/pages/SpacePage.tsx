@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { api, setToken } from "@/lib/api";
 import { EventGrid } from "@/components/events/EventGrid";
 import { SpaceEventMap } from "@/components/map/SpaceEventMap";
+import { PhotographerHero } from "@/components/photographer/PhotographerHero";
 import { cn } from "@/lib/utils";
 import type { EventCategory, Photo } from "@/types";
 
@@ -153,8 +154,16 @@ export function SpacePage() {
   }
 
   // ─── Unlocked ───
+  const heroPhotos = events.filter(e => e.coverPhotoUrl).map(e => e.coverPhotoUrl!).slice(0, 5);
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+    <div>
+      {/* Hero — rotating event covers */}
+      {heroPhotos.length > 0 && (
+        <PhotographerHero photos={heroPhotos} name={space.name} interval={5000} />
+      )}
+
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
       <div className="mb-8 flex items-end justify-between">
         <div>
           <h1 className="font-display text-3xl font-bold text-neutral-900">{space.name}</h1>
@@ -220,6 +229,7 @@ export function SpacePage() {
           emptyMessage="No locations yet. Add event addresses or upload photos with GPS data."
         />
       )}
+      </div>
     </div>
   );
 }

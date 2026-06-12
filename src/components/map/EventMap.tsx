@@ -89,17 +89,7 @@ export function EventMap({ photos, className }: EventMapProps) {
   }, [geoPhotos.length]);
 
   if (geoPhotos.length === 0) {
-    return (
-      <div className={`flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border bg-muted/50 py-12 text-center ${className}`}>
-        <span className="text-3xl">🗺️</span>
-        <p className="mt-3 text-sm text-neutral-500">
-          No location data found in photos.
-        </p>
-        <p className="mt-1 text-xs text-neutral-400">
-          Photos taken with GPS-enabled devices will appear on the map automatically.
-        </p>
-      </div>
-    );
+    return <p className={`text-xs text-neutral-400 ${className || ""}`}>📍 No location data yet — add an event address or upload GPS-tagged photos.</p>;
   }
 
   return (

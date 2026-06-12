@@ -8,6 +8,7 @@ import { VideoUploader } from "@/components/videos/VideoUploader";
 import { lazy, Suspense } from "react";
 const PhotoEditorModal = lazy(() => import("@/components/photos/PhotoEditorModal"));
 import { EventMap } from "@/components/map/EventMap";
+import { DarkGallery } from "@/components/photos/DarkGallery";
 import type { EventCategory, Photo, Video } from "@/types";
 
 interface EventDetail {
@@ -38,6 +39,8 @@ export function EventDetailPage() {
   const [editAddress, setEditAddress] = useState("");
   const [savingAddress, setSavingAddress] = useState(false);
   const [editingPhoto, setEditingPhoto] = useState<{ url: string; filename: string } | null>(null);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
   const fetchEvent = () => {
     if (!eventId) return;
@@ -158,6 +161,14 @@ export function EventDetailPage() {
           {event.title}
         </h1>
         <p className="mt-2 text-sm text-neutral-500">{formatDate(event.eventDate)}</p>
+        {!spaceSlug && (
+          <button
+            onClick={async () => { try { await api.put(`/events/${event.id}`, { public: !(event as any).public }); fetchEvent(); } catch {} }}
+            className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${(event as any).public !== false ? "bg-emerald-100 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}
+          >
+            {(event as any).public !== false ? "🌐 Public" : "🔒 Private"}
+          </button>
+        )}
       </div>
 
       {/* Address — editable by logged-in users */}
@@ -268,9 +279,13 @@ export function EventDetailPage() {
       {/* Action buttons */}
       {!spaceSlug && (
         <div className="mb-6 flex gap-3">
-          <Link to={`/dashboard/events/${event.id}/gallery`}
+          <button onClick={() => { setGalleryIndex(0); setGalleryOpen(true); }}
+            className="rounded-xl bg-neutral-900 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-neutral-800">
+            🖼️ View Gallery
+          </button>
+          <Link to={`/dashboard/gallery?eventId=${event.id}`}
             className="rounded-xl border-2 border-accent-500 bg-white px-5 py-3 text-sm font-semibold text-accent-700 transition-colors hover:bg-accent-50">
-            🖼️ Gallery & Slideshow
+            ▶ Slideshow
           </Link>
         </div>
       )}
@@ -324,7 +339,7 @@ export function EventDetailPage() {
         <div className="mb-10">
           <h2 className="text-lg font-semibold text-neutral-900">Photos ({photos.length})</h2>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {photos.map((photo) => (
+            {photos.map((photo, i) => (
               <div
                 key={photo.id}
                 className="group relative aspect-square overflow-hidden rounded-xl bg-neutral-100"
@@ -332,16 +347,26 @@ export function EventDetailPage() {
                 <img
                   src={photo.url}
                   alt={photo.originalFilename}
-                  className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                  className="h-full w-full object-cover transition-transform group-hover:scale-105 cursor-pointer"
                   loading="lazy"
+                  onClick={() => { setGalleryIndex(i); setGalleryOpen(true); }}
                 />
                 {!spaceSlug && (
-                  <button
-                    onClick={() => setEditingPhoto({ url: photo.url, filename: photo.originalFilename })}
-                    className="absolute top-2 left-2 rounded-lg bg-black/60 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 backdrop-blur-sm"
-                  >
-                    ✏️ Edit
-                  </button>
+                  <>
+                    <button
+                      onClick={async (e: any) => { e.stopPropagation(); e.preventDefault(); try { await api.put("/photos/favorite", { photoId: photo.id }); fetchEvent(); } catch {} }}
+                      className={`absolute top-2 right-2 z-10 rounded-full w-8 h-8 flex items-center justify-center text-lg transition-all hover:scale-125 ${(photo as any).favorite ? "text-yellow-400" : "text-white/30 hover:text-yellow-300"}`}
+                      title={(photo as any).favorite ? "Favorited — click to remove" : "Click to favorite"}
+                    >
+                      ☆
+                    </button>
+                    <button
+                      onClick={() => setEditingPhoto({ url: photo.url, filename: photo.originalFilename })}
+                      className="absolute top-2 left-2 rounded-lg bg-black/60 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 backdrop-blur-sm"
+                    >
+                      ✏️ Edit
+                    </button>
+                  </>
                 )}
                 {photo.latitude != null && (
                   <span className="absolute bottom-2 left-2 rounded-md bg-black/50 px-1.5 py-0.5 text-[10px] text-white backdrop-blur-sm">
@@ -390,6 +415,16 @@ export function EventDetailPage() {
             </button>
           )}
         </div>
+      )}
+
+      {/* Dark Gallery — click photos */}
+      {galleryOpen && (
+        <DarkGallery
+          photos={photos}
+          startIndex={galleryIndex}
+          title={event.title}
+          onClose={() => setGalleryOpen(false)}
+        />
       )}
 
       {/* Photo Editor Modal — lazy loaded */}

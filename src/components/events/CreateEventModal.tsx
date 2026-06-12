@@ -9,6 +9,7 @@ interface CreateEventForm {
   eventDate: string;
   description: string;
   address?: string;
+  public?: boolean;
 }
 
 interface CreateEventModalProps {
@@ -24,6 +25,7 @@ export function CreateEventModal({ open, onClose, onSubmit }: CreateEventModalPr
     eventDate: new Date().toISOString().slice(0, 10),
     description: "",
     address: "",
+    public: true,
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -159,9 +161,18 @@ export function CreateEventModal({ open, onClose, onSubmit }: CreateEventModalPr
               placeholder="123 Main St, Austin, TX — or leave blank"
               className="mt-1.5 block w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm placeholder:text-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
             />
-            <p className="mt-1 text-xs text-neutral-400">
-              Any team member can set the address. The space owner can lock it in Settings.
-            </p>
+          </div>
+
+          {/* Public toggle */}
+          <div className="flex items-center justify-between rounded-lg border border-border bg-white px-4 py-3">
+            <div>
+              <p className="text-sm font-medium text-neutral-700">🌐 Show on public page</p>
+              <p className="text-xs text-neutral-400">Visible to anyone with your gate key link</p>
+            </div>
+            <button type="button" onClick={() => setForm(f => ({ ...f, public: !f.public }))}
+              className={`relative h-6 w-11 rounded-full transition-colors ${form.public ? "bg-primary-600" : "bg-neutral-300"}`}>
+              <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${form.public ? "translate-x-5" : "translate-x-0.5"}`} />
+            </button>
           </div>
 
           {/* Actions */}

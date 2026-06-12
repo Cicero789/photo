@@ -43,30 +43,22 @@ export function SpaceGalleryPage() {
   const selectAll = () => setSelectedEvents(new Set(events.map((e) => e.id)));
   const deselectAll = () => { setSelectedEvents(new Set()); setPhotos([]); };
 
-  const loadPhotos = async () => {
-    if (selectedEvents.size === 0) return;
-    setLoadingPhotos(true);
-    const allPhotos: Photo[] = [];
-    for (const eventId of selectedEvents) {
-      try {
-        const data = await api.get<{ photos: Photo[] }>(`/events/${eventId}`).catch(() => null);
-        if (data) {
-          const evData = data as { photos: Photo[] } | { event: { photos: Photo[] } };
-          const ps = "photos" in evData ? evData.photos : [];
-          allPhotos.push(...ps);
-        }
-      } catch {}
-    }
-    setPhotos(allPhotos);
-    setLoadingPhotos(false);
-  };
-
   const [showControls, setShowControls] = useState(true);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const resetAutoHide = () => { setShowControls(true); if (hideTimerRef.current) clearTimeout(hideTimerRef.current); hideTimerRef.current = setTimeout(() => setShowControls(false), 3000); };
 
-  const startSlideshow = () => {
-    if (photos.length === 0) return;
+  const startSlideshow = async () => {
+    if (selectedEvents.size === 0) return;
+    let all = photos;
+    if (all.length === 0) {
+      setLoadingPhotos(true);
+      all = [];
+      for (const eid of selectedEvents) {
+        try { const d = await api.get<{ photos: Photo[] }>(`/events/${eid}`); if (d && (d as any).photos) all.push(...(d as any).photos); } catch {}
+      }
+      setPhotos(all); setLoadingPhotos(false);
+    }
+    if (all.length === 0) return;
     setCurrentIndex(0); setPlaying(true); setShowControls(true);
     try { document.documentElement.requestFullscreen?.().catch(() => {}); } catch {}
     resetAutoHide();
@@ -127,18 +119,11 @@ export function SpaceGalleryPage() {
         {photo && <img src={photo.url} alt={photo.originalFilename} className="absolute inset-0 h-full w-full object-contain" onClick={nextPhoto} />}
         <button onClick={prevPhoto} className={cn("absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-4 text-white hover:bg-white/30 text-3xl transition-all duration-300", showControls ? "opacity-100" : "opacity-0 pointer-events-none")}>‹</button>
         <button onClick={nextPhoto} className={cn("absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-4 text-white hover:bg-white/30 text-3xl transition-all duration-300", showControls ? "opacity-100" : "opacity-0 pointer-events-none")}>›</button>
-        <div className={cn("absolute bottom-0 left-0 right-0 flex gap-1 overflow-x-auto bg-gradient-to-t from-black/80 to-transparent px-4 py-3 transition-opacity duration-500", showControls ? "opacity-100" : "opacity-0 pointer-events-none")}>
-          {photos.map((p, i) => (
-            <img key={p.id} src={p.url} alt="" onClick={() => { setCurrentIndex(i); resetAutoHide(); }}
-              className={cn("h-14 w-14 flex-shrink-0 cursor-pointer rounded object-cover transition-all hover:scale-110", i === currentIndex ? "ring-2 ring-white scale-110" : "opacity-50 hover:opacity-80")} />
-          ))}
-        </div>
       </div>
     );
   }
 
   // ─── Event selection mode ───
-  const totalPhotos = events.filter(e => selectedEvents.has(e.id)).reduce((sum, e) => sum + e.photoCount, 0);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
@@ -159,11 +144,7 @@ export function SpaceGalleryPage() {
           <div className="mb-6 flex items-center gap-3">
             <button onClick={selectAll} className="rounded-lg border px-3 py-1.5 text-sm font-medium text-neutral-600 hover:bg-neutral-50">Select all</button>
             <button onClick={deselectAll} className="rounded-lg border px-3 py-1.5 text-sm font-medium text-neutral-600 hover:bg-neutral-50">Clear</button>
-            <button onClick={loadPhotos} disabled={selectedEvents.size === 0}
-              className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-50">
-              {loadingPhotos ? "Loading..." : `Load ${totalPhotos} photo${totalPhotos !== 1 ? "s" : ""}`}
-            </button>
-            <button onClick={startSlideshow} disabled={photos.length === 0}
+            <button onClick={startSlideshow} disabled={selectedEvents.size === 0 || loadingPhotos}
               className="rounded-lg bg-accent-600 px-5 py-2 text-sm font-semibold text-white hover:bg-accent-700 disabled:opacity-50">
               ▶ Play {photos.length > 0 ? `(${photos.length})` : ""}
             </button>

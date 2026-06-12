@@ -131,6 +131,23 @@ CREATE TABLE IF NOT EXISTS space_members (
 CREATE INDEX idx_space_members_space ON space_members(space_id);
 CREATE INDEX idx_space_members_user ON space_members(user_id);
 
+-- ─── Community Connections ───
+CREATE TABLE IF NOT EXISTS connections (
+  id              TEXT PRIMARY KEY,
+  from_user       TEXT NOT NULL,
+  to_email        TEXT NOT NULL,
+  to_user         TEXT,
+  connection_type TEXT NOT NULL CHECK (connection_type IN ('family', 'friend')),
+  status          TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected')),
+  message         TEXT DEFAULT '',
+  magic_token     TEXT,
+  created_at      TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_conn_from ON connections(from_user);
+CREATE INDEX IF NOT EXISTS idx_conn_to_email ON connections(to_email);
+CREATE INDEX IF NOT EXISTS idx_conn_to_user ON connections(to_user);
+
 -- ─── Password Resets ───
 CREATE TABLE IF NOT EXISTS password_resets (
   id         TEXT PRIMARY KEY,

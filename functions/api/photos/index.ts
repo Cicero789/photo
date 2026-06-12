@@ -45,6 +45,7 @@ export async function onRequestGet(context: {
       longitude: p.longitude ?? null,
       takenAt: p.taken_at ?? null,
       uploadedBy: p.uploaded_by,
+      favorite: (p.favorite as number) === 1,
       createdAt: p.created_at,
     }));
 

@@ -1,20 +1,40 @@
-import { useState, type FormEvent } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect, type FormEvent } from "react";
+import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { api, setToken } from "@/lib/api";
 
 export function LoginPage() {
   const { login, error, clearError, loading, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [magicLoading, setMagicLoading] = useState(false);
+  const [magicError, setMagicError] = useState("");
+
+  // Handle magic login token
+  useEffect(() => {
+    const token = searchParams.get("magic");
+    if (!token || user) return;
+    setMagicLoading(true);
+    api.post("/auth/magic-login", { token })
+      .then((data: any) => { setToken(data.token); navigate("/dashboard", { replace: true }); })
+      .catch(err => setMagicError(err instanceof Error ? err.message : "Invalid or expired magic link"))
+      .finally(() => setMagicLoading(false));
+  }, [searchParams, user, navigate]);
 
   // If already logged in, redirect
-  if (user) {
-    const from = (location.state as { from?: string })?.from ?? "/dashboard";
-    navigate(from, { replace: true });
-    return null;
+  if (user) { navigate((location.state as {from?:string})?.from ?? "/dashboard", { replace: true }); return null; }
+
+  // Magic link loading
+  if (magicLoading) {
+    return <div className="flex min-h-[70vh] items-center justify-center"><div className="text-center">
+      <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600 mb-4" />
+      <p className="text-lg font-medium text-neutral-700">Opening your space...</p>
+      <p className="text-sm text-neutral-400 mt-1">One moment</p>
+    </div></div>;
   }
 
   const handleSubmit = async (e: FormEvent) => {
@@ -38,10 +58,11 @@ export function LoginPage() {
             Sign in to manage your photo space.
           </p>
 
+          {magicError && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 mb-4">{magicError}</div>
+          )}
           {error && (
-            <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </div>
+            <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 mb-4">{error}</div>
           )}
 
           <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
