@@ -26,6 +26,12 @@ export function HomePage() {
                 Create your space &rarr;
               </Link>
               <Link
+                to="/s/demo"
+                className="rounded-xl border-2 border-primary-300 bg-primary-50 px-8 py-4 text-lg font-semibold text-primary-700 transition-all hover:bg-primary-100 hover:border-primary-400"
+              >
+                👀 View demo
+              </Link>
+              <Link
                 to="/photographers"
                 className="rounded-xl border border-border bg-white px-8 py-4 text-lg font-medium text-neutral-700 transition-all hover:border-primary-300 hover:text-primary-700"
               >
