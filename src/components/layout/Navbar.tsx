@@ -1,9 +1,11 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { NotificationBell } from "@/components/shared/NotificationBell";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
   { to: "/", label: "Home" },
+  { to: "/inspiration", label: "Inspiration" },
   { to: "/photographers", label: "Photographers" },
 ];
 
@@ -71,6 +73,7 @@ export function Navbar() {
           <div className="ml-4 flex items-center gap-2 border-l border-border pl-4">
             {user ? (
               <>
+                <NotificationBell />
                 <Link
                   to="/dashboard"
                   className={cn(

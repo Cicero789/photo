@@ -140,6 +140,28 @@ CREATE TABLE IF NOT EXISTS space_members (
 CREATE INDEX idx_space_members_space ON space_members(space_id);
 CREATE INDEX idx_space_members_user ON space_members(user_id);
 
+-- ─── Inspiration Map ───
+CREATE TABLE IF NOT EXISTS inspiration (
+  id         TEXT PRIMARY KEY,
+  user_id    TEXT NOT NULL,
+  photo_url  TEXT NOT NULL,
+  address    TEXT NOT NULL,
+  latitude   REAL NOT NULL,
+  longitude  REAL NOT NULL,
+  category   TEXT DEFAULT 'general',
+  season     TEXT DEFAULT '',
+  loves      INTEGER DEFAULT 0,
+  created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS inspiration_loves (
+  inspiration_id TEXT NOT NULL,
+  user_id        TEXT NOT NULL,
+  PRIMARY KEY (inspiration_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_insp_loc ON inspiration(latitude, longitude);
+
 -- ─── Community Connections ───
 CREATE TABLE IF NOT EXISTS connections (
   id              TEXT PRIMARY KEY,

@@ -131,6 +131,10 @@ export function SpacePage() {
     );
   }
 
+  // Auto-unlock demo space
+  const isDemo = space.slug === "demo";
+  useEffect(() => { if (isDemo && !unlocked) { setUnlocked(true); if (space) { api.get(`/events?spaceId=${space.id}`).then((d:any) => { setEvents(d.events||[]); api.get("/ads").then((a:any) => setAds(a.ads||[])); }).catch(()=>{}); } } }, [isDemo, unlocked, space?.id]);
+
   // ─── Locked ───
   if (!unlocked) {
     return (

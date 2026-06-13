@@ -1,0 +1,13 @@
+{
+  "name": "FrameNest",
+  "short_name": "FrameNest",
+  "description": "A home for your life's moments. Private photo sharing for families and photographers.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

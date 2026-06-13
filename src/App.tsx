@@ -9,6 +9,7 @@ import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { GalleryPage } from "./pages/GalleryPage";
 import { DashboardGalleryPage } from "./pages/DashboardGalleryPage";
 import { SpaceGalleryPage } from "./pages/SpaceGalleryPage";
+import { InspirationMapPage } from "./pages/InspirationMapPage";
 import { SpacePage } from "./pages/SpacePage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { EventDetailPage } from "./pages/EventDetailPage";
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/photographers" element={<PhotographerPage />} />
+          <Route path="/inspiration" element={<InspirationMapPage />} />
           {/* Public space routes */}
           <Route path="/s/:spaceSlug" element={<SpacePage />} />
           <Route path="/s/:spaceSlug/e/:eventId" element={<EventDetailPage />} />
