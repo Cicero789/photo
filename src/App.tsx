@@ -10,6 +10,7 @@ import { GalleryPage } from "./pages/GalleryPage";
 import { DashboardGalleryPage } from "./pages/DashboardGalleryPage";
 import { SpaceGalleryPage } from "./pages/SpaceGalleryPage";
 import { InspirationMapPage } from "./pages/InspirationMapPage";
+import { HealthPage } from "./pages/HealthPage";
 import { SpacePage } from "./pages/SpacePage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { EventDetailPage } from "./pages/EventDetailPage";
@@ -70,6 +71,14 @@ export default function App() {
             }
           />
           {/* Platform owner routes */}
+          <Route
+            path="/health"
+            element={
+              <ProtectedRoute requiredRole="platform_owner">
+                <HealthPage />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/admin/ads"
             element={

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -13,11 +13,7 @@ export function SignupPage() {
   const [gateKey, setGateKey] = useState("");
   const [password, setPassword] = useState("");
 
-  // If already logged in, redirect
-  if (user) {
-    navigate("/dashboard", { replace: true });
-    return null;
-  }
+  useEffect(() => { if (user) navigate("/dashboard", { replace: true }); }, [user, navigate]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

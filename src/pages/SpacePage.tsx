@@ -109,6 +109,10 @@ export function SpacePage() {
     }
   };
 
+  // Auto-unlock demo space (hooks must be before conditional returns)
+  const isDemo = space?.slug === "demo";
+  useEffect(() => { if (isDemo && !unlocked && space) { setUnlocked(true); api.get(`/events?spaceId=${space.id}`).then((d:any) => setEvents(d.events||[])).catch(()=>{}); api.get("/ads").then((a:any) => setAds(a.ads||[])).catch(()=>{}); } }, [isDemo, unlocked, space?.id]);
+
   // ─── Loading ───
   if (fetching) {
     return (
@@ -130,10 +134,6 @@ export function SpacePage() {
       </div>
     );
   }
-
-  // Auto-unlock demo space
-  const isDemo = space.slug === "demo";
-  useEffect(() => { if (isDemo && !unlocked) { setUnlocked(true); if (space) { api.get(`/events?spaceId=${space.id}`).then((d:any) => { setEvents(d.events||[]); api.get("/ads").then((a:any) => setAds(a.ads||[])); }).catch(()=>{}); } } }, [isDemo, unlocked, space?.id]);
 
   // ─── Locked ───
   if (!unlocked) {

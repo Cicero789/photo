@@ -36,7 +36,7 @@ export function PhotographerHero({ photos, name, tagline, interval = 6000 }: Pho
         <div
           key={i}
           className={cn(
-            "absolute inset-0 bg-cover bg-center transition-opacity duration-800",
+            "absolute inset-0 bg-cover bg-center transition-opacity duration-700",
             i === current ? (fading ? "opacity-0" : "opacity-100") : "opacity-0"
           )}
           style={{ backgroundImage: `url(${url})` }}
