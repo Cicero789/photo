@@ -2,7 +2,7 @@ import { verifyToken, getJwtSecret } from "./jwt"; import { json } from "./respo
 
 type Role = "platform_owner" | "page_admin" | "staff" | "viewer";
 interface AuthPayload { userId: string; spaceId: string; role: Role; jti: string; }
-interface AuthEnv { JWT_SECRET?: string; ENVIRONMENT?: string; }
+interface AuthEnv { JWT_SECRET?: string; ENVIRONMENT?: string; [key: string]: unknown; }
 
 export async function requireAuth(request: Request, env?: AuthEnv): Promise<AuthPayload | Response> {
   const authHeader = request.headers.get("Authorization");

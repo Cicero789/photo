@@ -9,11 +9,17 @@ import { requireAuth, requireRole } from "../../lib/auth";
 import { hashPassword } from "../../lib/password";
 import { sendEmail } from "../../lib/email";
 
+function escHtml(s: string): string {
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
 // ─── List my connections ───
 export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; ZOHO_API_KEY?: string; EMAIL_FROM?: string } }): Promise<Response> {
   try {
     const a = await requireAuth(context.request, context.env); if (a instanceof Response) return a;
     const db = context.env.DB!;
+    const user = await db.prepare("SELECT email FROM users WHERE id = ?").bind(a.userId).first<{email:string}>();
+    const userEmail = user?.email || "";
     const result = await db.prepare(
       `SELECT c.*, u.name as from_name, u.email as from_email, us.name as to_name
        FROM connections c
@@ -21,7 +27,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
        LEFT JOIN users us ON c.to_user = us.id
        WHERE c.from_user = ? OR c.to_user = ? OR c.to_email = ?
        ORDER BY c.created_at DESC`
-    ).bind(a.userId, a.userId, (a as any).email || "").all();
+    ).bind(a.userId, a.userId, userEmail).all();
     const connections = (result.results ?? []).map((r: Record<string,unknown>) => ({
       id: r.id, fromUser: r.from_user, toEmail: r.to_email, toUser: r.to_user,
       connectionType: r.connection_type, status: r.status, message: r.message,
@@ -93,8 +99,8 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
         subject: `${inviter?.name ?? "Someone"} saved a space for you on FrameNest`,
         htmlBody: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
           <h2 style="color:#2563eb">📸 FrameNest</h2>
-          <p><strong>${inviter?.name ?? "Someone"}</strong> saved a space for you and tagged you as ${typeLabel}.</p>
-          ${body.message ? `<p style="color:#666;font-style:italic">"${body.message}"</p>` : ""}
+          <p><strong>${escHtml(inviter?.name ?? "Someone")}</strong> saved a space for you and tagged you as ${escHtml(typeLabel)}.</p>
+          ${body.message ? `<p style="color:#666;font-style:italic">"${escHtml(body.message)}"</p>` : ""}
           <p style="margin:24px 0"><a href="${magicLink}" style="background:#2563eb;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold">See what they shared</a></p>
           <p style="color:#999;font-size:13px">FrameNest gives every family a private home for their photos. Your space is ready when you are.</p>
         </div>`,

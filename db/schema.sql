@@ -49,6 +49,10 @@ CREATE TABLE IF NOT EXISTS events (
   cover_photo_id TEXT,
   address       TEXT NOT NULL DEFAULT '',
   address_locked INTEGER NOT NULL DEFAULT 0,
+  latitude      REAL,
+  longitude     REAL,
+  public        INTEGER NOT NULL DEFAULT 1,
+  payment_model TEXT NOT NULL DEFAULT 'prepaid' CHECK (payment_model IN ('prepaid','unlock')),
   created_at    TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -71,6 +75,7 @@ CREATE TABLE IF NOT EXISTS photos (
   latitude          REAL,
   longitude         REAL,
   taken_at          TEXT,
+  favorite          INTEGER NOT NULL DEFAULT 0,
   uploaded_by       TEXT NOT NULL REFERENCES users(id),
   created_at        TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -116,6 +121,10 @@ CREATE TABLE IF NOT EXISTS photographers (
   service_area  TEXT,
   bio           TEXT,
   status        TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  hero_photos   TEXT NOT NULL DEFAULT '[]',
+  stripe_config TEXT NOT NULL DEFAULT '{}',
+  pricing_config TEXT NOT NULL DEFAULT '{}',
+  gallery_config TEXT NOT NULL DEFAULT '{}',
   created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -147,6 +156,31 @@ CREATE TABLE IF NOT EXISTS connections (
 CREATE INDEX IF NOT EXISTS idx_conn_from ON connections(from_user);
 CREATE INDEX IF NOT EXISTS idx_conn_to_email ON connections(to_email);
 CREATE INDEX IF NOT EXISTS idx_conn_to_user ON connections(to_user);
+
+-- ─── Orders (Stripe commerce) ───
+CREATE TABLE IF NOT EXISTS orders (
+  id              TEXT PRIMARY KEY,
+  buyer_user_id   TEXT NOT NULL,
+  photographer_id TEXT NOT NULL,
+  photo_id        TEXT,
+  event_id        TEXT,
+  product         TEXT NOT NULL,
+  amount_cents    INTEGER NOT NULL,
+  stripe_id       TEXT,
+  status          TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','paid','fulfilled','refunded')),
+  created_at      TEXT NOT NULL
+);
+
+-- ─── Event Messages ───
+CREATE TABLE IF NOT EXISTS event_messages (
+  id         TEXT PRIMARY KEY,
+  event_id   TEXT NOT NULL,
+  user_id    TEXT NOT NULL,
+  message    TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX idx_msg_event ON event_messages(event_id);
 
 -- ─── Password Resets ───
 CREATE TABLE IF NOT EXISTS password_resets (
