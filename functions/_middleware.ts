@@ -61,9 +61,10 @@ function requiresAuth(request: Request): boolean {
   // Public GET endpoints — needed before viewer has a token:
   // GET /api/spaces/:slug — gate page must show the space
   // GET /api/events — demo and public space browsing
+  // GET /api/events/:id — public event detail pages
   if (request.method === "GET") {
     if (/^\/api\/spaces\/[^/]+$/.test(path) && path !== "/api/spaces/members") return false;
-    if (path === "/api/events") return false;
+    if (/^\/api\/events(\/[^/]+)?$/.test(path)) return false;
   }
   return PROTECTED_PREFIXES.some((prefix) => path.startsWith(prefix));
 }
