@@ -109,9 +109,13 @@ export function SpacePage() {
     }
   };
 
-  // Auto-unlock demo space (hooks must be before conditional returns)
+  // Auto-unlock demo space — public access, no token needed
   const isDemo = space?.slug === "demo";
-  useEffect(() => { if (isDemo && !unlocked && space) { setUnlocked(true); api.get(`/events?spaceId=${space.id}`).then((d:any) => setEvents(d.events||[])).catch(()=>{}); api.get("/ads").then((a:any) => setAds(a.ads||[])).catch(()=>{}); } }, [isDemo, unlocked, space?.id]);
+  useEffect(() => { if (isDemo && !unlocked && space) {
+    setUnlocked(true);
+    api.get(`/events?spaceId=${space.id}`).then((d:any) => setEvents(d.events||[])).catch(()=>{});
+    api.get("/ads").then((a:any) => setAds(a.ads||[])).catch(()=>{});
+  }}, [isDemo, unlocked, space?.id]);
 
   // ─── Loading ───
   if (fetching) {
