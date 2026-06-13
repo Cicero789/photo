@@ -24,10 +24,13 @@ interface ApiError {
 }
 
 async function handleResponse<T>(res: Response): Promise<T> {
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error((data as ApiError).error ?? `Request failed (${res.status})`);
+  const ct = res.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) {
+    if (!res.ok) throw new Error(`Request failed (${res.status})`);
+    return {} as T; // non-JSON success (e.g., 204 No Content)
   }
+  const data = await res.json();
+  if (!res.ok) throw new Error((data as ApiError).error ?? `Request failed (${res.status})`);
   return data as T;
 }
 

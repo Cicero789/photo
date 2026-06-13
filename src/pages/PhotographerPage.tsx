@@ -97,7 +97,7 @@ export function PhotographerPage() {
       </section>
 
       {/* Sign-up form */}
-      <section className="bg-muted/50 py-16 sm:py-20">
+      <section id="apply" className="bg-muted/50 py-16 sm:py-20">
         <div className="mx-auto max-w-lg px-4 sm:px-6">
           <div className="rounded-2xl border border-border bg-white p-8 shadow-sm">
             <h2 className="text-xl font-bold text-neutral-900">Join as a photographer</h2>
@@ -224,8 +224,6 @@ export function PhotographerPage() {
         </div>
       </section>
 
-      {/* Anchor for CTA */}
-      <div id="apply" />
     </div>
   );
 }

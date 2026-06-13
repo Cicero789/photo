@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { getToken } from "@/lib/api";
 
 /** Stripe publishable key — set in index.html via env var or Cloudflare Pages var STRIPE_PK */
-const STRIPE_PK = typeof window !== "undefined" ? ((window as any).STRIPE_PK || "pk_live_placeholder") : "";
+const STRIPE_PK = typeof window !== "undefined" ? ((window as any).STRIPE_PK || "pk_live_516W9JIBCSPfxXq8h3ERcqQIGmyzz887NS5QaMz49SRQIVmq325ITFvRSAw7qA7ir1ZMgGojJztj3UlzMdTklPj1f00bMR6mEB3") : "";
 
 let stripeModule: any = null;
 async function getStripe() {

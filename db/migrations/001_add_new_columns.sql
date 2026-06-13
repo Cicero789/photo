@@ -1,6 +1,7 @@
 -- Migration 001: Add columns/tables added after initial D1 schema
--- Run: wrangler d1 execute photo-db --remote --file=./db/migrations/001_add_new_columns.sql
--- Safe to re-run — uses ALTER TABLE for columns and IF NOT EXISTS for new tables.
+-- Run ONCE: wrangler d1 execute photo-db --remote --file=./db/migrations/001_add_new_columns.sql
+-- WARNING: ALTER TABLE statements will fail if columns already exist. Run only on fresh or pre-verified DBs.
+-- New CREATE TABLE IF NOT EXISTS statements are safe to re-run.
 
 -- Events
 ALTER TABLE events ADD COLUMN latitude REAL;
