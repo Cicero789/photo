@@ -8,6 +8,7 @@ import { json } from "../../lib/response";
 import { requireAuth, requireRole } from "../../lib/auth";
 import { hashPassword } from "../../lib/password";
 import { sendEmail } from "../../lib/email";
+import { logActivity } from "../../lib/activity";
 
 function escHtml(s: string): string {
   return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
@@ -66,8 +67,11 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     const now = new Date().toISOString();
     const toUserId = targetUser?.id ?? null;
 
+    // Build magic link using request origin (works in dev + production)
+    const origin = new URL(context.request.url).origin;
+    const magicLink = `${origin}/login?magic=${magicToken}`;
+
     // If user doesn't exist, auto-create account + space
-    let magicLink = "";
     if (!targetUser) {
       const newUserId = crypto.randomUUID();
       const newSpaceId = crypto.randomUUID();
@@ -79,17 +83,17 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
       // Then create space (owner_id → users FK now satisfied)
       await db.prepare("INSERT INTO spaces (id, name, slug, password_hash, owner_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(newSpaceId, body.email.split("@")[0], `space-${newSpaceId.slice(0,8)}`, pwHash, newUserId, now, now).run();
       await db.prepare("INSERT INTO space_members (id, space_id, user_id, role) VALUES (?, ?, ?, ?)").bind(crypto.randomUUID(), newSpaceId, newUserId, "page_admin").run();
-
-      magicLink = `https://framenest.photos/login?magic=${magicToken}`;
-    } else {
-      magicLink = `https://framenest.photos/login?magic=${magicToken}`;
     }
 
     // Create connection
     await db.prepare("INSERT INTO connections (id, from_user, to_email, to_user, connection_type, status, message, magic_token, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(connId, a.userId, email, toUserId, body.connectionType, "pending", body.message ?? "", magicToken, now).run();
 
-    // Get inviter name
+    // Get inviter name (used for email + notification)
     const inviter = await db.prepare("SELECT name FROM users WHERE id = ?").bind(a.userId).first<{name:string}>();
+    const inviterName = (inviter as any)?.name as string || "Someone";
+
+    // Notify existing user if they have an account
+    if (toUserId) logActivity(db, toUserId, "connection_invite", `${inviterName} invited you to connect!`, "/dashboard?tab=connections");
     const typeLabel = body.connectionType === "family" ? "family" : "a friend";
 
     // Send email
@@ -121,6 +125,13 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
     const conn = await db.prepare("SELECT * FROM connections WHERE id = ? AND to_email = (SELECT email FROM users WHERE id = ?)").bind(body.id, a.userId).first();
     if (!conn) return json({ error: "Connection not found" }, 404);
     await db.prepare("UPDATE connections SET status = ?, to_user = ? WHERE id = ?").bind(body.status, a.userId, body.id).run();
+    // Notify the inviter
+    const connRow = await db.prepare("SELECT from_user FROM connections WHERE id = ?").bind(body.id).first<{from_user:string}>();
+    if (connRow && body.status === "accepted") {
+      const inviter = await db.prepare("SELECT name FROM users WHERE id = ?").bind(connRow.from_user).first<{name:string}>();
+      const invName = (inviter as any)?.name as string || "Someone";
+      logActivity(db, connRow.from_user as string, "connection_accepted", `${invName} accepted your connection!`);
+    }
     return json({ success: true });
   } catch (err) { console.error("Update connection error:", err); return json({ error: "Something went wrong" }, 500); }
 }

@@ -11,7 +11,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     const event = await db.prepare("SELECT * FROM events WHERE id = ? AND space_id = ?").bind(body.eventId, authResult.spaceId).first<{ id: string; title: string; category: string; description: string }>(); if (!event) return json({ error: "Event not found or access denied" }, 404);
     if (!event.description || event.description.trim().length < 10) return json({ error: "Description too short to summarize" }, 400);
     const summary = await generateSummary(event.description, event.title, event.category, getDeepSeekKey(context.env));
-    if (summary) await db.prepare("UPDATE events SET ai_summary = ?, updated_at = datetime('now') WHERE id = ?").bind(summary, body.eventId).run();
+    if (summary) await db.prepare("UPDATE events SET ai_summary = ?, updated_at = ? WHERE id = ?").bind(summary, new Date().toISOString(), body.eventId).run();
     return json({ summary });
   } catch (err) { console.error("Summarize error:", err); return json({ error: "Failed to generate summary" }, 500); }
 }

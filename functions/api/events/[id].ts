@@ -38,7 +38,7 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
       if (geo) { parts.push("latitude = ?"); values.push(geo.lat.toString()); parts.push("longitude = ?"); values.push(geo.lng.toString()); }
       else { parts.push("latitude = NULL"); parts.push("longitude = NULL"); }
     }
-    if (parts.length > 0) { parts.push("updated_at = datetime('now')"); values.push(context.params.id); await db.prepare(`UPDATE events SET ${parts.join(", ")} WHERE id = ?`).bind(...(values as [string])).run(); }
+    if (parts.length > 0) { parts.push("updated_at = ?"); values.push(new Date().toISOString()); values.push(context.params.id); await db.prepare(`UPDATE events SET ${parts.join(", ")} WHERE id = ?`).bind(...(values as [string])).run(); }
     return json({ success: true });
   } catch (err) { console.error("Update event error:", err); return json({ error: "Something went wrong" }, 500); }
 }

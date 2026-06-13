@@ -31,9 +31,9 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     // Process event
     const event = JSON.parse(body) as { type: string; data: { object: { id: string; metadata?: Record<string,string> } } };
     if (event.type === "payment_intent.succeeded") {
-      await context.env.DB!.prepare("UPDATE orders SET status = 'paid' WHERE stripe_id = ?").bind(event.data.object.id).run();
+      await context.env.DB!.prepare("UPDATE orders SET status = 'paid' WHERE stripe_id = ? AND status = 'pending'").bind(event.data.object.id).run();
     } else if (event.type === "payment_intent.payment_failed") {
-      await context.env.DB!.prepare("UPDATE orders SET status = 'refunded' WHERE stripe_id = ?").bind(event.data.object.id).run();
+      await context.env.DB!.prepare("UPDATE orders SET status = 'failed' WHERE stripe_id = ? AND status = 'pending'").bind(event.data.object.id).run();
     }
     return json({ received: true });
   } catch (err) { console.error("Webhook error:", err); return json({ error: "Failed" }, 500); }

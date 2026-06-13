@@ -30,7 +30,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
   try {
     const a = await requireAuth(context.request, context.env); if (a instanceof Response) return a;
     const body = await context.request.json() as { photoUrl: string; address: string; latitude: number; longitude: number; category?: string; season?: string };
-    if (!body.photoUrl || !body.address || !body.latitude || !body.longitude) return json({ error: "photoUrl, address, latitude, longitude required" }, 400);
+    if (!body.photoUrl || !body.address || typeof body.latitude !== "number" || typeof body.longitude !== "number") return json({ error: "photoUrl, address, latitude, longitude required" }, 400);
 
     const id = crypto.randomUUID();
     await context.env.DB!.prepare("INSERT INTO inspiration (id, user_id, photo_url, address, latitude, longitude, category, season, loves, created_at) VALUES (?,?,?,?,?,?,?,?,0,?)").bind(id, a.userId, body.photoUrl, body.address, body.latitude, body.longitude, body.category || "general", body.season || "", new Date().toISOString()).run();

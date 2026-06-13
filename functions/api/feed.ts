@@ -18,6 +18,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
 
     // Get events from connected users' spaces
     const connectedUserIds = (conns.results as any[]).map((c: any) => c.from_user === a.userId ? c.to_user : c.from_user).filter(Boolean);
+    if (connectedUserIds.length === 0) return json({ feed: [] });
     const placeholders = connectedUserIds.map(() => "?").join(",");
 
     const events = await db.prepare(

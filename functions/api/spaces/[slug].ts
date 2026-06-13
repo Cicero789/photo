@@ -18,7 +18,7 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
     if (body.gateKey) { updates.push("password_hash = ?"); values.push(await hashPassword(body.gateKey)); }
     if (body.themeColor) { updates.push("theme_color = ?"); values.push(body.themeColor); }
     if (body.customDomain !== undefined) { updates.push("custom_domain = ?"); values.push(body.customDomain || null); }
-    if (updates.length > 0) { updates.push("updated_at = datetime('now')"); values.push(context.params.slug); await db.prepare(`UPDATE spaces SET ${updates.join(", ")} WHERE slug = ?`).bind(...(values as [string])).run(); }
+    if (updates.length > 0) { updates.push("updated_at = ?"); values.push(new Date().toISOString()); values.push(context.params.slug); await db.prepare(`UPDATE spaces SET ${updates.join(", ")} WHERE slug = ?`).bind(...(values as [string])).run(); }
     const updated = await getSpaceBySlug(context.env, context.params.slug) as Record<string,unknown>;
     return json({ space: { id: updated!.id, name: updated!.name, slug: updated!.slug, customDomain: updated!.custom_domain, logoUrl: updated!.logo_url, themeColor: updated!.theme_color } });
   } catch (err) { console.error("Update space error:", err); return json({ error: "Something went wrong" }, 500); }

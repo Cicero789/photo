@@ -140,6 +140,19 @@ CREATE TABLE IF NOT EXISTS space_members (
 CREATE INDEX idx_space_members_space ON space_members(space_id);
 CREATE INDEX idx_space_members_user ON space_members(user_id);
 
+-- ─── Activity Log ───
+CREATE TABLE IF NOT EXISTS activity_log (
+  id         TEXT PRIMARY KEY,
+  user_id    TEXT NOT NULL,
+  type       TEXT NOT NULL,
+  message    TEXT NOT NULL,
+  link       TEXT,
+  read       INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_act_user ON activity_log(user_id, read);
+
 -- ─── Inspiration Map ───
 CREATE TABLE IF NOT EXISTS inspiration (
   id         TEXT PRIMARY KEY,
@@ -189,7 +202,7 @@ CREATE TABLE IF NOT EXISTS orders (
   product         TEXT NOT NULL,
   amount_cents    INTEGER NOT NULL,
   stripe_id       TEXT,
-  status          TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','paid','fulfilled','refunded')),
+  status          TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','paid','fulfilled','refunded','failed')),
   created_at      TEXT NOT NULL
 );
 
