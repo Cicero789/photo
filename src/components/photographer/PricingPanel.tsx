@@ -8,7 +8,7 @@ export function PricingPanel() {
   const [pricing, setPricing] = useState<Pricing>(defaults);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
-  useEffect(() => { api.get("/connections").then((d: any) => { if (d?.photographer?.pricing) try { setPricing(JSON.parse(d.photographer.pricing)); } catch {} }).catch(()=>{}); }, []);
+  useEffect(() => { api.get("/photographers/config").then((d: any) => { if (d?.pricing) try { setPricing(JSON.parse(d.pricing)); } catch {} }).catch(()=>{}); }, []);
 
   const save = async () => { setSaving(true); try { await api.put("/photographers/config", { pricing: JSON.stringify(pricing) }); setMsg("Saved!"); } catch { setMsg("Failed"); } finally { setSaving(false); } };
 

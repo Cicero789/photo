@@ -25,8 +25,8 @@ export function LoginPage() {
       .finally(() => setMagicLoading(false));
   }, [searchParams, user, navigate]);
 
-  // If already logged in, redirect
-  if (user) { navigate((location.state as {from?:string})?.from ?? "/dashboard", { replace: true }); return null; }
+  // If already logged in, redirect (in effect, not render)
+  useEffect(() => { if (user) navigate((location.state as {from?:string})?.from ?? "/dashboard", { replace: true }); }, [user, navigate, location.state]);
 
   // Magic link loading
   if (magicLoading) {

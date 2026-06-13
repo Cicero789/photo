@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
 import { getToken } from "@/lib/api";
 
-/** Stripe publishable key — set via: wrangler pages secret put STRIPE_PUBLISHABLE_KEY */
-const STRIPE_PK = (typeof window !== "undefined" && (window as any).STRIPE_PUBLISHABLE_KEY) || "";
+/** Stripe publishable key — set in index.html via env var or Cloudflare Pages var STRIPE_PK */
+const STRIPE_PK = typeof window !== "undefined" ? ((window as any).STRIPE_PK || "pk_live_placeholder") : "";
 
 let stripeModule: any = null;
 async function getStripe() {
