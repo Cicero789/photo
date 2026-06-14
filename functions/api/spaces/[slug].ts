@@ -3,7 +3,7 @@ import { getSpaceBySlug } from "../../lib/db"; import { json } from "../../lib/r
 export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string }; params: { slug: string } }): Promise<Response> {
   try {
     const space = await getSpaceBySlug(context.env, context.params.slug) as Record<string,unknown> | null; if (!space) return json({ error: "Space not found" }, 404);
-    return json({ space: { id: space.id, name: space.name, slug: space.slug, customDomain: space.custom_domain, logoUrl: space.logo_url, themeColor: space.theme_color, createdAt: space.created_at } });
+    return json({ space: { id: space.id, name: space.name, slug: space.slug, customDomain: space.custom_domain, logoUrl: space.logo_url, themeColor: space.theme_color, hero_enabled: (space as any).hero_enabled, createdAt: space.created_at } });
   } catch (err) { console.error("Get space error:", err); return json({ error: "Something went wrong" }, 500); }
 }
 
@@ -21,6 +21,6 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
     if (body.heroEnabled !== undefined) { updates.push("hero_enabled = ?"); values.push(body.heroEnabled); }
     if (updates.length > 0) { updates.push("updated_at = ?"); values.push(new Date().toISOString()); values.push(context.params.slug); await db.prepare(`UPDATE spaces SET ${updates.join(", ")} WHERE slug = ?`).bind(...(values as [string])).run(); }
     const updated = await getSpaceBySlug(context.env, context.params.slug) as Record<string,unknown>;
-    return json({ space: { id: updated!.id, name: updated!.name, slug: updated!.slug, customDomain: updated!.custom_domain, logoUrl: updated!.logo_url, themeColor: updated!.theme_color } });
+    return json({ space: { id: updated!.id, name: updated!.name, slug: updated!.slug, customDomain: updated!.custom_domain, logoUrl: updated!.logo_url, themeColor: updated!.theme_color, hero_enabled: (updated as any).hero_enabled } });
   } catch (err) { console.error("Update space error:", err); return json({ error: "Something went wrong" }, 500); }
 }

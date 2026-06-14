@@ -565,14 +565,6 @@ function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: (
             ))}
           </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-neutral-700">Custom domain</label>
-          <input type="text" value={form.customDomain}
-            onChange={(e) => setForm((f) => ({ ...f, customDomain: e.target.value }))}
-            placeholder="photos.yourfamily.com (optional)"
-            className="mt-1 block w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100" />
-          <p className="mt-1 text-xs text-neutral-400">Point your domain to our servers and enter it here.</p>
-        </div>
         <button type="submit" disabled={saving}
           className="rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:opacity-50">
           {saving ? "Saving..." : "Save settings"}
