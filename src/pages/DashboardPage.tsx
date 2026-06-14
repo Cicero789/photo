@@ -7,6 +7,7 @@ import { CreateEventModal } from "@/components/events/CreateEventModal";
 import { SpaceEventMap } from "@/components/map/SpaceEventMap";
 import { ConnectionsTab } from "@/components/community/ConnectionsTab";
 import { CommunityFeed } from "@/components/community/CommunityFeed";
+import { PhotographerHero } from "@/components/photographer/PhotographerHero";
 import type { EventCategory, Photo } from "@/types";
 
 // ─── Types ───
@@ -109,7 +110,15 @@ export function DashboardPage() {
 
   const totalPhotos = events.reduce((acc, e) => acc + e.photoCount, 0);
 
+  const heroPhotos = events.filter(e => e.coverPhotoUrl).map(e => e.coverPhotoUrl!).slice(0, 5);
+  const heroEnabled = ((spaceInfo as any)?.hero_enabled as number) === 1;
+  const heroName = space?.name || spaceInfo?.name || "Dashboard";
+
   return (
+    <div>
+      {heroEnabled && heroPhotos.length > 0 && (
+        <PhotographerHero photos={heroPhotos} name={heroName} interval={5000} />
+      )}
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
       {/* Header */}
       <div className="mb-8">
@@ -177,6 +186,7 @@ export function DashboardPage() {
         onClose={() => setShowCreateEvent(false)}
         onSubmit={handleCreateEvent}
       />
+    </div>
     </div>
   );
 }
