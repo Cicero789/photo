@@ -8,7 +8,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     if (!eventId) return json({ error: "eventId is required" }, 400); if (!files || files.length === 0) return json({ error: "At least one file is required" }, 400);
     const db = context.env.DB!; const event = await db.prepare("SELECT id, space_id FROM events WHERE id = ?").bind(eventId).first<{id:string;space_id:string}>(); if (!event) return json({ error: "Event not found" }, 404);
     if (event.space_id !== authResult.spaceId) return json({ error: "Access denied" }, 403);
-    let metadataList: Array<{filename?:string;width?:number;height?:number;latitude?:number;longitude?:number;takenAt?:string}> = []; if (metadataStr) { try { metadataList = JSON.parse(metadataStr); } catch {} }
+    let metadataList: Array<{filename?:string;width?:number;height?:number;latitude?:number;longitude?:number;takenAt?:string}> = []; if (metadataStr) { try { metadataList = JSON.parse(metadataStr); } catch (e) { console.error("Upload parse error:", e); } }
     const r2 = context.env.PHOTOS; const uploaded: Array<{id:string;eventId:string;originalFilename:string;storageKey:string;width:number;height:number;fileSize:number;latitude:number|null;longitude:number|null;takenAt:string|null}> = [];
     for (let i = 0; i < files.length; i++) {
       const file = files[i]; if (!file) continue; const meta = metadataList[i] ?? {}; const photoId = crypto.randomUUID(); const ext = getExtension(file.name) ?? "jpg"; const storageKey = `${authResult.spaceId}/${eventId}/${photoId}.${ext}`;

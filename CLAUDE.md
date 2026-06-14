@@ -41,7 +41,7 @@ npx wrangler pages secret put <NAME> --project-name photo          # Set secrets
 - Roles: platform_owner(4) > page_admin(3) > staff(2) > viewer(1)
 - JWT with HMAC-SHA256, PBKDF2 password hashing
 - Gate key = viewer access to a space
-- Admin: admin@photo.app / Admin123!@# (platform_owner)
+- Admin account: created via `db/admin.sql` seed (platform_owner) — rotate password after first login
 
 ## Key Patterns
 - All API endpoints use `requireAuth()` + `requireRole()` from `functions/lib/auth.ts`

@@ -109,7 +109,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
           <p style="color:#999;font-size:13px">FrameNest gives every family a private home for their photos. Your space is ready when you are.</p>
         </div>`,
       }, context.env);
-    } catch {}
+    } catch (e) { console.error("Failed to send invite email:", e); }
 
     return json({ success: true, connection: { id: connId, toEmail: email, connectionType: body.connectionType, status: "pending" } }, 201);
   } catch (err) { console.error("Invite error:", err); return json({ error: "Something went wrong" }, 500); }
