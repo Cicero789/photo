@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 interface InspirationItem {
   id: string; userName: string; photoUrl: string; address: string;
   latitude: number; longitude: number; category: string; season: string; loves: number;
+  tips?: string; bestTime?: string; permissionInfo?: string;
 }
 
 const MAPBOX_TOKEN = "pk.eyJ1IjoiY2ljZXJvNzg5IiwiYSI6ImNtcThtanB1NTA3bGYycXB2c2R0bHk2bmgifQ.fEmRx2lBgLW6v4bNQdjn5w";
@@ -131,6 +132,13 @@ export function InspirationMapPage() {
                 <p className="font-semibold text-sm">{selected.address}</p>
                 <p className="text-xs text-neutral-500">by {selected.userName} · {selected.loves} ❤️</p>
                 <p className="text-[10px] text-neutral-400 mt-1">📍 {selected.latitude.toFixed(4)}, {selected.longitude.toFixed(4)}</p>
+                {(selected.tips || selected.bestTime || selected.permissionInfo) && (
+                  <div className="mt-2 space-y-1 border-t border-border pt-2">
+                    {selected.tips && <p className="text-[10px] text-neutral-600">💡 {selected.tips}</p>}
+                    {selected.bestTime && <p className="text-[10px] text-neutral-500">🕐 Best: {selected.bestTime}</p>}
+                    {selected.permissionInfo && <p className="text-[10px] text-neutral-500">📋 {selected.permissionInfo}</p>}
+                  </div>
+                )}
                 <div className="flex gap-2 mt-2">
                   <button onClick={() => handleLove(selected.id)} className={cn("rounded-lg px-3 py-1 text-xs font-semibold", loved.has(selected.id) ? "bg-red-100 text-red-600" : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200")}>
                     {loved.has(selected.id) ? "❤️ Loved" : "🤍 Love"}

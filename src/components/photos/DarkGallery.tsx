@@ -41,10 +41,15 @@ export function DarkGallery({ photos, startIndex = 0, onClose, title }: DarkGall
       </div>
 
       {/* Main photo area */}
-      <div className="flex-1 flex items-center justify-center min-h-0 px-4" onClick={e => e.stopPropagation()}>
+      <div className="flex-1 flex items-center justify-center min-h-0 px-4 relative" onClick={e => e.stopPropagation()}>
         <button onClick={prev} className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-4 text-white hover:bg-white/30 text-3xl transition-all z-10">‹</button>
         <img src={photo.url} alt={photo.originalFilename} className="max-h-full max-w-full object-contain select-none" />
         <button onClick={next} className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-4 text-white hover:bg-white/30 text-3xl transition-all z-10">›</button>
+        {/* Metadata + License overlay */}
+        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white/50 text-[10px] pointer-events-none">
+          <span>{photo.originalFilename}</span>
+          <span className="capitalize">📜 {(photo as any).license || "personal"}</span>
+        </div>
       </div>
 
       {/* Thumbnail strip — minimal, always visible */}

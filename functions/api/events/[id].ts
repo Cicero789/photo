@@ -2,7 +2,7 @@ import { json } from "../../lib/response"; import { requireAuth, requireRole, re
 
 type Row = Record<string, unknown>;
 function mapPhoto(p: Row) {
-  return { id: p.id, eventId: p.event_id, spaceId: p.space_id, originalFilename: p.original_filename, storageKey: p.storage_key, url: `/api/media/photos/${p.storage_key}`, width: p.width, height: p.height, fileSize: p.file_size, latitude: p.latitude, longitude: p.longitude, takenAt: p.taken_at, uploadedBy: p.uploaded_by, favorite: (p.favorite as number) === 1, createdAt: p.created_at };
+  return { id: p.id, eventId: p.event_id, spaceId: p.space_id, originalFilename: p.original_filename, storageKey: p.storage_key, url: `/api/media/photos/${p.storage_key}`, width: p.width, height: p.height, fileSize: p.file_size, latitude: p.latitude, longitude: p.longitude, takenAt: p.taken_at, uploadedBy: p.uploaded_by, favorite: (p.favorite as number) === 1, license: (p.license as string) || "personal", createdAt: p.created_at };
 }
 function mapVideo(v: Row) {
   return { id: v.id, eventId: v.event_id, spaceId: v.space_id, originalFilename: v.original_filename, storageKey: v.storage_key, url: `/api/media/videos/${v.storage_key}`, duration: v.duration, fileSize: v.file_size, uploadedBy: v.uploaded_by, createdAt: v.created_at };
