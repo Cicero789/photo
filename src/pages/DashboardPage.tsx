@@ -111,12 +111,12 @@ export function DashboardPage() {
   const totalPhotos = events.reduce((acc, e) => acc + e.photoCount, 0);
 
   const heroPhotos = events.filter(e => e.coverPhotoUrl).map(e => e.coverPhotoUrl!).slice(0, 5);
-  const heroEnabled = ((spaceInfo as any)?.hero_enabled as number) === 1;
+  const heroSource = (spaceInfo as any)?.hero_source || "off";
   const heroName = space?.name || spaceInfo?.name || "Dashboard";
 
   return (
     <div>
-      {heroEnabled && heroPhotos.length > 0 && (
+      {heroSource !== "off" && heroPhotos.length > 0 && (
         <PhotographerHero photos={heroPhotos} name={heroName} interval={5000} />
       )}
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
@@ -434,7 +434,7 @@ function MembersTab({ members, onUpdate }: { members: Member[]; onUpdate: () => 
 
 // ─── Settings Tab ───
 function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: () => void }) {
-  const [form, setForm] = useState({ name: "", gateKey: "", themeColor: "#3b82f6", customDomain: "", slug: "", heroEnabled: false });
+  const [form, setForm] = useState({ name: "", gateKey: "", themeColor: "#3b82f6", customDomain: "", slug: "", heroSource: "off", heroStyle: "banner" });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -446,7 +446,8 @@ function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: (
         gateKey: "",
         themeColor: space.themeColor ?? "#3b82f6",
         customDomain: space.customDomain ?? "",
-        heroEnabled: ((space as any).hero_enabled as number) === 1,
+        heroSource: (space as any).hero_source || "off",
+        heroStyle: (space as any).hero_style || "banner",
       });
     }
   }, [space]);
@@ -463,7 +464,8 @@ function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: (
       if (form.slug && form.slug !== space.slug) body.slug = form.slug;
       if (form.themeColor !== space.themeColor) body.themeColor = form.themeColor;
       if (form.customDomain !== (space.customDomain ?? "")) body.customDomain = form.customDomain;
-      if ((form as any).heroEnabled !== (((space as any).hero_enabled as number) === 1)) body.heroEnabled = (form as any).heroEnabled ? "1" : "0";
+      if ((form as any).heroSource !== ((space as any).hero_source || "off")) body.heroSource = (form as any).heroSource;
+      if ((form as any).heroStyle !== ((space as any).hero_style || "banner")) body.heroStyle = (form as any).heroStyle;
 
       if (Object.keys(body).length === 0) {
         setMessage({ type: "success", text: "No changes to save." });
@@ -531,15 +533,33 @@ function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: (
             <p>3. Wait 1-2 minutes for SSL to provision. Your space will appear at your domain.</p>
           </div>
         </div>
-        <div>
-          <label className="flex items-center justify-between">
-            <span className="text-sm font-medium text-neutral-700">🖼️ Live rotating photo background</span>
-            <button type="button" onClick={() => setForm(f => ({ ...f, heroEnabled: !f.heroEnabled }))}
-              className={`relative h-6 w-11 rounded-full transition-colors ${(form as any).heroEnabled ? "bg-primary-600" : "bg-neutral-300"}`}>
-              <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${(form as any).heroEnabled ? "translate-x-5" : "translate-x-0.5"}`} />
-            </button>
-          </label>
-          <p className="mt-1 text-xs text-neutral-400">Show event cover photos as a rotating background on your space page.</p>
+        {/* Live Background */}
+        <div className="rounded-xl border bg-white p-4">
+          <div className="flex items-start gap-4">
+            <div className="mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-primary-100 to-accent-100 text-lg">🖼️</div>
+            <div className="flex-1 space-y-3">
+              <div>
+                <label className="text-sm font-semibold text-neutral-900">Live background</label>
+                <p className="text-xs text-neutral-500">Photos as background on your space and dashboard pages.</p>
+              </div>
+              <div className="flex gap-3">
+                <select value={(form as any).heroSource || "off"} onChange={e => setForm(f => ({ ...f, heroSource: e.target.value }))}
+                  className="flex-1 rounded-lg border px-3 py-2 text-sm">
+                  <option value="off">🔲 Off</option>
+                  <option value="covers">🎨 Event covers</option>
+                  <option value="favorites">⭐ Favorites</option>
+                  <option value="random">🎲 Random</option>
+                </select>
+                {(form as any).heroSource && (form as any).heroSource !== "off" && (
+                  <select value={(form as any).heroStyle || "banner"} onChange={e => setForm(f => ({ ...f, heroStyle: e.target.value }))}
+                    className="flex-1 rounded-lg border px-3 py-2 text-sm">
+                    <option value="banner">📱 Hero banner</option>
+                    <option value="full">🖥️ Full background</option>
+                  </select>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
         <div>
           <label className="block text-sm font-medium text-neutral-700">Change gate key</label>

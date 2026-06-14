@@ -167,8 +167,8 @@ export function SpacePage() {
 
   return (
     <div style={{ "--theme": theme } as React.CSSProperties}>
-      {/* Hero — rotating event covers (if enabled in settings) */}
-      {heroPhotos.length > 0 && ((space as any).hero_enabled || space.slug === "demo") && (
+      {/* Hero — rotating background (if enabled in settings) */}
+      {heroPhotos.length > 0 && (((space as any).hero_source && (space as any).hero_source !== "off") || space.slug === "demo") && (
         <PhotographerHero photos={heroPhotos} name={space.name} interval={5000} />
       )}
 
