@@ -424,7 +424,7 @@ function MembersTab({ members, onUpdate }: { members: Member[]; onUpdate: () => 
 
 // ─── Settings Tab ───
 function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: () => void }) {
-  const [form, setForm] = useState({ name: "", gateKey: "", themeColor: "#3b82f6", customDomain: "", slug: "" });
+  const [form, setForm] = useState({ name: "", gateKey: "", themeColor: "#3b82f6", customDomain: "", slug: "", heroEnabled: false });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -436,6 +436,7 @@ function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: (
         gateKey: "",
         themeColor: space.themeColor ?? "#3b82f6",
         customDomain: space.customDomain ?? "",
+        heroEnabled: ((space as any).hero_enabled as number) === 1,
       });
     }
   }, [space]);
@@ -452,6 +453,7 @@ function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: (
       if (form.slug && form.slug !== space.slug) body.slug = form.slug;
       if (form.themeColor !== space.themeColor) body.themeColor = form.themeColor;
       if (form.customDomain !== (space.customDomain ?? "")) body.customDomain = form.customDomain;
+      if ((form as any).heroEnabled !== (((space as any).hero_enabled as number) === 1)) body.heroEnabled = (form as any).heroEnabled ? "1" : "0";
 
       if (Object.keys(body).length === 0) {
         setMessage({ type: "success", text: "No changes to save." });
@@ -513,6 +515,16 @@ function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: (
             placeholder="photos.yourfamily.com"
             className="mt-1 block w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100" />
           <p className="mt-1 text-xs text-neutral-400">Point your domain's CNAME to photo-ll2.pages.dev and add it here.</p>
+        </div>
+        <div>
+          <label className="flex items-center justify-between">
+            <span className="text-sm font-medium text-neutral-700">🖼️ Live rotating photo background</span>
+            <button type="button" onClick={() => setForm(f => ({ ...f, heroEnabled: !f.heroEnabled }))}
+              className={`relative h-6 w-11 rounded-full transition-colors ${(form as any).heroEnabled ? "bg-primary-600" : "bg-neutral-300"}`}>
+              <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${(form as any).heroEnabled ? "translate-x-5" : "translate-x-0.5"}`} />
+            </button>
+          </label>
+          <p className="mt-1 text-xs text-neutral-400">Show event cover photos as a rotating background on your space page.</p>
         </div>
         <div>
           <label className="block text-sm font-medium text-neutral-700">Change gate key</label>

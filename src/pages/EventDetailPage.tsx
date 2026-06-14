@@ -163,7 +163,10 @@ export function EventDetailPage() {
         <p className="mt-2 text-sm text-neutral-500">{formatDate(event.eventDate)}</p>
         {!spaceSlug && (
           <select value={(event as any).visibility || "private"}
-            onChange={async (e) => { try { await api.put(`/events/${event.id}`, { visibility: e.target.value }); fetchEvent(); } catch {} }}
+            onChange={async (e) => {
+              try { await api.put(`/events/${event.id}`, { visibility: e.target.value }); fetchEvent(); }
+              catch (err: any) { alert(err.message || "Failed to update visibility"); }
+            }}
             className="mt-2 rounded-full px-3 py-1 text-xs font-semibold border bg-white">
             <option value="private">🔒 Private</option>
             <option value="gate">🔐 Gate</option>
