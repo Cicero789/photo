@@ -1,4 +1,4 @@
-import { json } from "../../lib/response"; import { requireAuth, requireRole, requireSpaceOwnership } from "../../lib/auth"; import { geocodeAddress } from "../../lib/geocode";
+import { json } from "../../lib/response"; import { requireAuth, requireRole, requireSpaceOwnership } from "../../lib/auth"; import { geocodeAddress } from "../../lib/geocode"; import { toPublicEventDto, toPublicPhotoDto } from "../../lib/event-dto";
 
 type Row = Record<string, unknown>;
 function mapPhoto(p: Row) {
@@ -14,11 +14,10 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     const event = await db.prepare("SELECT * FROM events WHERE id = ?").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
     const ev = event as Record<string,unknown>;
 
-    // Public event: allow access without auth (demo, shared links)
-    if ((ev.public as number) !== 0) {
-      const photos = await db.prepare("SELECT * FROM photos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
-      const videos = await db.prepare("SELECT * FROM videos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
-      return json({ event: { id: ev.id, spaceId: ev.space_id, title: ev.title, category: ev.category, eventDate: ev.event_date, description: ev.description, aiSummary: ev.ai_summary, coverPhotoId: ev.cover_photo_id, address: ev.address || "", addressLocked: (ev.address_locked as number) === 1, public: true, createdAt: ev.created_at, updatedAt: ev.updated_at }, photos: (photos.results ?? []).map(mapPhoto), videos: (videos.results ?? []).map(mapVideo) });
+    // Public or gate event: allow access without auth (demo, shared links) — scrubbed
+    if ((ev.visibility as string) === "public" || (ev.visibility as string) === "gate") {
+      const photos = await db.prepare("SELECT id, storage_key, width, height, license FROM photos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
+      return json({ event: toPublicEventDto(ev), photos: (photos.results ?? []).map(toPublicPhotoDto) });
     }
 
     // Private event: require auth + ownership

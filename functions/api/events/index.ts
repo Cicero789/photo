@@ -1,4 +1,4 @@
-import { json } from "../../lib/response"; import { generateSummary } from "../../lib/deepseek"; import { requireAuth, requireRole, requireSpaceOwnership } from "../../lib/auth"; import { geocodeAddress } from "../../lib/geocode";
+import { json } from "../../lib/response"; import { generateSummary } from "../../lib/deepseek"; import { requireAuth, requireRole, requireSpaceOwnership } from "../../lib/auth"; import { geocodeAddress } from "../../lib/geocode"; import { toPublicEventDto } from "../../lib/event-dto";
 
 function getDeepSeekKey(env?: { DEEPSEEK_API_KEY?: string }): string { return env?.DEEPSEEK_API_KEY ?? ""; }
 
@@ -9,13 +9,13 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     const url = new URL(context.request.url); const spaceId = url.searchParams.get("spaceId");
     const db = context.env.DB!;
 
-    // Public access: any visitor can list public events of a space (demo, shared links)
+    // Public access: any visitor can list public/gate events (scrubbed)
     if (spaceId && !context.request.headers.get("Authorization")) {
-      const result = await db.prepare("SELECT * FROM events WHERE space_id = ? AND public = 1 ORDER BY event_date DESC").bind(spaceId).all<EventRow>();
+      const result = await db.prepare("SELECT * FROM events WHERE space_id = ? AND visibility IN ('public','gate') ORDER BY event_date DESC").bind(spaceId).all<EventRow>();
       const enriched = await Promise.all((result.results ?? []).map(async (e) => {
         const pc = await db.prepare("SELECT COUNT(*) as count FROM photos WHERE event_id = ?").bind(e.id).first<{count:number}>();
         const cp = await db.prepare("SELECT storage_key FROM photos WHERE event_id = ? LIMIT 1").bind(e.id).first<{storage_key:string}>();
-        return { id: e.id, spaceId: e.space_id, title: e.title, category: e.category, eventDate: e.event_date, description: e.description, aiSummary: e.ai_summary, coverPhotoId: e.cover_photo_id, coverPhotoUrl: cp?.storage_key ? `/api/media/photos/${cp.storage_key}` : null, photoCount: pc?.count ?? 0, address: e.address || "", addressLocked: e.address_locked === 1, public: true, latitude: e.latitude, longitude: e.longitude, createdAt: e.created_at, updatedAt: e.updated_at };
+        return { ...toPublicEventDto({...e, photoCount: pc?.count ?? 0}), coverPhotoUrl: cp?.storage_key ? `/api/media/photos/${cp.storage_key}` : null, photoCount: pc?.count ?? 0 };
       }));
       return json({ events: enriched });
     }
