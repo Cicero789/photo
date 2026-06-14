@@ -75,6 +75,21 @@ export async function onRequest(
   context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string }; next: () => Promise<Response> },
 ): Promise<Response> {
   const { request, env, next } = context;
+  const url = new URL(request.url);
+  const host = url.hostname;
+
+  // 0. Custom domain detection: if host is a custom domain, add header for the frontend
+  if (host !== "framenest.photos" && host !== "localhost" && !host.endsWith(".photo-ll2.pages.dev") && env.DB && request.method === "GET") {
+    try {
+      const space = await env.DB.prepare("SELECT slug FROM spaces WHERE custom_domain = ?").bind(host).first<{slug:string}>();
+      if (space) {
+        const response = await next();
+        const newResponse = new Response(response.body, response);
+        newResponse.headers.set("X-FrameNest-Space", space.slug);
+        return newResponse;
+      }
+    } catch {} // non-critical, continue normally
+  }
 
   // 1. Handle CORS preflight.
   const origin = getAllowedOrigin(request);

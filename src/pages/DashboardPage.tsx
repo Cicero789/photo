@@ -514,7 +514,12 @@ function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: (
             onChange={(e) => setForm((f) => ({ ...f, customDomain: e.target.value }))}
             placeholder="photos.yourfamily.com"
             className="mt-1 block w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100" />
-          <p className="mt-1 text-xs text-neutral-400">Point your domain's CNAME to photo-ll2.pages.dev and add it here.</p>
+          <div className="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 space-y-1">
+            <p className="font-semibold">📋 Setup instructions:</p>
+            <p>1. In your DNS provider, add a <strong>CNAME</strong> record pointing to <code className="bg-amber-100 px-1 rounded">photo-ll2.pages.dev</code></p>
+            <p>2. In Cloudflare Dashboard → Workers &amp; Pages → photo → Custom Domains → Add <strong>{form.customDomain || "yourdomain.com"}</strong></p>
+            <p>3. Wait 1-2 minutes for SSL to provision. Your space will appear at your domain.</p>
+          </div>
         </div>
         <div>
           <label className="flex items-center justify-between">

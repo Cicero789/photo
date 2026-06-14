@@ -1,4 +1,5 @@
-import { Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { AuthProvider } from "./hooks/useAuth";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { HomePage } from "./pages/HomePage";
@@ -20,9 +21,25 @@ import { PhotographerPage } from "./pages/PhotographerPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { MainLayout } from "./components/layout/MainLayout";
 
+function CustomDomainRedirect() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [checked, setChecked] = useState(false);
+  useEffect(() => {
+    const host = window.location.hostname;
+    if (host === "framenest.photos" || host === "localhost" || host.endsWith(".photo-ll2.pages.dev")) { setChecked(true); return; }
+    fetch(`/api/spaces/by-domain?domain=${host}`).then(r => r.json()).then((d: any) => {
+      if (d.slug && location.pathname === "/") navigate(`/s/${d.slug}`, { replace: true });
+      setChecked(true);
+    }).catch(() => setChecked(true));
+  }, [navigate, location.pathname]);
+  return checked ? null : <div className="flex min-h-screen items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" /></div>;
+}
+
 export default function App() {
   return (
     <AuthProvider>
+      <CustomDomainRedirect />
       <Routes>
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
