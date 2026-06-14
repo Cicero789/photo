@@ -9,7 +9,7 @@ interface CreateEventForm {
   eventDate: string;
   description: string;
   address?: string;
-  public?: boolean;
+  visibility?: string;
 }
 
 interface CreateEventModalProps {
@@ -25,7 +25,7 @@ export function CreateEventModal({ open, onClose, onSubmit }: CreateEventModalPr
     eventDate: new Date().toISOString().slice(0, 10),
     description: "",
     address: "",
-    public: true,
+    visibility: "private",
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -163,16 +163,22 @@ export function CreateEventModal({ open, onClose, onSubmit }: CreateEventModalPr
             />
           </div>
 
-          {/* Public toggle */}
+          {/* Visibility toggle */}
           <div className="flex items-center justify-between rounded-lg border border-border bg-white px-4 py-3">
             <div>
-              <p className="text-sm font-medium text-neutral-700">🌐 Show on public page</p>
-              <p className="text-xs text-neutral-400">Visible to anyone with your gate key link</p>
+              <p className="text-sm font-medium text-neutral-700">
+                {form.visibility === "public" ? "🌐 Public" : form.visibility === "gate" ? "🔐 Gate" : "🔒 Private"}
+              </p>
+              <p className="text-xs text-neutral-400">
+                {form.visibility === "public" ? "Anyone can view" : form.visibility === "gate" ? "Gate key required" : "Only you and your team"}
+              </p>
             </div>
-            <button type="button" onClick={() => setForm(f => ({ ...f, public: !f.public }))}
-              className={`relative h-6 w-11 rounded-full transition-colors ${form.public ? "bg-primary-600" : "bg-neutral-300"}`}>
-              <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${form.public ? "translate-x-5" : "translate-x-0.5"}`} />
-            </button>
+            <select value={form.visibility || "private"} onChange={e => setForm(f => ({ ...f, visibility: e.target.value }))}
+              className="rounded-lg border px-3 py-1.5 text-sm">
+              <option value="private">🔒 Private</option>
+              <option value="gate">🔐 Gate</option>
+              <option value="public">🌐 Public</option>
+            </select>
           </div>
 
           {/* Actions */}

@@ -162,12 +162,13 @@ export function EventDetailPage() {
         </h1>
         <p className="mt-2 text-sm text-neutral-500">{formatDate(event.eventDate)}</p>
         {!spaceSlug && (
-          <button
-            onClick={async () => { try { await api.put(`/events/${event.id}`, { public: !(event as any).public }); fetchEvent(); } catch {} }}
-            className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${(event as any).public !== false ? "bg-emerald-100 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}
-          >
-            {(event as any).public !== false ? "🌐 Public" : "🔒 Private"}
-          </button>
+          <select value={(event as any).visibility || "private"}
+            onChange={async (e) => { try { await api.put(`/events/${event.id}`, { visibility: e.target.value }); fetchEvent(); } catch {} }}
+            className="mt-2 rounded-full px-3 py-1 text-xs font-semibold border bg-white">
+            <option value="private">🔒 Private</option>
+            <option value="gate">🔐 Gate</option>
+            <option value="public">🌐 Public</option>
+          </select>
         )}
       </div>
 

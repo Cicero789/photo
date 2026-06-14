@@ -51,6 +51,7 @@ CREATE TABLE IF NOT EXISTS events (
   address_locked INTEGER NOT NULL DEFAULT 0,
   latitude      REAL,
   longitude     REAL,
+  visibility    TEXT NOT NULL DEFAULT 'private' CHECK (visibility IN ('private','gate','public')),
   public        INTEGER NOT NULL DEFAULT 1,
   payment_model TEXT NOT NULL DEFAULT 'prepaid' CHECK (payment_model IN ('prepaid','unlock')),
   created_at    TEXT NOT NULL DEFAULT (datetime('now')),

@@ -14,8 +14,8 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     const event = await db.prepare("SELECT * FROM events WHERE id = ?").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
     const ev = event as Record<string,unknown>;
 
-    // Public or gate event: allow access without auth (demo, shared links) — scrubbed
-    if ((ev.visibility as string) === "public" || (ev.visibility as string) === "gate") {
+    // Public event: allow anonymous access (scrubbed). Gate/private require auth.
+    if ((ev.visibility as string) === "public") {
       const photos = await db.prepare("SELECT id, storage_key, width, height, license FROM photos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
       return json({ event: toPublicEventDto(ev), photos: (photos.results ?? []).map(toPublicPhotoDto) });
     }
@@ -34,13 +34,16 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
     const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const roleCheck = requireRole(authResult, "staff"); if (roleCheck) return roleCheck;
     const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ? AND space_id = ?").bind(context.params.id, authResult.spaceId).first(); if (!event) return json({ error: "Event not found or access denied" }, 404);
-    const body = await context.request.json() as { title?: string; category?: string; eventDate?: string; description?: string; address?: string; public?: boolean };
+    const body = await context.request.json() as { title?: string; category?: string; eventDate?: string; description?: string; address?: string; visibility?: string };
     const parts: string[] = []; const values: (string|null)[] = [];
     if (body.title !== undefined) { parts.push("title = ?"); values.push(body.title); }
     if (body.category !== undefined) { parts.push("category = ?"); values.push(body.category); }
     if (body.eventDate !== undefined) { parts.push("event_date = ?"); values.push(body.eventDate); }
     if (body.description !== undefined) { parts.push("description = ?"); values.push(body.description); }
-    if (body.public !== undefined) { parts.push("public = ?"); values.push(body.public ? "1" : "0"); }
+    if (body.visibility !== undefined && ["private","gate","public"].includes(body.visibility)) {
+      parts.push("visibility = ?"); values.push(body.visibility);
+      parts.push("public = ?"); values.push(body.visibility === "public" ? "1" : "0");
+    }
     if (body.address !== undefined) {
       parts.push("address = ?"); values.push(body.address);
       const geo = await geocodeAddress(body.address);
