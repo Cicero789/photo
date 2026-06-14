@@ -62,7 +62,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
       if (geo) { lat = geo.lat; lng = geo.lng; }
     }
 
-    const isPublic = body.public !== false ? 1 : 0;
+    const isPublic = body.public === true ? 1 : 0;
     await db.prepare("INSERT INTO events (id, space_id, title, category, event_date, description, address, latitude, longitude, public) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(eventId, authResult.spaceId, body.title, body.category, body.eventDate, body.description ?? "", body.address ?? "", lat, lng, isPublic).run();
     if (body.description && body.description.trim().length >= 10) {
       generateSummary(body.description, body.title, body.category, getDeepSeekKey(context.env)).then(async (summary) => { if (summary) await db.prepare("UPDATE events SET ai_summary = ? WHERE id = ?").bind(summary, eventId).run(); }).catch(() => {});

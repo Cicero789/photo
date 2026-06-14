@@ -502,14 +502,9 @@ function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: (
         </div>
         <div>
           <label className="block text-sm font-medium text-neutral-700">Your link</label>
-          <div className="mt-1 flex rounded-lg border border-border bg-muted overflow-hidden">
-            <span className="flex items-center px-3 text-sm text-neutral-500 bg-muted">framenest.photos/s/</span>
-            <input type="text" value={form.slug || space.slug}
-              onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-") }))}
-              className="flex-1 bg-white px-3 py-2.5 text-sm font-medium text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-100"
-              placeholder={space.slug} />
+          <div className="mt-1 rounded-lg border border-border bg-muted px-3 py-2.5">
+            <span className="text-sm whitespace-nowrap text-neutral-500">framenest.photos/s/<span className="font-medium text-neutral-700">{space.slug}</span></span>
           </div>
-          <p className="mt-1 text-xs text-neutral-400">Changing your link will break old bookmarks. Old link redirects for 30 days. Limited to once per month.</p>
         </div>
         <div>
           <label className="block text-sm font-medium text-neutral-700">Custom domain</label>

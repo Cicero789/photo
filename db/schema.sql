@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS photos (
   longitude         REAL,
   taken_at          TEXT,
   favorite          INTEGER NOT NULL DEFAULT 0,
+  license           TEXT NOT NULL DEFAULT 'personal',
   uploaded_by       TEXT NOT NULL REFERENCES users(id),
   created_at        TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -162,9 +163,12 @@ CREATE TABLE IF NOT EXISTS inspiration (
   latitude   REAL NOT NULL,
   longitude  REAL NOT NULL,
   category   TEXT DEFAULT 'general',
-  season     TEXT DEFAULT '',
-  loves      INTEGER DEFAULT 0,
-  created_at TEXT NOT NULL
+  season          TEXT DEFAULT '',
+  tips            TEXT DEFAULT '',
+  best_time       TEXT DEFAULT '',
+  permission_info TEXT DEFAULT '',
+  loves           INTEGER DEFAULT 0,
+  created_at      TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS inspiration_loves (
