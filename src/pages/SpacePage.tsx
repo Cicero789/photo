@@ -163,9 +163,10 @@ export function SpacePage() {
 
   // ─── Unlocked ───
   const heroPhotos = events.filter(e => e.coverPhotoUrl).map(e => e.coverPhotoUrl!).slice(0, 5);
+  const theme = space.themeColor || "#2563eb";
 
   return (
-    <div>
+    <div style={{ "--theme": theme } as React.CSSProperties}>
       {/* Hero — rotating event covers */}
       {heroPhotos.length > 0 && (
         <PhotographerHero photos={heroPhotos} name={space.name} interval={5000} />
@@ -188,32 +189,22 @@ export function SpacePage() {
           </div>
         </div>
 
-        {/* View toggle */}
-        <div className="flex items-center gap-3 rounded-xl border-2 border-primary-200 bg-primary-50/50 px-1 py-1">
-          <span className="ml-2 text-xs font-semibold text-primary-600 uppercase tracking-wider">View:</span>
+        {/* View toggle — uses theme color */}
+        <div className="flex items-center gap-3 rounded-xl border-2 px-1 py-1" style={{ borderColor: theme, backgroundColor: theme + "10" }}>
+          <span className="ml-2 text-xs font-semibold uppercase tracking-wider" style={{ color: theme }}>View:</span>
           <div className="flex gap-1 rounded-lg bg-white p-0.5 shadow-sm">
             <button
               onClick={() => setViewMode("tile")}
-              className={cn(
-                "rounded-md px-4 py-2 text-sm font-semibold transition-all",
-                viewMode === "tile"
-                  ? "bg-primary-600 text-white shadow-md"
-                  : "text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100",
-              )}
-            >
-              🎨 Tiles
-            </button>
+              className={cn("rounded-md px-4 py-2 text-sm font-semibold transition-all",
+                viewMode === "tile" ? "text-white shadow-md" : "text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100")}
+              style={viewMode === "tile" ? { backgroundColor: theme } : {}}
+            >🎨 Tiles</button>
             <button
               onClick={() => setViewMode("map")}
-              className={cn(
-                "rounded-md px-4 py-2 text-sm font-semibold transition-all",
-                viewMode === "map"
-                  ? "bg-primary-600 text-white shadow-md"
-                  : "text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100",
-              )}
-            >
-              🗺️ Map
-            </button>
+              className={cn("rounded-md px-4 py-2 text-sm font-semibold transition-all",
+                viewMode === "map" ? "text-white shadow-md" : "text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100")}
+              style={viewMode === "map" ? { backgroundColor: theme } : {}}
+            >🗺️ Map</button>
           </div>
         </div>
       </div>

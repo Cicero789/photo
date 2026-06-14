@@ -1,0 +1,1 @@
+DELETE FROM photos WHERE id = 'demo-beach-cover'; UPDATE events SET cover_photo_id = (SELECT id FROM photos WHERE event_id = 'demo-beach' AND id != 'demo-beach-cover' LIMIT 1) WHERE id = 'demo-beach';

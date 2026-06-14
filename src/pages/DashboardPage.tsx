@@ -424,7 +424,7 @@ function MembersTab({ members, onUpdate }: { members: Member[]; onUpdate: () => 
 
 // ─── Settings Tab ───
 function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: () => void }) {
-  const [form, setForm] = useState({ name: "", gateKey: "", themeColor: "#3b82f6", customDomain: "" });
+  const [form, setForm] = useState({ name: "", gateKey: "", themeColor: "#3b82f6", customDomain: "", slug: "" });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -432,6 +432,7 @@ function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: (
     if (space) {
       setForm({
         name: space.name,
+        slug: (space as any).slug || "",
         gateKey: "",
         themeColor: space.themeColor ?? "#3b82f6",
         customDomain: space.customDomain ?? "",
@@ -448,6 +449,7 @@ function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: (
       const body: Record<string, string> = {};
       if (form.name !== space.name) body.name = form.name;
       if (form.gateKey) body.gateKey = form.gateKey;
+      if (form.slug && form.slug !== space.slug) body.slug = form.slug;
       if (form.themeColor !== space.themeColor) body.themeColor = form.themeColor;
       if (form.customDomain !== (space.customDomain ?? "")) body.customDomain = form.customDomain;
 
@@ -500,9 +502,22 @@ function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: (
         </div>
         <div>
           <label className="block text-sm font-medium text-neutral-700">Your link</label>
-          <div className="mt-1 rounded-lg border border-border bg-muted px-3 py-2.5">
-            <span className="text-sm whitespace-nowrap text-neutral-500">framenest.photos/s/<span className="font-medium text-neutral-700">{space.slug}</span></span>
+          <div className="mt-1 flex rounded-lg border border-border bg-muted overflow-hidden">
+            <span className="flex items-center px-3 text-sm text-neutral-500 bg-muted">framenest.photos/s/</span>
+            <input type="text" value={form.slug || space.slug}
+              onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-") }))}
+              className="flex-1 bg-white px-3 py-2.5 text-sm font-medium text-neutral-700 focus:outline-none focus:ring-2 focus:ring-primary-100"
+              placeholder={space.slug} />
           </div>
+          <p className="mt-1 text-xs text-neutral-400">Changing your link will break old bookmarks. Old link redirects for 30 days. Limited to once per month.</p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-neutral-700">Custom domain</label>
+          <input type="text" value={form.customDomain || ""}
+            onChange={(e) => setForm((f) => ({ ...f, customDomain: e.target.value }))}
+            placeholder="photos.yourfamily.com"
+            className="mt-1 block w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100" />
+          <p className="mt-1 text-xs text-neutral-400">Point your domain's CNAME to photo-ll2.pages.dev and add it here.</p>
         </div>
         <div>
           <label className="block text-sm font-medium text-neutral-700">Change gate key</label>
