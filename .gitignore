@@ -9,3 +9,7 @@ dist/
 wrangler.toml.local
 .wrangler/
 functions/dist/
+.bun/
+.cache/
+.cursor/
+.codex/

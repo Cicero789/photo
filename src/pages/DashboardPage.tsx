@@ -110,16 +110,33 @@ export function DashboardPage() {
 
   const totalPhotos = events.reduce((acc, e) => acc + e.photoCount, 0);
 
-  const heroPhotos = events.filter(e => e.coverPhotoUrl).map(e => e.coverPhotoUrl!).slice(0, 5);
+  // Build hero photos based on source setting
   const heroSource = (spaceInfo as any)?.hero_source || "off";
+  const heroStyle = (spaceInfo as any)?.hero_style || "banner";
   const heroName = space?.name || spaceInfo?.name || "Dashboard";
+  let heroPhotos: string[] = [];
+  if (heroSource === "covers") {
+    heroPhotos = events.filter(e => e.coverPhotoUrl).map(e => e.coverPhotoUrl!).slice(0, 8);
+  } else if (heroSource === "random") {
+    // Collect all event photos, shuffle, take first 8
+    const allPhotos = events.flatMap(e => (e as any).photos || []).filter((p: any) => p?.url);
+    heroPhotos = allPhotos.sort(() => Math.random() - 0.5).slice(0, 8).map((p: any) => p.url);
+  } else if (heroSource === "favorites") {
+    const favs = events.flatMap(e => (e as any).photos || []).filter((p: any) => p?.favorite);
+    heroPhotos = favs.slice(0, 8).map((p: any) => p.url);
+  }
 
   return (
-    <div>
-      {heroSource !== "off" && heroPhotos.length > 0 && (
+    <div className={heroSource !== "off" && heroStyle === "full" && heroPhotos.length > 0 ? "relative" : ""}>
+      {heroSource !== "off" && heroStyle === "full" && heroPhotos.length > 0 && (
+        <div className="fixed inset-0 -z-10">
+          <PhotographerHero photos={heroPhotos} name="" interval={6000} />
+        </div>
+      )}
+      {heroSource !== "off" && heroStyle !== "full" && heroPhotos.length > 0 && (
         <PhotographerHero photos={heroPhotos} name={heroName} interval={5000} />
       )}
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12">
+    <div className={heroSource !== "off" && heroStyle === "full" && heroPhotos.length > 0 ? "relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12 bg-neutral-50/70 backdrop-blur-sm rounded-2xl mt-8" : "mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-12"}>
       {/* Header */}
       <div className="mb-8">
         <h1 className="font-display text-3xl font-bold text-neutral-900">

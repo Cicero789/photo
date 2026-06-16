@@ -162,17 +162,25 @@ export function SpacePage() {
   }
 
   // ─── Unlocked ───
-  const heroPhotos = events.filter(e => e.coverPhotoUrl).map(e => e.coverPhotoUrl!).slice(0, 5);
+  const heroPhotos = events.filter(e => e.coverPhotoUrl).map(e => e.coverPhotoUrl!).slice(0, 8);
+  const heroSource = (space as any).hero_source || "off";
+  const heroStyle = (space as any).hero_style || "banner";
+  const heroOn = heroSource !== "off" || space.slug === "demo";
   const theme = space.themeColor || "#2563eb";
 
   return (
     <div style={{ "--theme": theme } as React.CSSProperties}>
-      {/* Hero — rotating background (if enabled in settings) */}
-      {heroPhotos.length > 0 && (((space as any).hero_source && (space as any).hero_source !== "off") || space.slug === "demo") && (
+      {/* Hero — rotating background */}
+      {heroOn && heroStyle === "full" && heroPhotos.length > 0 && (
+        <div className="fixed inset-0 -z-10">
+          <PhotographerHero photos={heroPhotos} name="" interval={6000} />
+        </div>
+      )}
+      {heroOn && heroStyle !== "full" && heroPhotos.length > 0 && (
         <PhotographerHero photos={heroPhotos} name={space.name} interval={5000} />
       )}
 
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+      <div className={`mx-auto max-w-7xl px-4 py-12 sm:px-6 ${heroOn && heroStyle === "full" && heroPhotos.length > 0 ? "relative z-10 bg-neutral-50/70 backdrop-blur-sm rounded-2xl mt-8" : ""}`}>
       <div className="mb-8 flex items-end justify-between">
         <div>
           <h1 className="font-display text-3xl font-bold text-neutral-900">{space.name}</h1>
