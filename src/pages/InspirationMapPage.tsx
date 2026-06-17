@@ -57,7 +57,7 @@ export function InspirationMapPage() {
         const el = document.createElement("div");
         const isFrameNest = !item.source || item.source === "framenest";
         const isCC0 = item.source === "cc0" || item.source === "seed";
-        el.className = `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white shadow-lg text-xs font-bold border-2 border-white hover:scale-110 transition-transform ${isFrameNest ? "bg-primary-600" : isCC0 ? "bg-amber-500" : "bg-neutral-400"}`;
+        el.className = `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white shadow-lg text-xs font-bold border-2 border-white ${isFrameNest ? "bg-primary-600" : isCC0 ? "bg-amber-500" : "bg-neutral-400"}`;
         el.innerHTML = isFrameNest ? "📸" : isCC0 && item.thumbnailUrl ? "🖼️" : "📍";
         el.title = item.address;
         el.addEventListener("click", () => { setSelected(item); map.flyTo({ center: [item.longitude, item.latitude], zoom: 14 }); });
@@ -131,7 +131,11 @@ export function InspirationMapPage() {
         {selected && (
           <div className="absolute bottom-4 left-4 right-4 lg:left-4 lg:right-4 rounded-xl border border-border bg-white p-4 shadow-lg z-10 max-w-lg">
             <div className="flex gap-3">
-              <img src={selected.photoUrl} alt="" className="h-24 w-24 rounded-lg object-cover" />
+              {selected.photoUrl || selected.thumbnailUrl ? (
+                <img src={selected.photoUrl || selected.thumbnailUrl} alt="" className="h-24 w-24 rounded-lg object-cover" />
+              ) : (
+                <div className="h-24 w-24 rounded-lg bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center text-3xl">📍</div>
+              )}
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm">{selected.address}</p>
                 <p className="text-xs text-neutral-500">{selected.source === "framenest" ? `by ${selected.userName}` : selected.author ? `© ${selected.author}` : ""} · {selected.loves} ❤️</p>
@@ -148,7 +152,13 @@ export function InspirationMapPage() {
                   <button onClick={() => handleLove(selected.id)} className={cn("rounded-lg px-3 py-1 text-xs font-semibold", loved.has(selected.id) ? "bg-red-100 text-red-600" : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200")}>
                     {loved.has(selected.id) ? "❤️ Loved" : "🤍 Love"}
                   </button>
-                  {(!selected.source || selected.source === "framenest") && <HireButton photographerName={selected.userName} locationName={selected.address} />}
+                  {(!selected.source || selected.source === "framenest") ? (
+                    <HireButton photographerName={selected.userName} locationName={selected.address} />
+                  ) : (
+                    <a href="/photographers" className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-1 text-[10px] text-amber-700 hover:bg-amber-100 font-medium">
+                      📸 Be the first photographer here →
+                    </a>
+                  )}
                   <button onClick={() => setSelected(null)} className="rounded-lg px-3 py-1 text-xs text-neutral-500 hover:bg-neutral-100">✕ Close</button>
                 </div>
               </div>
