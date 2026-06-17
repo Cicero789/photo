@@ -7,6 +7,7 @@ interface InspirationItem {
   id: string; userName: string; photoUrl: string; address: string;
   latitude: number; longitude: number; category: string; season: string; loves: number;
   tips?: string; bestTime?: string; permissionInfo?: string;
+  source?: string; score?: number; author?: string; licenseUrl?: string; thumbnailUrl?: string;
 }
 
 const MAPBOX_TOKEN = "pk.eyJ1IjoiY2ljZXJvNzg5IiwiYSI6ImNtcThtanB1NTA3bGYycXB2c2R0bHk2bmgifQ.fEmRx2lBgLW6v4bNQdjn5w";
@@ -54,8 +55,10 @@ export function InspirationMapPage() {
       const bounds = new mb.LngLatBounds();
       items.forEach(item => {
         const el = document.createElement("div");
-        el.className = "flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-primary-600 text-white shadow-lg text-xs font-bold border-2 border-white hover:scale-110 transition-transform";
-        el.innerHTML = "📸";
+        const isFrameNest = !item.source || item.source === "framenest";
+        const isCC0 = item.source === "cc0" || item.source === "seed";
+        el.className = `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white shadow-lg text-xs font-bold border-2 border-white hover:scale-110 transition-transform ${isFrameNest ? "bg-primary-600" : isCC0 ? "bg-amber-500" : "bg-neutral-400"}`;
+        el.innerHTML = isFrameNest ? "📸" : isCC0 && item.thumbnailUrl ? "🖼️" : "📍";
         el.title = item.address;
         el.addEventListener("click", () => { setSelected(item); map.flyTo({ center: [item.longitude, item.latitude], zoom: 14 }); });
         const marker = new mb.Marker(el).setLngLat([item.longitude, item.latitude]).addTo(map);
@@ -103,10 +106,10 @@ export function InspirationMapPage() {
           : items.map(item => (
             <div key={item.id} onClick={() => setSelected(item)} className={cn("cursor-pointer rounded-xl border p-3 transition-all hover:shadow-sm", selected?.id === item.id ? "border-primary-500 bg-primary-50" : "border-border bg-white")}>
               <div className="flex gap-3">
-                <img src={item.photoUrl} alt="" className="h-16 w-16 rounded-lg object-cover" />
+                {(item.thumbnailUrl || item.photoUrl) ? <img src={item.thumbnailUrl || item.photoUrl} alt="" className="h-16 w-16 rounded-lg object-cover" /> : <div className="h-16 w-16 rounded-lg bg-neutral-100 flex items-center justify-center text-2xl">📍</div>}
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-medium truncate">{item.address}</p>
-                  <p className="text-[10px] text-neutral-400">by {item.userName}</p>
+                  <p className="text-[10px] text-neutral-400">{item.source === "framenest" ? `by ${item.userName}` : item.author ? `© ${item.author}` : "Public domain"}</p>
                   <div className="flex items-center gap-2 mt-1">
                     <button onClick={(e) => { e.stopPropagation(); handleLove(item.id); }} className={cn("text-xs", loved.has(item.id) ? "text-red-500" : "text-neutral-400 hover:text-red-400")}>
                       {loved.has(item.id) ? "❤️" : "🤍"} {item.loves}
@@ -131,7 +134,8 @@ export function InspirationMapPage() {
               <img src={selected.photoUrl} alt="" className="h-24 w-24 rounded-lg object-cover" />
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm">{selected.address}</p>
-                <p className="text-xs text-neutral-500">by {selected.userName} · {selected.loves} ❤️</p>
+                <p className="text-xs text-neutral-500">{selected.source === "framenest" ? `by ${selected.userName}` : selected.author ? `© ${selected.author}` : ""} · {selected.loves} ❤️</p>
+                {selected.licenseUrl && <a href={selected.licenseUrl} target="_blank" className="text-[10px] text-blue-500 hover:underline">License ↗</a>}
                 <p className="text-[10px] text-neutral-400 mt-1">📍 {selected.latitude.toFixed(4)}, {selected.longitude.toFixed(4)}</p>
                 {(selected.tips || selected.bestTime || selected.permissionInfo) && (
                   <div className="mt-2 space-y-1 border-t border-border pt-2">
@@ -144,7 +148,7 @@ export function InspirationMapPage() {
                   <button onClick={() => handleLove(selected.id)} className={cn("rounded-lg px-3 py-1 text-xs font-semibold", loved.has(selected.id) ? "bg-red-100 text-red-600" : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200")}>
                     {loved.has(selected.id) ? "❤️ Loved" : "🤍 Love"}
                   </button>
-                  <HireButton photographerName={selected.userName} locationName={selected.address} />
+                  {(!selected.source || selected.source === "framenest") && <HireButton photographerName={selected.userName} locationName={selected.address} />}
                   <button onClick={() => setSelected(null)} className="rounded-lg px-3 py-1 text-xs text-neutral-500 hover:bg-neutral-100">✕ Close</button>
                 </div>
               </div>

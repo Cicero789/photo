@@ -12,7 +12,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     const params: string[] = [];
     if (category) { query += " AND i.category = ?"; params.push(category); }
     if (season) { query += " AND i.season = ?"; params.push(season); }
-    query += sort === "loves" ? " ORDER BY i.loves DESC" : " ORDER BY i.created_at DESC";
+    query += sort === "loves" ? " ORDER BY i.score DESC, i.loves DESC" : " ORDER BY i.score DESC, i.created_at DESC";
     query += " LIMIT 100";
 
     const result = await context.env.DB!.prepare(query).bind(...params).all();
@@ -21,6 +21,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
       address: r.address, latitude: r.latitude, longitude: r.longitude,
       category: r.category, season: r.season, loves: r.loves,
       tips: r.tips || "", bestTime: r.best_time || "", permissionInfo: r.permission_info || "",
+      source: r.source || "framenest", score: r.score || 0, author: r.author || "", licenseUrl: r.license_url || "", thumbnailUrl: r.thumbnail_url || "",
       createdAt: r.created_at,
     }));
     return json({ items });
