@@ -53,18 +53,52 @@ export function InspirationMapPage() {
       markersRef.current.forEach(m => m.remove());
       markersRef.current = [];
       const bounds = new mb.LngLatBounds();
+      // Marker rendering with zoom-dependent detail
+      const currentZoom = map.getZoom();
+      const showLabels = currentZoom >= 10;
+
       items.forEach(item => {
         const el = document.createElement("div");
         const isFrameNest = !item.source || item.source === "framenest";
         const isCC0 = item.source === "cc0" || item.source === "seed";
-        el.className = `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white shadow-lg text-xs font-bold border-2 border-white ${isFrameNest ? "bg-primary-600" : isCC0 ? "bg-amber-500" : "bg-neutral-400"}`;
-        el.innerHTML = isFrameNest ? "📸" : isCC0 && item.thumbnailUrl ? "🖼️" : "📍";
+        const name = item.address.split(",")[0] || item.address;
+        const shortName = name.length > 20 ? name.slice(0,18) + "…" : name;
+
+        if (showLabels) {
+          el.className = `flex items-center gap-1 cursor-pointer rounded-full text-white shadow-lg px-2 py-1 text-[10px] font-bold border-2 border-white whitespace-nowrap ${isFrameNest ? "bg-primary-600" : isCC0 ? "bg-amber-500" : "bg-neutral-500"}`;
+          el.innerHTML = `${isFrameNest ? "📸" : isCC0 ? "🖼️" : "📍"} ${shortName}`;
+        } else {
+          el.className = `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white shadow-lg text-xs font-bold border-2 border-white ${isFrameNest ? "bg-primary-600" : isCC0 ? "bg-amber-500" : "bg-neutral-400"}`;
+          el.innerHTML = isFrameNest ? "📸" : isCC0 && item.thumbnailUrl ? "🖼️" : "📍";
+        }
         el.title = item.address;
         el.addEventListener("click", () => { setSelected(item); map.flyTo({ center: [item.longitude, item.latitude], zoom: 14 }); });
         const marker = new mb.Marker(el).setLngLat([item.longitude, item.latitude]).addTo(map);
         markersRef.current.push(marker);
         bounds.extend([item.longitude, item.latitude]);
       });
+
+      // Update markers when zoom changes
+      map.on("zoomend", () => {
+        const z = map.getZoom();
+        markersRef.current.forEach((m: any, i: number) => {
+          if (i >= items.length) return;
+          const item = items[i]; if (!item) return;
+          const el = m.getElement();
+          const isFrameNest = !item.source || item.source === "framenest";
+          const isCC0 = item.source === "cc0" || item.source === "seed";
+          const name = item.address.split(",")[0] || item.address;
+          const shortName = name.length > 20 ? name.slice(0,18) + "…" : name;
+          if (z >= 10) {
+            el.className = `flex items-center gap-1 cursor-pointer rounded-full text-white shadow-lg px-2 py-1 text-[10px] font-bold border-2 border-white whitespace-nowrap ${isFrameNest ? "bg-primary-600" : isCC0 ? "bg-amber-500" : "bg-neutral-500"}`;
+            el.innerHTML = `${isFrameNest ? "📸" : isCC0 ? "🖼️" : "📍"} ${shortName}`;
+          } else {
+            el.className = `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white shadow-lg text-xs font-bold border-2 border-white ${isFrameNest ? "bg-primary-600" : isCC0 ? "bg-amber-500" : "bg-neutral-400"}`;
+            el.innerHTML = isFrameNest ? "📸" : isCC0 && item.thumbnailUrl ? "🖼️" : "📍";
+          }
+        });
+      });
+
       if (items.length > 1) map.fitBounds(bounds, { padding: 60, maxZoom: 12 });
     };
     loadMap();
