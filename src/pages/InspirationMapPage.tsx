@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { HireButton } from "@/components/photographer/HireButton";
 
 interface InspirationItem {
   id: string; userName: string; photoUrl: string; address: string;
@@ -139,10 +140,11 @@ export function InspirationMapPage() {
                     {selected.permissionInfo && <p className="text-[10px] text-neutral-500">📋 {selected.permissionInfo}</p>}
                   </div>
                 )}
-                <div className="flex gap-2 mt-2">
+                <div className="flex gap-2 mt-2 flex-wrap">
                   <button onClick={() => handleLove(selected.id)} className={cn("rounded-lg px-3 py-1 text-xs font-semibold", loved.has(selected.id) ? "bg-red-100 text-red-600" : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200")}>
                     {loved.has(selected.id) ? "❤️ Loved" : "🤍 Love"}
                   </button>
+                  <HireButton photographerName={selected.userName} locationName={selected.address} />
                   <button onClick={() => setSelected(null)} className="rounded-lg px-3 py-1 text-xs text-neutral-500 hover:bg-neutral-100">✕ Close</button>
                 </div>
               </div>
