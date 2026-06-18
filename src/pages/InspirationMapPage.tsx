@@ -47,7 +47,7 @@ export function InspirationMapPage() {
       // @ts-expect-error
       const mb = window.mapboxgl; if (!mb) return;
       mb.accessToken = MAPBOX_TOKEN;
-      const map = new mb.Map({ container: containerRef.current, style: "mapbox://styles/mapbox/streets-v12", center: [-98, 39], zoom: 2.5 });
+      const map = new mb.Map({ container: containerRef.current, style: "mapbox://styles/mapbox/light-v11", center: [-98, 39], zoom: 2.5 });
       mapRef.current = map;
 
       markersRef.current.forEach(m => m.remove());
@@ -61,15 +61,18 @@ export function InspirationMapPage() {
         const el = document.createElement("div");
         const isFrameNest = !item.source || item.source === "framenest";
         const isCC0 = item.source === "cc0" || item.source === "seed";
+        const hasPhoto = !!(item.thumbnailUrl || item.photoUrl);
         const name = item.address.split(",")[0] || item.address;
         const shortName = name.length > 20 ? name.slice(0,18) + "…" : name;
+        const bg = isFrameNest ? "bg-primary-600" : (isCC0 && hasPhoto) ? "bg-amber-500" : "bg-neutral-400";
+        const icon = isFrameNest ? "📸" : (isCC0 && hasPhoto) ? "🖼️" : "📍";
 
         if (showLabels) {
-          el.className = `flex items-center gap-1 cursor-pointer rounded-full text-white shadow-lg px-2 py-1 text-[10px] font-bold border-2 border-white whitespace-nowrap ${isFrameNest ? "bg-primary-600" : isCC0 ? "bg-amber-500" : "bg-neutral-500"}`;
-          el.innerHTML = `${isFrameNest ? "📸" : isCC0 ? "🖼️" : "📍"} ${shortName}`;
+          el.className = `flex items-center gap-1 cursor-pointer rounded-full text-white shadow-lg px-2 py-1 text-[10px] font-bold border-2 border-white whitespace-nowrap ${bg}`;
+          el.innerHTML = `${icon} ${shortName}`;
         } else {
-          el.className = `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white shadow-lg text-xs font-bold border-2 border-white ${isFrameNest ? "bg-primary-600" : isCC0 ? "bg-amber-500" : "bg-neutral-400"}`;
-          el.innerHTML = isFrameNest ? "📸" : isCC0 && item.thumbnailUrl ? "🖼️" : "📍";
+          el.className = `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white shadow-lg text-xs font-bold border-2 border-white ${bg}`;
+          el.innerHTML = icon;
         }
         el.title = item.address;
         el.addEventListener("click", () => { setSelected(item); map.flyTo({ center: [item.longitude, item.latitude], zoom: 14 }); });
@@ -87,14 +90,17 @@ export function InspirationMapPage() {
           const el = marker.getElement();
           const isFrameNest = !item.source || item.source === "framenest";
           const isCC0 = item.source === "cc0" || item.source === "seed";
+          const hasPhoto = !!(item.thumbnailUrl || item.photoUrl);
           const name = item.address.split(",")[0] || item.address;
           const shortName = name.length > 18 ? name.slice(0,16) + "…" : name;
+          const bg = isFrameNest ? "bg-primary-600" : (isCC0 && hasPhoto) ? "bg-amber-500" : "bg-neutral-400";
+          const icon = isFrameNest ? "📸" : (isCC0 && hasPhoto) ? "🖼️" : "📍";
           if (z >= 8) {
-            el.className = `flex items-center gap-1 cursor-pointer rounded-full text-white shadow-lg px-2 py-1 text-[10px] font-bold border-2 border-white whitespace-nowrap ${isFrameNest ? "bg-primary-600" : isCC0 ? "bg-amber-500" : "bg-neutral-500"}`;
-            el.innerHTML = `${isFrameNest ? "📸" : isCC0 ? "🖼️" : "📍"} ${shortName}`;
+            el.className = `flex items-center gap-1 cursor-pointer rounded-full text-white shadow-lg px-2 py-1 text-[10px] font-bold border-2 border-white whitespace-nowrap ${bg}`;
+            el.innerHTML = `${icon} ${shortName}`;
           } else {
-            el.className = `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white shadow-lg text-xs font-bold border-2 border-white ${isFrameNest ? "bg-primary-600" : isCC0 ? "bg-amber-500" : "bg-neutral-400"}`;
-            el.innerHTML = isFrameNest ? "📸" : isCC0 && item.thumbnailUrl ? "🖼️" : "📍";
+            el.className = `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white shadow-lg text-xs font-bold border-2 border-white ${bg}`;
+            el.innerHTML = icon;
           }
         });
       });
