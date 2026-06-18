@@ -47,7 +47,7 @@ export function InspirationMapPage() {
       // @ts-expect-error
       const mb = window.mapboxgl; if (!mb) return;
       mb.accessToken = MAPBOX_TOKEN;
-      const map = new mb.Map({ container: containerRef.current, style: "mapbox://styles/mapbox/light-v11", center: [-98, 39], zoom: 3 });
+      const map = new mb.Map({ container: containerRef.current, style: "mapbox://styles/mapbox/streets-v12", center: [-98, 39], zoom: 2.5 });
       mapRef.current = map;
 
       markersRef.current.forEach(m => m.remove());
@@ -78,18 +78,18 @@ export function InspirationMapPage() {
         bounds.extend([item.longitude, item.latitude]);
       });
 
-      // Update markers when zoom changes
+      // Store items with markers for zoom updates
+      const markerData = items.map((item, i) => ({ item, marker: markersRef.current[i] }));
       map.on("zoomend", () => {
         const z = map.getZoom();
-        markersRef.current.forEach((m: any, i: number) => {
-          if (i >= items.length) return;
-          const item = items[i]; if (!item) return;
-          const el = m.getElement();
+        markerData.forEach(({ item, marker }) => {
+          if (!marker) return;
+          const el = marker.getElement();
           const isFrameNest = !item.source || item.source === "framenest";
           const isCC0 = item.source === "cc0" || item.source === "seed";
           const name = item.address.split(",")[0] || item.address;
-          const shortName = name.length > 20 ? name.slice(0,18) + "…" : name;
-          if (z >= 10) {
+          const shortName = name.length > 18 ? name.slice(0,16) + "…" : name;
+          if (z >= 8) {
             el.className = `flex items-center gap-1 cursor-pointer rounded-full text-white shadow-lg px-2 py-1 text-[10px] font-bold border-2 border-white whitespace-nowrap ${isFrameNest ? "bg-primary-600" : isCC0 ? "bg-amber-500" : "bg-neutral-500"}`;
             el.innerHTML = `${isFrameNest ? "📸" : isCC0 ? "🖼️" : "📍"} ${shortName}`;
           } else {
@@ -99,7 +99,7 @@ export function InspirationMapPage() {
         });
       });
 
-      if (items.length > 1) map.fitBounds(bounds, { padding: 60, maxZoom: 12 });
+      if (items.length > 1) map.fitBounds(bounds, { padding: 60, maxZoom: 10 });
     };
     loadMap();
   }, [items]);
