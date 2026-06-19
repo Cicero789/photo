@@ -1,6 +1,19 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
+interface FeaturedPhotographer {
+  id: string; name: string; slug: string | null; tagline: string | null;
+  specialties: string | null; serviceArea: string | null;
+}
+
 export function HomePage() {
+  const [photographers, setPhotographers] = useState<FeaturedPhotographer[]>([]);
+  useEffect(() => {
+    fetch("/api/photographers/public").then(r => r.json())
+      .then(d => setPhotographers((d.photographers || []).slice(0, 4)))
+      .catch(() => {});
+  }, []);
+
   return (
     <div>
       {/* Hero */}
@@ -73,6 +86,45 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Featured Photographers */}
+      {photographers.length > 0 && (
+        <section className="border-t border-border bg-neutral-50 py-16 sm:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <h2 className="text-center font-display text-2xl font-bold text-neutral-900 sm:text-3xl">
+              Photographers on FrameNest
+            </h2>
+            <p className="mt-3 text-center text-sm text-neutral-500">
+              Browse professionals ready to capture your next moment.
+            </p>
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {photographers.map(p => (
+                <Link key={p.id} to={p.slug ? `/p/${p.slug}` : "/photographers"}
+                  className="rounded-xl border border-border bg-white p-5 transition-shadow hover:shadow-md">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 text-sm font-bold text-neutral-500">
+                    {p.name.charAt(0)}
+                  </div>
+                  <h3 className="mt-3 text-sm font-semibold text-neutral-900">{p.name}</h3>
+                  {p.tagline && <p className="mt-0.5 text-xs text-neutral-500 line-clamp-1">{p.tagline}</p>}
+                  {p.serviceArea && <p className="mt-1 text-xs text-neutral-400">📍 {p.serviceArea}</p>}
+                  {p.specialties && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {p.specialties.split(",").slice(0, 2).map(s => s.trim()).filter(Boolean).map(s => (
+                        <span key={s} className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] text-neutral-500">{s}</span>
+                      ))}
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
+            <div className="mt-8 text-center">
+              <Link to="/photographers" className="text-sm font-medium text-neutral-600 hover:text-neutral-900">
+                View all photographers →
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* CTA */}
       <section className="bg-primary-600 py-16 sm:py-20">

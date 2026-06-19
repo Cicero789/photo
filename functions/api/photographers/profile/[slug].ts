@@ -10,10 +10,18 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
   ).bind(slug).first() as any;
   if (!photographer) return json({ error: "Photographer not found" }, 404);
 
+  // Increment profile views
+  await context.env.DB!.prepare("UPDATE photographers SET profile_views = profile_views + 1 WHERE id = ?").bind(photographer.id).run();
+
   // Get portfolio photos
   const portfolio = await context.env.DB!.prepare(
     "SELECT id, storage_key, filename, sort_order FROM photographer_portfolio WHERE photographer_id = ? ORDER BY sort_order, created_at"
   ).bind(photographer.id).all();
+
+  // Get review stats
+  const reviewStats = await context.env.DB!.prepare(
+    "SELECT COUNT(*) as count, AVG(rating) as avg FROM reviews WHERE photographer_id = ?"
+  ).bind(photographer.id).first() as any;
 
   // Parse JSON configs
   let pricing = {};
@@ -22,6 +30,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
   try { heroPhotos = JSON.parse(photographer.hero_photos || "[]"); } catch {}
 
   return json({
+    id: photographer.id,
     name: photographer.name,
     slug: photographer.slug,
     tagline: photographer.tagline || "",
@@ -32,6 +41,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     serviceArea: photographer.service_area || "",
     pricing,
     heroPhotos,
+    reviewStats: { count: reviewStats?.count || 0, average: Math.round((reviewStats?.avg || 0) * 10) / 10 },
     portfolio: (portfolio.results || []).map((p: any) => ({
       id: p.id,
       url: `/api/media/photos/${p.storage_key}`,

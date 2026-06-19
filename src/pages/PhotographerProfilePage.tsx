@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { HireButton } from "@/components/photographer/HireButton";
 
 interface ProfileData {
+  id: string;
   name: string;
   slug: string;
   tagline: string;
@@ -14,14 +16,28 @@ interface ProfileData {
   pricing: { downloads?: { single?: number; full?: number } };
   heroPhotos: string[];
   portfolio: { id: string; url: string; filename: string }[];
+  reviewStats: { count: number; average: number };
+}
+
+interface Review {
+  id: string;
+  rating: number;
+  comment: string;
+  reviewerName: string;
+  createdAt: string;
 }
 
 export function PhotographerProfilePage() {
   const { slug } = useParams<{ slug: string }>();
+  const { user } = useAuth();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviewForm, setReviewForm] = useState({ rating: 5, comment: "" });
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewMsg, setReviewMsg] = useState("");
 
   useEffect(() => {
     if (!slug) return;
@@ -32,6 +48,39 @@ export function PhotographerProfilePage() {
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, [slug]);
+
+  // Fetch reviews
+  useEffect(() => {
+    if (!slug) return;
+    fetch(`/api/photographers/reviews/${slug}`)
+      .then(r => r.ok ? r.json() : { reviews: [] })
+      .then(d => setReviews(d.reviews || []))
+      .catch(() => {});
+  }, [slug]);
+
+  const submitReview = async () => {
+    if (!slug || !user) return;
+    setSubmittingReview(true);
+    setReviewMsg("");
+    try {
+      const res = await fetch(`/api/photographers/reviews/${slug}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
+        body: JSON.stringify(reviewForm),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d.error || "Failed");
+      setReviewMsg("Review submitted!");
+      setReviewForm({ rating: 5, comment: "" });
+      // Refresh reviews
+      const r2 = await fetch(`/api/photographers/reviews/${slug}`);
+      const d2 = await r2.json();
+      setReviews(d2.reviews || []);
+    } catch (err) {
+      setReviewMsg(err instanceof Error ? err.message : "Failed to submit");
+    }
+    setSubmittingReview(false);
+  };
 
   if (loading) {
     return (
@@ -78,6 +127,12 @@ export function PhotographerProfilePage() {
                 {profile.serviceArea && (
                   <span className="inline-flex items-center gap-1 text-sm text-neutral-500">
                     📍 {profile.serviceArea}
+                  </span>
+                )}
+                {profile.reviewStats.count > 0 && (
+                  <span className="inline-flex items-center gap-1 text-sm text-neutral-500">
+                    {"★".repeat(Math.round(profile.reviewStats.average))}{"☆".repeat(5 - Math.round(profile.reviewStats.average))}
+                    {" "}{profile.reviewStats.average} ({profile.reviewStats.count})
                   </span>
                 )}
                 {profile.specialties.map(s => (
@@ -152,6 +207,54 @@ export function PhotographerProfilePage() {
           </div>
         </section>
       )}
+
+      {/* Reviews */}
+      <section className="border-t border-border bg-white py-12 sm:py-16">
+        <div className="mx-auto max-w-2xl px-4 sm:px-6">
+          <h2 className="font-display text-xl font-bold text-neutral-900">
+            Reviews {profile.reviewStats.count > 0 && <span className="text-neutral-400 font-normal text-base">({profile.reviewStats.count})</span>}
+          </h2>
+
+          {reviews.length > 0 ? (
+            <div className="mt-6 space-y-4">
+              {reviews.map(r => (
+                <div key={r.id} className="rounded-xl border border-border p-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-neutral-900">{r.reviewerName}</p>
+                    <span className="text-sm text-amber-500">{"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}</span>
+                  </div>
+                  {r.comment && <p className="mt-2 text-sm text-neutral-600">{r.comment}</p>}
+                  <p className="mt-2 text-xs text-neutral-400">{new Date(r.createdAt).toLocaleDateString()}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-neutral-400">No reviews yet.</p>
+          )}
+
+          {/* Submit review */}
+          {user && (
+            <div className="mt-8 rounded-xl border border-border bg-neutral-50 p-4">
+              <p className="text-sm font-medium text-neutral-700">Leave a review</p>
+              <div className="mt-3 flex items-center gap-1">
+                {[1,2,3,4,5].map(n => (
+                  <button key={n} type="button" onClick={() => setReviewForm(f => ({...f, rating: n}))}
+                    className={`text-xl ${n <= reviewForm.rating ? "text-amber-400" : "text-neutral-300"}`}>★</button>
+                ))}
+              </div>
+              <textarea value={reviewForm.comment} onChange={e => setReviewForm(f => ({...f, comment: e.target.value}))}
+                placeholder="Tell others about your experience…"
+                rows={2}
+                className="mt-3 w-full rounded-lg border border-border px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none" />
+              {reviewMsg && <p className="mt-2 text-xs text-neutral-500">{reviewMsg}</p>}
+              <button onClick={submitReview} disabled={submittingReview}
+                className="mt-3 rounded-lg bg-neutral-900 px-4 py-2 text-xs font-medium text-white hover:bg-neutral-800 disabled:opacity-50">
+                {submittingReview ? "Submitting…" : "Submit Review"}
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* Contact CTA */}
       <section className="border-t border-border bg-white py-12 sm:py-16">
