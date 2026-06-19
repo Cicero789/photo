@@ -1,4 +1,4 @@
-import { json } from "../../lib/response"; import { requireAuth, requireRole } from "../../lib/auth";
+import { json } from "../../lib/response"; import { requireAuth, requireRole } from "../../lib/auth"; import { validateUploadContent } from "../../lib/upload-validate";
 
 export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; PHOTOS?: R2Bucket; JWT_SECRET?: string; ENVIRONMENT?: string } }): Promise<Response> {
   try {
@@ -8,6 +8,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     if (!eventId) return json({ error: "eventId is required" }, 400); if (!files || files.length === 0) return json({ error: "At least one file is required" }, 400);
     const PHOTO_TYPES = ["image/jpeg","image/png","image/webp","image/avif","image/heic"];
     for (const file of files) { if (!PHOTO_TYPES.includes(file.type)) return json({ error: "Invalid file type" }, 400); if (file.size > 50 * 1024 * 1024) return json({ error: "File too large (max 50MB)" }, 400); }
+    for (const file of files) { const contentCheck = await validateUploadContent(file); if (!contentCheck.valid) return json({ error: contentCheck.reason }, 400); }
     const db = context.env.DB!; const event = await db.prepare("SELECT id, space_id FROM events WHERE id = ?").bind(eventId).first<{id:string;space_id:string}>(); if (!event) return json({ error: "Event not found" }, 404);
     if (event.space_id !== authResult.spaceId) return json({ error: "Access denied" }, 403);
     let metadataList: Array<{filename?:string;width?:number;height?:number;latitude?:number;longitude?:number;takenAt?:string}> = []; if (metadataStr) { try { metadataList = JSON.parse(metadataStr); } catch (e) { console.error("Upload parse error:", e); } }

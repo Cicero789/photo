@@ -1,4 +1,4 @@
-import { json } from "../../lib/response"; import { requireAuth, requireRole, requireSpaceOwnership } from "../../lib/auth"; import { geocodeAddress } from "../../lib/geocode"; import { toPublicEventDto, toPublicPhotoDto } from "../../lib/event-dto";
+import { json } from "../../lib/response"; import { requireAuth } from "../../lib/auth"; import { geocodeAddress } from "../../lib/geocode"; import { toPublicEventDto, toPublicPhotoDto } from "../../lib/event-dto";
 
 type Row = Record<string, unknown>;
 function mapPhoto(p: Row) {
@@ -14,26 +14,34 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     const event = await db.prepare("SELECT * FROM events WHERE id = ?").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
     const ev = event as Record<string,unknown>;
 
-    // Public event: allow anonymous access (scrubbed). Gate/private require auth.
-    if ((ev.visibility as string) === "public") {
-      const photos = await db.prepare("SELECT id, storage_key, width, height, license FROM photos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
-      return json({ event: toPublicEventDto(ev), photos: (photos.results ?? []).map(toPublicPhotoDto) });
+    // Resolve parent resource: verify actor has access to this event's space
+    const authResult = await requireAuth(context.request, context.env);
+    const isAuthenticated = !(authResult instanceof Response);
+    const isOwner = isAuthenticated && authResult.spaceId === (ev.space_id as string) && authResult.role !== 'viewer';
+
+    if (isOwner) {
+      // Space owner: full access regardless of visibility
+      const photos = await db.prepare("SELECT * FROM photos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
+      const videos = await db.prepare("SELECT * FROM videos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
+      return json({ event: { id: ev.id, spaceId: ev.space_id, title: ev.title, category: ev.category, eventDate: ev.event_date, description: ev.description, aiSummary: ev.ai_summary, coverPhotoId: ev.cover_photo_id, address: ev.address || "", addressLocked: (ev.address_locked as number) === 1, public: (ev.public as number) !== 0, createdAt: ev.created_at, updatedAt: ev.updated_at }, photos: (photos.results ?? []).map(mapPhoto), videos: (videos.results ?? []).map(mapVideo) });
     }
 
-    // Private event: require auth + ownership
-    const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
-    const spaceCheck = requireSpaceOwnership(authResult, ev.space_id as string); if (spaceCheck) return spaceCheck;
-    const photos = await db.prepare("SELECT * FROM photos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
-    const videos = await db.prepare("SELECT * FROM videos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
-    return json({ event: { id: ev.id, spaceId: ev.space_id, title: ev.title, category: ev.category, eventDate: ev.event_date, description: ev.description, aiSummary: ev.ai_summary, coverPhotoId: ev.cover_photo_id, address: ev.address || "", addressLocked: (ev.address_locked as number) === 1, public: (ev.public as number) !== 0, createdAt: ev.created_at, updatedAt: ev.updated_at }, photos: (photos.results ?? []).map(mapPhoto), videos: (videos.results ?? []).map(mapVideo) });
+    // Non-owner: only allow if event visibility is public or gate
+    if ((ev.visibility as string) !== 'public' && (ev.visibility as string) !== 'gate') {
+      return json({ error: "Forbidden" }, 403);
+    }
+
+    // Return scrubbed public data for public/gate events
+    const photos = await db.prepare("SELECT id, storage_key, width, height, license FROM photos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
+    return json({ event: toPublicEventDto(ev), photos: (photos.results ?? []).map(toPublicPhotoDto) });
   } catch (err) { console.error("Get event error:", err); return json({ error: "Something went wrong" }, 500); }
 }
 
 export async function onRequestPut(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string }; params: { id: string } }): Promise<Response> {
   try {
     const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
-    const roleCheck = requireRole(authResult, "staff"); if (roleCheck) return roleCheck;
-    const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ? AND space_id = ?").bind(context.params.id, authResult.spaceId).first(); if (!event) return json({ error: "Event not found or access denied" }, 404);
+    const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ?").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
+    if ((event as Record<string,unknown>).space_id !== authResult.spaceId || authResult.role === 'viewer') return json({ error: "Forbidden" }, 403);
     const body = await context.request.json() as { title?: string; category?: string; eventDate?: string; description?: string; address?: string; visibility?: string };
     if (body.title !== undefined && body.title.length > 200) return json({ error: "Title too long" }, 400);
     if (body.description !== undefined && body.description.length > 5000) return json({ error: "Description too long" }, 400);
@@ -62,8 +70,8 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
 export async function onRequestDelete(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string }; params: { id: string } }): Promise<Response> {
   try {
     const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
-    const roleCheck = requireRole(authResult, "page_admin"); if (roleCheck) return roleCheck;
-    const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ? AND space_id = ?").bind(context.params.id, authResult.spaceId).first(); if (!event) return json({ error: "Event not found or access denied" }, 404);
+    const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ?").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
+    if ((event as Record<string,unknown>).space_id !== authResult.spaceId || authResult.role === 'viewer') return json({ error: "Forbidden" }, 403);
     await db.batch([
       db.prepare("DELETE FROM photos WHERE event_id = ?").bind(context.params.id),
       db.prepare("DELETE FROM videos WHERE event_id = ?").bind(context.params.id),

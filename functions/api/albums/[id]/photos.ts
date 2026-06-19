@@ -1,6 +1,7 @@
 /** Upload photo to album — POST /api/albums/:id/photos */
 import { json } from "../../../lib/response";
 import { requireAuth } from "../../../lib/auth";
+import { validateUploadContent } from "../../../lib/upload-validate";
 
 export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; PHOTOS?: R2Bucket }; params: { id: string } }): Promise<Response> {
   const a = await requireAuth(context.request, context.env);
@@ -18,6 +19,9 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     const form = await context.request.formData();
     const file = form.get("file") as File | null;
     if (!file) return json({ error: "No file provided" }, 400);
+
+    const contentCheck = await validateUploadContent(file);
+    if (!contentCheck.valid) return json({ error: contentCheck.reason }, 400);
 
     const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
     const storageKey = `albums/${id}/${crypto.randomUUID()}.${ext}`;

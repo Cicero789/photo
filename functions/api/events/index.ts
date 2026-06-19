@@ -24,6 +24,15 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     // Authenticated non-owners: filter by visibility + scrub
     const isOwner = authResult.spaceId === targetSpaceId && authResult.role !== "viewer";
     const isPlatformOwner = authResult.role === "platform_owner";
+    // Gate viewers always see only public+gate events (scrubbed), even in their own space
+    if (authResult.role === "viewer") {
+      const result = await db.prepare("SELECT * FROM events WHERE space_id = ? AND visibility IN ('public','gate') ORDER BY event_date DESC").bind(targetSpaceId).all<EventRow>();
+      const enriched = await Promise.all((result.results ?? []).map(async (e) => {
+        const pc = await db.prepare("SELECT COUNT(*) as count FROM photos WHERE event_id = ?").bind(e.id).first<{count:number}>();
+        return { ...toPublicEventDto({...e, photoCount: pc?.count ?? 0}), photoCount: pc?.count ?? 0 };
+      }));
+      return json({ events: enriched });
+    }
     if (spaceId && !isOwner && !isPlatformOwner) {
       const result = await db.prepare("SELECT * FROM events WHERE space_id = ? AND visibility IN ('public','gate') ORDER BY event_date DESC").bind(targetSpaceId).all<EventRow>();
       const enriched = await Promise.all((result.results ?? []).map(async (e) => {

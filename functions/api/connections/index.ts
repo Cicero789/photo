@@ -43,6 +43,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
 export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; ZOHO_API_KEY?: string; EMAIL_FROM?: string } }): Promise<Response> {
   try {
     const a = await requireAuth(context.request, context.env); if (a instanceof Response) return a;
+    const roleCheck = requireRole(a, "staff"); if (roleCheck) return roleCheck;
     const body = await context.request.json() as { email: string; connectionType: string; message?: string };
     if (!body.email || !["family", "friend"].includes(body.connectionType)) {
       return json({ error: "Email and connection type (family/friend) are required" }, 400);
