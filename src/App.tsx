@@ -20,6 +20,7 @@ import { AdminPhotographersPage } from "./pages/AdminPhotographersPage";
 import { PhotographerPage } from "./pages/PhotographerPage";
 import { AlbumViewerPage } from "./pages/AlbumViewerPage";
 import { AlbumsPage } from "./pages/AlbumsPage";
+import { PhotographerProfilePage } from "./pages/PhotographerProfilePage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { MainLayout } from "./components/layout/MainLayout";
 
@@ -52,6 +53,7 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/photographers" element={<PhotographerPage />} />
+          <Route path="/p/:slug" element={<PhotographerProfilePage />} />
           <Route path="/inspiration" element={<InspirationMapPage />} />
           {/* Public space routes */}
           <Route path="/s/:spaceSlug" element={<SpacePage />} />

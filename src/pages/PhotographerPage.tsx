@@ -1,10 +1,13 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { api } from "@/lib/api";
+import { Link } from "react-router-dom";
 
 interface Photographer {
   id: string;
   name: string;
-  email: string;
+  slug: string | null;
+  tagline: string | null;
+  specialties: string | null;
   website: string | null;
   portfolioUrl: string | null;
   serviceArea: string | null;
@@ -394,22 +397,38 @@ export function PhotographerPage() {
               Join these photographers who already call FrameNest home.
             </p>
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {photographers.map((p) => (
-                <div key={p.id} className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent-100 text-lg font-bold text-accent-700">
-                    {p.name.charAt(0)}
+              {photographers.map((p) => {
+                const Card = (
+                  <div className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-neutral-100 text-lg font-bold text-neutral-500">
+                      {p.name.charAt(0)}
+                    </div>
+                    <h3 className="mt-4 text-lg font-semibold text-neutral-900">{p.name}</h3>
+                    {p.tagline && <p className="mt-1 text-sm text-neutral-500">{p.tagline}</p>}
+                    {p.serviceArea && <p className="mt-2 text-xs font-medium text-neutral-500">📍 {p.serviceArea}</p>}
+                    {p.specialties && (
+                      <div className="mt-3 flex flex-wrap gap-1">
+                        {p.specialties.split(",").map(s => s.trim()).filter(Boolean).map(s => (
+                          <span key={s} className="rounded-full bg-neutral-100 px-2 py-0.5 text-[10px] font-medium text-neutral-600">{s}</span>
+                        ))}
+                      </div>
+                    )}
+                    {p.bio && <p className="mt-3 text-sm leading-relaxed text-neutral-500 line-clamp-2">{p.bio}</p>}
+                    {p.slug ? (
+                      <span className="mt-4 inline-flex text-sm font-medium text-neutral-600 hover:text-neutral-900">View profile →</span>
+                    ) : p.website ? (
+                      <span className="mt-4 inline-flex text-sm font-medium text-neutral-500">Visit portfolio →</span>
+                    ) : null}
                   </div>
-                  <h3 className="mt-4 text-lg font-semibold text-neutral-900">{p.name}</h3>
-                  {p.serviceArea && <p className="mt-1 text-xs font-medium text-accent-600">📍 {p.serviceArea}</p>}
-                  {p.bio && <p className="mt-3 text-sm leading-relaxed text-neutral-500 line-clamp-3">{p.bio}</p>}
-                  {p.website && (
-                    <a href={p.website} target="_blank" rel="noopener noreferrer"
-                      className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent-600 hover:text-accent-700">
-                      Visit portfolio →
-                    </a>
-                  )}
-                </div>
-              ))}
+                );
+                return p.slug ? (
+                  <Link key={p.id} to={`/p/${p.slug}`}>{Card}</Link>
+                ) : p.website ? (
+                  <a key={p.id} href={p.website} target="_blank" rel="noopener noreferrer">{Card}</a>
+                ) : (
+                  <div key={p.id}>{Card}</div>
+                );
+              })}
             </div>
           </div>
         </section>
