@@ -220,6 +220,23 @@ export function InspirationMapPage() {
         map.on("mouseenter", "clusters", () => { map.getCanvas().style.cursor = "pointer"; });
         map.on("mouseleave", "clusters", () => { map.getCanvas().style.cursor = ""; });
 
+        // --- Enhance base map labels for zoomed-in context ---
+        // Show more POI labels at zoom 12+ (default only shows rank 1 until zoom 16)
+        if (map.getLayer("poi-label")) {
+          map.setFilter("poi-label", ["<=", ["get", "filterrank"],
+            ["+", ["step", ["zoom"], 0, 12, 1, 14, 2, 16, 3], 1],
+          ]);
+          map.setPaintProperty("poi-label", "text-color", "hsl(220, 5%, 40%)");
+        }
+        // Darken road labels for readability on light background
+        if (map.getLayer("road-label-simple")) {
+          map.setPaintProperty("road-label-simple", "text-color", "hsl(220, 5%, 35%)");
+        }
+        // Show neighborhood names slightly earlier
+        if (map.getLayer("settlement-subdivision-label")) {
+          map.setLayerZoomRange("settlement-subdivision-label", 8, 24);
+        }
+
         mapReadyRef.current = true;
       });
     });
