@@ -18,6 +18,8 @@ import { EventDetailPage } from "./pages/EventDetailPage";
 import { AdminAdsPage } from "./pages/AdminAdsPage";
 import { AdminPhotographersPage } from "./pages/AdminPhotographersPage";
 import { PhotographerPage } from "./pages/PhotographerPage";
+import { AlbumViewerPage } from "./pages/AlbumViewerPage";
+import { AlbumsPage } from "./pages/AlbumsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { MainLayout } from "./components/layout/MainLayout";
 
@@ -41,6 +43,8 @@ export default function App() {
     <AuthProvider>
       <CustomDomainRedirect />
       <Routes>
+        {/* Standalone pages (no nav/footer) */}
+        <Route path="/album/:token" element={<AlbumViewerPage />} />
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -84,6 +88,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <DashboardGalleryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/albums"
+            element={
+              <ProtectedRoute>
+                <AlbumsPage />
               </ProtectedRoute>
             }
           />
