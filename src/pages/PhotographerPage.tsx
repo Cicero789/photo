@@ -19,6 +19,7 @@ export function PhotographerPage() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [photographers, setPhotographers] = useState<Photographer[]>([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     api.get<{ photographers: Photographer[] }>("/photographers/public")
@@ -394,10 +395,19 @@ export function PhotographerPage() {
               Photographers on FrameNest
             </h2>
             <p className="mt-3 text-center text-neutral-500">
-              Join these photographers who already call FrameNest home.
+              Find a photographer by name, location, or specialty.
             </p>
-            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {photographers.map((p) => {
+            <div className="mx-auto mt-6 max-w-md">
+              <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+                placeholder="Search by name, location, or specialty…"
+                className="w-full rounded-lg border border-border px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none" />
+            </div>
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {photographers.filter(p => {
+                if (!search.trim()) return true;
+                const q = search.toLowerCase();
+                return [p.name, p.serviceArea, p.specialties, p.bio, p.tagline].some(f => f?.toLowerCase().includes(q));
+              }).map((p) => {
                 const Card = (
                   <div className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-neutral-100 text-lg font-bold text-neutral-500">

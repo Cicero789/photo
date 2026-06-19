@@ -194,7 +194,10 @@ export function DashboardPage() {
         <ConnectionsTab />
       )}
       {activeTab === "settings" && (
-        <SettingsTab space={spaceInfo} onUpdate={fetchSpace} />
+        <>
+          <SettingsTab space={spaceInfo} onUpdate={fetchSpace} />
+          <PhotographerProfileCard />
+        </>
       )}
 
       {/* Create Event Modal */}
@@ -612,3 +615,82 @@ function SettingsTab({ space, onUpdate }: { space: SpaceInfo | null; onUpdate: (
 }
 
 const COLOR_PRESETS = ["#3b82f6", "#d946ef", "#16a34a", "#f59e0b", "#dc2626", "#6366f1", "#0d9488", "#64748b"];
+
+// ─── Photographer Profile Card ───
+function PhotographerProfileCard() {
+  const [profile, setProfile] = useState<{ slug: string; tagline: string; specialties: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  useEffect(() => {
+    api.get<{ slug: string; tagline: string; specialties: string }>("/photographers/config")
+      .then(d => { if (d.slug !== undefined) setProfile({ slug: d.slug || "", tagline: d.tagline || "", specialties: d.specialties || "" }); })
+      .catch(() => {});
+  }, []);
+
+  if (!profile) return null; // not a photographer
+
+  const handleSave = async () => {
+    setSaving(true);
+    setMsg(null);
+    try {
+      await api.put("/photographers/config", profile);
+      setMsg({ type: "success", text: "Profile saved!" });
+    } catch (err) {
+      setMsg({ type: "error", text: err instanceof Error ? err.message : "Failed to save" });
+    }
+    setSaving(false);
+  };
+
+  return (
+    <div className="mt-6 rounded-2xl border border-border bg-white p-8">
+      <h2 className="text-lg font-semibold text-neutral-900">Photographer profile</h2>
+      <p className="mt-1 text-sm text-neutral-500">
+        Your public profile at{" "}
+        {profile.slug ? (
+          <a href={`/p/${profile.slug}`} className="text-primary-600 hover:underline">framenest.photos/p/{profile.slug}</a>
+        ) : (
+          <span className="text-neutral-400">framenest.photos/p/your-slug</span>
+        )}
+      </p>
+
+      {msg && (
+        <div className={cn("mt-4 rounded-lg border px-4 py-3 text-sm",
+          msg.type === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700"
+        )}>{msg.text}</div>
+      )}
+
+      <div className="mt-6 max-w-lg space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-neutral-700">Profile URL slug</label>
+          <div className="mt-1 flex items-center gap-2">
+            <span className="text-sm text-neutral-400">framenest.photos/p/</span>
+            <input type="text" value={profile.slug}
+              onChange={e => setProfile(p => p ? { ...p, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-") } : p)}
+              placeholder="jane-doe"
+              className="flex-1 rounded-lg border border-border px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-neutral-700">Tagline</label>
+          <input type="text" value={profile.tagline}
+            onChange={e => setProfile(p => p ? { ...p, tagline: e.target.value } : p)}
+            placeholder="Capturing moments that matter"
+            className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-neutral-700">Specialties</label>
+          <input type="text" value={profile.specialties}
+            onChange={e => setProfile(p => p ? { ...p, specialties: e.target.value } : p)}
+            placeholder="Weddings, Portraits, Events"
+            className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none" />
+          <p className="mt-1 text-xs text-neutral-400">Comma-separated list</p>
+        </div>
+        <button onClick={handleSave} disabled={saving}
+          className="rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:opacity-50">
+          {saving ? "Saving..." : "Save profile"}
+        </button>
+      </div>
+    </div>
+  );
+}
