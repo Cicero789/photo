@@ -16,7 +16,10 @@ function getAllowedOrigin(request: Request): string {
   if (!origin) return "";
   if (ALLOWED_ORIGINS.includes(origin)) return origin;
   // In dev, allow localhost origins.
-  if (origin.startsWith("http://localhost")) return origin;
+  try {
+    const parsed = new URL(origin);
+    if (parsed.hostname === "localhost" || parsed.hostname === "127.0.0.1") return origin;
+  } catch {}
   if (origin === "null") return ""; // opaque origin
   return "";
 }
@@ -35,7 +38,7 @@ function addCorsHeaders(response: Response, origin: string): Response {
   // would defeat the allowlist entirely.
   if (origin) headers.set("Access-Control-Allow-Origin", origin);
   headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Album-Password");
   headers.set("Access-Control-Max-Age", "86400");
   addSecurityHeaders(headers);
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
@@ -45,9 +48,10 @@ function addCorsHeaders(response: Response, origin: string): Response {
 const RATE_LIMITED_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 const RATE_LIMITED_PREFIXES = [
   "/api/auth/login", "/api/auth/gate", "/api/auth/signup",
-  "/api/auth/forgot-password", "/api/photographers",
+  "/api/auth/forgot-password", "/api/auth/reset-password", "/api/photographers",
   "/api/photos/upload", "/api/videos/upload", "/api/albums",
-  "/api/albums/view"
+  "/api/albums/view", "/api/connections", "/api/bookings",
+  "/api/events", "/api/spaces/members"
 ];
 
 function isRateLimited(request: Request): boolean {

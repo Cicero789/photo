@@ -11,8 +11,11 @@
     "test:watch": "vitest",
     "lint": "eslint functions/ src/ --max-warnings 0",
     "deploy": "wrangler pages deploy ./dist",
+    "deploy:safe": "npm run build && npm test && npm run db:backup && npm run deploy",
+    "db:backup": "wrangler d1 export photo-db --remote --output=backups/db_backup.sql",
     "db:local": "wrangler d1 execute photo-db --local --file=./db/schema.sql",
     "db:remote": "wrangler d1 execute photo-db --remote --file=./db/schema.sql",
+    "db:migrate": "wrangler d1 execute photo-db --remote --file=",
     "db:studio": "wrangler d1 execute photo-db --local --command=\"SELECT 'D1 Studio ready'\""
   },
   "dependencies": {

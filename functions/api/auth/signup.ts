@@ -70,26 +70,17 @@ export async function onRequestPost(context: {
     const role = "page_admin";
 
     try {
-      await db
-        .prepare(
+      await db.batch([
+        db.prepare(
           "INSERT INTO users (id, email, name, password_hash, role, space_id, avatar_url, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        )
-        .bind(userId, email, name, userPasswordHash, role, spaceId, null, now)
-        .run();
-
-      await db
-        .prepare(
+        ).bind(userId, email, name, userPasswordHash, role, spaceId, null, now),
+        db.prepare(
           "INSERT INTO spaces (id, name, slug, password_hash, custom_domain, logo_url, theme_color, owner_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        )
-        .bind(spaceId, spaceName, spaceSlug, gateKeyHash, null, null, "#3b82f6", userId, now, now)
-        .run();
-
-      await db
-        .prepare(
+        ).bind(spaceId, spaceName, spaceSlug, gateKeyHash, null, null, "#3b82f6", userId, now, now),
+        db.prepare(
           "INSERT INTO space_members (id, space_id, user_id, role) VALUES (?, ?, ?, ?)",
-        )
-        .bind(memberId, spaceId, userId, role)
-        .run();
+        ).bind(memberId, spaceId, userId, role),
+      ]);
     } catch (dbErr) {
       console.error("Signup DB error:", dbErr);
       return json({ error: "Something went wrong while creating your account." }, 500);

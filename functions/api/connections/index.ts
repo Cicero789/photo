@@ -79,11 +79,12 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
       const randomPw = crypto.randomUUID().slice(0, 16);
       const pwHash = await hashPassword(randomPw);
 
-      // Insert user FIRST (space_id column has no FK, owner_id does)
-      await db.prepare("INSERT INTO users (id, email, name, password_hash, role, space_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(newUserId, email, body.email.split("@")[0], pwHash, "page_admin", newSpaceId, now).run();
-      // Then create space (owner_id → users FK now satisfied)
-      await db.prepare("INSERT INTO spaces (id, name, slug, password_hash, owner_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(newSpaceId, body.email.split("@")[0], `space-${newSpaceId.slice(0,8)}`, pwHash, newUserId, now, now).run();
-      await db.prepare("INSERT INTO space_members (id, space_id, user_id, role) VALUES (?, ?, ?, ?)").bind(crypto.randomUUID(), newSpaceId, newUserId, "page_admin").run();
+      const memberId = crypto.randomUUID();
+      await db.batch([
+        db.prepare("INSERT INTO users (id, email, name, password_hash, role, space_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(newUserId, email, body.email.split("@")[0], pwHash, "page_admin", newSpaceId, now),
+        db.prepare("INSERT INTO spaces (id, name, slug, password_hash, owner_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(newSpaceId, body.email.split("@")[0], `space-${newSpaceId.slice(0,8)}`, pwHash, newUserId, now, now),
+        db.prepare("INSERT INTO space_members (id, space_id, user_id, role) VALUES (?, ?, ?, ?)").bind(memberId, newSpaceId, newUserId, "page_admin"),
+      ]);
     }
 
     // Create connection

@@ -68,7 +68,8 @@ CREATE TABLE IF NOT EXISTS events (
   longitude       REAL,
   public          INTEGER DEFAULT 1,
   payment_model   TEXT DEFAULT 'prepaid' CHECK(payment_model IN ('prepaid','unlock')),
-  visibility      TEXT DEFAULT 'private' CHECK(visibility IN ('private','gate','public'))
+  visibility      TEXT DEFAULT 'private' CHECK(visibility IN ('private','gate','public')),
+  deleted_at      TEXT
 );
 
 CREATE TABLE IF NOT EXISTS photos (
@@ -87,7 +88,8 @@ CREATE TABLE IF NOT EXISTS photos (
   uploaded_by       TEXT NOT NULL REFERENCES users(id),
   created_at        TEXT NOT NULL DEFAULT (datetime('now')),
   favorite          INTEGER DEFAULT 0,
-  license           TEXT DEFAULT 'personal'
+  license           TEXT DEFAULT 'personal',
+  deleted_at        TEXT
 );
 
 CREATE TABLE IF NOT EXISTS videos (
@@ -101,7 +103,8 @@ CREATE TABLE IF NOT EXISTS videos (
   file_size         INTEGER NOT NULL,
   uploaded_by       TEXT NOT NULL REFERENCES users(id),
   stream_id         TEXT,
-  created_at        TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at        TEXT NOT NULL DEFAULT (datetime('now')),
+  deleted_at        TEXT
 );
 
 CREATE TABLE IF NOT EXISTS event_messages (
@@ -182,7 +185,8 @@ CREATE TABLE IF NOT EXISTS albums (
   downloads   INTEGER DEFAULT 1,
   expires_at  TEXT,
   view_count  INTEGER DEFAULT 0,
-  created_at  TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+  deleted_at  TEXT
 );
 
 CREATE TABLE IF NOT EXISTS album_photos (
@@ -301,3 +305,12 @@ CREATE INDEX IF NOT EXISTS idx_act_user ON activity_log(user_id, read);
 CREATE INDEX IF NOT EXISTS idx_password_resets_token ON password_resets(token);
 CREATE INDEX IF NOT EXISTS idx_rate_limits_ip_ep ON rate_limits(ip, endpoint);
 CREATE INDEX IF NOT EXISTS idx_rate_limits_ts ON rate_limits(timestamp);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_unique ON reviews(photographer_id, reviewer_id);
+
+-- ─── Migration Tracking ───
+
+CREATE TABLE IF NOT EXISTS _migrations (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  name       TEXT NOT NULL UNIQUE,
+  applied_at TEXT NOT NULL DEFAULT (datetime('now'))
+);

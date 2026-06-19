@@ -29,6 +29,9 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
       await db.prepare("UPDATE connections SET magic_token = NULL WHERE id = ?").bind(conn.id).run();
     }
 
+    // Ensure all connections with this magic token are invalidated
+    await db.prepare("UPDATE connections SET magic_token = NULL WHERE magic_token = ?").bind(body.token).run();
+
     const space = await db.prepare("SELECT * FROM spaces WHERE id = ?").bind(user.space_id as string).first<Record<string,unknown>>();
     const token = await signToken({
       userId: user.id as string,

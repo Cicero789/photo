@@ -1,6 +1,7 @@
 /** Portfolio photos — GET (list) + POST (upload) */
 import { json } from "../../lib/response";
 import { requireAuth } from "../../lib/auth";
+import { validateUploadContent } from "../../lib/upload-validate";
 
 export async function onRequestGet(context: { request: Request; env: { DB?: D1Database } }): Promise<Response> {
   const a = await requireAuth(context.request, context.env);
@@ -35,6 +36,12 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
   const form = await context.request.formData();
   const file = form.get("file") as File | null;
   if (!file) return json({ error: "No file provided" }, 400);
+
+  const PHOTO_TYPES = ["image/jpeg","image/png","image/webp","image/avif","image/heic"];
+  if (!PHOTO_TYPES.includes(file.type)) return json({ error: "Invalid file type" }, 400);
+  if (file.size > 50 * 1024 * 1024) return json({ error: "File too large (max 50MB)" }, 400);
+  const contentCheck = await validateUploadContent(file);
+  if (!contentCheck.valid) return json({ error: contentCheck.reason || "Invalid file" }, 400);
 
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
   const storageKey = `portfolio/${photographer.id}/${crypto.randomUUID()}.${ext}`;

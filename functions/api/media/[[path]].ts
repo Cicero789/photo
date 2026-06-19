@@ -17,7 +17,7 @@ import { requireAuth } from "../../lib/auth";
 
 export async function onRequestGet(context: {
   request: Request;
-  env: { PHOTOS?: R2Bucket; VIDEOS?: R2Bucket; DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string };
+  env: { PHOTOS?: R2Bucket; VIDEOS?: R2Bucket; DB?: D1Database; JWT_SECRET?: string; MEDIA_SIGNING_SECRET?: string; ENVIRONMENT?: string };
   params: { path: string[] };
 }): Promise<Response> {
   const segments = context.params.path;
@@ -39,7 +39,7 @@ export async function onRequestGet(context: {
 
   if (expires && sig) {
     // Signed URL access
-    const secret = context.env.JWT_SECRET || "";
+    const secret = context.env.MEDIA_SIGNING_SECRET || context.env.JWT_SECRET || "";
     const valid = await verifyMediaSignature(storageKey, sig, expires, secret);
     if (!valid) return new Response(JSON.stringify({ error: "Invalid or expired link" }), { status: 403, headers: { "Content-Type": "application/json" } });
   } else {

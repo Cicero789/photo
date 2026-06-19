@@ -18,8 +18,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
 
   // Check password (if set, require it via query param or header)
   if (album.password) {
-    const url = new URL(context.request.url);
-    const pw = url.searchParams.get("pw") || context.request.headers.get("X-Album-Password") || "";
+    const pw = context.request.headers.get("X-Album-Password") || "";
     if (!await verifyPassword(pw, album.password)) {
       return json({ needsPassword: true, name: album.name, ownerName: album.owner_name }, 401);
     }

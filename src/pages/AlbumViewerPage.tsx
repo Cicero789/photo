@@ -30,8 +30,9 @@ export function AlbumViewerPage() {
     setLoading(true);
     setError("");
     try {
-      const qs = pw ? `?pw=${encodeURIComponent(pw)}` : "";
-      const res = await fetch(`/api/albums/view/${token}${qs}`);
+      const res = await fetch(`/api/albums/view/${token}`, {
+        headers: pw ? { "X-Album-Password": pw } : {},
+      });
       const data = await res.json();
       if (!res.ok) {
         if (data.needsPassword) {
