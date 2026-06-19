@@ -1,51 +1,76 @@
-import { json } from "../../lib/response"; import { requireAuth } from "../../lib/auth";
+/** Stripe Checkout — POST to create a checkout session */
+import { json } from "../../lib/response";
+import { requireAuth } from "../../lib/auth";
+import { createCheckoutSession } from "../../lib/stripe";
 
 export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; STRIPE_SECRET_KEY?: string } }): Promise<Response> {
   try {
-    const a = await requireAuth(context.request, context.env); if (a instanceof Response) return a;
-    const body = await context.request.json() as { photographerId: string; product: string; amountCents: number; eventId?: string; photoId?: string };
+    const a = await requireAuth(context.request, context.env);
+    if (a instanceof Response) return a;
+    const secret = context.env.STRIPE_SECRET_KEY;
+    if (!secret) return json({ error: "Stripe not configured" }, 500);
 
-    if (!body.photographerId || !body.product || !body.amountCents) return json({ error: "Missing fields" }, 400);
+    const body = await context.request.json() as {
+      photographerId: string;
+      product: string;
+      photoId?: string;
+      eventId?: string;
+    };
+    if (!body.photographerId || !body.product) return json({ error: "photographerId and product required" }, 400);
 
     const db = context.env.DB!;
-    const photog = await db.prepare("SELECT pricing_config, stripe_config FROM photographers WHERE id = ?").bind(body.photographerId).first<{pricing_config:string;stripe_config:string}>();
-    if (!photog) return json({ error: "Photographer not found" }, 404);
+    const photographer = await db.prepare(
+      "SELECT id, name, stripe_config, pricing_config FROM photographers WHERE id = ? AND status = 'approved'"
+    ).bind(body.photographerId).first() as any;
+    if (!photographer) return json({ error: "Photographer not found" }, 404);
 
-    const sc = JSON.parse(photog.stripe_config || "{}");
-    if (!sc.stripeAccount) return json({ error: "Photographer hasn't set up payments" }, 400);
+    let stripeConfig: any = {};
+    let pricing: any = {};
+    try { stripeConfig = JSON.parse(photographer.stripe_config || "{}"); } catch {}
+    try { pricing = JSON.parse(photographer.pricing_config || "{}"); } catch {}
 
-    // Server-side price validation from photographer's stored pricing
-    const pricing = JSON.parse(photog.pricing_config || "{}");
-    let validPrice = 0;
-    if (body.product === "download" && pricing.downloads) validPrice = Math.round((pricing.downloads.single || 4.99) * 100);
-    else if (body.product === "full-gallery" && pricing.downloads) validPrice = Math.round((pricing.downloads.full || 49) * 100);
-    else if (body.product.startsWith("print-")) {
+    const stripeAccountId = stripeConfig.stripeAccountId || stripeConfig.stripeAccount;
+    if (!stripeAccountId) return json({ error: "Photographer has not connected Stripe" }, 400);
+
+    // Determine price from photographer's config
+    let amountCents = 0;
+    let productName = "";
+    if (body.product === "single_download" || body.product === "download") {
+      amountCents = Math.round((pricing.downloads?.single || 4.99) * 100);
+      productName = `Single Photo Download — ${photographer.name}`;
+    } else if (body.product === "full_gallery" || body.product === "full-gallery") {
+      amountCents = Math.round((pricing.downloads?.full || 49) * 100);
+      productName = `Full Gallery Download — ${photographer.name}`;
+    } else if (body.product.startsWith("print-")) {
       const size = body.product.replace("print-", "");
-      validPrice = Math.round(((pricing.prints || {})[size] || 9.99) * 100);
+      amountCents = Math.round(((pricing.prints || {})[size] || 9.99) * 100);
+      productName = `Print ${size} — ${photographer.name}`;
+    } else {
+      return json({ error: "Invalid product type" }, 400);
     }
-    if (validPrice === 0) return json({ error: "Invalid product" }, 400);
-    if (Math.abs(body.amountCents - validPrice) > 1) return json({ error: "Price mismatch" }, 400);
 
-    const sk = context.env.STRIPE_SECRET_KEY;
-    if (!sk) return json({ error: "Payment not configured" }, 500);
+    // Create order
+    const orderId = crypto.randomUUID();
+    await db.prepare(
+      "INSERT INTO orders (id, buyer_user_id, photographer_id, photo_id, event_id, product, amount_cents, status, created_at) VALUES (?,?,?,?,?,?,?,'pending',datetime('now'))"
+    ).bind(orderId, a.userId, photographer.id, body.photoId || null, body.eventId || null, body.product, amountCents).run();
 
-    const fee = Math.round(body.amountCents * 0.10);
-    const idempotencyKey = `order-${a.userId}-${body.photographerId}-${body.product}-${body.photoId || "none"}`;
-
-    const res = await fetch("https://api.stripe.com/v1/payment_intents", {
-      method: "POST", headers: { Authorization: `Bearer ${sk}`, "Content-Type": "application/x-www-form-urlencoded", "Idempotency-Key": idempotencyKey },
-      body: new URLSearchParams({
-        amount: String(body.amountCents), currency: "usd", application_fee_amount: String(fee),
-        "transfer_data[destination]": sc.stripeAccount,
-        "metadata[photographerId]": body.photographerId, "metadata[buyerId]": a.userId, "metadata[product]": body.product,
-      }).toString(),
+    // Create Stripe Checkout Session
+    const origin = new URL(context.request.url).origin;
+    const session = await createCheckoutSession(secret, {
+      photographerStripeId: stripeAccountId,
+      amountCents,
+      productName,
+      successUrl: `${origin}/dashboard?payment=success&order=${orderId}`,
+      cancelUrl: `${origin}/dashboard?payment=cancelled`,
+      orderId,
+      platformFeeCents: Math.round(amountCents * 0.05),
     });
 
-    const pi = await res.json() as any;
-    if (pi.error) return json({ error: pi.error.message }, 400);
+    await db.prepare("UPDATE orders SET stripe_id = ? WHERE id = ?").bind(session.id, orderId).run();
 
-    await db.prepare("INSERT INTO orders (id, buyer_user_id, photographer_id, photo_id, event_id, product, amount_cents, stripe_id, status, created_at) VALUES (?,?,?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(), a.userId, body.photographerId, body.photoId || null, body.eventId || null, body.product, body.amountCents, pi.id, "pending", new Date().toISOString()).run();
-
-    return json({ clientSecret: pi.client_secret });
-  } catch (err: any) { return json({ error: err.message || "Checkout failed" }, 500); }
+    return json({ url: session.url, orderId });
+  } catch (err: any) {
+    return json({ error: err.message || "Checkout failed" }, 500);
+  }
 }
