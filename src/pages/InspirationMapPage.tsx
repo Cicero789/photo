@@ -238,6 +238,16 @@ export function InspirationMapPage() {
         }
 
         mapReadyRef.current = true;
+
+        // If data loaded before the map, do initial fitBounds now
+        if (itemsRef.current.length > 1 && !hasFitRef.current) {
+          const bounds = new mb.LngLatBounds();
+          itemsRef.current.forEach((item: any) => {
+            if (item.latitude && item.longitude) bounds.extend([item.longitude, item.latitude]);
+          });
+          map.fitBounds(bounds, { padding: 60, maxZoom: 10 });
+          hasFitRef.current = true;
+        }
       });
     });
 
