@@ -13,6 +13,7 @@ interface ProfileData {
   website: string;
   portfolioUrl: string;
   serviceArea: string;
+  verified: boolean;
   pricing: { downloads?: { single?: number; full?: number } };
   heroPhotos: string[];
   portfolio: { id: string; url: string; filename: string }[];
@@ -119,7 +120,10 @@ export function PhotographerProfilePage() {
               {profile.name.charAt(0)}
             </div>
             <div className="mt-4 sm:mt-0">
-              <h1 className="font-display text-3xl font-bold text-neutral-900 sm:text-4xl">{profile.name}</h1>
+              <h1 className="font-display text-3xl font-bold text-neutral-900 sm:text-4xl">
+                {profile.name}
+                {profile.verified && <span className="ml-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-xs text-emerald-600" title="Verified photographer">✓</span>}
+              </h1>
               {profile.tagline && (
                 <p className="mt-2 text-lg text-neutral-500">{profile.tagline}</p>
               )}

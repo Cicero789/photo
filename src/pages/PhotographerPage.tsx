@@ -12,6 +12,7 @@ interface Photographer {
   portfolioUrl: string | null;
   serviceArea: string | null;
   bio: string | null;
+  verified: boolean;
 }
 
 export function PhotographerPage() {
@@ -413,7 +414,10 @@ export function PhotographerPage() {
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-neutral-100 text-lg font-bold text-neutral-500">
                       {p.name.charAt(0)}
                     </div>
-                    <h3 className="mt-4 text-lg font-semibold text-neutral-900">{p.name}</h3>
+                    <h3 className="mt-4 text-lg font-semibold text-neutral-900">
+                      {p.name}
+                      {p.verified && <span className="ml-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100 text-[9px] text-emerald-600">✓</span>}
+                    </h3>
                     {p.tagline && <p className="mt-1 text-sm text-neutral-500">{p.tagline}</p>}
                     {p.serviceArea && <p className="mt-2 text-xs font-medium text-neutral-500">📍 {p.serviceArea}</p>}
                     {p.specialties && (

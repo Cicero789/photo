@@ -6,7 +6,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
   if (!slug) return json({ error: "Slug required" }, 400);
 
   const photographer = await context.env.DB!.prepare(
-    "SELECT id, name, slug, tagline, specialties, bio, website, portfolio_url, service_area, pricing_config, hero_photos, status FROM photographers WHERE slug = ? AND status = 'approved'"
+    "SELECT id, name, slug, tagline, specialties, bio, website, portfolio_url, service_area, pricing_config, hero_photos, verified, status FROM photographers WHERE slug = ? AND status = 'approved'"
   ).bind(slug).first() as any;
   if (!photographer) return json({ error: "Photographer not found" }, 404);
 
@@ -39,6 +39,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     website: photographer.website || "",
     portfolioUrl: photographer.portfolio_url || "",
     serviceArea: photographer.service_area || "",
+    verified: photographer.verified === 1,
     pricing,
     heroPhotos,
     reviewStats: { count: reviewStats?.count || 0, average: Math.round((reviewStats?.avg || 0) * 10) / 10 },
