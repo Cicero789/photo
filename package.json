@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && tsc -p functions && vite build",
     "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "deploy": "wrangler pages deploy ./dist",
     "db:local": "wrangler d1 execute photo-db --local --file=./db/schema.sql",
     "db:remote": "wrangler d1 execute photo-db --remote --file=./db/schema.sql",
@@ -32,6 +34,7 @@
     "tailwindcss": "^4.1.10",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
+    "vitest": "^4.1.9",
     "wrangler": "^4.14.0"
   }
 }
