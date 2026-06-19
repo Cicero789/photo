@@ -28,13 +28,13 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
 
     if (isOwner) {
       // Space owner/manager: full access regardless of visibility
-      const photos = await db.prepare("SELECT * FROM photos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
-      const videos = await db.prepare("SELECT * FROM videos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
+      const photos = await db.prepare("SELECT * FROM photos WHERE event_id = ? AND deleted_at IS NULL ORDER BY created_at").bind(context.params.id).all();
+      const videos = await db.prepare("SELECT * FROM videos WHERE event_id = ? AND deleted_at IS NULL ORDER BY created_at").bind(context.params.id).all();
       return json({ event: { id: ev.id, spaceId: ev.space_id, title: ev.title, category: ev.category, eventDate: ev.event_date, description: ev.description, aiSummary: ev.ai_summary, coverPhotoId: ev.cover_photo_id, address: ev.address || "", addressLocked: (ev.address_locked as number) === 1, public: (ev.public as number) !== 0, createdAt: ev.created_at, updatedAt: ev.updated_at }, photos: (photos.results ?? []).map(mapPhoto), videos: (videos.results ?? []).map(mapVideo) });
     }
 
     // Return scrubbed public data for readable non-owner events
-    const photos = await db.prepare("SELECT id, storage_key, width, height, license FROM photos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
+    const photos = await db.prepare("SELECT id, storage_key, width, height, license FROM photos WHERE event_id = ? AND deleted_at IS NULL ORDER BY created_at").bind(context.params.id).all();
     return json({ event: toPublicEventDto(ev), photos: (photos.results ?? []).map(toPublicPhotoDto) });
   } catch (err) { console.error("Get event error:", err); return json({ error: "Something went wrong" }, 500); }
 }
@@ -76,19 +76,25 @@ export async function onRequestDelete(context: { request: Request; env: { DB?: D
     if ((event as Record<string,unknown>).space_id !== authResult.spaceId || authResult.role === 'viewer') return json({ error: "Forbidden" }, 403);
 
     // Clean up R2 storage before deleting DB rows
-    const photoRows = await db.prepare("SELECT storage_key FROM photos WHERE event_id = ?").bind(context.params.id).all<{ storage_key: string }>();
-    const videoRows = await db.prepare("SELECT storage_key FROM videos WHERE event_id = ?").bind(context.params.id).all<{ storage_key: string }>();
+    const photoRows = await db.prepare("SELECT storage_key FROM photos WHERE event_id = ? AND deleted_at IS NULL").bind(context.params.id).all<{ storage_key: string }>();
+    const videoRows = await db.prepare("SELECT storage_key FROM videos WHERE event_id = ? AND deleted_at IS NULL").bind(context.params.id).all<{ storage_key: string }>();
     for (const row of photoRows.results ?? []) {
-      await context.env.PHOTOS?.delete(row.storage_key);
+      const obj = await context.env.PHOTOS?.get(row.storage_key);
+      if (obj) {
+        await context.env.PHOTOS?.put(`trash/${row.storage_key}`, obj.body, { httpMetadata: obj.httpMetadata });
+      }
     }
     for (const row of videoRows.results ?? []) {
-      await context.env.VIDEOS?.delete(row.storage_key);
+      const obj = await context.env.VIDEOS?.get(row.storage_key);
+      if (obj) {
+        await context.env.VIDEOS?.put(`trash/${row.storage_key}`, obj.body, { httpMetadata: obj.httpMetadata });
+      }
     }
 
     await db.batch([
-      db.prepare("DELETE FROM photos WHERE event_id = ?").bind(context.params.id),
-      db.prepare("DELETE FROM videos WHERE event_id = ?").bind(context.params.id),
-      db.prepare("DELETE FROM events WHERE id = ?").bind(context.params.id),
+      db.prepare("UPDATE photos SET deleted_at = datetime('now') WHERE event_id = ? AND deleted_at IS NULL").bind(context.params.id),
+      db.prepare("UPDATE videos SET deleted_at = datetime('now') WHERE event_id = ? AND deleted_at IS NULL").bind(context.params.id),
+      db.prepare("UPDATE events SET deleted_at = datetime('now') WHERE id = ? AND deleted_at IS NULL").bind(context.params.id),
     ]);
     return json({ success: true });
   } catch (err) { console.error("Delete event error:", err); return json({ error: "Something went wrong" }, 500); }

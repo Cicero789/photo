@@ -11,7 +11,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
 
     // Public access: anonymous visitors can only list PUBLIC events (scrubbed)
     if (spaceId && !context.request.headers.get("Authorization")) {
-      const result = await db.prepare("SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id) as photo_count FROM events e WHERE e.space_id = ? AND e.visibility = 'public' ORDER BY e.event_date DESC").bind(spaceId).all<EventRow & {photo_count: number}>();
+      const result = await db.prepare("SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND deleted_at IS NULL) as photo_count FROM events e WHERE e.space_id = ? AND e.visibility = 'public' AND e.deleted_at IS NULL ORDER BY e.event_date DESC").bind(spaceId).all<EventRow & {photo_count: number}>();
       const enriched = (result.results ?? []).map((e) => {
         return { ...toPublicEventDto({...e, photoCount: e.photo_count ?? 0}), photoCount: e.photo_count ?? 0 };
       });
@@ -25,21 +25,21 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     const isPlatformOwner = authResult.role === "platform_owner";
     // Gate viewers always see only public+gate events (scrubbed), even in their own space
     if (authResult.role === "viewer") {
-      const result = await db.prepare("SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id) as photo_count FROM events e WHERE e.space_id = ? AND e.visibility IN ('public','gate') ORDER BY e.event_date DESC").bind(targetSpaceId).all<EventRow & {photo_count: number}>();
+      const result = await db.prepare("SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND deleted_at IS NULL) as photo_count FROM events e WHERE e.space_id = ? AND e.visibility IN ('public','gate') AND e.deleted_at IS NULL ORDER BY e.event_date DESC").bind(targetSpaceId).all<EventRow & {photo_count: number}>();
       const enriched = (result.results ?? []).map((e) => {
         return { ...toPublicEventDto({...e, photoCount: e.photo_count ?? 0}), photoCount: e.photo_count ?? 0 };
       });
       return json({ events: enriched });
     }
     if (spaceId && !isOwner && !isPlatformOwner) {
-      const result = await db.prepare("SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id) as photo_count FROM events e WHERE e.space_id = ? AND e.visibility IN ('public','gate') ORDER BY e.event_date DESC").bind(targetSpaceId).all<EventRow & {photo_count: number}>();
+      const result = await db.prepare("SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND deleted_at IS NULL) as photo_count FROM events e WHERE e.space_id = ? AND e.visibility IN ('public','gate') AND e.deleted_at IS NULL ORDER BY e.event_date DESC").bind(targetSpaceId).all<EventRow & {photo_count: number}>();
       const enriched = (result.results ?? []).map((e) => {
         return { ...toPublicEventDto({...e, photoCount: e.photo_count ?? 0}), photoCount: e.photo_count ?? 0 };
       });
       return json({ events: enriched });
     }
     if (spaceId && !isPlatformOwner) { const spaceCheck = requireSpaceOwnership(authResult, spaceId); if (spaceCheck) return spaceCheck; }
-    const result = await db.prepare("SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id) as photo_count, (SELECT storage_key FROM photos WHERE event_id = e.id AND id = e.cover_photo_id LIMIT 1) as cover_key FROM events e WHERE e.space_id = ? ORDER BY e.event_date DESC").bind(targetSpaceId).all<EventRow & {photo_count: number; cover_key: string | null}>();
+    const result = await db.prepare("SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND deleted_at IS NULL) as photo_count, (SELECT storage_key FROM photos WHERE event_id = e.id AND id = e.cover_photo_id LIMIT 1) as cover_key FROM events e WHERE e.space_id = ? AND e.deleted_at IS NULL ORDER BY e.event_date DESC").bind(targetSpaceId).all<EventRow & {photo_count: number; cover_key: string | null}>();
     const events = result.results ?? [];
     const enriched = events.map((e) => {
       return { id: e.id, spaceId: e.space_id, title: e.title, category: e.category, eventDate: e.event_date, description: e.description, aiSummary: e.ai_summary, coverPhotoId: e.cover_photo_id, coverPhotoUrl: e.cover_key ? `/api/media/photos/${e.cover_key}` : null, photoCount: e.photo_count ?? 0, address: e.address || "", addressLocked: e.address_locked === 1, public: e.public !== 0, latitude: e.latitude, longitude: e.longitude, createdAt: e.created_at, updatedAt: e.updated_at };
