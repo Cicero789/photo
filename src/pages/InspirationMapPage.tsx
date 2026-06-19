@@ -55,7 +55,7 @@ export function InspirationMapPage() {
       const bounds = new mb.LngLatBounds();
       // Marker rendering with zoom-dependent detail
       const currentZoom = map.getZoom();
-      const showLabels = currentZoom >= 10;
+      const showLabels = currentZoom >= 12;
 
       items.forEach(item => {
         const el = document.createElement("div");
@@ -92,10 +92,10 @@ export function InspirationMapPage() {
           const isCC0 = item.source === "cc0" || item.source === "seed";
           const hasPhoto = !!(item.thumbnailUrl || item.photoUrl);
           const name = item.address.split(",")[0] || item.address;
-          const shortName = name.length > 18 ? name.slice(0,16) + "…" : name;
+          const shortName = name.length > 20 ? name.slice(0,18) + "…" : name;
           const bg = isFrameNest ? "bg-primary-600" : (isCC0 && hasPhoto) ? "bg-amber-500" : "bg-neutral-400";
           const icon = isFrameNest ? "📸" : (isCC0 && hasPhoto) ? "🖼️" : "📍";
-          if (z >= 8) {
+          if (z >= 12) {
             el.className = `flex items-center gap-1 cursor-pointer rounded-full text-white shadow-lg px-2 py-1 text-[10px] font-bold border-2 border-white whitespace-nowrap ${bg}`;
             el.innerHTML = `${icon} ${shortName}`;
           } else {
