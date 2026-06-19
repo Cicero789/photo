@@ -33,12 +33,34 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     const obj = event.data.object;
 
     if (event.type === "checkout.session.completed") {
-      // Checkout Sessions: update order by session ID or metadata
       const orderId = obj.metadata?.order_id;
-      if (orderId) {
+      const photographerId = obj.metadata?.photographer_id;
+
+      if (obj.mode === "subscription" && photographerId) {
+        // Verified subscription activated
+        await context.env.DB!.prepare(
+          "UPDATE photographers SET verified = 1, verified_at = datetime('now'), subscription_id = ?, subscription_status = 'active' WHERE id = ?"
+        ).bind(obj.subscription, photographerId).run();
+      } else if (orderId) {
+        // One-time payment order
         await context.env.DB!.prepare("UPDATE orders SET status = 'paid', stripe_id = ? WHERE id = ? AND status = 'pending'").bind(obj.payment_intent || obj.id, orderId).run();
       } else {
         await context.env.DB!.prepare("UPDATE orders SET status = 'paid' WHERE stripe_id = ? AND status = 'pending'").bind(obj.id).run();
+      }
+    } else if (event.type === "customer.subscription.deleted") {
+      // Subscription cancelled — remove verified badge
+      await context.env.DB!.prepare(
+        "UPDATE photographers SET verified = 0, subscription_status = 'cancelled' WHERE subscription_id = ?"
+      ).bind(obj.id).run();
+    } else if (event.type === "invoice.payment_failed") {
+      await context.env.DB!.prepare(
+        "UPDATE photographers SET subscription_status = 'past_due' WHERE subscription_id = ?"
+      ).bind(obj.subscription).run();
+    } else if (event.type === "identity.verification_session.verified") {
+      // ID verification passed
+      const photographerId = obj.metadata?.photographer_id;
+      if (photographerId) {
+        await context.env.DB!.prepare("UPDATE photographers SET verified_at = datetime('now') WHERE id = ?").bind(photographerId).run();
       }
     } else if (event.type === "payment_intent.succeeded") {
       await context.env.DB!.prepare("UPDATE orders SET status = 'paid' WHERE stripe_id = ? AND status = 'pending'").bind(obj.id).run();

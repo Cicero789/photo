@@ -63,6 +63,11 @@ export function DashboardPage() {
   const [spaceInfo, setSpaceInfo] = useState<SpaceInfo | null>(null);
   const [showCreateEvent, setShowCreateEvent] = useState(false);
   const [eventsLoading, setEventsLoading] = useState(false);
+  const [accountMode, setAccountMode] = useState<"personal" | "pro">("personal");
+
+  useEffect(() => {
+    api.get<{ mode: string }>("/users/mode").then(d => setAccountMode(d.mode === "pro" ? "pro" : "personal")).catch(() => {});
+  }, []);
 
   const fetchMembers = useCallback(async () => {
     try {
@@ -149,14 +154,17 @@ export function DashboardPage() {
 
       {/* Stats */}
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
-        <StatCard label="Events" value={String(events.length)} color="blue" />
+        <StatCard label={accountMode === "pro" ? "Events" : "Memories"} value={String(events.length)} color="blue" />
         <StatCard label="Photos" value={String(totalPhotos)} color="purple" />
         <StatCard label="Members" value={String(members.length || 1)} color="green" />
       </div>
 
       {/* Tabs */}
       <div className="mb-6 flex gap-1 rounded-xl bg-muted p-1 w-fit">
-        {TABS.map((tab) => (
+        {(accountMode === "pro"
+          ? [{ key: "events", label: "Events" }, { key: "members", label: "Members" }, { key: "connections", label: "Connections" }, { key: "settings", label: "Settings" }]
+          : [{ key: "events", label: "Memories" }, { key: "members", label: "Members" }, { key: "connections", label: "Connections" }, { key: "settings", label: "Settings" }]
+        ).map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key as Tab)}
@@ -196,7 +204,9 @@ export function DashboardPage() {
       {activeTab === "settings" && (
         <>
           <SettingsTab space={spaceInfo} onUpdate={fetchSpace} />
-          <PhotographerProfileCard />
+          <ModeToggleCard mode={accountMode} onSwitch={setAccountMode} />
+          {accountMode === "pro" && <PhotographerProfileCard />}
+          {accountMode === "pro" && <VerifiedCard />}
         </>
       )}
 
@@ -211,14 +221,7 @@ export function DashboardPage() {
   );
 }
 
-// ─── Tabs config ───
-const TABS = [
-  { key: "feed", label: "Feed" },
-  { key: "events", label: "Events" },
-  { key: "members", label: "Members" },
-  { key: "connections", label: "Connections" },
-  { key: "settings", label: "Settings" },
-];
+// ─── Tabs are rendered inline based on accountMode ───
 
 // ─── Stat Card ───
 function StatCard({ label, value, color }: { label: string; value: string; color: "blue" | "purple" | "green" }) {
@@ -691,6 +694,99 @@ function PhotographerProfileCard() {
           {saving ? "Saving..." : "Save profile"}
         </button>
       </div>
+    </div>
+  );
+}
+
+// ─── Mode Toggle Card ───
+function ModeToggleCard({ mode, onSwitch }: { mode: "personal" | "pro"; onSwitch: (m: "personal" | "pro") => void }) {
+  const [switching, setSwitching] = useState(false);
+
+  const toggle = async () => {
+    const newMode = mode === "personal" ? "pro" : "personal";
+    setSwitching(true);
+    try {
+      await api.put("/users/mode", { mode: newMode });
+      onSwitch(newMode);
+    } catch {}
+    setSwitching(false);
+  };
+
+  return (
+    <div className="mt-6 rounded-2xl border border-border bg-white p-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold text-neutral-900">Account mode</h2>
+          <p className="mt-1 text-sm text-neutral-500">
+            {mode === "personal"
+              ? "Personal mode — share memories with family and friends."
+              : "Pro mode — showcase your work, deliver to clients, accept payments."}
+          </p>
+        </div>
+        <button onClick={toggle} disabled={switching}
+          className={cn("rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+            mode === "pro"
+              ? "bg-neutral-900 text-white hover:bg-neutral-800"
+              : "border border-border text-neutral-600 hover:bg-neutral-50"
+          )}>
+          {switching ? "Switching…" : mode === "personal" ? "Switch to Pro" : "Switch to Personal"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Verified Card ───
+function VerifiedCard() {
+  const [status, setStatus] = useState<{ verified: boolean; subscriptionStatus: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get<{ slug: string; tagline: string; specialties: string }>("/photographers/config")
+      .then(() => {
+        // Check verification status via connect endpoint
+        api.get<any>("/stripe/connect").then(d => {
+          setStatus({ verified: d.chargesEnabled || false, subscriptionStatus: "unknown" });
+        }).catch(() => setStatus({ verified: false, subscriptionStatus: "none" }));
+      })
+      .catch(() => setStatus(null))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const startSubscription = async () => {
+    try {
+      const d = await api.post<{ url: string }>("/stripe/subscribe", {});
+      window.location.href = d.url;
+    } catch {}
+  };
+
+  if (loading || !status) return null;
+
+  return (
+    <div className="mt-6 rounded-2xl border border-border bg-white p-8">
+      <div className="flex items-center gap-3">
+        <div className={cn("flex h-10 w-10 items-center justify-center rounded-full text-lg font-bold",
+          status.verified ? "bg-emerald-100 text-emerald-600" : "bg-neutral-100 text-neutral-400"
+        )}>
+          {status.verified ? "✓" : "?"}
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold text-neutral-900">
+            {status.verified ? "Verified ✓" : "Get Verified"}
+          </h2>
+          <p className="text-sm text-neutral-500">
+            {status.verified
+              ? "Your verified badge is active. Thank you for being a trusted photographer."
+              : "$10/month — verified badge, professional video streaming, map pin, priority listing."}
+          </p>
+        </div>
+      </div>
+      {!status.verified && (
+        <button onClick={startSubscription}
+          className="mt-4 rounded-lg bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800">
+          Get Verified — $10/month
+        </button>
+      )}
     </div>
   );
 }
