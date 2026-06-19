@@ -42,6 +42,12 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
   const body = await context.request.json() as { storageKey: string; filename?: string };
   if (!body.storageKey) return json({ error: "storageKey required" }, 400);
 
+  // Verify the caller owns this photo
+  const photoOwned = await context.env.DB!.prepare(
+    "SELECT 1 FROM photos WHERE storage_key = ? AND space_id = (SELECT space_id FROM users WHERE id = ?)"
+  ).bind(body.storageKey, a.userId).first();
+  if (!photoOwned) return json({ error: "Photo not found or not yours" }, 403);
+
   const maxOrder = await context.env.DB!.prepare("SELECT MAX(sort_order) as m FROM album_photos WHERE album_id = ?").bind(id).first() as any;
   const sortOrder = (maxOrder?.m || 0) + 1;
 

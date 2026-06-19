@@ -36,14 +36,17 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     let amountCents = 0;
     let productName = "";
     if (body.product === "single_download" || body.product === "download") {
-      amountCents = Math.round((pricing.downloads?.single || 4.99) * 100);
+      if (!pricing.downloads?.single) return json({ error: "Photographer has not configured pricing for this product" }, 400);
+      amountCents = Math.round(pricing.downloads.single * 100);
       productName = `Single Photo Download — ${photographer.name}`;
     } else if (body.product === "full_gallery" || body.product === "full-gallery") {
-      amountCents = Math.round((pricing.downloads?.full || 49) * 100);
+      if (!pricing.downloads?.full) return json({ error: "Photographer has not configured pricing for this product" }, 400);
+      amountCents = Math.round(pricing.downloads.full * 100);
       productName = `Full Gallery Download — ${photographer.name}`;
     } else if (body.product.startsWith("print-")) {
       const size = body.product.replace("print-", "");
-      amountCents = Math.round(((pricing.prints || {})[size] || 9.99) * 100);
+      if (!(pricing.prints || {})[size]) return json({ error: "Photographer has not configured pricing for this product" }, 400);
+      amountCents = Math.round(pricing.prints[size] * 100);
       productName = `Print ${size} — ${photographer.name}`;
     } else {
       return json({ error: "Invalid product type" }, 400);

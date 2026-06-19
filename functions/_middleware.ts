@@ -46,13 +46,14 @@ const RATE_LIMITED_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 const RATE_LIMITED_PREFIXES = [
   "/api/auth/login", "/api/auth/gate", "/api/auth/signup",
   "/api/auth/forgot-password", "/api/photographers",
-  "/api/photos/upload", "/api/videos/upload", "/api/albums"
+  "/api/photos/upload", "/api/videos/upload", "/api/albums",
+  "/api/albums/view"
 ];
 
 function isRateLimited(request: Request): boolean {
   if (!RATE_LIMITED_METHODS.has(request.method)) return false;
   const url = new URL(request.url);
-  return RATE_LIMITED_PREFIXES.some((prefix) => url.pathname === prefix);
+  return RATE_LIMITED_PREFIXES.some((prefix) => url.pathname.startsWith(prefix));
 }
 
 // ── Protected routes ──────────────────────────────────────────────

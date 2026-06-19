@@ -23,11 +23,8 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
       const existing = await db.prepare("SELECT id FROM photographers WHERE email = ?").bind(user.email).first();
       if (!existing) {
         await db.prepare(
-          "INSERT INTO photographers (id, name, email, status, created_at) VALUES (?,?,?,'approved',datetime('now'))"
+          "INSERT INTO photographers (id, name, email, status, created_at) VALUES (?,?,?,'pending',datetime('now'))"
         ).bind(crypto.randomUUID(), user.name, user.email).run();
-      } else {
-        // Ensure approved status for returning pros
-        await db.prepare("UPDATE photographers SET status = 'approved' WHERE email = ? AND status != 'approved'").bind(user.email).run();
       }
     }
   }

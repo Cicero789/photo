@@ -7,7 +7,7 @@ interface EventAccess { id: string; space_id: string; visibility: string }
 function isGateSession(a: Actor): boolean { return a.role === "viewer" && a.userId === "viewer"; }
 
 /** Pure policy: can actor read this event? */
-function canReadEvent(actor: Actor | null, event: EventAccess): boolean {
+export function canReadEvent(actor: Actor | null, event: EventAccess): boolean {
   if (event.visibility === "public") return true;
   if (!actor) return false;
   if (actor.role === "platform_owner") return true;
@@ -20,7 +20,7 @@ function canReadEvent(actor: Actor | null, event: EventAccess): boolean {
 }
 
 /** Pure policy: can actor manage this event? */
-function canManageEvent(actor: Actor, event: EventAccess): boolean {
+export function canManageEvent(actor: Actor, event: EventAccess): boolean {
   if (actor.role === "platform_owner") return true;
   if (isGateSession(actor)) return false;
   return actor.spaceId === event.space_id && (actor.role === "staff" || actor.role === "page_admin");

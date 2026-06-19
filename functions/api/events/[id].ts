@@ -1,4 +1,4 @@
-import { json } from "../../lib/response"; import { requireAuth } from "../../lib/auth"; import { geocodeAddress } from "../../lib/geocode"; import { toPublicEventDto, toPublicPhotoDto } from "../../lib/event-dto";
+import { json } from "../../lib/response"; import { requireAuth } from "../../lib/auth"; import { geocodeAddress } from "../../lib/geocode"; import { toPublicEventDto, toPublicPhotoDto } from "../../lib/event-dto"; import { canReadEvent, canManageEvent } from "../../lib/event-access";
 
 type Row = Record<string, unknown>;
 function mapPhoto(p: Row) {
@@ -14,24 +14,26 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     const event = await db.prepare("SELECT * FROM events WHERE id = ?").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
     const ev = event as Record<string,unknown>;
 
-    // Resolve parent resource: verify actor has access to this event's space
+    // Resolve access using shared event-access helpers
     const authResult = await requireAuth(context.request, context.env);
     const isAuthenticated = !(authResult instanceof Response);
-    const isOwner = isAuthenticated && authResult.spaceId === (ev.space_id as string) && authResult.role !== 'viewer';
+    const actor = isAuthenticated ? { userId: authResult.userId, spaceId: authResult.spaceId, role: authResult.role } : null;
+    const eventAccess = { id: ev.id as string, space_id: ev.space_id as string, visibility: (ev.visibility as string) || 'private' };
+
+    if (!canReadEvent(actor, eventAccess)) {
+      return json({ error: "Forbidden" }, 403);
+    }
+
+    const isOwner = actor ? canManageEvent(actor, eventAccess) : false;
 
     if (isOwner) {
-      // Space owner: full access regardless of visibility
+      // Space owner/manager: full access regardless of visibility
       const photos = await db.prepare("SELECT * FROM photos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
       const videos = await db.prepare("SELECT * FROM videos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
       return json({ event: { id: ev.id, spaceId: ev.space_id, title: ev.title, category: ev.category, eventDate: ev.event_date, description: ev.description, aiSummary: ev.ai_summary, coverPhotoId: ev.cover_photo_id, address: ev.address || "", addressLocked: (ev.address_locked as number) === 1, public: (ev.public as number) !== 0, createdAt: ev.created_at, updatedAt: ev.updated_at }, photos: (photos.results ?? []).map(mapPhoto), videos: (videos.results ?? []).map(mapVideo) });
     }
 
-    // Non-owner: only allow if event visibility is public or gate
-    if ((ev.visibility as string) !== 'public' && (ev.visibility as string) !== 'gate') {
-      return json({ error: "Forbidden" }, 403);
-    }
-
-    // Return scrubbed public data for public/gate events
+    // Return scrubbed public data for readable non-owner events
     const photos = await db.prepare("SELECT id, storage_key, width, height, license FROM photos WHERE event_id = ? ORDER BY created_at").bind(context.params.id).all();
     return json({ event: toPublicEventDto(ev), photos: (photos.results ?? []).map(toPublicPhotoDto) });
   } catch (err) { console.error("Get event error:", err); return json({ error: "Something went wrong" }, 500); }

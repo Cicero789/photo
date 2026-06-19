@@ -57,9 +57,15 @@ export async function onRequestGet(context: {
         }
       } else {
         // Check album_photos
-        const albumPhoto = await db.prepare("SELECT album_id FROM album_photos WHERE storage_key = ?").bind(storageKey).first();
+        const albumPhoto = await db.prepare("SELECT album_id FROM album_photos WHERE storage_key = ?").bind(storageKey).first() as any;
         if (albumPhoto) {
-          // allow — album access is controlled by share token
+          // Password-protected albums require signed URL
+          const album = await db.prepare("SELECT password FROM albums WHERE id = ?").bind(albumPhoto.album_id).first() as any;
+          if (album?.password) {
+            // Password-protected — must use signed URL (checked above, would have passed)
+            return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { "Content-Type": "application/json" } });
+          }
+          // No password — share link is sufficient, allow access
         } else {
           // Check photographer_portfolio
           const portfolioPhoto = await db.prepare("SELECT photographer_id FROM photographer_portfolio WHERE storage_key = ?").bind(storageKey).first();

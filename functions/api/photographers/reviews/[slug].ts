@@ -35,8 +35,16 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
   if (!body.rating || body.rating < 1 || body.rating > 5) return json({ error: "Rating must be 1-5" }, 400);
 
   // Check for existing review
+  // NOTE: race condition — the SELECT + INSERT is not atomic. A UNIQUE(photographer_id, reviewer_id)
+  // constraint on the reviews table would be the proper DB-level guard against duplicate reviews.
   const existing = await context.env.DB!.prepare("SELECT id FROM reviews WHERE photographer_id = ? AND reviewer_id = ?").bind(photographer.id, a.userId).first();
   if (existing) return json({ error: "You already reviewed this photographer" }, 409);
+
+  // Require proof of interaction (paid order or booking inquiry)
+  const hasRelationship = await context.env.DB!.prepare(
+    "SELECT 1 FROM orders WHERE photographer_id = ? AND buyer_user_id = ? AND status = 'paid' UNION SELECT 1 FROM booking_inquiries WHERE photographer_id = ? AND client_user_id = ?"
+  ).bind(photographer.id, a.userId, photographer.id, a.userId).first();
+  if (!hasRelationship) return json({ error: "You must have booked or purchased from this photographer to leave a review" }, 403);
 
   const id = crypto.randomUUID();
   await context.env.DB!.prepare(

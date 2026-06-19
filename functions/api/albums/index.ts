@@ -3,13 +3,10 @@ import { json } from "../../lib/response";
 import { requireAuth } from "../../lib/auth";
 import { hashPassword } from "../../lib/password";
 
-function generateToken(len = 8): string {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
-  let s = "";
-  const arr = new Uint8Array(len);
-  crypto.getRandomValues(arr);
-  for (const b of arr) s += chars[b % chars.length];
-  return s;
+function generateToken(): string {
+  const bytes = new Uint8Array(16); // 128 bits
+  crypto.getRandomValues(bytes);
+  return btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
 
 export async function onRequestGet(context: { request: Request; env: { DB?: D1Database } }): Promise<Response> {
