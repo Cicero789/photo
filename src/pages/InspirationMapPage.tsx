@@ -148,6 +148,8 @@ export function InspirationMapPage() {
         });
 
         // Layer 3 — Individual pin dots
+        // Note: ["zoom"] must be the input to the outermost interpolate/step,
+        // so data-driven case goes INSIDE each zoom stop, not the other way around.
         map.addLayer({
           id: "pin-dots",
           type: "circle",
@@ -156,8 +158,10 @@ export function InspirationMapPage() {
           paint: {
             "circle-color": ["get", "pinColor"],
             "circle-radius": [
-              "case", ["==", ["get", "isSelected"], 1], 12,
-              ["interpolate", ["linear"], ["zoom"], 4, 5, 10, 8, 14, 10],
+              "interpolate", ["linear"], ["zoom"],
+              4, ["case", ["==", ["get", "isSelected"], 1], 12, 5],
+              10, ["case", ["==", ["get", "isSelected"], 1], 12, 8],
+              14, ["case", ["==", ["get", "isSelected"], 1], 12, 10],
             ],
             "circle-stroke-width": ["case", ["==", ["get", "isSelected"], 1], 3, 2],
             "circle-stroke-color": "#ffffff",
