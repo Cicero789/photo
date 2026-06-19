@@ -15,6 +15,50 @@ const MAPBOX_TOKEN = "pk.eyJ1IjoiY2ljZXJvNzg5IiwiYSI6ImNtcThtanB1NTA3bGYycXB2c2R
 const CATEGORIES = ["general","wedding","nature","urban","golden_hour","night","portrait","event"];
 const SEASONS = ["","spring","summer","fall","winter"];
 
+/* ---------- Mapbox CDN loader (idempotent) ---------- */
+let mapboxPromise: Promise<void> | null = null;
+function loadMapboxScript(): Promise<void> {
+  // @ts-expect-error
+  if (window.mapboxgl) return Promise.resolve();
+  if (mapboxPromise) return mapboxPromise;
+  mapboxPromise = new Promise<void>(resolve => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css";
+    document.head.appendChild(link);
+    const script = document.createElement("script");
+    script.src = "https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js";
+    script.onload = () => resolve();
+    document.head.appendChild(script);
+  });
+  return mapboxPromise;
+}
+
+/* ---------- GeoJSON builder ---------- */
+function buildFeatures(items: InspirationItem[], selectedId: string | null) {
+  return {
+    type: "FeatureCollection" as const,
+    features: items
+      .filter(i => i.latitude && i.longitude)
+      .map(item => {
+        const isFrameNest = !item.source || item.source === "framenest";
+        const isCC0 = item.source === "cc0" || item.source === "seed";
+        const hasPhoto = !!(item.thumbnailUrl || item.photoUrl);
+        const name = item.address.split(",")[0] || item.address;
+        return {
+          type: "Feature" as const,
+          geometry: { type: "Point" as const, coordinates: [item.longitude, item.latitude] },
+          properties: {
+            id: item.id,
+            shortName: name.length > 20 ? name.slice(0, 18) + "…" : name,
+            pinColor: isFrameNest ? "#2563eb" : (isCC0 && hasPhoto) ? "#f59e0b" : "#9ca3af",
+            isSelected: item.id === selectedId ? 1 : 0,
+          },
+        };
+      }),
+  };
+}
+
 export function InspirationMapPage() {
   const [items, setItems] = useState<InspirationItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -25,90 +69,182 @@ export function InspirationMapPage() {
   const [loved, setLoved] = useState<Set<string>>(new Set());
   const mapRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const markersRef = useRef<any[]>([]);
+  const mapReadyRef = useRef(false);
+  const itemsRef = useRef<InspirationItem[]>([]);
+  const hasFitRef = useRef(false);
 
+  // Keep itemsRef in sync for stale-closure-safe map handlers
+  useEffect(() => { itemsRef.current = items; }, [items]);
+
+  // Fetch data
   useEffect(() => {
     setLoading(true);
+    hasFitRef.current = false; // re-fit bounds on next data update
     const params = new URLSearchParams();
     if (category) params.set("category", category);
     if (season) params.set("season", season);
     if (sort) params.set("sort", sort);
-    api.get(`/inspiration?${params}`).then((d: any) => setItems(d.items || [])).catch(()=>{}).finally(()=>setLoading(false));
+    api.get(`/inspiration?${params}`).then((d: any) => setItems(d.items || [])).catch(() => {}).finally(() => setLoading(false));
   }, [category, season, sort]);
 
-  // Initialize map
+  // ---- Map initialization (runs once) ----
   useEffect(() => {
-    if (!containerRef.current || items.length === 0) return;
-    const loadMap = async () => {
+    if (!containerRef.current) return;
+    let cancelled = false;
+
+    loadMapboxScript().then(() => {
+      if (cancelled || !containerRef.current) return;
       // @ts-expect-error
-      if (typeof mapboxgl === "undefined") {
-        await new Promise<void>(resolve => { const s = document.createElement("script"); s.src = "https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.js"; s.onload = () => resolve(); const c = document.createElement("link"); c.href = "https://api.mapbox.com/mapbox-gl-js/v3.10.0/mapbox-gl.css"; c.rel = "stylesheet"; document.head.appendChild(c); document.head.appendChild(s); });
-      }
-      // @ts-expect-error
-      const mb = window.mapboxgl; if (!mb) return;
+      const mb = window.mapboxgl;
+      if (!mb) return;
       mb.accessToken = MAPBOX_TOKEN;
-      const map = new mb.Map({ container: containerRef.current, style: "mapbox://styles/mapbox/light-v11", center: [-98, 39], zoom: 2.5 });
+
+      const map = new mb.Map({
+        container: containerRef.current,
+        style: "mapbox://styles/mapbox/light-v11",
+        center: [-98, 39],
+        zoom: 2.5,
+      });
       mapRef.current = map;
 
-      markersRef.current.forEach(m => m.remove());
-      markersRef.current = [];
-      const bounds = new mb.LngLatBounds();
-      // Marker rendering with zoom-dependent detail
-      const currentZoom = map.getZoom();
-      const showLabels = currentZoom >= 12;
+      map.on("load", () => {
+        if (cancelled) return;
 
-      items.forEach(item => {
-        const el = document.createElement("div");
-        const isFrameNest = !item.source || item.source === "framenest";
-        const isCC0 = item.source === "cc0" || item.source === "seed";
-        const hasPhoto = !!(item.thumbnailUrl || item.photoUrl);
-        const name = item.address.split(",")[0] || item.address;
-        const shortName = name.length > 20 ? name.slice(0,18) + "…" : name;
-        const bg = isFrameNest ? "bg-primary-600" : (isCC0 && hasPhoto) ? "bg-amber-500" : "bg-neutral-400";
-        const icon = isFrameNest ? "📸" : (isCC0 && hasPhoto) ? "🖼️" : "📍";
+        // GeoJSON source with clustering
+        map.addSource("pins", {
+          type: "geojson",
+          data: buildFeatures(itemsRef.current, null),
+          cluster: true,
+          clusterMaxZoom: 11,
+          clusterRadius: 50,
+        });
 
-        if (showLabels) {
-          el.className = `flex items-center gap-1 cursor-pointer rounded-full text-white shadow-lg px-2 py-1 text-[10px] font-bold border-2 border-white whitespace-nowrap ${bg}`;
-          el.innerHTML = `${icon} ${shortName}`;
-        } else {
-          el.className = `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white shadow-lg text-xs font-bold border-2 border-white ${bg}`;
-          el.innerHTML = icon;
-        }
-        el.title = item.address;
-        el.addEventListener("click", () => { setSelected(item); map.flyTo({ center: [item.longitude, item.latitude], zoom: 14 }); });
-        const marker = new mb.Marker(el).setLngLat([item.longitude, item.latitude]).addTo(map);
-        markersRef.current.push(marker);
-        bounds.extend([item.longitude, item.latitude]);
-      });
+        // Layer 1 — Cluster circles
+        map.addLayer({
+          id: "clusters",
+          type: "circle",
+          source: "pins",
+          filter: ["has", "point_count"],
+          paint: {
+            "circle-color": ["step", ["get", "point_count"], "#93c5fd", 10, "#3b82f6", 30, "#1d4ed8"],
+            "circle-radius": ["step", ["get", "point_count"], 18, 10, 24, 30, 30],
+            "circle-stroke-width": 2,
+            "circle-stroke-color": "#ffffff",
+          },
+        });
 
-      // Store items with markers for zoom updates
-      const markerData = items.map((item, i) => ({ item, marker: markersRef.current[i] }));
-      map.on("zoomend", () => {
-        const z = map.getZoom();
-        markerData.forEach(({ item, marker }) => {
-          if (!marker) return;
-          const el = marker.getElement();
-          const isFrameNest = !item.source || item.source === "framenest";
-          const isCC0 = item.source === "cc0" || item.source === "seed";
-          const hasPhoto = !!(item.thumbnailUrl || item.photoUrl);
-          const name = item.address.split(",")[0] || item.address;
-          const shortName = name.length > 20 ? name.slice(0,18) + "…" : name;
-          const bg = isFrameNest ? "bg-primary-600" : (isCC0 && hasPhoto) ? "bg-amber-500" : "bg-neutral-400";
-          const icon = isFrameNest ? "📸" : (isCC0 && hasPhoto) ? "🖼️" : "📍";
-          if (z >= 12) {
-            el.className = `flex items-center gap-1 cursor-pointer rounded-full text-white shadow-lg px-2 py-1 text-[10px] font-bold border-2 border-white whitespace-nowrap ${bg}`;
-            el.innerHTML = `${icon} ${shortName}`;
-          } else {
-            el.className = `flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white shadow-lg text-xs font-bold border-2 border-white ${bg}`;
-            el.innerHTML = icon;
+        // Layer 2 — Cluster count labels
+        map.addLayer({
+          id: "cluster-count",
+          type: "symbol",
+          source: "pins",
+          filter: ["has", "point_count"],
+          layout: {
+            "text-field": ["get", "point_count_abbreviated"],
+            "text-font": ["DIN Pro Medium", "Arial Unicode MS Bold"],
+            "text-size": 13,
+          },
+          paint: { "text-color": "#ffffff" },
+        });
+
+        // Layer 3 — Individual pin dots
+        map.addLayer({
+          id: "pin-dots",
+          type: "circle",
+          source: "pins",
+          filter: ["!", ["has", "point_count"]],
+          paint: {
+            "circle-color": ["get", "pinColor"],
+            "circle-radius": [
+              "case", ["==", ["get", "isSelected"], 1], 12,
+              ["interpolate", ["linear"], ["zoom"], 4, 5, 10, 8, 14, 10],
+            ],
+            "circle-stroke-width": ["case", ["==", ["get", "isSelected"], 1], 3, 2],
+            "circle-stroke-color": "#ffffff",
+            "circle-opacity": ["case", ["==", ["get", "isSelected"], 1], 1, 0.85],
+          },
+        });
+
+        // Layer 4 — Pin labels at zoom ≥ 12
+        map.addLayer({
+          id: "pin-labels",
+          type: "symbol",
+          source: "pins",
+          filter: ["!", ["has", "point_count"]],
+          minzoom: 12,
+          layout: {
+            "text-field": ["get", "shortName"],
+            "text-font": ["DIN Pro Medium", "Arial Unicode MS Regular"],
+            "text-size": 11,
+            "text-offset": [0, 1.2],
+            "text-anchor": "top",
+            "text-max-width": 10,
+          },
+          paint: {
+            "text-color": "#374151",
+            "text-halo-color": "#ffffff",
+            "text-halo-width": 1.5,
+          },
+        });
+
+        // --- Interactions ---
+
+        // Click individual pin
+        map.on("click", "pin-dots", (e: any) => {
+          const feat = e.features?.[0];
+          if (!feat) return;
+          const item = itemsRef.current.find(i => i.id === feat.properties.id);
+          if (item) {
+            setSelected(item);
+            map.flyTo({ center: [item.longitude, item.latitude], zoom: 14 });
           }
         });
-      });
 
-      if (items.length > 1) map.fitBounds(bounds, { padding: 60, maxZoom: 10 });
+        // Click cluster → zoom in
+        map.on("click", "clusters", (e: any) => {
+          const feat = e.features?.[0];
+          if (!feat) return;
+          (map.getSource("pins") as any).getClusterExpansionZoom(feat.properties.cluster_id, (err: any, zoom: number) => {
+            if (err) return;
+            map.easeTo({ center: (feat.geometry as any).coordinates, zoom });
+          });
+        });
+
+        // Cursor
+        map.on("mouseenter", "pin-dots", () => { map.getCanvas().style.cursor = "pointer"; });
+        map.on("mouseleave", "pin-dots", () => { map.getCanvas().style.cursor = ""; });
+        map.on("mouseenter", "clusters", () => { map.getCanvas().style.cursor = "pointer"; });
+        map.on("mouseleave", "clusters", () => { map.getCanvas().style.cursor = ""; });
+
+        mapReadyRef.current = true;
+      });
+    });
+
+    return () => {
+      cancelled = true;
+      mapReadyRef.current = false;
+      if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
     };
-    loadMap();
-  }, [items]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ---- Sync GeoJSON data when items or selected changes ----
+  useEffect(() => {
+    if (!mapReadyRef.current || !mapRef.current) return;
+    const src = mapRef.current.getSource("pins");
+    if (!src) return;
+    (src as any).setData(buildFeatures(items, selected?.id ?? null));
+
+    // Fit bounds only on fresh data (filter change), not on selection change
+    if (!hasFitRef.current && items.length > 1) {
+      // @ts-expect-error
+      const bounds = new window.mapboxgl.LngLatBounds();
+      items.forEach(item => {
+        if (item.latitude && item.longitude) bounds.extend([item.longitude, item.latitude]);
+      });
+      mapRef.current.fitBounds(bounds, { padding: 60, maxZoom: 10 });
+      hasFitRef.current = true;
+    }
+  }, [items, selected]);
 
   const handleLove = async (id: string) => {
     try {
@@ -116,6 +252,11 @@ export function InspirationMapPage() {
       setItems(prev => prev.map(i => i.id === id ? { ...i, loves: i.loves + (d.loved ? 1 : -1) } : i));
       setLoved(prev => { const n = new Set(prev); if (d.loved) n.add(id); else n.delete(id); return n; });
     } catch {}
+  };
+
+  const selectItem = (item: InspirationItem) => {
+    setSelected(item);
+    if (mapRef.current) mapRef.current.flyTo({ center: [item.longitude, item.latitude], zoom: 14 });
   };
 
   return (
@@ -144,7 +285,7 @@ export function InspirationMapPage() {
           {loading ? <div className="flex justify-center py-8"><div className="h-6 w-6 animate-spin rounded-full border-3 border-primary-200 border-t-primary-600" /></div>
           : items.length === 0 ? <p className="text-sm text-neutral-400 text-center py-8">No photos yet. Be the first to submit!</p>
           : items.map(item => (
-            <div key={item.id} onClick={() => setSelected(item)} className={cn("cursor-pointer rounded-xl border p-3 transition-all hover:shadow-sm", selected?.id === item.id ? "border-primary-500 bg-primary-50" : "border-border bg-white")}>
+            <div key={item.id} onClick={() => selectItem(item)} className={cn("cursor-pointer rounded-xl border p-3 transition-all hover:shadow-sm", selected?.id === item.id ? "border-primary-500 bg-primary-50" : "border-border bg-white")}>
               <div className="flex gap-3">
                 {(item.thumbnailUrl || item.photoUrl) ? <img src={item.thumbnailUrl || item.photoUrl} alt="" className="h-16 w-16 rounded-lg object-cover" /> : <div className="h-16 w-16 rounded-lg bg-neutral-100 flex items-center justify-center text-2xl">📍</div>}
                 <div className="min-w-0 flex-1">
