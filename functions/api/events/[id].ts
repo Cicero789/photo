@@ -35,6 +35,10 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
     const roleCheck = requireRole(authResult, "staff"); if (roleCheck) return roleCheck;
     const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ? AND space_id = ?").bind(context.params.id, authResult.spaceId).first(); if (!event) return json({ error: "Event not found or access denied" }, 404);
     const body = await context.request.json() as { title?: string; category?: string; eventDate?: string; description?: string; address?: string; visibility?: string };
+    if (body.title !== undefined && body.title.length > 200) return json({ error: "Title too long" }, 400);
+    if (body.description !== undefined && body.description.length > 5000) return json({ error: "Description too long" }, 400);
+    const VALID_CATS = ['holiday','birthday','graduation','wedding','celebration','sports','school','travel','vacation','work','restaurant','party','family','kids','parents','other'];
+    if (body.category !== undefined && !VALID_CATS.includes(body.category)) return json({ error: "Invalid category" }, 400);
     const parts: string[] = []; const values: (string|null)[] = [];
     if (body.title !== undefined) { parts.push("title = ?"); values.push(body.title); }
     if (body.category !== undefined) { parts.push("category = ?"); values.push(body.category); }
@@ -60,9 +64,11 @@ export async function onRequestDelete(context: { request: Request; env: { DB?: D
     const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const roleCheck = requireRole(authResult, "page_admin"); if (roleCheck) return roleCheck;
     const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ? AND space_id = ?").bind(context.params.id, authResult.spaceId).first(); if (!event) return json({ error: "Event not found or access denied" }, 404);
-    await db.prepare("DELETE FROM photos WHERE event_id = ?").bind(context.params.id).run();
-    await db.prepare("DELETE FROM videos WHERE event_id = ?").bind(context.params.id).run();
-    await db.prepare("DELETE FROM events WHERE id = ?").bind(context.params.id).run();
+    await db.batch([
+      db.prepare("DELETE FROM photos WHERE event_id = ?").bind(context.params.id),
+      db.prepare("DELETE FROM videos WHERE event_id = ?").bind(context.params.id),
+      db.prepare("DELETE FROM events WHERE id = ?").bind(context.params.id),
+    ]);
     return json({ success: true });
   } catch (err) { console.error("Delete event error:", err); return json({ error: "Something went wrong" }, 500); }
 }

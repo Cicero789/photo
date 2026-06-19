@@ -28,7 +28,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
         (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND favorite = 1) as fav_count
        FROM events e JOIN users u ON e.space_id = u.space_id
        JOIN spaces s ON e.space_id = s.id
-       WHERE u.id IN (${placeholders}) AND e.public = 1
+       WHERE u.id IN (${placeholders}) AND e.visibility = 'public'
        ORDER BY e.event_date DESC LIMIT 50`
     ).bind(...connectedUserIds).all();
 

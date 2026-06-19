@@ -1,5 +1,6 @@
 /** Public album viewer — GET /api/albums/view/:token (no auth required) */
 import { json } from "../../../lib/response";
+import { verifyPassword } from "../../../lib/password";
 
 export async function onRequestGet(context: { request: Request; env: { DB?: D1Database }; params: { token: string } }): Promise<Response> {
   const { token } = context.params;
@@ -19,7 +20,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
   if (album.password) {
     const url = new URL(context.request.url);
     const pw = url.searchParams.get("pw") || context.request.headers.get("X-Album-Password") || "";
-    if (pw !== album.password) {
+    if (!await verifyPassword(pw, album.password)) {
       return json({ needsPassword: true, name: album.name, ownerName: album.owner_name }, 401);
     }
   }

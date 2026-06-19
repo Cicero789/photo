@@ -50,6 +50,8 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     const roleCheck = requireRole(authResult, "staff"); if (roleCheck) return roleCheck;
     const body = await context.request.json() as { title: string; category: string; eventDate: string; description: string; address?: string; visibility?: string };
     if (!body.title || !body.category || !body.eventDate) return json({ error: "Title, category, and event date are required" }, 400);
+    if (body.title?.length > 200) return json({ error: "Title too long" }, 400);
+    if (body.description?.length > 5000) return json({ error: "Description too long" }, 400);
     const VALID = ["holiday","birthday","graduation","wedding","celebration","sports","school","travel","vacation","work","restaurant","party","family","kids","parents","other"];
     if (!VALID.includes(body.category)) return json({ error: "Invalid category" }, 400);
     const db = context.env.DB!; const eventId = crypto.randomUUID(); const now = new Date().toISOString();
@@ -64,6 +66,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     const legacyPublic = vis === "public" ? 1 : 0;
     await db.prepare("INSERT INTO events (id, space_id, title, category, event_date, description, address, latitude, longitude, visibility, public) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(eventId, authResult.spaceId, body.title, body.category, body.eventDate, body.description ?? "", body.address ?? "", lat, lng, vis, legacyPublic).run();
     if (body.description && body.description.trim().length >= 10) {
+      // TODO: Use context.waitUntil() for this async operation
       generateSummary(body.description, body.title, body.category, getDeepSeekKey(context.env)).then(async (summary) => { if (summary) await db.prepare("UPDATE events SET ai_summary = ? WHERE id = ?").bind(summary, eventId).run(); }).catch(() => {});
     }
     return json({ event: { id: eventId, spaceId: authResult.spaceId, title: body.title, category: body.category, eventDate: body.eventDate, description: body.description ?? "", aiSummary: null, coverPhotoId: null, coverPhotoUrl: null, photoCount: 0, createdAt: now, updatedAt: now } }, 201);

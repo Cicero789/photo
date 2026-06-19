@@ -69,7 +69,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
 
     // Build magic link using request origin (works in dev + production)
     const origin = new URL(context.request.url).origin;
-    const magicLink = `${origin}/login?magic=${magicToken}`;
+    const magicLink = `${origin}/login?magic=${encodeURIComponent(magicToken)}`;
 
     // If user doesn't exist, auto-create account + space
     if (!targetUser) {
@@ -105,7 +105,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
           <h2 style="color:#2563eb">📸 FrameNest</h2>
           <p><strong>${escHtml(inviter?.name ?? "Someone")}</strong> saved a space for you and tagged you as ${escHtml(typeLabel)}.</p>
           ${body.message ? `<p style="color:#666;font-style:italic">"${escHtml(body.message)}"</p>` : ""}
-          <p style="margin:24px 0"><a href="${magicLink}" style="background:#2563eb;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold">See what they shared</a></p>
+          <p style="margin:24px 0"><a href="${escHtml(magicLink)}" style="background:#2563eb;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:bold">See what they shared</a></p>
           <p style="color:#999;font-size:13px">FrameNest gives every family a private home for their photos. Your space is ready when you are.</p>
         </div>`,
       }, context.env);

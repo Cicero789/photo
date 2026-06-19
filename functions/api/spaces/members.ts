@@ -35,8 +35,10 @@ export async function onRequestDelete(context: { request: Request; env: { DB?: D
     const db = context.env.DB!;
     const member = await db.prepare("SELECT * FROM space_members WHERE id = ? AND space_id = ?").bind(memberId, authResult.spaceId).first() as { user_id: string } | null; if (!member) return json({ error: "Member not found" }, 404);
     const user = await db.prepare("SELECT role FROM users WHERE id = ?").bind(member.user_id).first<{role:string}>(); if (user?.role === "page_admin") return json({ error: "Cannot remove the space owner" }, 400);
-    await db.prepare("DELETE FROM space_members WHERE id = ?").bind(memberId).run();
-    await db.prepare("DELETE FROM users WHERE id = ?").bind(member.user_id).run();
+    await db.batch([
+      db.prepare("DELETE FROM space_members WHERE id = ?").bind(memberId),
+      db.prepare("DELETE FROM users WHERE id = ?").bind(member.user_id),
+    ]);
     return json({ success: true });
   } catch (err) { console.error("Remove member error:", err); return json({ error: "Something went wrong" }, 500); }
 }

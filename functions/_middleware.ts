@@ -34,7 +34,11 @@ function addCorsHeaders(response: Response, origin: string): Response {
 
 // ── Rate limiting ─────────────────────────────────────────────────
 const RATE_LIMITED_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
-const RATE_LIMITED_PREFIXES = ["/api/auth/login", "/api/auth/gate"];
+const RATE_LIMITED_PREFIXES = [
+  "/api/auth/login", "/api/auth/gate", "/api/auth/signup",
+  "/api/auth/forgot-password", "/api/photographers",
+  "/api/photos/upload", "/api/videos/upload", "/api/albums"
+];
 
 function isRateLimited(request: Request): boolean {
   if (!RATE_LIMITED_METHODS.has(request.method)) return false;

@@ -12,7 +12,7 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
     const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const space = await getSpaceBySlug(context.env, context.params.slug) as Record<string,unknown> | null; if (!space) return json({ error: "Space not found" }, 404);
     if (space.owner_id !== authResult.userId && authResult.role !== "platform_owner") return json({ error: "You don't have permission to edit this space" }, 403);
-    const body = await context.request.json() as { name?: string; gateKey?: string; themeColor?: string; customDomain?: string; heroSource?: string; heroStyle?: string };
+    const body = await context.request.json() as { name?: string; slug?: string; gateKey?: string; themeColor?: string; customDomain?: string; heroSource?: string; heroStyle?: string }; const slug = context.params.slug;
     const db = context.env.DB!; const updates: string[] = []; const values: (string|null)[] = [];
     if (body.name) { updates.push("name = ?"); values.push(body.name); }
     if (body.gateKey) { updates.push("password_hash = ?"); values.push(await hashPassword(body.gateKey)); }
@@ -20,8 +20,16 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
     if (body.customDomain !== undefined) { updates.push("custom_domain = ?"); values.push(body.customDomain || null); }
     if (body.heroSource !== undefined) { updates.push("hero_source = ?"); values.push(body.heroSource); }
     if (body.heroStyle !== undefined) { updates.push("hero_style = ?"); values.push(body.heroStyle); }
+    if (body.slug && body.slug !== slug) {
+      // Validate slug format
+      if (!/^[a-z0-9-]+$/.test(body.slug) || body.slug.length > 60) return json({ error: "Invalid slug" }, 400);
+      // Check uniqueness
+      const existing = await db.prepare("SELECT id FROM spaces WHERE slug = ? AND id != ?").bind(body.slug, space.id).first();
+      if (existing) return json({ error: "Slug already taken" }, 409);
+      updates.push("slug = ?"); values.push(body.slug);
+    }
     if (updates.length > 0) { updates.push("updated_at = ?"); values.push(new Date().toISOString()); values.push(context.params.slug); await db.prepare(`UPDATE spaces SET ${updates.join(", ")} WHERE slug = ?`).bind(...(values as [string])).run(); }
-    const updated = await getSpaceBySlug(context.env, context.params.slug) as Record<string,unknown>;
+    const updated = await getSpaceBySlug(context.env, body.slug || context.params.slug) as Record<string,unknown>;
     return json({ space: { id: updated!.id, name: updated!.name, slug: updated!.slug, customDomain: updated!.custom_domain, logoUrl: updated!.logo_url, themeColor: updated!.theme_color, hero_source: (updated as any).hero_source || "off", hero_style: (updated as any).hero_style || "banner" } });
   } catch (err) { console.error("Update space error:", err); return json({ error: "Something went wrong" }, 500); }
 }

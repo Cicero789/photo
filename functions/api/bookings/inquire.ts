@@ -16,7 +16,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     if (photogUserId) logActivity(db, photogUserId, "booking_inquiry", `Someone sent you a booking inquiry!${body.eventTitle ? ` for "${body.eventTitle}"` : ""}`, "/dashboard?tab=connections");
   }
 
-  await db.prepare("INSERT INTO event_messages (id, event_id, user_id, message, created_at) VALUES (?,?,?,?,?)").bind(id, "booking", a.userId, `[BOOKING INQUIRY] ${body.message.trim().slice(0, 2000)}`, now).run();
+  await db.prepare("INSERT INTO booking_inquiries (id, photographer_id, client_user_id, message, event_title, location_name, created_at) VALUES (?,?,?,?,?,?,?)").bind(id, body.photographerId || null, a.userId, body.message.trim().slice(0, 2000), body.eventTitle || "", body.locationName || "", now).run();
 
   return json({ success: true, id }, 201);
 }

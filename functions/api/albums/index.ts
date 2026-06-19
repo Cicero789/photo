@@ -1,6 +1,7 @@
 /** Albums API — GET (list mine) + POST (create) */
 import { json } from "../../lib/response";
 import { requireAuth } from "../../lib/auth";
+import { hashPassword } from "../../lib/password";
 
 function generateToken(len = 8): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
@@ -35,7 +36,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
   const shareToken = generateToken();
   await context.env.DB!.prepare(
     "INSERT INTO albums (id, user_id, name, share_token, password, downloads, expires_at, created_at) VALUES (?,?,?,?,?,?,?,datetime('now'))"
-  ).bind(id, a.userId, body.name.trim(), shareToken, body.password || null, body.downloads === false ? 0 : 1, body.expiresAt || null).run();
+  ).bind(id, a.userId, body.name.trim(), shareToken, body.password ? await hashPassword(body.password) : null, body.downloads === false ? 0 : 1, body.expiresAt || null).run();
 
   return json({ id, shareToken, name: body.name.trim() }, 201);
 }
