@@ -28,15 +28,17 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
   } catch (err: any) { return json({ error: err.message }, 500); }
 }
 
-// POST — submit a photo to the inspiration map
+// POST — submit a location to the inspiration map
 export async function onRequestPost(context: { request: Request; env: { DB?: D1Database } }): Promise<Response> {
   try {
     const a = await requireAuth(context.request, context.env); if (a instanceof Response) return a;
-    const body = await context.request.json() as { photoUrl: string; address: string; latitude: number; longitude: number; category?: string; season?: string; tips?: string; bestTime?: string; permissionInfo?: string };
-    if (!body.photoUrl || !body.address || typeof body.latitude !== "number" || typeof body.longitude !== "number") return json({ error: "photoUrl, address, latitude, longitude required" }, 400);
+    const body = await context.request.json() as { photoUrl?: string; address: string; latitude: number; longitude: number; category?: string; season?: string; tips?: string; bestTime?: string; permissionInfo?: string };
+    if (!body.address || typeof body.latitude !== "number" || typeof body.longitude !== "number") return json({ error: "address, latitude, longitude required" }, 400);
 
     const id = crypto.randomUUID();
-    await context.env.DB!.prepare("INSERT INTO inspiration (id, user_id, photo_url, address, latitude, longitude, category, season, tips, best_time, permission_info, loves, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,0,?)").bind(id, a.userId, body.photoUrl, body.address, body.latitude, body.longitude, body.category || "general", body.season || "", body.tips || "", body.bestTime || "", body.permissionInfo || "", new Date().toISOString()).run();
+    await context.env.DB!.prepare(
+      "INSERT INTO inspiration (id, user_id, photo_url, address, latitude, longitude, category, season, tips, best_time, permission_info, source, score, loves, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,0,?)"
+    ).bind(id, a.userId, body.photoUrl || null, body.address, body.latitude, body.longitude, body.category || "general", body.season || "", body.tips || "", body.bestTime || "", body.permissionInfo || "", "framenest", 100, new Date().toISOString()).run();
 
     return json({ id, loves: 0 }, 201);
   } catch (err: any) { return json({ error: err.message }, 500); }

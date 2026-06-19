@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 import { HireButton } from "@/components/photographer/HireButton";
 
 interface InspirationItem {
@@ -60,6 +61,7 @@ function buildFeatures(items: InspirationItem[], selectedId: string | null) {
 }
 
 export function InspirationMapPage() {
+  const { user } = useAuth();
   const [items, setItems] = useState<InspirationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<InspirationItem | null>(null);
@@ -67,6 +69,12 @@ export function InspirationMapPage() {
   const [season, setSeason] = useState("");
   const [sort, setSort] = useState("newest");
   const [loved, setLoved] = useState<Set<string>>(new Set());
+  const [showAdd, setShowAdd] = useState(false);
+  const [addForm, setAddForm] = useState({ address: "", category: "general", tips: "", bestTime: "", permissionInfo: "" });
+  const [addCoords, setAddCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [geocoding, setGeocoding] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [addMsg, setAddMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const mapRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const mapReadyRef = useRef(false);
@@ -290,12 +298,108 @@ export function InspirationMapPage() {
     if (mapRef.current) mapRef.current.flyTo({ center: [item.longitude, item.latitude], zoom: 14 });
   };
 
+  const geocodeAddress = async () => {
+    if (!addForm.address.trim()) return;
+    setGeocoding(true);
+    setAddCoords(null);
+    try {
+      const res = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(addForm.address)}.json?access_token=${MAPBOX_TOKEN}&limit=1`);
+      const data = await res.json();
+      if (data.features?.length) {
+        const [lng, lat] = data.features[0].center;
+        setAddCoords({ lat, lng });
+      } else {
+        setAddMsg({ type: "error", text: "Address not found. Try a more specific location." });
+      }
+    } catch { setAddMsg({ type: "error", text: "Geocoding failed" }); }
+    setGeocoding(false);
+  };
+
+  const submitLocation = async () => {
+    if (!addCoords || !addForm.address.trim()) return;
+    setSubmitting(true);
+    setAddMsg(null);
+    try {
+      await api.post("/inspiration", {
+        address: addForm.address.trim(),
+        latitude: addCoords.lat,
+        longitude: addCoords.lng,
+        category: addForm.category,
+        tips: addForm.tips,
+        bestTime: addForm.bestTime,
+        permissionInfo: addForm.permissionInfo,
+      });
+      setAddMsg({ type: "success", text: "Location added! It will appear as a blue 📸 pin." });
+      setAddForm({ address: "", category: "general", tips: "", bestTime: "", permissionInfo: "" });
+      setAddCoords(null);
+      setShowAdd(false);
+      // Refresh data
+      hasFitRef.current = true; // don't re-fit bounds
+      const params = new URLSearchParams();
+      if (category) params.set("category", category);
+      if (season) params.set("season", season);
+      if (sort) params.set("sort", sort);
+      api.get(`/inspiration?${params}`).then((d: any) => setItems(d.items || [])).catch(() => {});
+    } catch (err) {
+      setAddMsg({ type: "error", text: err instanceof Error ? err.message : "Failed to submit" });
+    }
+    setSubmitting(false);
+  };
+
   return (
     <div className="flex flex-col lg:flex-row h-[calc(100vh-4rem)]">
       {/* Sidebar */}
       <div className="lg:w-80 flex-shrink-0 border-r border-border bg-white overflow-y-auto p-4">
         <h1 className="font-display text-xl font-bold text-neutral-900">🌍 Inspiration Map</h1>
         <p className="text-xs text-neutral-500 mt-1">Discover beautiful photo locations. Submit your own to inspire others.</p>
+
+        {/* Add Location (logged-in users) */}
+        {user && !showAdd && (
+          <button onClick={() => setShowAdd(true)}
+            className="mt-3 w-full rounded-lg bg-neutral-900 px-3 py-2 text-xs font-medium text-white hover:bg-neutral-800">
+            + Add a Location
+          </button>
+        )}
+
+        {addMsg && (
+          <div className={cn("mt-3 rounded-lg border px-3 py-2 text-xs",
+            addMsg.type === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700"
+          )}>{addMsg.text}</div>
+        )}
+
+        {showAdd && (
+          <div className="mt-3 rounded-xl border border-border bg-neutral-50 p-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold text-neutral-700">Add a location</p>
+              <button onClick={() => { setShowAdd(false); setAddCoords(null); setAddMsg(null); }} className="text-xs text-neutral-400 hover:text-neutral-600">✕</button>
+            </div>
+            <div>
+              <input type="text" value={addForm.address} onChange={e => setAddForm(f => ({ ...f, address: e.target.value }))}
+                placeholder="Location name or address"
+                onKeyDown={e => e.key === "Enter" && geocodeAddress()}
+                className="w-full rounded-lg border border-border px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none" />
+              <button onClick={geocodeAddress} disabled={geocoding || !addForm.address.trim()}
+                className="mt-1.5 w-full rounded-lg border border-border px-3 py-1.5 text-[10px] font-medium text-neutral-600 hover:bg-white disabled:opacity-50">
+                {geocoding ? "Finding…" : addCoords ? `✓ ${addCoords.lat.toFixed(4)}, ${addCoords.lng.toFixed(4)}` : "Find coordinates"}
+              </button>
+            </div>
+            <select value={addForm.category} onChange={e => setAddForm(f => ({ ...f, category: e.target.value }))}
+              className="w-full rounded-lg border border-border px-3 py-2 text-xs text-neutral-900">
+              {CATEGORIES.map(c => <option key={c} value={c}>{c.replace("_"," ")}</option>)}
+            </select>
+            <textarea value={addForm.tips} onChange={e => setAddForm(f => ({ ...f, tips: e.target.value }))}
+              placeholder="📸 Tips for other photographers…"
+              rows={2}
+              className="w-full rounded-lg border border-border px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none" />
+            <input type="text" value={addForm.bestTime} onChange={e => setAddForm(f => ({ ...f, bestTime: e.target.value }))}
+              placeholder="Best time (e.g. Golden hour, fog season)"
+              className="w-full rounded-lg border border-border px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none" />
+            <button onClick={submitLocation} disabled={submitting || !addCoords}
+              className="w-full rounded-lg bg-neutral-900 px-3 py-2 text-xs font-medium text-white hover:bg-neutral-800 disabled:opacity-50">
+              {submitting ? "Adding…" : "Add to Map"}
+            </button>
+          </div>
+        )}
 
         {/* Filters */}
         <div className="mt-4 space-y-2">
