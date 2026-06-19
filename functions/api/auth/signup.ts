@@ -2,7 +2,6 @@ import { hashPassword } from "../../lib/password";
 import { signToken, getJwtSecret } from "../../lib/jwt";
 import { getUserByEmail, getSpaceBySlug } from "../../lib/db";
 import { json } from "../../lib/response";
-import { checkRateLimit, getClientIP } from "../../lib/rate-limit";
 import { validateSignup, sanitize, MAX_NAME, MAX_EMAIL } from "../../lib/validate";
 
 const SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -13,16 +12,6 @@ export async function onRequestPost(context: {
 }): Promise<Response> {
   try {
     const db = context.env.DB!;
-
-    // ── Rate limit ──────────────────────────────────────────────
-    const ip = getClientIP(context.request);
-    const limit = await checkRateLimit(db, ip, "signup");
-    if (!limit.allowed) {
-      return json(
-        { error: `Too many signup attempts. Please try again in ${limit.retryAfter} seconds.` },
-        429,
-      );
-    }
 
     // ── Parse and validate ──────────────────────────────────────
     const rawBody = (await context.request.json()) as {

@@ -17,7 +17,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
 
     const result = await context.env.DB!.prepare(query).bind(...params).all();
     const items = (result.results || []).map((r: any) => ({
-      id: r.id, userId: r.user_id, userName: r.user_name, photoUrl: r.photo_url,
+      id: r.id, userName: r.user_name, photoUrl: r.photo_url,
       address: r.address, latitude: r.latitude, longitude: r.longitude,
       category: r.category, season: r.season, loves: r.loves,
       tips: r.tips || "", bestTime: r.best_time || "", permissionInfo: r.permission_info || "",
@@ -25,7 +25,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
       createdAt: r.created_at,
     }));
     return json({ items });
-  } catch (err: any) { return json({ error: err.message }, 500); }
+  } catch (err: any) { console.error("Inspiration error:", err); return json({ error: "Failed to load" }, 500); }
 }
 
 // POST — submit a location to the inspiration map
@@ -41,5 +41,5 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     ).bind(id, a.userId, body.photoUrl || null, body.address, body.latitude, body.longitude, body.category || "general", body.season || "", body.tips || "", body.bestTime || "", body.permissionInfo || "", "framenest", 100, new Date().toISOString()).run();
 
     return json({ id, loves: 0 }, 201);
-  } catch (err: any) { return json({ error: err.message }, 500); }
+  } catch (err: any) { console.error("Inspiration POST error:", err); return json({ error: "Failed to save" }, 500); }
 }

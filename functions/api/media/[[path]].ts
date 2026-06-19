@@ -7,7 +7,8 @@
  *   1. A valid signed URL (expires + sig query params)
  *   2. The media belonging to a public/gate event (anonymous OK)
  *   3. An authenticated user who owns the media's space
- * Storage keys not found in DB (album photos, portfolio, inspiration) are allowed through.
+ * Storage keys not found in event media are checked against album_photos and
+ * photographer_portfolio; unknown keys are rejected with 403.
  * Supports Range requests so <video> seeking works in all browsers.
  */
 
@@ -54,9 +55,22 @@ export async function onRequestGet(context: {
           if (a instanceof Response) return a;
           if (a.spaceId !== media.space_id) return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { "Content-Type": "application/json" } });
         }
+      } else {
+        // Check album_photos
+        const albumPhoto = await db.prepare("SELECT album_id FROM album_photos WHERE storage_key = ?").bind(storageKey).first();
+        if (albumPhoto) {
+          // allow — album access is controlled by share token
+        } else {
+          // Check photographer_portfolio
+          const portfolioPhoto = await db.prepare("SELECT photographer_id FROM photographer_portfolio WHERE storage_key = ?").bind(storageKey).first();
+          if (portfolioPhoto) {
+            // allow — portfolio is public
+          } else {
+            // Unknown key — reject
+            return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { "Content-Type": "application/json" } });
+          }
+        }
       }
-      // If media not found in DB (album photos, portfolio, inspiration), allow access
-      // These are served via separate access-controlled endpoints
     }
   }
 

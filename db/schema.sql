@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
   role          TEXT NOT NULL CHECK (role IN ('platform_owner','page_admin','staff','viewer')),
   space_id      TEXT NOT NULL,
   avatar_url    TEXT,
+  account_type  TEXT DEFAULT 'personal',
   created_at    TEXT NOT NULL
 );
 
@@ -99,6 +100,7 @@ CREATE TABLE IF NOT EXISTS videos (
   duration          INTEGER NOT NULL,
   file_size         INTEGER NOT NULL,
   uploaded_by       TEXT NOT NULL REFERENCES users(id),
+  stream_id         TEXT,
   created_at        TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -128,6 +130,12 @@ CREATE TABLE IF NOT EXISTS photographers (
   slug           TEXT,
   specialties    TEXT DEFAULT '',
   tagline        TEXT DEFAULT '',
+  verified       INTEGER DEFAULT 0,
+  verified_at    TEXT,
+  subscription_id TEXT,
+  subscription_status TEXT DEFAULT 'none',
+  profile_views  INTEGER DEFAULT 0,
+  featured       INTEGER DEFAULT 0,
   created_at     TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -137,6 +145,29 @@ CREATE TABLE IF NOT EXISTS photographer_portfolio (
   storage_key     TEXT NOT NULL,
   filename        TEXT DEFAULT '',
   sort_order      INTEGER DEFAULT 0,
+  created_at      TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ─── Reviews & Booking Inquiries ───
+
+CREATE TABLE IF NOT EXISTS reviews (
+  id              TEXT PRIMARY KEY,
+  photographer_id TEXT NOT NULL,
+  reviewer_id     TEXT NOT NULL,
+  rating          INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
+  comment         TEXT DEFAULT '',
+  created_at      TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_reviews_photographer ON reviews(photographer_id);
+
+CREATE TABLE IF NOT EXISTS booking_inquiries (
+  id              TEXT PRIMARY KEY,
+  photographer_id TEXT,
+  client_user_id  TEXT NOT NULL,
+  message         TEXT NOT NULL,
+  event_title     TEXT DEFAULT '',
+  location_name   TEXT DEFAULT '',
+  status          TEXT DEFAULT 'pending',
   created_at      TEXT NOT NULL DEFAULT (datetime('now'))
 );
 

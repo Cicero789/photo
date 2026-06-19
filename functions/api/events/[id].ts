@@ -67,11 +67,22 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
   } catch (err) { console.error("Update event error:", err); return json({ error: "Something went wrong" }, 500); }
 }
 
-export async function onRequestDelete(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string }; params: { id: string } }): Promise<Response> {
+export async function onRequestDelete(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string; PHOTOS?: R2Bucket; VIDEOS?: R2Bucket }; params: { id: string } }): Promise<Response> {
   try {
     const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ?").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
     if ((event as Record<string,unknown>).space_id !== authResult.spaceId || authResult.role === 'viewer') return json({ error: "Forbidden" }, 403);
+
+    // Clean up R2 storage before deleting DB rows
+    const photoRows = await db.prepare("SELECT storage_key FROM photos WHERE event_id = ?").bind(context.params.id).all<{ storage_key: string }>();
+    const videoRows = await db.prepare("SELECT storage_key FROM videos WHERE event_id = ?").bind(context.params.id).all<{ storage_key: string }>();
+    for (const row of photoRows.results ?? []) {
+      await context.env.PHOTOS?.delete(row.storage_key);
+    }
+    for (const row of videoRows.results ?? []) {
+      await context.env.VIDEOS?.delete(row.storage_key);
+    }
+
     await db.batch([
       db.prepare("DELETE FROM photos WHERE event_id = ?").bind(context.params.id),
       db.prepare("DELETE FROM videos WHERE event_id = ?").bind(context.params.id),

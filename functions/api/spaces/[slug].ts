@@ -22,7 +22,7 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
     if (body.heroStyle !== undefined) { updates.push("hero_style = ?"); values.push(body.heroStyle); }
     if (body.slug && body.slug !== slug) {
       // Validate slug format
-      if (!/^[a-z0-9-]+$/.test(body.slug) || body.slug.length > 60) return json({ error: "Invalid slug" }, 400);
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(body.slug)) return json({ error: "Invalid slug format" }, 400);
       // Check uniqueness
       const existing = await db.prepare("SELECT id FROM spaces WHERE slug = ? AND id != ?").bind(body.slug, space.id).first();
       if (existing) return json({ error: "Slug already taken" }, 409);

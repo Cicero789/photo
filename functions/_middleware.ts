@@ -21,6 +21,14 @@ function getAllowedOrigin(request: Request): string {
   return "";
 }
 
+function addSecurityHeaders(headers: Headers): void {
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("X-Frame-Options", "DENY");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  headers.set("Content-Security-Policy", "default-src 'self'; script-src 'self' https://api.mapbox.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://api.mapbox.com; img-src 'self' data: blob: https://images.unsplash.com https://*.mapbox.com; connect-src 'self' https://api.mapbox.com https://*.stripe.com; frame-src https://js.stripe.com https://connect.stripe.com; font-src 'self'");
+}
+
 function addCorsHeaders(response: Response, origin: string): Response {
   const headers = new Headers(response.headers);
   // No ACAO header for origins outside the allowlist — falling back to "*"
@@ -29,6 +37,7 @@ function addCorsHeaders(response: Response, origin: string): Response {
   headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
   headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
   headers.set("Access-Control-Max-Age", "86400");
+  addSecurityHeaders(headers);
   return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
 }
 
@@ -90,9 +99,10 @@ export async function onRequest(
         const response = await next();
         const newResponse = new Response(response.body, response);
         newResponse.headers.set("X-FrameNest-Space", space.slug);
+        addSecurityHeaders(newResponse.headers);
         return newResponse;
       }
-    } catch {} // non-critical, continue normally
+    } catch (err) { console.error("Custom domain detection error:", err); }
   }
 
   // 1. Handle CORS preflight.

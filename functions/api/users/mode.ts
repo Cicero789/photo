@@ -9,7 +9,12 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
   if (!body.mode || !["personal", "pro"].includes(body.mode)) return json({ error: "mode must be 'personal' or 'pro'" }, 400);
 
   const db = context.env.DB!;
-  await db.prepare("UPDATE users SET account_type = ? WHERE id = ?").bind(body.mode, a.userId).run();
+  try {
+    await db.prepare("UPDATE users SET account_type = ? WHERE id = ?").bind(body.mode, a.userId).run();
+  } catch (err) {
+    console.error("Mode switch error (account_type column may not exist):", err);
+    return json({ error: "Mode switch failed — database may need migration" }, 500);
+  }
 
   // Auto-create photographer row when switching to pro
   if (body.mode === "pro") {
@@ -33,6 +38,11 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
 export async function onRequestGet(context: { request: Request; env: { DB?: D1Database } }): Promise<Response> {
   const a = await requireAuth(context.request, context.env);
   if (a instanceof Response) return a;
-  const user = await context.env.DB!.prepare("SELECT account_type FROM users WHERE id = ?").bind(a.userId).first() as any;
-  return json({ mode: user?.account_type || "personal" });
+  try {
+    const user = await context.env.DB!.prepare("SELECT account_type FROM users WHERE id = ?").bind(a.userId).first() as any;
+    return json({ mode: user?.account_type || "personal" });
+  } catch (err) {
+    console.error("Mode switch error (account_type column may not exist):", err);
+    return json({ error: "Mode switch failed — database may need migration" }, 500);
+  }
 }

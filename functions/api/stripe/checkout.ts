@@ -71,6 +71,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
 
     return json({ url: session.url, orderId });
   } catch (err: any) {
-    return json({ error: err.message || "Checkout failed" }, 500);
+    console.error("Checkout error:", err);
+    return json({ error: "Payment processing failed. Please try again." }, 500);
   }
 }
