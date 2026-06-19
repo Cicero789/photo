@@ -76,6 +76,17 @@ export function Navbar() {
               <>
                 <NotificationBell />
                 <Link
+                  to="/albums"
+                  className={cn(
+                    "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    pathname === "/albums"
+                      ? "bg-primary-50 text-primary-700"
+                      : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900",
+                  )}
+                >
+                  Albums
+                </Link>
+                <Link
                   to="/dashboard"
                   className={cn(
                     "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
