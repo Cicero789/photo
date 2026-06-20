@@ -5,12 +5,12 @@ import { api } from "../../lib/api";
 import { cn } from "../../lib/utils";
 
 const ADMIN_NAV = [
-  { to: "/admin", label: "Dashboard" },
-  { to: "/admin/people", label: "People" },
-  { to: "/admin/content", label: "Content" },
-  { to: "/admin/commerce", label: "Commerce" },
-  { to: "/admin/discovery", label: "Discovery" },
-  { to: "/admin/system", label: "System" },
+  { to: "/citysite", label: "Dashboard" },
+  { to: "/citysite/people", label: "People" },
+  { to: "/citysite/content", label: "Content" },
+  { to: "/citysite/commerce", label: "Commerce" },
+  { to: "/citysite/discovery", label: "Discovery" },
+  { to: "/citysite/system", label: "System" },
 ];
 
 function AdminNav() {
@@ -20,8 +20,8 @@ function AdminNav() {
       <div className="mx-auto flex max-w-7xl gap-0 overflow-x-auto px-4 sm:px-6">
         {ADMIN_NAV.map((item) => {
           const active =
-            item.to === "/admin"
-              ? location.pathname === "/admin"
+            item.to === "/citysite"
+              ? location.pathname === "/citysite"
               : location.pathname.startsWith(item.to);
           return (
             <Link
@@ -90,7 +90,7 @@ export function AdminPeoplePage() {
   const fetchUsers = useCallback(async () => {
     try {
       setUsersLoading(true);
-      const data = await api.get<{ users: AdminUser[] }>("/admin/users");
+      const data = await api.get<{ users: AdminUser[] }>("/citysite/users");
       setUsers(data.users || []);
     } catch (err) {
       setUsersError(err instanceof Error ? err.message : "Failed to load users");

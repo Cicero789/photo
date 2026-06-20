@@ -22,6 +22,12 @@ import { AlbumViewerPage } from "./pages/AlbumViewerPage";
 import { AlbumsPage } from "./pages/AlbumsPage";
 import { PhotographerProfilePage } from "./pages/PhotographerProfilePage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { AdminDashboardPage } from "./pages/admin/AdminDashboardPage";
+import { AdminPeoplePage } from "./pages/admin/AdminPeoplePage";
+import { AdminContentPage } from "./pages/admin/AdminContentPage";
+import { AdminCommercePage } from "./pages/admin/AdminCommercePage";
+import { AdminDiscoveryPage } from "./pages/admin/AdminDiscoveryPage";
+import { AdminSystemPage } from "./pages/admin/AdminSystemPage";
 import { MainLayout } from "./components/layout/MainLayout";
 
 function CustomDomainRedirect() {
@@ -111,7 +117,7 @@ export default function App() {
             }
           />
           <Route
-            path="/admin/ads"
+            path="/citysite/ads"
             element={
               <ProtectedRoute requiredRole="platform_owner">
                 <AdminAdsPage />
@@ -119,13 +125,19 @@ export default function App() {
             }
           />
           <Route
-            path="/admin/photographers"
+            path="/citysite/photographers"
             element={
               <ProtectedRoute requiredRole="platform_owner">
                 <AdminPhotographersPage />
               </ProtectedRoute>
             }
           />
+          <Route path="/citysite" element={<ProtectedRoute requiredRole="platform_owner"><AdminDashboardPage /></ProtectedRoute>} />
+          <Route path="/citysite/people" element={<ProtectedRoute requiredRole="platform_owner"><AdminPeoplePage /></ProtectedRoute>} />
+          <Route path="/citysite/content" element={<ProtectedRoute requiredRole="platform_owner"><AdminContentPage /></ProtectedRoute>} />
+          <Route path="/citysite/commerce" element={<ProtectedRoute requiredRole="platform_owner"><AdminCommercePage /></ProtectedRoute>} />
+          <Route path="/citysite/discovery" element={<ProtectedRoute requiredRole="platform_owner"><AdminDiscoveryPage /></ProtectedRoute>} />
+          <Route path="/citysite/system" element={<ProtectedRoute requiredRole="platform_owner"><AdminSystemPage /></ProtectedRoute>} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

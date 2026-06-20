@@ -5,12 +5,12 @@ import { api } from "../../lib/api";
 import { cn } from "../../lib/utils";
 
 const ADMIN_NAV = [
-  { to: "/admin", label: "Dashboard" },
-  { to: "/admin/people", label: "People" },
-  { to: "/admin/content", label: "Content" },
-  { to: "/admin/commerce", label: "Commerce" },
-  { to: "/admin/discovery", label: "Discovery" },
-  { to: "/admin/system", label: "System" },
+  { to: "/citysite", label: "Dashboard" },
+  { to: "/citysite/people", label: "People" },
+  { to: "/citysite/content", label: "Content" },
+  { to: "/citysite/commerce", label: "Commerce" },
+  { to: "/citysite/discovery", label: "Discovery" },
+  { to: "/citysite/system", label: "System" },
 ];
 
 function AdminNav() {
@@ -20,8 +20,8 @@ function AdminNav() {
       <div className="mx-auto flex max-w-7xl gap-0 overflow-x-auto px-4 sm:px-6">
         {ADMIN_NAV.map((item) => {
           const active =
-            item.to === "/admin"
-              ? location.pathname === "/admin"
+            item.to === "/citysite"
+              ? location.pathname === "/citysite"
               : location.pathname.startsWith(item.to);
           return (
             <Link
@@ -93,7 +93,7 @@ export function AdminContentPage() {
   const fetchSpaces = useCallback(async () => {
     try {
       setSpacesLoading(true);
-      const data = await api.get<{ spaces: AdminSpace[] }>("/admin/spaces");
+      const data = await api.get<{ spaces: AdminSpace[] }>("/citysite/spaces");
       setSpaces(data.spaces || []);
     } catch (err) {
       setSpacesError(err instanceof Error ? err.message : "Failed to load spaces");
@@ -106,7 +106,7 @@ export function AdminContentPage() {
     try {
       setDeletedLoading(true);
       const data = await api.get<{ items: DeletedPhoto[] }>(
-        "/admin/content?type=photos&status=deleted"
+        "/citysite/content?type=photos&status=deleted"
       );
       setDeleted(data.items || []);
     } catch (err) {
@@ -122,7 +122,7 @@ export function AdminContentPage() {
     try {
       setAlbumsLoading(true);
       const data = await api.get<{ items: AdminAlbum[] }>(
-        "/admin/content?type=albums"
+        "/citysite/content?type=albums"
       );
       setAlbums(data.items || []);
     } catch (err) {

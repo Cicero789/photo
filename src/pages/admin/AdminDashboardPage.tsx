@@ -5,12 +5,12 @@ import { api } from "../../lib/api";
 import { cn } from "../../lib/utils";
 
 const ADMIN_NAV = [
-  { to: "/admin", label: "Dashboard" },
-  { to: "/admin/people", label: "People" },
-  { to: "/admin/content", label: "Content" },
-  { to: "/admin/commerce", label: "Commerce" },
-  { to: "/admin/discovery", label: "Discovery" },
-  { to: "/admin/system", label: "System" },
+  { to: "/citysite", label: "Dashboard" },
+  { to: "/citysite/people", label: "People" },
+  { to: "/citysite/content", label: "Content" },
+  { to: "/citysite/commerce", label: "Commerce" },
+  { to: "/citysite/discovery", label: "Discovery" },
+  { to: "/citysite/system", label: "System" },
 ];
 
 function AdminNav() {
@@ -20,8 +20,8 @@ function AdminNav() {
       <div className="mx-auto flex max-w-7xl gap-0 overflow-x-auto px-4 sm:px-6">
         {ADMIN_NAV.map((item) => {
           const active =
-            item.to === "/admin"
-              ? location.pathname === "/admin"
+            item.to === "/citysite"
+              ? location.pathname === "/citysite"
               : location.pathname.startsWith(item.to);
           return (
             <Link
@@ -63,7 +63,7 @@ export function AdminDashboardPage() {
   const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await api.get<Stats>("/admin/stats");
+      const data = await api.get<Stats>("/citysite/stats");
       setStats(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load stats");
@@ -190,25 +190,25 @@ export function AdminDashboardPage() {
               </h2>
               <div className="mt-3 flex flex-wrap gap-3">
                 <Link
-                  to="/admin/people"
+                  to="/citysite/people"
                   className="rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
                 >
                   Manage Users
                 </Link>
                 <Link
-                  to="/admin/content"
+                  to="/citysite/content"
                   className="rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
                 >
                   Manage Content
                 </Link>
                 <Link
-                  to="/admin/commerce"
+                  to="/citysite/commerce"
                   className="rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
                 >
                   View Orders
                 </Link>
                 <Link
-                  to="/admin/system"
+                  to="/citysite/system"
                   className="rounded-lg border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-50"
                 >
                   System Health
