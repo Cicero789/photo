@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useParams, Link } from "react-router-dom";
 import { HireButton } from "@/components/photographer/HireButton";
+import { templateComponents } from "@/components/templates";
 
 interface ProfileData {
   id: string;
@@ -16,6 +17,7 @@ interface ProfileData {
   pricing: { downloads?: { single?: number; full?: number } };
   heroPhotos: string[];
   portfolio: { id: string; url: string; filename: string }[];
+  galleryConfig?: { template?: string };
 }
 
 export function PhotographerProfilePage() {
@@ -61,6 +63,56 @@ export function PhotographerProfilePage() {
   const hasPortfolio = profile.portfolio.length > 0;
   const hasPricing = profile.pricing?.downloads?.single || profile.pricing?.downloads?.full;
 
+  // --- Template System ---
+  const templateId = profile.galleryConfig?.template || "clean-minimal";
+  const TemplateComponent = templateComponents[templateId];
+
+  if (TemplateComponent) {
+    return (
+      <div>
+        <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-600" /></div>}>
+          <TemplateComponent
+            name={profile.name}
+            tagline={profile.tagline}
+            specialties={profile.specialties}
+            bio={profile.bio}
+            website={profile.website}
+            serviceArea={profile.serviceArea}
+            verified={profile.verified}
+            pricing={profile.pricing}
+            portfolio={profile.portfolio}
+            onHire={() => {/* open hire modal — handled by HireButton inline below */}}
+            onPhotoClick={(i: number) => setLightbox(i)}
+          />
+        </Suspense>
+
+        {/* Lightbox */}
+        {lightbox !== null && profile.portfolio[lightbox] && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+            onClick={() => setLightbox(null)}>
+            <button onClick={() => setLightbox(null)}
+              className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 text-lg">&#10005;</button>
+            {lightbox > 0 && (
+              <button onClick={(e) => { e.stopPropagation(); setLightbox(lightbox - 1); }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 text-xl">&#8249;</button>
+            )}
+            {lightbox < profile.portfolio.length - 1 && (
+              <button onClick={(e) => { e.stopPropagation(); setLightbox(lightbox + 1); }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 text-xl">&#8250;</button>
+            )}
+            <img src={profile.portfolio[lightbox].url} alt=""
+              onClick={e => e.stopPropagation()}
+              className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain" />
+            <span className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-white/60">
+              {lightbox + 1} / {profile.portfolio.length}
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // --- Fallback: hardcoded layout for unknown templates ---
   return (
     <div>
       {/* Header */}

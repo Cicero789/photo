@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FrameNest Template Mockups — GPT-5.5</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:wght@400;600&family=Inter:wght@300;400;500;600;700;900&family=Lora:ital,wght@0,400;0,600;1,400&family=Merriweather:ital,wght@1,300;1,400&family=Montserrat:wght@400;500;600&family=Oswald:wght@700&family=Playfair+Display:wght@400;600&family=Poppins:wght@300;400;500&family=Roboto:wght@300;400;700&family=Roboto+Mono:wght@400;700&family=Source+Serif+4:wght@400;600&family=Space+Grotesk:wght@400;500;600&display=swap');
+
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: #171717; background: #e9e9e9; }
+    img { display: block; width: 100%; object-fit: cover; }
+    a { color: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    .photo { overflow: hidden; }
+    .photo img { height: 100%; transition: transform .65s cubic-bezier(.2,.7,.2,1), opacity .35s; }
+    .photo:hover img { transform: scale(1.035); }
+    .hire { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 24px; font: inherit; text-decoration: none; transition: transform .25s, background .25s, color .25s; }
+    .hire:hover { transform: translateY(-2px); }
+    .eyebrow { text-transform: uppercase; letter-spacing: .18em; font-size: 11px; }
+    .divider {
+      position: relative; z-index: 20; padding: 14px 4vw; background: #191919; color: #fff;
+      font: 600 12px/1.2 Inter, sans-serif; letter-spacing: .12em; text-transform: uppercase;
+      border-top: 1px solid #333; border-bottom: 1px solid #000;
+    }
+    .template { min-height: 600px; width: 100%; overflow: hidden; }
+
+    /* Contents */
+    .toc {
+      min-height: 100vh; padding: 72px 6vw; display: grid; align-content: center;
+      color: white; background: radial-gradient(circle at 82% 12%, #364153 0, #111827 34%, #050505 78%);
+      font-family: Inter, sans-serif;
+    }
+    .toc-mark { color: #a8b1c2; letter-spacing: .28em; text-transform: uppercase; font-size: 12px; }
+    .toc h1 { max-width: 1000px; margin: 20px 0 16px; font-size: clamp(48px, 8vw, 112px); line-height: .9; letter-spacing: -.065em; }
+    .toc > p { max-width: 550px; color: #b7bdc8; font-size: 17px; line-height: 1.6; }
+    .toc nav { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; margin-top: 54px; background: #333; border: 1px solid #333; }
+    .toc a { padding: 22px 18px; background: #0a0a0a; text-decoration: none; transition: background .25s, color .25s; }
+    .toc a:hover { background: white; color: black; }
+    .toc a b { display: block; color: #737b89; font-size: 11px; margin-bottom: 8px; }
+    .toc a span { font-size: 13px; }
+
+    /* 1 — Clean Minimal */
+    .minimal { padding: 58px 5vw 70px; background: #fff; font-family: Inter, sans-serif; }
+    .minimal-head { display: grid; grid-template-columns: 1fr auto; gap: 30px; align-items: end; padding-bottom: 34px; border-bottom: 1px solid #dedede; }
+    .minimal h2 { margin: 0 0 9px; font-size: clamp(28px, 4vw, 52px); letter-spacing: -.045em; font-weight: 500; }
+    .minimal .sub { display: flex; gap: 18px; color: #707070; font-size: 13px; }
+    .minimal .hire { background: #111; color: white; border: 1px solid #111; }
+    .minimal .hire:hover { background: white; color: #111; }
+    .minimal-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 30px; }
+    .minimal-grid .photo { aspect-ratio: 1; border: 1px solid #e7e7e7; }
+    .minimal-bio { display: grid; grid-template-columns: 1.25fr 1fr 1fr; gap: 40px; margin-top: 38px; color: #565656; font-size: 13px; line-height: 1.75; }
+
+    /* 2 — Cinematic Dark */
+    .cinematic { color: white; background: #0a0a0a; font-family: Roboto, sans-serif; }
+    .cine-hero { position: relative; min-height: 78vh; display: flex; align-items: flex-end; padding: 7vw; }
+    .cine-hero > img { position: absolute; inset: 0; height: 100%; object-fit: cover; opacity: .72; }
+    .cine-hero:after { content:""; position:absolute; inset:0; background:linear-gradient(90deg,rgba(0,0,0,.88),rgba(0,0,0,.08) 70%),linear-gradient(0deg,#0a0a0a,transparent 65%); }
+    .cine-copy { position: relative; z-index: 1; max-width: 780px; }
+    .cine-copy h2 { margin: 8px 0; font: 400 clamp(70px, 11vw, 160px)/.8 "Bebas Neue", sans-serif; letter-spacing: .015em; }
+    .gold { color: #d4af37; }
+    .cine-copy p { max-width: 530px; color: #ddd; font-weight: 300; line-height: 1.7; }
+    .cinematic .hire { margin-top: 20px; color: #090909; background: #d4af37; font-weight: 700; }
+    .cine-gallery { padding: 35px 5vw 75px; display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; }
+    .cine-gallery .photo { height: 390px; }
+    .cine-gallery .photo:hover img { opacity: .75; transform: scale(1.04); }
+
+    /* 3 — Editorial */
+    .editorial { padding: 68px 5vw 80px; background: #fafaf9; font-family: "Source Serif 4", serif; }
+    .edit-mast { text-align: center; border-top: 1px solid #444; border-bottom: 1px solid #444; padding: 28px 0; }
+    .edit-mast h2 { margin: 0; font: 600 clamp(32px, 6vw, 78px)/1 "Playfair Display", serif; letter-spacing: .15em; text-transform: uppercase; }
+    .edit-meta { margin-top: 12px; font-style: italic; color: #666; }
+    .edit-feature { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; margin: 38px 0; }
+    .edit-feature > .photo { min-height: 670px; }
+    .edit-stack { display: grid; grid-template-rows: 1fr 1fr; gap: 16px; }
+    .edit-stack .photo { min-height: 327px; }
+    .edit-story { display: grid; grid-template-columns: 1fr 1.4fr auto; gap: 5vw; align-items: start; padding: 30px 0; border-top: 1px solid #aaa; border-bottom: 1px solid #aaa; }
+    .edit-story h3 { margin: 0; font: 400 38px/1.05 "Playfair Display",serif; }
+    .edit-story p { margin: 0; line-height: 1.7; }
+    .editorial .hire { color: white; background: #991b1b; border: 1px solid #991b1b; }
+    .editorial .hire:hover { color: #991b1b; background: transparent; }
+
+    /* 4 — Instagram */
+    .instagram { padding: 42px 0 65px; background: white; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    .insta-inner { max-width: 935px; margin: auto; padding: 0 20px; }
+    .insta-profile { display: grid; grid-template-columns: 210px 1fr; gap: 30px; align-items: center; padding: 20px 0 42px; }
+    .insta-avatar { width: 150px; height: 150px; margin: auto; border-radius: 50%; padding: 4px; background: linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7); }
+    .insta-avatar img { height: 100%; border-radius: 50%; border: 4px solid white; object-fit: cover; }
+    .insta-title { display:flex; align-items:center; gap:18px; }
+    .insta-title h2 { margin: 0; font-size: 25px; font-weight: 400; }
+    .instagram .hire { min-height: 34px; padding: 0 18px; border-radius: 8px; color:white; background:#0095f6; font-size: 14px; font-weight: 600; }
+    .instagram .hire:hover { background:#1877f2; }
+    .insta-stats { display:flex; gap:28px; margin:24px 0 17px; font-size: 15px; }
+    .insta-bio { max-width:580px; font-size:14px; line-height:1.45; }
+    .insta-grid { display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid #dbdbdb; }
+    .insta-grid .photo { aspect-ratio:1; position:relative; }
+    .insta-grid .photo:hover img { opacity:.78; transform:none; }
+
+    /* 5 — Masonry */
+    .masonry { position:relative; padding:65px 4vw 80px; background:#f5f5f5; font-family:"Space Grotesk",sans-serif; }
+    .masonry-card { position:absolute; z-index:3; top:34px; left:5vw; width:min(430px,75vw); padding:28px; color:white; background:rgba(20,20,25,.91); box-shadow:0 18px 50px #0004; }
+    .masonry-card h2 { margin:0 0 8px; font-size:34px; line-height:1; }
+    .masonry-card p { color:#d7d7de; font-size:13px; line-height:1.55; }
+    .masonry-card .hire { color:white; background:#6366f1; border-radius:7px; }
+    .masonry-grid { column-count:3; column-gap:18px; max-width:1250px; margin:auto; padding-top:105px; }
+    .masonry-grid .photo { break-inside:avoid; margin-bottom:18px; border-radius:14px; box-shadow:0 8px 25px #1112; }
+    .masonry-grid .photo img { height:auto; min-height:280px; }
+    .masonry-grid .photo:nth-child(2n) img { min-height:480px; }
+    .masonry-grid .photo:nth-child(3n) img { min-height:360px; }
+
+    /* 6 — Split Hero */
+    .split { background:#fffbf5; font-family:Montserrat,sans-serif; }
+    .split-top { min-height:720px; display:grid; grid-template-columns:1fr 1fr; }
+    .split-image { min-height:720px; }
+    .split-copy { padding:8vw; display:flex; flex-direction:column; justify-content:center; }
+    .split-copy h2 { margin:10px 0 20px; color:#30261c; font:600 clamp(52px,7vw,100px)/.85 "Cormorant Garamond",serif; }
+    .split-copy p { color:#735f4b; line-height:1.75; font-size:13px; }
+    .split-copy .tags { margin:15px 0; color:#b45309; text-transform:uppercase; letter-spacing:.13em; font-size:10px; }
+    .split .hire { align-self:flex-start; margin-top:15px; color:white; background:#b45309; }
+    .split-thumbs { padding:70px 7vw; display:grid; grid-template-columns:repeat(2,1fr); gap:24px; }
+    .split-thumbs .photo { height:460px; }
+
+    /* 7 — Vertical Scroll */
+    .vertical { padding:80px 5vw 100px; background:white; font-family:Inter,sans-serif; }
+    .vertical-head { max-width:1040px; margin:0 auto 64px; display:flex; align-items:end; justify-content:space-between; border-bottom:1px solid #ddd; padding-bottom:24px; }
+    .vertical h2 { margin:0; font-size:clamp(28px,4vw,55px); letter-spacing:-.05em; font-weight:400; }
+    .vertical .hire { border:1px solid #222; }
+    .vertical .hire:hover { background:#111; color:white; }
+    .essay { max-width:1040px; margin:auto; }
+    .essay figure { margin:0 0 90px; }
+    .essay .photo { height:min(72vw,720px); }
+    .essay figcaption { display:flex; justify-content:space-between; gap:20px; padding-top:13px; color:#555; font:italic 300 14px/1.5 Merriweather,serif; }
+
+    /* 8 — Carousel */
+    .carousel { min-height:100vh; padding:62px 4vw 70px; background:#f9fafb; font-family:Inter,Helvetica,sans-serif; text-align:center; }
+    .carousel h2 { margin:0; font-size:clamp(26px,3.5vw,50px); font-weight:300; letter-spacing:-.04em; }
+    .carousel .tagline { color:#777; margin:10px 0 38px; font-weight:300; }
+    .spotlight { position:relative; width:80vw; max-width:1250px; margin:auto; }
+    .spotlight .photo { height:min(65vw,690px); background:#eee; box-shadow:0 20px 50px #0001; }
+    .arrow { position:absolute; z-index:2; top:50%; width:54px; height:54px; border:0; border-radius:50%; background:white; box-shadow:0 8px 25px #0002; font:300 34px/1 Inter; cursor:pointer; transition:transform .2s; }
+    .arrow:hover { transform:scale(1.08); }
+    .arrow.left { left:-27px; } .arrow.right { right:-27px; }
+    .carousel-ui { width:80vw; max-width:1250px; margin:16px auto 28px; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; font-size:12px; }
+    .dots { display:flex; gap:8px; }
+    .dot { width:6px; height:6px; border-radius:50%; background:#bbb; }
+    .dot.on { background:#111; }
+    .counter { justify-self:end; color:#666; }
+    .carousel .hire { background:#111; color:white; }
+
+    /* 9 — Story Cards */
+    .stories { padding:70px 5vw 100px; background:#fffbf5; font-family:Poppins,sans-serif; }
+    .story-head { max-width:1200px; margin:0 auto 38px; display:grid; grid-template-columns:1fr auto; align-items:end; gap:40px; }
+    .story-head h2 { margin:6px 0; color:#523927; font:600 clamp(43px,6vw,82px)/.95 Lora,serif; }
+    .story-head p { color:#8a6c55; max-width:580px; font-size:13px; line-height:1.7; }
+    .stories .hire { color:white; background:#8a552f; border-radius:99px; }
+    .story-grid { max-width:1200px; margin:auto; display:grid; grid-template-columns:repeat(2,1fr); gap:25px; }
+    .story { position:relative; height:420px; border-radius:22px; overflow:hidden; box-shadow:0 18px 40px #6b402718; }
+    .story.featured { grid-column:1/-1; height:640px; }
+    .story:after { content:""; position:absolute; inset:40% 0 0; background:linear-gradient(transparent,rgba(38,20,8,.8)); pointer-events:none; }
+    .story-label { position:absolute; z-index:2; left:30px; right:30px; bottom:26px; color:white; }
+    .story-label small { text-transform:uppercase; letter-spacing:.18em; }
+    .story-label h3 { margin:5px 0 0; font:600 34px/1.1 Lora,serif; }
+
+    /* 10 — Brutalist */
+    .brutal { padding:35px 3vw 80px; background:white; color:black; font-family:"Roboto Mono",monospace; border:12px solid black; }
+    .brutal-head { border-bottom:10px solid black; padding-bottom:25px; }
+    .brutal h2 { margin:0; max-width:1200px; font:700 clamp(72px,13vw,190px)/.76 Oswald,sans-serif; text-transform:uppercase; letter-spacing:-.06em; }
+    .brutal-meta { display:flex; flex-wrap:wrap; justify-content:space-between; gap:12px; margin-top:28px; font-weight:700; text-transform:uppercase; }
+    .brutal-grid { display:grid; grid-template-columns:repeat(12,1fr); grid-template-rows:370px 180px 420px; gap:12px; margin:20px 0; }
+    .brutal-grid .photo:nth-child(1) { grid-column:1/8; grid-row:1/3; }
+    .brutal-grid .photo:nth-child(2) { grid-column:8/13; grid-row:1; }
+    .brutal-grid .photo:nth-child(3) { grid-column:9/13; grid-row:2/4; }
+    .brutal-grid .photo:nth-child(4) { grid-column:1/5; grid-row:3; }
+    .brutal-grid .photo:nth-child(5) { grid-column:5/9; grid-row:3; }
+    .brutal-grid .photo:nth-child(6) { display:none; }
+    .brutal-grid .photo { filter:grayscale(1) contrast(1.13); border:5px solid black; }
+    .brutal-grid .photo:hover img { transform:none; opacity:.62; }
+    .brutal-foot { display:grid; grid-template-columns:1fr 1fr auto; gap:30px; align-items:start; border-top:10px solid black; padding-top:24px; text-transform:uppercase; font-size:13px; line-height:1.55; }
+    .brutal .hire { color:white; background:black; border:5px solid black; font-weight:700; font-size:18px; }
+    .brutal .hire:hover { color:black; background:white; transform:none; }
+
+    @media (max-width: 800px) {
+      .toc nav { grid-template-columns:repeat(2,1fr); }
+      .minimal-grid { grid-template-columns:repeat(2,1fr); }
+      .minimal-bio, .edit-story { grid-template-columns:1fr; }
+      .cine-gallery { grid-template-columns:1fr; }
+      .edit-feature { grid-template-columns:1fr; }
+      .edit-feature > .photo { min-height:500px; }
+      .insta-profile { grid-template-columns:120px 1fr; }
+      .insta-avatar { width:105px; height:105px; }
+      .insta-title { align-items:flex-start; flex-direction:column; gap:10px; }
+      .masonry-grid { column-count:2; }
+      .split-top { grid-template-columns:1fr; }
+      .split-image { min-height:80vh; }
+      .split-copy { padding:70px 9vw; }
+      .story-head { grid-template-columns:1fr; }
+      .story.featured { height:520px; }
+      .brutal-grid { grid-template-rows:260px 130px 300px; }
+      .brutal-foot { grid-template-columns:1fr; }
+    }
+    @media (max-width: 520px) {
+      .toc { padding:55px 24px; }
+      .toc nav { grid-template-columns:1fr; }
+      .minimal-head, .vertical-head { grid-template-columns:1fr; display:grid; align-items:start; }
+      .minimal-grid { gap:6px; }
+      .cine-hero { min-height:700px; }
+      .cine-gallery .photo { height:300px; }
+      .edit-stack .photo { min-height:230px; }
+      .insta-profile { grid-template-columns:85px 1fr; gap:14px; }
+      .insta-avatar { width:78px; height:78px; }
+      .insta-title h2 { font-size:18px; }
+      .insta-stats { gap:12px; font-size:12px; }
+      .masonry-grid { column-count:1; padding-top:210px; }
+      .split-thumbs { grid-template-columns:1fr; }
+      .split-thumbs .photo { height:380px; }
+      .vertical-head .hire { margin-top:22px; justify-self:start; }
+      .spotlight,.carousel-ui { width:90vw; }
+      .spotlight .photo { height:65vh; }
+      .arrow { width:42px; height:42px; }
+      .arrow.left { left:-14px; } .arrow.right { right:-14px; }
+      .story-grid { grid-template-columns:1fr; }
+      .story.featured { grid-column:auto; }
+      .story,.story.featured { height:440px; }
+      .brutal { border-width:7px; }
+      .brutal-head { border-bottom-width:7px; }
+      .brutal-grid { display:grid; grid-template-columns:1fr 1fr; grid-template-rows:repeat(3,230px); }
+      .brutal-grid .photo:nth-child(n) { display:block; grid-column:auto; grid-row:auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="toc">
+    <span class="toc-mark">FrameNest / Photographer Profiles</span>
+    <h1>Ten ways to frame a life’s work.</h1>
+    <p>A collection of distinct portfolio directions for Elena Vasquez Photography—each built around the same stories, seen through a different lens.</p>
+    <nav aria-label="Template index">
+      <a href="#template-1"><b>01</b><span>Clean Minimal</span></a>
+      <a href="#template-2"><b>02</b><span>Cinematic Dark</span></a>
+      <a href="#template-3"><b>03</b><span>Editorial Magazine</span></a>
+      <a href="#template-4"><b>04</b><span>Instagram Grid</span></a>
+      <a href="#template-5"><b>05</b><span>Masonry Wall</span></a>
+      <a href="#template-6"><b>06</b><span>Split Hero</span></a>
+      <a href="#template-7"><b>07</b><span>Vertical Scroll</span></a>
+      <a href="#template-8"><b>08</b><span>Carousel Spotlight</span></a>
+      <a href="#template-9"><b>09</b><span>Story Cards</span></a>
+      <a href="#template-10"><b>10</b><span>Brutalist Bold</span></a>
+    </nav>
+  </header>
+
+  <div class="divider" id="template-1">Template 1: Clean Minimal — GPT-5.5 Design</div>
+  <section class="template minimal">
+    <header class="minimal-head">
+      <div>
+        <h2>Elena Vasquez Photography</h2>
+        <div class="sub"><span>Timeless moments, artfully captured</span><span>Austin, TX</span></div>
+      </div>
+      <a class="hire" href="mailto:hello@example.com">Hire Me</a>
+    </header>
+    <div class="minimal-grid">
+      <div class="photo"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding couple"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800" alt="Portrait woman"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800" alt="Landscape"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800" alt="Wedding ceremony"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800" alt="Portrait close-up"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800" alt="Nature at golden hour"></div>
+    </div>
+    <div class="minimal-bio"><span class="eyebrow">Weddings · Portraits · Editorial</span><p>With over a decade behind the lens, I specialize in capturing authentic emotions and fleeting moments. My work has been featured in Martha Stewart Weddings and Brides Magazine.</p><p><b>Starting at $299</b><br>Austin, TX · Available worldwide</p></div>
+  </section>
+
+  <div class="divider" id="template-2">Template 2: Cinematic Dark — GPT-5.5 Design</div>
+  <section class="template cinematic">
+    <div class="cine-hero">
+      <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding couple">
+      <div class="cine-copy">
+        <span class="eyebrow gold">Austin, Texas · Available Worldwide</span>
+        <h2>Elena Vasquez<br>Photography</h2>
+        <p>Timeless moments, artfully captured. Weddings, portraits, and editorial stories shaped by light, atmosphere, and authentic emotion.</p>
+        <a class="hire" href="mailto:hello@example.com">Hire Me · Starting at $299</a>
+      </div>
+    </div>
+    <div class="cine-gallery">
+      <div class="photo"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800" alt="Portrait woman"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800" alt="Landscape"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800" alt="Wedding ceremony"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800" alt="Portrait close-up"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800" alt="Golden hour nature"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding couple"></div>
+    </div>
+  </section>
+
+  <div class="divider" id="template-3">Template 3: Editorial Magazine — GPT-5.5 Design</div>
+  <section class="template editorial">
+    <header class="edit-mast">
+      <h2>Elena Vasquez</h2>
+      <div class="edit-meta">Photography &amp; visual stories · Austin, Texas</div>
+    </header>
+    <div class="edit-feature">
+      <div class="photo"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding couple"></div>
+      <div class="edit-stack">
+        <div class="photo"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800" alt="Portrait woman"></div>
+        <div class="photo"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800" alt="Wedding ceremony"></div>
+      </div>
+    </div>
+    <div class="edit-story">
+      <h3>Timeless moments,<br><em>artfully captured.</em></h3>
+      <p>With over a decade behind the lens, I specialize in capturing authentic emotions and fleeting moments. My work has been featured in Martha Stewart Weddings and Brides Magazine.</p>
+      <div><span class="eyebrow">Weddings / Portraits / Editorial</span><br><br><a class="hire" href="mailto:hello@example.com">Hire Me · From $299</a></div>
+    </div>
+  </section>
+
+  <div class="divider" id="template-4">Template 4: Instagram Grid — GPT-5.5 Design</div>
+  <section class="template instagram">
+    <div class="insta-inner">
+      <header class="insta-profile">
+        <div class="insta-avatar"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Elena Vasquez avatar"></div>
+        <div>
+          <div class="insta-title"><h2>elenavasquezphoto</h2><a class="hire" href="mailto:hello@example.com">Hire Me</a></div>
+          <div class="insta-stats"><span><b>47</b> posts</span><span><b>12</b> inquiries</span><span><b>10+</b> years</span></div>
+          <div class="insta-bio"><b>Elena Vasquez Photography</b><br>Timeless moments, artfully captured ✦<br>Weddings · Portraits · Editorial<br>📍 Austin, TX · Starting at $299</div>
+        </div>
+      </header>
+      <div class="insta-grid">
+        <div class="photo"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding couple"></div>
+        <div class="photo"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800" alt="Portrait woman"></div>
+        <div class="photo"><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800" alt="Landscape"></div>
+        <div class="photo"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800" alt="Wedding ceremony"></div>
+        <div class="photo"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800" alt="Portrait close-up"></div>
+        <div class="photo"><img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800" alt="Golden hour nature"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider" id="template-5">Template 5: Masonry Wall — GPT-5.5 Design</div>
+  <section class="template masonry">
+    <div class="masonry-card">
+      <span class="eyebrow">Austin, TX · From $299</span>
+      <h2>Elena Vasquez Photography</h2>
+      <p>Timeless moments, artfully captured. Weddings, portraits, and editorial photography grounded in authentic emotion.</p>
+      <a class="hire" href="mailto:hello@example.com">Hire Me</a>
+    </div>
+    <div class="masonry-grid">
+      <div class="photo"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding couple"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800" alt="Portrait woman"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800" alt="Landscape"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800" alt="Wedding ceremony"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800" alt="Portrait close-up"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800" alt="Golden hour nature"></div>
+    </div>
+  </section>
+
+  <div class="divider" id="template-6">Template 6: Split Hero — GPT-5.5 Design</div>
+  <section class="template split">
+    <div class="split-top">
+      <div class="photo split-image"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding couple"></div>
+      <div class="split-copy">
+        <span class="eyebrow">Austin, Texas</span>
+        <h2>Elena Vasquez Photography</h2>
+        <p>Timeless moments, artfully captured.</p>
+        <div class="tags">Weddings · Portraits · Editorial</div>
+        <p>With over a decade behind the lens, I specialize in capturing authentic emotions and fleeting moments. My work has been featured in Martha Stewart Weddings and Brides Magazine.</p>
+        <a class="hire" href="mailto:hello@example.com">Hire Me · Starting at $299</a>
+      </div>
+    </div>
+    <div class="split-thumbs">
+      <div class="photo"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800" alt="Portrait woman"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800" alt="Landscape"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800" alt="Wedding ceremony"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800" alt="Portrait close-up"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800" alt="Golden hour nature"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding couple"></div>
+    </div>
+  </section>
+
+  <div class="divider" id="template-7">Template 7: Vertical Scroll — GPT-5.5 Design</div>
+  <section class="template vertical">
+    <header class="vertical-head"><div><span class="eyebrow">Austin, TX · Photo Essay</span><h2>Elena Vasquez Photography</h2></div><a class="hire" href="mailto:hello@example.com">Hire Me · From $299</a></header>
+    <div class="essay">
+      <figure><div class="photo"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding couple"></div><figcaption><span>Timeless moments, artfully captured.</span><span>Weddings · 01</span></figcaption></figure>
+      <figure><div class="photo"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800" alt="Portrait woman"></div><figcaption><span>A quiet confidence, caught between moments.</span><span>Portraits · 02</span></figcaption></figure>
+      <figure><div class="photo"><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800" alt="Landscape"></div><figcaption><span>Where the landscape keeps its own time.</span><span>Editorial · 03</span></figcaption></figure>
+      <figure><div class="photo"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800" alt="Wedding ceremony"></div><figcaption><span>The promise, and every face that witnessed it.</span><span>Weddings · 04</span></figcaption></figure>
+      <figure><div class="photo"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800" alt="Portrait close-up"></div><figcaption><span>Honest light. An unguarded frame.</span><span>Portraits · 05</span></figcaption></figure>
+      <figure><div class="photo"><img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800" alt="Golden hour nature"></div><figcaption><span>The last gold of the day.</span><span>Editorial · 06</span></figcaption></figure>
+    </div>
+  </section>
+
+  <div class="divider" id="template-8">Template 8: Carousel Spotlight — GPT-5.5 Design</div>
+  <section class="template carousel">
+    <h2>Elena Vasquez Photography</h2>
+    <p class="tagline">Timeless moments, artfully captured</p>
+    <div class="spotlight">
+      <button class="arrow left" type="button" aria-label="Previous photo">‹</button>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding couple"></div>
+      <button class="arrow right" type="button" aria-label="Next photo">›</button>
+    </div>
+    <div class="carousel-ui"><span></span><div class="dots"><i class="dot on"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i></div><span class="counter">1 / 6</span></div>
+    <a class="hire" href="mailto:hello@example.com">Hire Me · Starting at $299</a>
+  </section>
+
+  <div class="divider" id="template-9">Template 9: Story Cards — GPT-5.5 Design</div>
+  <section class="template stories">
+    <header class="story-head">
+      <div><span class="eyebrow">Stories by Elena</span><h2>Love, light &amp;<br>everything between.</h2><p>With over a decade behind the lens, I specialize in capturing authentic emotions and fleeting moments. Featured in Martha Stewart Weddings and Brides Magazine.</p></div>
+      <div><span>Austin, TX · Weddings · Portraits · Editorial</span><br><br><a class="hire" href="mailto:hello@example.com">Hire Me · From $299</a></div>
+    </header>
+    <div class="story-grid">
+      <article class="story featured photo"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding couple"><div class="story-label"><small>Featured story · Austin</small><h3>The Johnson Wedding</h3></div></article>
+      <article class="story photo"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800" alt="Portrait woman"><div class="story-label"><small>Portraits</small><h3>Spring Portraits</h3></div></article>
+      <article class="story photo"><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800" alt="Landscape"><div class="story-label"><small>Editorial</small><h3>Far From Home</h3></div></article>
+      <article class="story photo"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800" alt="Wedding ceremony"><div class="story-label"><small>Celebrations</small><h3>Before “I Do”</h3></div></article>
+      <article class="story photo"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800" alt="Portrait close-up"><div class="story-label"><small>Portraits</small><h3>In Her Own Light</h3></div></article>
+      <article class="story photo"><img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800" alt="Golden hour nature"><div class="story-label"><small>Field Notes</small><h3>Golden Hour</h3></div></article>
+    </div>
+  </section>
+
+  <div class="divider" id="template-10">Template 10: Brutalist Bold — GPT-5.5 Design</div>
+  <section class="template brutal">
+    <header class="brutal-head">
+      <h2>Elena Vasquez Photography</h2>
+      <div class="brutal-meta"><span>Austin, TX</span><span>Weddings / Portraits / Editorial</span><span>Starting at $299</span></div>
+    </header>
+    <div class="brutal-grid">
+      <div class="photo"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding couple"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800" alt="Portrait woman"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800" alt="Landscape"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800" alt="Wedding ceremony"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800" alt="Portrait close-up"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800" alt="Golden hour nature"></div>
+    </div>
+    <footer class="brutal-foot">
+      <strong>Timeless moments,<br>artfully captured.</strong>
+      <span>With over a decade behind the lens, I specialize in capturing authentic emotions and fleeting moments. Featured in Martha Stewart Weddings and Brides Magazine.</span>
+      <a class="hire" href="mailto:hello@example.com">EMAIL ME</a>
+    </footer>
+  </section>
+</body>
+</html>
