@@ -51,7 +51,7 @@ interface AdTileData {
   position: number;
 }
 
-type Tab = "feed" | "events" | "members" | "connections" | "settings";
+type Tab = "feed" | "events" | "stats" | "members" | "connections" | "settings";
 
 // ─── Dashboard ───
 export function DashboardPage() {
@@ -162,7 +162,7 @@ export function DashboardPage() {
       {/* Tabs */}
       <div className="mb-6 flex gap-1 rounded-xl bg-muted p-1 w-fit">
         {(accountMode === "pro"
-          ? [{ key: "events", label: "Events" }, { key: "members", label: "Members" }, { key: "connections", label: "Connections" }, { key: "settings", label: "Settings" }]
+          ? [{ key: "events", label: "Events" }, { key: "stats", label: "Stats" }, { key: "members", label: "Members" }, { key: "connections", label: "Connections" }, { key: "settings", label: "Settings" }]
           : [{ key: "events", label: "Memories" }, { key: "members", label: "Members" }, { key: "connections", label: "Connections" }, { key: "settings", label: "Settings" }]
         ).map((tab) => (
           <button
@@ -203,6 +203,7 @@ export function DashboardPage() {
           }}
         />
       )}
+      {activeTab === "stats" && <StatsTab />}
       {activeTab === "members" && (
         <MembersTab members={members} onUpdate={fetchMembers} />
       )}
@@ -799,6 +800,64 @@ function VerifiedCard() {
           className="mt-4 rounded-lg bg-neutral-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-neutral-800">
           Get Verified — $10/month
         </button>
+      )}
+    </div>
+  );
+}
+
+// ─── Stats Tab ───
+function StatsTab() {
+  const [stats, setStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get("/photographers/stats")
+      .then(d => setStats(d))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div className="flex justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-600" /></div>;
+  if (!stats) return <div className="rounded-2xl border border-border bg-white p-8 text-center text-sm text-neutral-400">Stats not available. Switch to Pro mode and get approved as a photographer.</div>;
+
+  return (
+    <div className="space-y-6">
+      {/* KPI Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-xl border border-border bg-white p-5">
+          <p className="text-xs font-medium text-neutral-500">Profile Views</p>
+          <p className="mt-1 text-2xl font-bold text-neutral-900">{stats.profileViews}</p>
+        </div>
+        <div className="rounded-xl border border-border bg-white p-5">
+          <p className="text-xs font-medium text-neutral-500">Inquiries</p>
+          <p className="mt-1 text-2xl font-bold text-neutral-900">{stats.inquiries}</p>
+        </div>
+        <div className="rounded-xl border border-border bg-white p-5">
+          <p className="text-xs font-medium text-neutral-500">Revenue</p>
+          <p className="mt-1 text-2xl font-bold text-neutral-900">${(stats.revenueCents / 100).toFixed(2)}</p>
+        </div>
+        <div className="rounded-xl border border-border bg-white p-5">
+          <p className="text-xs font-medium text-neutral-500">Album Views</p>
+          <p className="mt-1 text-2xl font-bold text-neutral-900">{stats.albumViews}</p>
+        </div>
+      </div>
+
+      {/* Details */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-xl border border-border bg-white p-6">
+          <h3 className="text-sm font-semibold text-neutral-900">Albums</h3>
+          <p className="mt-2 text-sm text-neutral-500">{stats.albums} albums · {stats.albumViews} total views</p>
+        </div>
+        <div className="rounded-xl border border-border bg-white p-6">
+          <h3 className="text-sm font-semibold text-neutral-900">Map Pins</h3>
+          <p className="mt-2 text-sm text-neutral-500">{stats.mapPins} locations · {stats.mapLoves} total ❤️</p>
+        </div>
+      </div>
+
+      {!stats.verified && (
+        <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-6 text-center">
+          <p className="text-sm text-neutral-600">Get Verified ($10/mo) for detailed trends, per-album breakdowns, and area comparisons.</p>
+        </div>
       )}
     </div>
   );
