@@ -191,8 +191,16 @@ export function DashboardPage() {
           events={events}
           loading={eventsLoading}
           ads={ads}
+          accountMode={accountMode}
           onCreateClick={() => setShowCreateEvent(true)}
           onEventsRefresh={setEvents}
+          onDeleteEvent={async (id: string) => {
+            if (!confirm(accountMode === "pro" ? "Delete this event?" : "Delete this memory?")) return;
+            try {
+              await api.delete(`/events/${id}`);
+              await fetchEvents();
+            } catch {}
+          }}
         />
       )}
       {activeTab === "members" && (
@@ -215,6 +223,7 @@ export function DashboardPage() {
         open={showCreateEvent}
         onClose={() => setShowCreateEvent(false)}
         onSubmit={handleCreateEvent}
+        accountMode={accountMode}
       />
     </div>
     </div>
@@ -243,14 +252,18 @@ function EventsTabContent({
   events,
   loading,
   ads,
+  accountMode,
   onCreateClick,
   onEventsRefresh,
+  onDeleteEvent,
 }: {
   events: GridEvent[];
   loading: boolean;
   ads: AdTileData[];
+  accountMode: "personal" | "pro";
   onCreateClick: () => void;
   onEventsRefresh?: (events: GridEvent[]) => void;
+  onDeleteEvent?: (id: string) => void;
 }) {
   const [viewMode, setViewMode] = useState<"tile" | "map">("tile");
   const [mapPhotos, setMapPhotos] = useState<Photo[]>([]);
@@ -288,7 +301,7 @@ function EventsTabContent({
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h2 className="text-lg font-semibold text-neutral-900">
-            {events.length > 0 ? `${events.length} event${events.length !== 1 ? "s" : ""}` : ""}
+            {events.length > 0 ? `${events.length} ${accountMode === "pro" ? `event${events.length !== 1 ? "s" : ""}` : `memor${events.length !== 1 ? "ies" : "y"}`}` : ""}
           </h2>
           {/* View toggle */}
           <div className="flex items-center gap-2 rounded-lg border-2 border-primary-200 bg-primary-50/50 px-1 py-1">
@@ -299,11 +312,11 @@ function EventsTabContent({
             </div>
           </div>
         </div>
-        <button onClick={onCreateClick} className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700 active:bg-primary-800">+ New Event</button>
+        <button onClick={onCreateClick} className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700 active:bg-primary-800">{accountMode === "pro" ? "+ New Event" : "+ New Memory"}</button>
       </div>
 
       {viewMode === "tile" ? (
-        <EventGrid events={events} ads={ads} emptyMessage="No events yet. Create your first event to start building your photo collection!" />
+        <EventGrid events={events} ads={ads} onDelete={onDeleteEvent} emptyMessage={accountMode === "pro" ? "No events yet. Create your first event to start building your photo collection!" : "No memories yet. Create your first memory to start building your photo collection!"} />
       ) : mapLoading ? (
         <div className="flex items-center justify-center py-20"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" /></div>
       ) : (

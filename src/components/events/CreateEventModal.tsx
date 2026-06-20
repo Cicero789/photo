@@ -16,9 +16,10 @@ interface CreateEventModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: CreateEventForm) => Promise<void>;
+  accountMode?: "personal" | "pro";
 }
 
-export function CreateEventModal({ open, onClose, onSubmit }: CreateEventModalProps) {
+export function CreateEventModal({ open, onClose, onSubmit, accountMode = "personal" }: CreateEventModalProps) {
   const [form, setForm] = useState<CreateEventForm>({
     title: "",
     category: "other",
@@ -46,7 +47,7 @@ export function CreateEventModal({ open, onClose, onSubmit }: CreateEventModalPr
       });
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create event");
+      setError(err instanceof Error ? err.message : (accountMode === "pro" ? "Failed to create event" : "Failed to create memory"));
     } finally {
       setSaving(false);
     }
@@ -63,7 +64,7 @@ export function CreateEventModal({ open, onClose, onSubmit }: CreateEventModalPr
       {/* Modal */}
       <div className="relative mx-4 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-white p-6 shadow-2xl">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-neutral-900">Create event</h2>
+          <h2 className="text-lg font-bold text-neutral-900">{accountMode === "pro" ? "Create event" : "Create memory"}</h2>
           <button
             onClick={onClose}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-neutral-400 hover:bg-neutral-100 hover:text-neutral-600"
@@ -82,7 +83,7 @@ export function CreateEventModal({ open, onClose, onSubmit }: CreateEventModalPr
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-neutral-700">
-              Event title
+              {accountMode === "pro" ? "Event title" : "Memory title"}
             </label>
             <input
               type="text"
@@ -124,7 +125,7 @@ export function CreateEventModal({ open, onClose, onSubmit }: CreateEventModalPr
           {/* Date */}
           <div>
             <label className="block text-sm font-medium text-neutral-700">
-              Event date
+              {accountMode === "pro" ? "Event date" : "Date"}
             </label>
             <input
               type="date"
@@ -144,7 +145,7 @@ export function CreateEventModal({ open, onClose, onSubmit }: CreateEventModalPr
               rows={4}
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-              placeholder="Tell the story of this event. What happened? Who was there? What made it special?"
+              placeholder={accountMode === "pro" ? "Tell the story of this event. What happened? Who was there? What made it special?" : "Tell the story of this memory. What happened? Who was there? What made it special?"}
               className="mt-1.5 block w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm placeholder:text-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-100"
             />
           </div>
@@ -195,7 +196,7 @@ export function CreateEventModal({ open, onClose, onSubmit }: CreateEventModalPr
               disabled={saving}
               className="flex-1 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
             >
-              {saving ? "Creating..." : "Create event"}
+              {saving ? "Creating..." : (accountMode === "pro" ? "Create event" : "Create memory")}
             </button>
           </div>
         </form>

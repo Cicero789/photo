@@ -17,6 +17,7 @@ interface EventTileProps {
   adImageUrl?: string;
   adLinkUrl?: string;
   adMessage?: string;
+  onDelete?: (id: string) => void;
 }
 
 export function EventTile({
@@ -33,6 +34,7 @@ export function EventTile({
   adImageUrl,
   adLinkUrl,
   adMessage,
+  onDelete,
 }: EventTileProps) {
   const cat = getCategoryInfo(category);
 
@@ -119,6 +121,17 @@ export function EventTile({
           <span className="absolute right-3 top-3 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
             {photoCount} 📷
           </span>
+        )}
+
+        {/* Delete button */}
+        {onDelete && !spaceSlug && (
+          <button
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(id); }}
+            className="absolute right-3 bottom-3 rounded-full bg-red-600/80 w-7 h-7 flex items-center justify-center text-white text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 backdrop-blur-sm"
+            title="Delete"
+          >
+            ✕
+          </button>
         )}
       </div>
 

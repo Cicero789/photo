@@ -105,6 +105,14 @@ export function EventDetailPage() {
     fetchEvent();
   };
 
+  const deletePhoto = async (photoId: string) => {
+    if (!confirm("Delete this photo?")) return;
+    try {
+      await api.delete(`/photos/${photoId}`);
+      setPhotos(prev => prev.filter(p => p.id !== photoId));
+    } catch {}
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -369,6 +377,13 @@ export function EventDetailPage() {
                       className="absolute top-2 left-2 rounded-lg bg-black/60 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/80 backdrop-blur-sm"
                     >
                       ✏️ Edit
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); deletePhoto(photo.id); }}
+                      className="absolute bottom-2 right-2 rounded-lg bg-red-600/70 px-2 py-1 text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700 backdrop-blur-sm"
+                      title="Delete photo"
+                    >
+                      🗑️ Delete
                     </button>
                   </>
                 )}
