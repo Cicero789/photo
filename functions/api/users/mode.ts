@@ -18,13 +18,17 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
 
   // Auto-create photographer row when switching to pro
   if (body.mode === "pro") {
-    const user = await db.prepare("SELECT email, name FROM users WHERE id = ?").bind(a.userId).first() as any;
+    const user = await db.prepare("SELECT email, name, role FROM users WHERE id = ?").bind(a.userId).first() as any;
     if (user) {
       const existing = await db.prepare("SELECT id FROM photographers WHERE email = ?").bind(user.email).first();
+      // Platform owner auto-approves; regular users go to pending
+      const status = user.role === "platform_owner" ? "approved" : "pending";
       if (!existing) {
         await db.prepare(
-          "INSERT INTO photographers (id, name, email, status, created_at) VALUES (?,?,?,'pending',datetime('now'))"
-        ).bind(crypto.randomUUID(), user.name, user.email).run();
+          "INSERT INTO photographers (id, name, email, status, created_at) VALUES (?,?,?,?,datetime('now'))"
+        ).bind(crypto.randomUUID(), user.name, user.email, status).run();
+      } else if (user.role === "platform_owner") {
+        await db.prepare("UPDATE photographers SET status = 'approved' WHERE email = ?").bind(user.email).run();
       }
     }
   }
