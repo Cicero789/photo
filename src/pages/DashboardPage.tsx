@@ -636,7 +636,7 @@ const COLOR_PRESETS = ["#3b82f6", "#d946ef", "#16a34a", "#f59e0b", "#dc2626", "#
 
 // ─── Photographer Profile Card ───
 function PhotographerProfileCard() {
-  const [profile, setProfile] = useState<{ slug: string; tagline: string; specialties: string; template: string } | null>(null);
+  const [profile, setProfile] = useState<{ slug: string; tagline: string; specialties: string; template: string; colorScheme: string; fontPairing: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -645,7 +645,7 @@ function PhotographerProfileCard() {
       .then(d => {
         if (d.slug !== undefined) {
           const design = JSON.parse(d.design || "{}");
-          setProfile({ slug: d.slug || "", tagline: d.tagline || "", specialties: d.specialties || "", template: design.template || "clean-minimal" });
+          setProfile({ slug: d.slug || "", tagline: d.tagline || "", specialties: d.specialties || "", template: design.template || "clean-minimal", colorScheme: design.colorScheme || "light", fontPairing: design.fontPairing || "modern" });
         }
       })
       .catch(() => {});
@@ -718,9 +718,14 @@ function PhotographerProfileCard() {
       <div className="mt-8 border-t border-border pt-8">
         <TemplatePicker
           currentTemplate={profile.template || "clean-minimal"}
-          onSave={async (templateId) => {
-            await api.put("/photographers/config", { design: JSON.stringify({ template: templateId }) });
-            setProfile(p => p ? { ...p, template: templateId } : p);
+          currentColorScheme={profile.colorScheme || "light"}
+          currentFontPairing={profile.fontPairing || "modern"}
+          onSave={async (templateId, colorScheme, fontPairing) => {
+            const designObj: Record<string, string> = { template: templateId };
+            if (colorScheme) designObj.colorScheme = colorScheme;
+            if (fontPairing) designObj.fontPairing = fontPairing;
+            await api.put("/photographers/config", { design: JSON.stringify(designObj) });
+            setProfile(p => p ? { ...p, template: templateId, colorScheme: colorScheme || "light", fontPairing: fontPairing || "modern" } : p);
             setMsg({ type: "success", text: "Template saved!" });
           }}
         />
