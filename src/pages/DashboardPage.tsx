@@ -720,6 +720,7 @@ function PhotographerProfileCard() {
           currentTemplate={profile.template || "clean-minimal"}
           currentColorScheme={profile.colorScheme || "light"}
           currentFontPairing={profile.fontPairing || "modern"}
+          slug={profile.slug}
           onSave={async (templateId, colorScheme, fontPairing) => {
             const designObj: Record<string, string> = { template: templateId };
             if (colorScheme) designObj.colorScheme = colorScheme;

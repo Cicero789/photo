@@ -41,6 +41,7 @@ interface TemplatePickerProps {
   currentTemplate: string;
   currentColorScheme?: string;
   currentFontPairing?: string;
+  slug?: string;
   onSave: (templateId: string, colorScheme?: string, fontPairing?: string) => void | Promise<void>;
 }
 
@@ -82,341 +83,13 @@ const CATEGORY_GROUPS = [
 ];
 
 // ─── Mini-mockup thumbnails for each template ───
-function renderMiniMockup(id: string): React.ReactElement {
-  const s: React.CSSProperties = { width: "100%", height: 160, overflow: "hidden", borderRadius: "10px 10px 0 0" };
-
-  switch (id) {
-    case "clean-minimal":
-      return <div style={{...s, background:"#fff", padding:10, display:"flex", flexDirection:"column", alignItems:"center"}}>
-        <div style={{width:24,height:24,borderRadius:"50%",background:"#eee",marginBottom:6}}/>
-        <div style={{width:70,height:5,background:"#222",borderRadius:2,marginBottom:3}}/>
-        <div style={{width:50,height:3,background:"#ccc",borderRadius:2,marginBottom:10}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:3,width:"100%",flex:1}}>
-          {[0,1,2,3,4,5,6,7].map(i=><div key={i} style={{background:"#f0f0f0",borderRadius:2}}/>)}
-        </div>
-      </div>;
-
-    case "cinematic-dark":
-      return <div style={{...s, background:"#0a0a0a",display:"flex",flexDirection:"column"}}>
-        <div style={{flex:1,background:"linear-gradient(180deg,rgba(255,255,255,0.08),transparent)",position:"relative",display:"flex",alignItems:"flex-end",padding:10}}>
-          <div><div style={{width:80,height:6,background:"#d4af37",borderRadius:1,marginBottom:3}}/><div style={{width:50,height:3,background:"rgba(212,175,55,0.5)",borderRadius:1}}/></div>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:4,padding:8}}>
-          {[0,1,2].map(i=><div key={i} style={{height:35,background:"rgba(255,255,255,0.06)",borderRadius:2}}/>)}
-        </div>
-      </div>;
-
-    case "editorial-magazine":
-      return <div style={{...s, background:"#fafaf9",padding:10}}>
-        <div style={{borderTop:"1px solid #999",borderBottom:"1px solid #999",padding:"4px 0",marginBottom:8,textAlign:"center"}}>
-          <div style={{width:80,height:6,background:"#1c1917",borderRadius:1,margin:"0 auto"}}/>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"1.5fr 1fr",gap:4,height:90}}>
-          <div style={{background:"#e8e6e3",borderRadius:2}}/>
-          <div style={{display:"flex",flexDirection:"column",gap:4}}>
-            <div style={{flex:1,background:"#e8e6e3",borderRadius:2}}/>
-            <div style={{flex:1,background:"#e8e6e3",borderRadius:2}}/>
-          </div>
-        </div>
-      </div>;
-
-    case "instagram-grid":
-      return <div style={{...s, background:"#fff",padding:10}}>
-        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-          <div style={{width:28,height:28,borderRadius:"50%",background:"linear-gradient(45deg,#f9ce34,#ee2a7b,#6228d7)"}}/>
-          <div><div style={{width:50,height:4,background:"#262626",borderRadius:1,marginBottom:3}}/><div style={{width:70,height:3,background:"#ccc",borderRadius:1}}/></div>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:2}}>
-          {[0,1,2,3,4,5].map(i=><div key={i} style={{aspectRatio:"1",background:"#f0f0f0"}}/>)}
-        </div>
-      </div>;
-
-    case "masonry-wall":
-      return <div style={{...s, background:"#f5f5f5",padding:8}}>
-        <div style={{background:"#fff",borderRadius:4,padding:6,marginBottom:6,boxShadow:"0 1px 3px rgba(0,0,0,0.08)",display:"inline-block"}}>
-          <div style={{width:60,height:4,background:"#171717",borderRadius:1,marginBottom:2}}/><div style={{width:40,height:3,background:"#aaa",borderRadius:1}}/>
-        </div>
-        <div style={{columns:3,columnGap:4}}>
-          {[55,35,45,30,50,40].map((h,i)=><div key={i} style={{height:h,background:"#e0e0e0",borderRadius:4,marginBottom:4,boxShadow:"0 1px 2px rgba(0,0,0,0.06)"}}/>)}
-        </div>
-      </div>;
-
-    case "split-hero":
-      return <div style={{...s, display:"grid",gridTemplateColumns:"1fr 1fr"}}>
-        <div style={{background:"linear-gradient(135deg,#d4c5b0,#b8a590)"}}/>
-        <div style={{background:"#fffbf5",padding:12,display:"flex",flexDirection:"column",justifyContent:"center"}}>
-          <div style={{width:10,height:10,borderRadius:"50%",background:"#b45309",marginBottom:6,opacity:0.3}}/>
-          <div style={{width:50,height:5,background:"#292524",borderRadius:1,marginBottom:3}}/>
-          <div style={{width:35,height:3,background:"#a8a29e",borderRadius:1,marginBottom:8}}/>
-          <div style={{width:40,height:12,background:"#292524",borderRadius:2}}/>
-        </div>
-      </div>;
-
-    case "vertical-scroll":
-      return <div style={{...s, background:"#fff",padding:10,display:"flex",flexDirection:"column",alignItems:"center"}}>
-        <div style={{width:70,height:4,background:"#1a1a1a",borderRadius:1,marginBottom:8}}/>
-        <div style={{width:"100%",height:50,background:"#eee",borderRadius:3,marginBottom:4}}/>
-        <div style={{width:60,height:3,background:"#999",borderRadius:1,marginBottom:8,fontStyle:"italic"}}/>
-        <div style={{width:"100%",height:50,background:"#eee",borderRadius:3,marginBottom:4}}/>
-        <div style={{width:50,height:3,background:"#999",borderRadius:1}}/>
-      </div>;
-
-    case "carousel-spotlight":
-      return <div style={{...s, background:"#fafafa",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:10}}>
-        <div style={{width:60,height:4,background:"#1a1a1a",borderRadius:1,marginBottom:10}}/>
-        <div style={{position:"relative",width:"85%",height:75,background:"#e8e8e8",borderRadius:6,boxShadow:"0 2px 8px rgba(0,0,0,0.08)"}}>
-          <div style={{position:"absolute",left:-8,top:"50%",transform:"translateY(-50%)",width:16,height:16,borderRadius:"50%",background:"#fff",boxShadow:"0 1px 3px rgba(0,0,0,0.15)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:8}}>{"‹"}</div>
-          <div style={{position:"absolute",right:-8,top:"50%",transform:"translateY(-50%)",width:16,height:16,borderRadius:"50%",background:"#fff",boxShadow:"0 1px 3px rgba(0,0,0,0.15)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:8}}>{"›"}</div>
-        </div>
-        <div style={{display:"flex",gap:3,marginTop:8}}>{[0,1,2,3].map(i=><div key={i} style={{width:5,height:5,borderRadius:"50%",background:i===0?"#1a1a1a":"#ccc"}}/>)}</div>
-      </div>;
-
-    case "story-cards":
-      return <div style={{...s, background:"#fffbf5",padding:10}}>
-        <div style={{width:60,height:5,background:"#292524",borderRadius:1,marginBottom:8}}/>
-        <div style={{height:55,background:"linear-gradient(180deg,rgba(200,180,150,0.3),rgba(0,0,0,0.4))",borderRadius:6,marginBottom:6,position:"relative"}}>
-          <div style={{position:"absolute",bottom:6,left:8}}><div style={{width:50,height:4,background:"#fff",borderRadius:1,marginBottom:2}}/><div style={{width:35,height:3,background:"rgba(255,255,255,0.6)",borderRadius:1}}/></div>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4}}>
-          {[0,1].map(i=><div key={i} style={{height:40,background:"linear-gradient(180deg,rgba(200,180,150,0.2),rgba(0,0,0,0.3))",borderRadius:5}}/>)}
-        </div>
-      </div>;
-
-    case "brutalist-bold":
-      return <div style={{...s, background:"#fff",padding:10,borderBottom:"3px solid #000"}}>
-        <div style={{fontFamily:"Oswald,sans-serif",fontSize:28,fontWeight:900,lineHeight:0.85,color:"#000",textTransform:"uppercase" as const,marginBottom:6}}>EV</div>
-        <div style={{width:80,height:2,background:"#000",marginBottom:8}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1.5fr 1fr",gap:3,height:70}}>
-          <div style={{background:"#e0e0e0",filter:"grayscale(1)"}}/>
-          <div style={{display:"flex",flexDirection:"column",gap:3}}>
-            <div style={{flex:1,background:"#e0e0e0",filter:"grayscale(1)"}}/>
-            <div style={{flex:1,background:"#e0e0e0",filter:"grayscale(1)"}}/>
-          </div>
-        </div>
-      </div>;
-
-    // SPORTS
-    case "sports-action":
-      return <div style={{...s, background:"#111",padding:10}}>
-        <div style={{width:70,height:6,background:"#00ff88",borderRadius:1,marginBottom:4}}/>
-        <div style={{width:45,height:3,background:"rgba(0,255,136,0.3)",borderRadius:1,marginBottom:8}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,transform:"skewY(-2deg)"}}>
-          {[0,1,2,3].map(i=><div key={i} style={{height:35,background:"rgba(0,255,136,0.08)",borderRadius:2,border:"1px solid rgba(0,255,136,0.15)"}}/>)}
-        </div>
-      </div>;
-
-    case "sports-editorial":
-      return <div style={{...s, background:"#fff",padding:10}}>
-        <div style={{height:60,background:"#f0f0f0",borderRadius:4,marginBottom:6,position:"relative"}}>
-          <div style={{position:"absolute",bottom:4,left:6}}><div style={{width:50,height:5,background:"#1a1a1a",borderRadius:1}}/></div>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:3}}>
-          {[0,1,2].map(i=><div key={i} style={{height:30,background:"#f5f5f5",borderRadius:3}}/>)}
-        </div>
-      </div>;
-
-    // ENGAGEMENT
-    case "engagement-blush":
-      return <div style={{...s, background:"#fff1f2",padding:10,textAlign:"center"}}>
-        <div style={{width:60,height:5,background:"#e11d48",borderRadius:1,margin:"0 auto 4px",opacity:0.7}}/>
-        <div style={{width:40,height:3,background:"#fda4af",borderRadius:1,margin:"0 auto 10px"}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,height:80}}>
-          {[0,1].map(i=><div key={i} style={{background:"rgba(225,29,72,0.08)",borderRadius:8,border:"1px solid rgba(225,29,72,0.1)"}}/>)}
-        </div>
-      </div>;
-
-    case "engagement-elegant":
-      return <div style={{...s, background:"#fffbf5",padding:10}}>
-        <div style={{textAlign:"center",marginBottom:8}}><div style={{width:60,height:5,background:"#44403c",borderRadius:1,margin:"0 auto 3px"}}/><div style={{width:40,height:3,background:"#b45309",borderRadius:1,margin:"0 auto",opacity:0.5}}/></div>
-        <div style={{height:70,background:"rgba(180,83,9,0.06)",borderRadius:6,border:"1px solid rgba(180,83,9,0.1)"}}/>
-      </div>;
-
-    // FAMILY
-    case "family-warm":
-      return <div style={{...s, background:"#fdf6e3",padding:10}}>
-        <div style={{width:60,height:5,background:"#3d3229",borderRadius:1,marginBottom:8}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:4}}>
-          {[0,1,2,3,4,5].map(i=><div key={i} style={{height:30,background:"rgba(194,65,12,0.08)",borderRadius:6,border:"1px solid rgba(194,65,12,0.12)"}}/>)}
-        </div>
-      </div>;
-
-    case "family-modern":
-      return <div style={{...s, background:"#fff",padding:10}}>
-        <div style={{display:"flex",gap:6,marginBottom:8}}><div style={{width:20,height:20,borderRadius:"50%",background:"#e0e7ff"}}/><div style={{flex:1}}><div style={{width:50,height:4,background:"#1a1a1a",borderRadius:1,marginBottom:3}}/><div style={{width:70,height:3,background:"#ccc",borderRadius:1}}/></div></div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4}}>
-          {[0,1,2,3].map(i=><div key={i} style={{height:35,background:"#f5f7ff",borderRadius:6}}/>)}
-        </div>
-      </div>;
-
-    // CORPORATE
-    case "corporate-suite":
-      return <div style={{...s, background:"#0f172a",padding:10}}>
-        <div style={{width:60,height:5,background:"#94a3b8",borderRadius:1,marginBottom:3}}/>
-        <div style={{width:40,height:3,background:"rgba(148,163,184,0.3)",borderRadius:1,marginBottom:8}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4}}>
-          {[0,1,2,3].map(i=><div key={i} style={{height:35,background:"rgba(148,163,184,0.08)",borderRadius:3,border:"1px solid rgba(148,163,184,0.1)"}}/>)}
-        </div>
-      </div>;
-
-    case "corporate-pro":
-      return <div style={{...s, background:"#f8fafc",padding:10}}>
-        <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><div style={{width:50,height:5,background:"#1e293b",borderRadius:1}}/><div style={{width:30,height:12,background:"#2563eb",borderRadius:3}}/></div>
-        <div style={{height:30,background:"#e2e8f0",borderRadius:4,marginBottom:4}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:3}}>
-          {[0,1,2].map(i=><div key={i} style={{height:30,background:"#eef2ff",borderRadius:4}}/>)}
-        </div>
-      </div>;
-
-    // HOLIDAY SEASON
-    case "holiday-hearth":
-      return <div style={{...s, background:"#7f1d1d",padding:10}}>
-        <div style={{border:"1px solid #d4af37",borderRadius:4,padding:8,marginBottom:6}}>
-          <div style={{width:60,height:5,background:"#d4af37",borderRadius:1,marginBottom:3}}/><div style={{width:40,height:3,background:"rgba(212,175,55,0.4)",borderRadius:1}}/>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:3}}>
-          {[0,1,2].map(i=><div key={i} style={{height:30,background:"rgba(212,175,55,0.1)",borderRadius:3,border:"1px solid rgba(212,175,55,0.2)"}}/>)}
-        </div>
-      </div>;
-
-    case "golden-feast":
-      return <div style={{...s, background:"#fffbeb",padding:10}}>
-        <div style={{width:60,height:5,background:"#92400e",borderRadius:1,marginBottom:8}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:4}}>
-          {[0,1,2].map(i=><div key={i} style={{height:40,background:"rgba(146,64,14,0.06)",borderRadius:4,border:"1px solid rgba(146,64,14,0.1)",boxShadow:"2px 2px 0 rgba(146,64,14,0.05)"}}/>)}
-        </div>
-      </div>;
-
-    // HOLIDAY
-    case "holiday-festive":
-      return <div style={{...s, background:"#fff",padding:10,position:"relative",overflow:"hidden"}}>
-        <div style={{width:80,height:7,background:"linear-gradient(90deg,#ef4444,#f59e0b,#22c55e,#3b82f6)",borderRadius:2,marginBottom:8}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4}}>
-          {[0,1,2,3].map(i=><div key={i} style={{height:30,background:["#fef2f2","#fffbeb","#f0fdf4","#eff6ff"][i],borderRadius:6,border:`1px solid ${["#fca5a5","#fcd34d","#86efac","#93c5fd"][i]}`}}/>)}
-        </div>
-      </div>;
-
-    case "holiday-elegant":
-      return <div style={{...s, background:"#fef3c7",padding:10}}>
-        <div style={{textAlign:"center",marginBottom:8}}><div style={{width:50,height:5,background:"#92400e",borderRadius:1,margin:"0 auto 3px"}}/></div>
-        <div style={{height:60,background:"linear-gradient(180deg,rgba(146,64,14,0.05),rgba(146,64,14,0.15))",borderRadius:6,border:"1px solid rgba(212,175,55,0.3)"}}/>
-      </div>;
-
-    // WINTER
-    case "winter-frozen":
-      return <div style={{...s, background:"#f0f9ff",padding:10}}>
-        <div style={{background:"rgba(255,255,255,0.7)",backdropFilter:"blur(4px)",borderRadius:6,padding:8,marginBottom:6,border:"1px solid rgba(14,165,233,0.15)"}}>
-          <div style={{width:60,height:5,background:"#0c4a6e",borderRadius:1,marginBottom:2}}/><div style={{width:40,height:3,background:"#0ea5e9",borderRadius:1,opacity:0.5}}/>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4}}>
-          {[0,1].map(i=><div key={i} style={{height:40,background:"rgba(14,165,233,0.06)",borderRadius:6,border:"1px solid rgba(14,165,233,0.1)"}}/>)}
-        </div>
-      </div>;
-
-    case "winter-cozy":
-      return <div style={{...s, background:"#1c1917",padding:10}}>
-        <div style={{width:60,height:5,background:"#f59e0b",borderRadius:1,marginBottom:3}}/><div style={{width:40,height:3,background:"rgba(245,158,11,0.3)",borderRadius:1,marginBottom:8}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4}}>
-          {[0,1,2,3].map(i=><div key={i} style={{height:30,background:"rgba(245,158,11,0.06)",borderRadius:3,border:"1px solid rgba(245,158,11,0.1)"}}/>)}
-        </div>
-      </div>;
-
-    // SUMMER
-    case "summer-beach":
-      return <div style={{...s, background:"#fef7ed",padding:10}}>
-        <div style={{width:60,height:5,background:"#0d9488",borderRadius:1,marginBottom:8}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:4}}>
-          {[0,1,2,3,4,5].map(i=><div key={i} style={{height:28,background:"rgba(13,148,136,0.06)",borderRadius:12,border:"1px solid rgba(13,148,136,0.12)"}}/>)}
-        </div>
-        <div style={{height:3,background:"linear-gradient(90deg,#0d9488,transparent)",borderRadius:2,marginTop:8,opacity:0.3}}/>
-      </div>;
-
-    case "summer-golden":
-      return <div style={{...s, background:"linear-gradient(180deg,#fcd34d,#f97316,#ec4899)",padding:10}}>
-        <div style={{width:60,height:5,background:"rgba(255,255,255,0.9)",borderRadius:1,marginBottom:3}}/><div style={{width:40,height:3,background:"rgba(255,255,255,0.5)",borderRadius:1,marginBottom:8}}/>
-        <div style={{height:60,background:"rgba(255,255,255,0.15)",borderRadius:8,boxShadow:"0 0 20px rgba(249,115,22,0.3)"}}/>
-      </div>;
-
-    // SPRING
-    case "spring-blossom":
-      return <div style={{...s, background:"#fdf2f8",padding:10}}>
-        <div style={{width:60,height:5,background:"#e11d48",borderRadius:1,opacity:0.6,marginBottom:8}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:4}}>
-          {[0,1,2,3,4,5].map(i=><div key={i} style={{height:28,background:"rgba(225,29,72,0.04)",borderRadius:"50%/40%",border:"1px solid rgba(225,29,72,0.08)"}}/>)}
-        </div>
-      </div>;
-
-    case "spring-fresh":
-      return <div style={{...s, background:"#f0fdf4",padding:10}}>
-        <div style={{width:60,height:6,background:"#059669",borderRadius:1,marginBottom:8}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:3}}>
-          {[0,1,2,3,4,5].map(i=><div key={i} style={{height:30,background:"rgba(5,150,105,0.06)",borderRadius:4,border:"1px solid rgba(5,150,105,0.1)"}}/>)}
-        </div>
-      </div>;
-
-    // FALL
-    case "fall-warmth":
-      return <div style={{...s, background:"#451a03",padding:10}}>
-        <div style={{width:60,height:5,background:"#fef3c7",borderRadius:1,marginBottom:3}}/><div style={{width:40,height:3,background:"#c2410c",borderRadius:1,marginBottom:8}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4}}>
-          {[0,1,2,3].map(i=><div key={i} style={{height:35,background:"rgba(254,243,199,0.06)",borderRadius:3,border:"1px solid rgba(194,65,12,0.15)"}}/>)}
-        </div>
-      </div>;
-
-    case "fall-palette":
-      return <div style={{...s, background:"#fffbeb",padding:10}}>
-        <div style={{height:4,background:"linear-gradient(90deg,#ea580c,#dc2626,#d4af37)",borderRadius:2,marginBottom:8}}/>
-        <div style={{width:60,height:5,background:"#292524",borderRadius:1,marginBottom:8}}/>
-        <div style={{display:"flex",gap:3,overflowX:"hidden"}}>
-          {[0,1,2,3,4].map(i=><div key={i} style={{minWidth:50,height:60,background:"rgba(234,88,12,0.05)",borderRadius:4,border:"1px solid rgba(234,88,12,0.1)"}}/>)}
-        </div>
-      </div>;
-
-    // PORTRAITS
-    case "portrait-studio":
-      return <div style={{...s, background:"#fff",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:10}}>
-        <div style={{width:50,height:60,background:"#f5f5f5",borderRadius:4,boxShadow:"0 0 20px rgba(0,0,0,0.08), 0 0 40px rgba(0,0,0,0.04)",marginBottom:8}}/>
-        <div style={{width:60,height:4,background:"#1a1a1a",borderRadius:1,marginBottom:3}}/><div style={{width:40,height:3,background:"#ccc",borderRadius:1}}/>
-      </div>;
-
-    case "portrait-headshot":
-      return <div style={{...s, background:"#f1f3f6",padding:10}}>
-        <div style={{width:50,height:5,background:"#1e293b",borderRadius:1,marginBottom:8}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,marginBottom:6}}>
-          {[0,1,2,3].map(i=><div key={i} style={{height:30,background:"#e2e8f0",borderRadius:4}}/>)}
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:3}}>
-          {[0,1,2].map(i=><div key={i} style={{height:20,background:i===1?"#2563eb":"#e2e8f0",borderRadius:4,opacity:i===1?0.15:1}}/>)}
-        </div>
-      </div>;
-
-    // STREET
-    case "street-gritty":
-      return <div style={{...s, background:"#1a1a1a",padding:10}}>
-        <div style={{width:80,height:8,background:"#fff",borderRadius:1,marginBottom:3}}/><div style={{width:50,height:3,background:"rgba(255,255,255,0.2)",borderRadius:1,marginBottom:8}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1.5fr 1fr",gap:3,height:70}}>
-          <div style={{background:"rgba(255,255,255,0.05)",borderRadius:2}}/>
-          <div style={{display:"flex",flexDirection:"column",gap:3}}><div style={{flex:1,background:"rgba(255,255,255,0.05)",borderRadius:2}}/><div style={{flex:1,background:"rgba(255,255,255,0.05)",borderRadius:2}}/></div>
-        </div>
-      </div>;
-
-    case "street-neon":
-      return <div style={{...s, background:"#0a0a0a",padding:10}}>
-        <div style={{width:60,height:6,background:"#22d3ee",borderRadius:1,marginBottom:3,boxShadow:"0 0 8px rgba(34,211,238,0.4)"}}/><div style={{width:40,height:3,background:"#f472b6",borderRadius:1,marginBottom:8,boxShadow:"0 0 6px rgba(244,114,182,0.3)"}}/>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4}}>
-          {[0,1,2,3].map(i=><div key={i} style={{height:30,background:"rgba(34,211,238,0.04)",borderRadius:3,border:`1px solid ${i%2===0?"rgba(34,211,238,0.2)":"rgba(244,114,182,0.2)"}`}}/>)}
-        </div>
-      </div>;
-
-    default:
-      return <div style={{...s, background:"#f5f5f5",display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{color:"#999",fontSize:11}}>Preview</span></div>;
-  }
-}
 
 // ─── Main Component ───
 export function TemplatePicker({
   currentTemplate,
   currentColorScheme,
   currentFontPairing,
+  slug,
   onSave,
 }: TemplatePickerProps) {
   const [selected, setSelected] = useState(currentTemplate);
@@ -592,7 +265,13 @@ export function TemplatePicker({
                       onClick={() => setSelected(t.id)}
                       className="w-full text-left"
                     >
-                      {renderMiniMockup(t.id)}
+                      <img
+                        src={`/thumbnails/${t.id}.jpg`}
+                        alt={t.name}
+                        loading="lazy"
+                        className="w-full h-[160px] object-cover object-top"
+                        style={{ borderRadius: "10px 10px 0 0" }}
+                      />
                       <div className="px-3 pt-2.5 pb-3">
                         <p className="text-[13px] font-semibold text-neutral-900 leading-tight">
                           {t.name}
@@ -768,6 +447,16 @@ export function TemplatePicker({
                 >
                   Use This Template
                 </button>
+                {slug && (
+                  <a
+                    href={`/${slug}?preview=${previewId}&color=${colorScheme}&font=${fontPairing}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ padding: "8px 16px", border: "1px solid #ddd", borderRadius: 6, fontSize: 12, color: "#666", textDecoration: "none", display: "inline-flex", alignItems: "center" }}
+                  >
+                    Open Full Page ↗
+                  </a>
+                )}
                 <button
                   onClick={() => setPreviewId(null)}
                   className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-500 transition-colors hover:bg-neutral-100 hover:text-neutral-900"

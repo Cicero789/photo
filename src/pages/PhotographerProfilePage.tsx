@@ -1,7 +1,8 @@
 import { useState, useEffect, Suspense } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { HireButton } from "@/components/photographer/HireButton";
 import { templateComponents } from "@/components/templates";
+import { TEMPLATE_REGISTRY } from "@/components/templates/types";
 
 interface ProfileData {
   id: string;
@@ -22,6 +23,10 @@ interface ProfileData {
 
 export function PhotographerProfilePage() {
   const { slug } = useParams<{ slug: string }>();
+  const [searchParams] = useSearchParams();
+  const previewTemplate = searchParams.get("preview");
+  const previewColor = searchParams.get("color");
+  const previewFont = searchParams.get("font");
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -64,12 +69,51 @@ export function PhotographerProfilePage() {
   const hasPricing = profile.pricing?.downloads?.single || profile.pricing?.downloads?.full;
 
   // --- Template System ---
-  const templateId = profile.galleryConfig?.template || "clean-minimal";
+  const templateId = previewTemplate || profile.galleryConfig?.template || "clean-minimal";
   const TemplateComponent = templateComponents[templateId];
 
   if (TemplateComponent) {
     return (
       <div>
+        {previewTemplate && (
+          <div style={{
+            position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+            background: "#1a1a1a", color: "white", padding: "10px 20px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.3)", fontFamily: "Inter, sans-serif"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontSize: 13, color: "#999" }}>Previewing:</span>
+              <span style={{ fontSize: 14, fontWeight: 600 }}>
+                {TEMPLATE_REGISTRY.find(t => t.id === previewTemplate)?.name || previewTemplate}
+              </span>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <button onClick={async () => {
+                try {
+                  await fetch("/api/photographers/config", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
+                    body: JSON.stringify({ design: JSON.stringify({ template: previewTemplate, colorScheme: previewColor || "light", fontPairing: previewFont || "modern" }) }),
+                  });
+                  window.location.href = `/${slug}`;
+                } catch {}
+              }} style={{
+                padding: "8px 20px", background: "#22c55e", color: "white", border: "none",
+                borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: "pointer"
+              }}>
+                Use This Template
+              </button>
+              <button onClick={() => window.history.back()} style={{
+                padding: "8px 20px", background: "transparent", color: "#999", border: "1px solid #444",
+                borderRadius: 6, fontSize: 13, cursor: "pointer"
+              }}>
+                Back
+              </button>
+            </div>
+          </div>
+        )}
+        <div style={{ paddingTop: previewTemplate ? 52 : 0 }}>
         <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-600" /></div>}>
           <TemplateComponent
             name={profile.name}
@@ -85,6 +129,7 @@ export function PhotographerProfilePage() {
             onPhotoClick={(i: number) => setLightbox(i)}
           />
         </Suspense>
+        </div>
 
         {/* Lightbox */}
         {lightbox !== null && profile.portfolio[lightbox] && (
@@ -115,6 +160,45 @@ export function PhotographerProfilePage() {
   // --- Fallback: hardcoded layout for unknown templates ---
   return (
     <div>
+      {previewTemplate && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
+          background: "#1a1a1a", color: "white", padding: "10px 20px",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.3)", fontFamily: "Inter, sans-serif"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 13, color: "#999" }}>Previewing:</span>
+            <span style={{ fontSize: 14, fontWeight: 600 }}>
+              {TEMPLATE_REGISTRY.find(t => t.id === previewTemplate)?.name || previewTemplate}
+            </span>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={async () => {
+              try {
+                await fetch("/api/photographers/config", {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
+                  body: JSON.stringify({ design: JSON.stringify({ template: previewTemplate, colorScheme: previewColor || "light", fontPairing: previewFont || "modern" }) }),
+                });
+                window.location.href = `/${slug}`;
+              } catch {}
+            }} style={{
+              padding: "8px 20px", background: "#22c55e", color: "white", border: "none",
+              borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: "pointer"
+            }}>
+              Use This Template
+            </button>
+            <button onClick={() => window.history.back()} style={{
+              padding: "8px 20px", background: "transparent", color: "#999", border: "1px solid #444",
+              borderRadius: 6, fontSize: 13, cursor: "pointer"
+            }}>
+              Back
+            </button>
+          </div>
+        </div>
+      )}
+      <div style={{ paddingTop: previewTemplate ? 52 : 0 }}>
       {/* Header */}
       <section className="border-b border-border bg-white py-16 sm:py-20">
         <div className="mx-auto max-w-4xl px-4 sm:px-6">
@@ -222,6 +306,7 @@ export function PhotographerProfilePage() {
           </div>
         </div>
       </section>
+      </div>
 
       {/* Lightbox */}
       {lightbox !== null && profile.portfolio[lightbox] && (
