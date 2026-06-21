@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FrameNest Fall Photography Templates — GPT-5.5 Fall</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Manrope:wght@400;500;600;700;800&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap');
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: #1e0d03; color: #392315; }
+    img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    a { color: inherit; }
+    .template-label {
+      position: relative;
+      z-index: 40;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 15px 4vw;
+      color: #fff;
+      background: #241006;
+      border-top: 1px solid #653115;
+      border-bottom: 1px solid #0f0602;
+      font: 700 11px/1 "DM Sans", sans-serif;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .template-label span:last-child { color: #efad66; }
+    .template { position: relative; width: 100%; min-height: 600px; overflow: hidden; }
+    .photo { overflow: hidden; }
+    .photo img { transition: transform .75s cubic-bezier(.2,.7,.2,1), filter .5s ease; }
+    .photo:hover img { transform: scale(1.045); }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 49px;
+      padding: 0 28px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform .25s, color .25s, background .25s, box-shadow .25s;
+    }
+    .button:hover { transform: translateY(-3px); }
+
+    /* Autumn Warmth */
+    .warmth {
+      min-height: 1480px;
+      padding: 50px 5vw 100px;
+      color: #fff4d9;
+      background:
+        radial-gradient(circle at 82% 15%, rgba(194,65,12,.23), transparent 24%),
+        radial-gradient(circle at 10% 78%, rgba(180,83,9,.17), transparent 25%),
+        #451a03;
+      font-family: "DM Sans", sans-serif;
+    }
+    .warmth::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .09;
+      background-image:
+        radial-gradient(ellipse 12px 25px at 30px 28px, transparent 47%, #f5c882 50%, transparent 55%),
+        radial-gradient(ellipse 12px 25px at 72px 72px, transparent 47%, #f5c882 50%, transparent 55%);
+      background-size: 100px 100px;
+      pointer-events: none;
+    }
+    .leaf {
+      position: absolute;
+      z-index: 1;
+      width: 48px;
+      height: 82px;
+      border-radius: 100% 0 100% 0;
+      background: #c2410c;
+      opacity: .48;
+      transform: rotate(38deg);
+    }
+    .leaf::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 7%;
+      width: 1px;
+      height: 102%;
+      background: rgba(65,26,3,.8);
+      transform: rotate(-10deg);
+    }
+    .leaf.l1 { top: 165px; left: 3%; }
+    .leaf.l2 { top: 510px; right: 4%; background: #d97706; transform: rotate(125deg) scale(.75); }
+    .leaf.l3 { bottom: 230px; left: 6%; background: #9a3412; transform: rotate(-20deg) scale(.8); }
+    .warmth-nav {
+      position: relative;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 30px;
+      align-items: center;
+      max-width: 1420px;
+      margin: auto;
+      padding: 19px 0;
+      border-top: 1px solid rgba(247,197,127,.5);
+      border-bottom: 1px solid rgba(247,197,127,.5);
+    }
+    .warmth-nav span {
+      color: #e7bd85;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .19em;
+      text-transform: uppercase;
+    }
+    .warmth-nav span:last-child { text-align: right; }
+    .warmth-nav strong { font: 700 19px/1 "Libre Baskerville", serif; }
+    .warmth-hero {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: .88fr 1.12fr;
+      min-height: 740px;
+      max-width: 1280px;
+      margin: 55px auto 0;
+      padding: 13px;
+      border: 2px solid #b45309;
+      background:
+        repeating-linear-gradient(45deg, #8a380a 0 5px, #5d2507 5px 10px);
+      box-shadow: 0 32px 80px rgba(20,5,0,.35);
+    }
+    .warmth-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 6vw;
+      background: linear-gradient(135deg, #5b2104, #3d1603);
+    }
+    .warmth-kicker { color: #e88744; font-size: 9px; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; }
+    .warmth h1 {
+      margin: 18px 0;
+      font: 700 clamp(54px, 7vw, 98px)/.85 "Libre Baskerville", serif;
+      letter-spacing: -.055em;
+    }
+    .warmth-copy p { margin: 0; color: #e4c39b; font: italic 400 19px/1.6 "Source Serif 4", serif; }
+    .warmth .button {
+      align-self: flex-start;
+      margin-top: 28px;
+      color: #fff8e5;
+      background: #c2410c;
+      border: 1px solid #e47c43;
+      box-shadow: 6px 6px 0 #281001;
+      font-size: 10px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    .warmth .button:hover { color: #f4bd86; background: transparent; box-shadow: 3px 3px 0 #281001; }
+    .warmth-image { min-height: 710px; }
+    .warmth-image img { filter: saturate(.78) sepia(.16) contrast(1.04) brightness(.77); }
+    .warmth-image:hover img { transform: scale(1.025); filter: saturate(.96) sepia(.08) brightness(.84); }
+    .leaf-gallery {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 22px;
+      height: 460px;
+      max-width: 1280px;
+      margin: 60px auto 0;
+    }
+    .leaf-card {
+      position: relative;
+      padding: 10px;
+      border: 1px solid #b9682f;
+      background:
+        repeating-linear-gradient(45deg, #71300c 0 4px, #4b1d05 4px 8px);
+      box-shadow: 0 20px 45px rgba(19,5,0,.3);
+    }
+    .leaf-card:nth-child(1), .leaf-card:nth-child(3) { height: 78%; align-self: center; }
+    .leaf-card img { filter: saturate(.76) sepia(.16) brightness(.83); }
+    .leaf-card:hover img { filter: saturate(1) sepia(.06) brightness(.9); }
+    .leaf-card::after {
+      content: attr(data-title);
+      position: absolute;
+      left: 24px;
+      bottom: 22px;
+      padding-top: 10px;
+      border-top: 1px solid #f0b56f;
+      color: #fff2d6;
+      text-shadow: 0 2px 15px #321000;
+      font: 600 20px/1 "Libre Baskerville", serif;
+    }
+    .harvest-note {
+      position: relative;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: .8fr 1.2fr;
+      gap: 6vw;
+      max-width: 1050px;
+      margin: 75px auto 0;
+      padding: 48px 0;
+      border-top: 1px solid #a85e2d;
+      border-bottom: 1px solid #a85e2d;
+    }
+    .harvest-note h2 { margin: 0; color: #f0a261; font: 600 42px/1.05 "Libre Baskerville", serif; }
+    .harvest-note p { margin: 0; color: #d6b184; font: 400 18px/1.75 "Source Serif 4", serif; }
+
+    /* Fall Palette */
+    .palette {
+      min-height: 1320px;
+      padding: 0 0 100px;
+      color: #3f2a1d;
+      background: #fffbeb;
+      font-family: Manrope, sans-serif;
+    }
+    .color-strip {
+      height: 13px;
+      background: linear-gradient(90deg, #ea580c 0%, #c2410c 24%, #b91c1c 47%, #d97706 72%, #eab308 100%);
+    }
+    .palette-inner { padding: 52px 5vw 0; }
+    .palette-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      align-items: center;
+      max-width: 1450px;
+      margin: auto;
+      padding-bottom: 23px;
+      border-bottom: 1px solid #b99e78;
+    }
+    .palette-nav strong { font-size: 20px; font-weight: 800; letter-spacing: -.04em; }
+    .palette-nav span { color: #785f45; font-size: 9px; font-weight: 700; letter-spacing: .17em; text-transform: uppercase; }
+    .palette-header {
+      display: grid;
+      grid-template-columns: 1.18fr .82fr;
+      gap: 6vw;
+      align-items: end;
+      max-width: 1340px;
+      margin: 75px auto 45px;
+    }
+    .palette-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      color: #b45309;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+    .palette-kicker::before { content: ""; width: 38px; height: 4px; background: linear-gradient(90deg,#ea580c,#eab308); }
+    .palette h1 {
+      margin: 17px 0 0;
+      font: 800 clamp(60px, 9vw, 125px)/.78 Manrope, sans-serif;
+      letter-spacing: -.085em;
+    }
+    .palette-intro p { margin: 0; color: #775f49; font-size: 14px; line-height: 1.75; }
+    .palette .button {
+      margin-top: 25px;
+      color: white;
+      background: #b45309;
+      border: 2px solid #b45309;
+      border-radius: 7px;
+      box-shadow: 6px 6px 0 #f5c158;
+      font-size: 11px;
+    }
+    .palette .button:hover { color: #9a4106; background: transparent; box-shadow: 3px 3px 0 #f5c158; }
+    .scroll-shell {
+      position: relative;
+      width: 100%;
+      margin-top: 15px;
+      padding: 25px 0 30px 5vw;
+      border-top: 1px solid #cab28e;
+      border-bottom: 1px solid #cab28e;
+    }
+    .scroll-gallery {
+      display: flex;
+      gap: 18px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-color: #b45309 #f1dfbd;
+      scrollbar-width: thin;
+      padding: 0 5vw 25px 0;
+    }
+    .scroll-card {
+      position: relative;
+      flex: 0 0 clamp(300px, 38vw, 540px);
+      height: 520px;
+      border: 8px solid #fffdf4;
+      box-shadow: 0 18px 45px rgba(91,53,21,.15);
+      scroll-snap-align: start;
+    }
+    .scroll-card:nth-child(1) { border-bottom-color: #ea580c; }
+    .scroll-card:nth-child(2) { border-bottom-color: #b91c1c; }
+    .scroll-card:nth-child(3) { border-bottom-color: #d97706; }
+    .scroll-card:nth-child(4) { border-bottom-color: #eab308; }
+    .scroll-card:nth-child(5) { border-bottom-color: #9a3412; }
+    .scroll-card:nth-child(6) { border-bottom-color: #c2410c; }
+    .scroll-card img { filter: saturate(.86) contrast(.98); }
+    .scroll-card:hover img { filter: saturate(1.08); }
+    .scroll-card span {
+      position: absolute;
+      left: 18px;
+      bottom: 18px;
+      padding: 9px 13px;
+      color: #fff;
+      background: rgba(72,35,15,.88);
+      border-radius: 4px;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+    .drag-hint {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      margin-top: 17px;
+      color: #896d4e;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+    .drag-hint::before { content: "←"; font-size: 16px; }
+    .drag-hint::after { content: "→"; font-size: 16px; }
+    .palette-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      max-width: 1250px;
+      margin: 70px auto 0;
+      padding: 0 5vw;
+    }
+    .palette-card {
+      min-height: 185px;
+      padding: 28px;
+      border: 1px solid #bfa57e;
+      background: #fffdf6;
+    }
+    .palette-card::before { content: ""; display: block; width: 52px; height: 7px; margin-bottom: 24px; }
+    .palette-card:nth-child(1)::before { background: #ea580c; }
+    .palette-card:nth-child(2)::before { background: #b91c1c; }
+    .palette-card:nth-child(3)::before { background: #eab308; }
+    .palette-card h2 { margin: 0 0 9px; font-size: 18px; letter-spacing: -.03em; }
+    .palette-card p { margin: 0; color: #79634e; font-size: 11px; line-height: 1.65; }
+
+    @media (max-width: 900px) {
+      .warmth-hero { grid-template-columns: 1fr; }
+      .warmth-image { min-height: 600px; }
+      .palette-header { grid-template-columns: 1fr; }
+      .palette-cards { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .template-label { flex-direction: column; align-items: flex-start; }
+      .warmth { padding: 35px 20px 75px; }
+      .warmth-nav { grid-template-columns: 1fr; text-align: center; }
+      .warmth-nav span:last-child { text-align: center; }
+      .warmth-copy { padding: 60px 30px; }
+      .warmth-image { min-height: 500px; }
+      .leaf-gallery { grid-template-columns: 1fr; height: auto; }
+      .leaf-card, .leaf-card:nth-child(1), .leaf-card:nth-child(3) { height: 370px; }
+      .harvest-note { grid-template-columns: 1fr; }
+      .palette-inner { padding: 38px 20px 0; }
+      .palette-nav { flex-direction: column; text-align: center; }
+      .scroll-shell { padding-left: 20px; }
+      .scroll-card { flex-basis: 82vw; height: 450px; }
+      .palette-cards { padding: 0 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="template-label" id="autumn-warmth">
+    <span>Template 1: Autumn Warmth</span>
+    <span>GPT-5.5 Fall</span>
+  </div>
+  <section class="template warmth">
+    <i class="leaf l1"></i><i class="leaf l2"></i><i class="leaf l3"></i>
+    <nav class="warmth-nav" aria-label="Autumn Warmth portfolio">
+      <span>Fall portraiture · Austin, TX</span>
+      <strong>Amber Leaf Studio</strong>
+      <span>Families · Couples · Harvest stories</span>
+    </nav>
+    <div class="warmth-hero">
+      <div class="warmth-copy">
+        <span class="warmth-kicker">The season of gathering</span>
+        <h1>Hold onto the warmth.</h1>
+        <p>Rich, honest autumn photography for changing leaves, golden evenings, and the people who make every season feel like home.</p>
+        <a class="button" href="mailto:fall@example.com">Book Fall Session</a>
+      </div>
+      <div class="photo warmth-image"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Fall foliage"></div>
+    </div>
+    <div class="leaf-gallery">
+      <div class="photo leaf-card" data-title="Into the Woods"><img src="https://images.unsplash.com/photo-1473448912268-2022ce9509d8?w=800" alt="Autumn forest"></div>
+      <div class="photo leaf-card" data-title="The Harvest Table"><img src="https://images.unsplash.com/photo-1445264718234-a623be589d37?w=800" alt="Autumn pumpkin"></div>
+      <div class="photo leaf-card" data-title="Last Light"><img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800" alt="Golden hour landscape"></div>
+    </div>
+    <section class="harvest-note">
+      <h2>Rooted in the season.</h2>
+      <p>Amber Leaf Studio creates relaxed fall sessions with deep color, natural connection, and a warm editorial finish. Come for the changing landscape; leave with photographs that feel like family history.</p>
+    </section>
+  </section>
+
+  <div class="template-label" id="fall-palette">
+    <span>Template 2: Fall Palette</span>
+    <span>GPT-5.5 Fall</span>
+  </div>
+  <section class="template palette">
+    <div class="color-strip" aria-hidden="true"></div>
+    <div class="palette-inner">
+      <nav class="palette-nav" aria-label="Fall Palette portfolio">
+        <strong>Amber Leaf Studio</strong>
+        <span>Austin, Texas · Modern autumn photography</span>
+      </nav>
+      <header class="palette-header">
+        <div>
+          <span class="palette-kicker">Fall sessions now open</span>
+          <h1>Every shade of autumn.</h1>
+        </div>
+        <div class="palette-intro">
+          <p>Clean, colorful photography for families, couples, and brands—framed by Austin's richest season.</p>
+          <a class="button" href="mailto:fall@example.com">Book Fall Session</a>
+        </div>
+      </header>
+    </div>
+    <section class="scroll-shell">
+      <div class="scroll-gallery" aria-label="Horizontally scrolling fall portfolio">
+        <div class="photo scroll-card"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Fall foliage"><span>Foliage</span></div>
+        <div class="photo scroll-card"><img src="https://images.unsplash.com/photo-1473448912268-2022ce9509d8?w=800" alt="Autumn forest"><span>Forest</span></div>
+        <div class="photo scroll-card"><img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800" alt="Autumn landscape"><span>Landscape</span></div>
+        <div class="photo scroll-card"><img src="https://images.unsplash.com/photo-1477414348463-c0eb7f1359b6?w=800" alt="Colorful fall leaves"><span>Leaves</span></div>
+        <div class="photo scroll-card"><img src="https://images.unsplash.com/photo-1445264718234-a623be589d37?w=800" alt="Pumpkin in autumn"><span>Harvest</span></div>
+        <div class="photo scroll-card"><img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800" alt="Golden hour"><span>Golden Hour</span></div>
+      </div>
+      <div class="drag-hint">Scroll the season</div>
+    </section>
+    <div class="palette-cards">
+      <article class="palette-card"><h2>Family Sessions</h2><p>Easygoing portraits with room to move, laugh, and enjoy the season together.</p></article>
+      <article class="palette-card"><h2>Couples</h2><p>Warm, modern imagery timed around soft light and Austin's changing landscape.</p></article>
+      <article class="palette-card"><h2>Seasonal Branding</h2><p>Color-forward fall content for products, hospitality, and growing local businesses.</p></article>
+    </div>
+  </section>
+</body>
+</html>

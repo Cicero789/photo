@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FrameNest Family Photography Templates — GPT-5.5 Family</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fredoka:wght@500;600;700&family=Gloria+Hallelujah&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: #26231f; color: #2e2922; }
+    img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    a { color: inherit; }
+    .template-label {
+      position: relative;
+      z-index: 30;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 15px 4vw;
+      background: #292621;
+      color: white;
+      border-top: 1px solid #49443d;
+      border-bottom: 1px solid #171512;
+      font: 700 11px/1 "DM Sans", sans-serif;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .template-label span:last-child { color: #f1be6a; }
+    .template { position: relative; width: 100%; min-height: 600px; overflow: hidden; }
+    .photo { overflow: hidden; }
+    .photo img { transition: transform .7s cubic-bezier(.2,.7,.2,1), filter .5s ease; }
+    .photo:hover img { transform: scale(1.05); }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 0 27px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform .25s, box-shadow .25s, background .25s, color .25s;
+    }
+    .button:hover { transform: translateY(-3px); }
+
+    /* Warm Gathering */
+    .warm {
+      min-height: 1200px;
+      padding: 70px 5vw 100px;
+      background:
+        radial-gradient(circle at 15% 18%, rgba(226,174,106,.13), transparent 24%),
+        radial-gradient(circle at 88% 73%, rgba(143,167,111,.13), transparent 25%),
+        #fdf6e3;
+      font-family: "DM Sans", sans-serif;
+    }
+    .warm::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .22;
+      background-image: radial-gradient(#876f52 .7px, transparent .7px);
+      background-size: 12px 12px;
+      pointer-events: none;
+    }
+    .doodle {
+      position: absolute;
+      z-index: 1;
+      color: #c77b43;
+      font: 400 58px/1 "Gloria Hallelujah", cursive;
+      opacity: .55;
+      transform: rotate(-13deg);
+    }
+    .doodle.one { top: 75px; left: 3vw; }
+    .doodle.two { top: 490px; right: 3vw; transform: rotate(15deg); }
+    .warm-header {
+      position: relative;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 35px;
+      align-items: end;
+      max-width: 1300px;
+      margin: auto;
+    }
+    .warm-kicker {
+      color: #8a6347;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+    .warm h1 {
+      margin: 8px 0 2px;
+      color: #59422f;
+      font: 400 clamp(55px, 8vw, 108px)/.95 "Gloria Hallelujah", cursive;
+      letter-spacing: -.045em;
+    }
+    .warm-sub {
+      max-width: 620px;
+      color: #806b58;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .warm .button {
+      color: white;
+      background: #bf7040;
+      border-radius: 999px;
+      box-shadow: 0 8px 0 #8d5130;
+    }
+    .warm .button:hover { box-shadow: 0 5px 0 #8d5130; transform: translateY(3px); }
+    .scrapbook {
+      position: relative;
+      z-index: 2;
+      min-height: 775px;
+      max-width: 1370px;
+      margin: 55px auto 0;
+    }
+    .scrap-photo {
+      position: absolute;
+      padding: 11px 11px 42px;
+      background: #fffdf8;
+      border-radius: 20px;
+      box-shadow: 0 18px 45px rgba(73,53,32,.16);
+    }
+    .scrap-photo::after {
+      content: attr(data-caption);
+      position: absolute;
+      left: 18px;
+      bottom: 10px;
+      color: #765b43;
+      font: 400 15px/1.2 "Gloria Hallelujah", cursive;
+    }
+    .scrap-photo img { border-radius: 13px; filter: saturate(.82) sepia(.08); }
+    .scrap-photo:hover img { filter: saturate(1) sepia(0); }
+    .scrap-photo:nth-child(1) { z-index: 3; left: 7%; top: 20px; width: 43%; height: 470px; transform: rotate(-4deg); }
+    .scrap-photo:nth-child(2) { z-index: 2; right: 7%; top: 5px; width: 38%; height: 360px; transform: rotate(5deg); }
+    .scrap-photo:nth-child(3) { z-index: 5; left: 35%; top: 365px; width: 31%; height: 350px; transform: rotate(2deg); }
+    .scrap-photo:nth-child(4) { z-index: 1; left: 2%; bottom: 0; width: 31%; height: 300px; transform: rotate(5deg); }
+    .scrap-photo:nth-child(5) { z-index: 4; right: 2%; bottom: 12px; width: 32%; height: 370px; transform: rotate(-5deg); }
+    .tape {
+      position: absolute;
+      z-index: 7;
+      width: 95px;
+      height: 27px;
+      background: rgba(224,190,120,.58);
+      transform: rotate(-12deg);
+      backdrop-filter: blur(2px);
+    }
+    .tape.t1 { left: 28%; top: 4px; }
+    .tape.t2 { right: 18%; top: 4px; transform: rotate(8deg); }
+    .tape.t3 { left: 46%; top: 355px; transform: rotate(-3deg); }
+    .badges {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      max-width: 1100px;
+      margin: 35px auto 0;
+    }
+    .badge {
+      padding: 13px 20px;
+      border: 2px solid #4d4438;
+      border-radius: 999px;
+      color: #40382f;
+      background: #fff9e9;
+      box-shadow: 4px 4px 0 #4d4438;
+      font: 700 12px/1 "Fredoka", sans-serif;
+      letter-spacing: .03em;
+      transform: rotate(-2deg);
+    }
+    .badge:nth-child(2) { color: #fff; background: #8ea477; transform: rotate(2deg); }
+    .badge:nth-child(3) { background: #f0b86b; transform: rotate(-1deg); }
+    .badge:nth-child(4) { color: white; background: #b96855; transform: rotate(3deg); }
+    .warm-note {
+      position: relative;
+      z-index: 3;
+      max-width: 760px;
+      margin: 50px auto 0;
+      padding: 28px 35px;
+      background: #f1d98f;
+      box-shadow: 8px 10px 0 rgba(91,67,38,.14);
+      text-align: center;
+      transform: rotate(-1deg);
+      font: 400 18px/1.7 "Gloria Hallelujah", cursive;
+    }
+
+    /* Modern Family */
+    .modern {
+      min-height: 1250px;
+      padding: 60px 5vw 95px;
+      background: #fff;
+      color: #171717;
+      font-family: Manrope, sans-serif;
+    }
+    .modern-header {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 55px;
+      align-items: end;
+      max-width: 1450px;
+      margin: auto;
+      padding-bottom: 40px;
+      border-bottom: 2px solid #151515;
+    }
+    .modern-kicker {
+      display: inline-block;
+      padding: 8px 13px;
+      border-radius: 999px;
+      color: #fff;
+      background: #ff6259;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .modern h1 {
+      margin: 18px 0 0;
+      max-width: 950px;
+      font: 800 clamp(55px, 8vw, 115px)/.83 Manrope, sans-serif;
+      letter-spacing: -.075em;
+    }
+    .modern-intro p { margin: 0 0 24px; color: #5b5b5b; font-size: 14px; line-height: 1.75; }
+    .modern .button {
+      color: white;
+      background: #1b1b1b;
+      border-radius: 12px;
+      box-shadow: 7px 7px 0 #ffd84d;
+    }
+    .modern .button:hover { color: #111; background: #ffd84d; box-shadow: 4px 4px 0 #111; }
+    .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+    .pill {
+      padding: 8px 13px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+    }
+    .pill.pink { background: #ffd9d7; color: #9b302b; }
+    .pill.blue { background: #d3efff; color: #1d6288; }
+    .pill.yellow { background: #ffed9c; color: #745f00; }
+    .pill.green { background: #d9f1cf; color: #36642b; }
+    .geo-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: 320px 250px 280px;
+      gap: 14px;
+      max-width: 1450px;
+      margin: 42px auto 0;
+    }
+    .geo-grid .photo { position: relative; border-radius: 18px; }
+    .geo-grid .photo:nth-child(1) { grid-column: 1 / 8; grid-row: 1 / 3; }
+    .geo-grid .photo:nth-child(2) { grid-column: 8 / 13; grid-row: 1; }
+    .geo-grid .photo:nth-child(3) { grid-column: 8 / 11; grid-row: 2; }
+    .geo-grid .photo:nth-child(4) { grid-column: 11 / 13; grid-row: 2; }
+    .geo-grid .photo:nth-child(5) { grid-column: 1 / 5; grid-row: 3; }
+    .geo-grid .photo:nth-child(6) { grid-column: 5 / 13; grid-row: 3; }
+    .geo-grid .photo::after {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      width: 26px;
+      height: 26px;
+      border: 5px solid #fff;
+      border-radius: 50%;
+      content: "";
+      transition: transform .35s;
+    }
+    .geo-grid .photo:hover::after { transform: scale(1.25); }
+    .geo-grid .photo:nth-child(1)::after { background: #ff6259; }
+    .geo-grid .photo:nth-child(2)::after { background: #5bc0eb; }
+    .geo-grid .photo:nth-child(3)::after { background: #ffd84d; }
+    .geo-grid .photo:nth-child(4)::after { background: #8bd17c; }
+    .geo-grid .photo:nth-child(5)::after { background: #b695e8; }
+    .geo-grid .photo:nth-child(6)::after { background: #ff9b54; }
+    .testimonial-area {
+      max-width: 1450px;
+      margin: 70px auto 0;
+    }
+    .testimonial-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      align-items: end;
+      margin-bottom: 25px;
+    }
+    .testimonial-head h2 { margin: 0; font-size: clamp(30px, 4vw, 52px); letter-spacing: -.05em; }
+    .testimonial-head span { color: #777; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    .testimonials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .quote {
+      min-height: 210px;
+      padding: 28px;
+      border: 2px solid #111;
+      border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .quote:nth-child(1) { background: #fff1ae; }
+    .quote:nth-child(2) { background: #d9f1cf; }
+    .quote:nth-child(3) { background: #dcedff; }
+    .quote p { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.55; }
+    .quote footer { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .1em; }
+
+    @media (max-width: 900px) {
+      .scrap-photo:nth-child(1) { left: 2%; }
+      .scrap-photo:nth-child(2) { right: 2%; }
+      .scrap-photo:nth-child(4) { left: 0; }
+      .scrap-photo:nth-child(5) { right: 0; }
+      .modern-header { grid-template-columns: 1fr; }
+      .testimonials { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .template-label { flex-direction: column; align-items: flex-start; }
+      .warm { min-height: 2100px; padding: 55px 20px 80px; }
+      .warm-header { grid-template-columns: 1fr; text-align: center; }
+      .warm-header .button { justify-self: center; }
+      .scrapbook { min-height: 1450px; margin-top: 40px; }
+      .scrap-photo:nth-child(n) {
+        position: absolute;
+        left: 4%;
+        right: auto;
+        width: 88%;
+        height: 310px;
+      }
+      .scrap-photo:nth-child(1) { top: 0; transform: rotate(-3deg); }
+      .scrap-photo:nth-child(2) { top: 280px; left: 8%; transform: rotate(3deg); }
+      .scrap-photo:nth-child(3) { top: 560px; transform: rotate(-2deg); }
+      .scrap-photo:nth-child(4) { top: 840px; left: 8%; transform: rotate(3deg); }
+      .scrap-photo:nth-child(5) { top: 1120px; transform: rotate(-2deg); }
+      .tape { display: none; }
+      .modern { padding: 45px 20px 75px; }
+      .geo-grid { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 260px); }
+      .geo-grid .photo:nth-child(n) { grid-column: auto; grid-row: auto; }
+      .testimonial-head { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="template-label" id="warm-gathering">
+    <span>Template 1: Warm Gathering</span>
+    <span>GPT-5.5 Family</span>
+  </div>
+  <section class="template warm">
+    <span class="doodle one">♡</span>
+    <span class="doodle two">✦</span>
+    <header class="warm-header">
+      <div>
+        <span class="warm-kicker">Family event photography · Austin, TX</span>
+        <h1>The Harper Studio</h1>
+        <p class="warm-sub">The belly laughs, bear hugs, birthday candles, and gloriously imperfect moments that make your family yours.</p>
+      </div>
+      <a class="button" href="mailto:hello@example.com">Book Your Session</a>
+    </header>
+    <div class="scrapbook">
+      <span class="tape t1"></span><span class="tape t2"></span><span class="tape t3"></span>
+      <div class="photo scrap-photo" data-caption="all together ♡"><img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800" alt="Family together"></div>
+      <div class="photo scrap-photo" data-caption="sunshine + snacks"><img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800" alt="Family picnic"></div>
+      <div class="photo scrap-photo" data-caption="little adventurers"><img src="https://images.unsplash.com/photo-1504439904031-93ded9f93e4e?w=800" alt="Children playing"></div>
+      <div class="photo scrap-photo" data-caption="our happy place"><img src="https://images.unsplash.com/photo-1517554558809-9b4971b38f39?w=800" alt="Family outdoors"></div>
+      <div class="photo scrap-photo" data-caption="make a wish!"><img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=800" alt="Family celebration"></div>
+    </div>
+    <div class="badges" aria-label="Photography specialties">
+      <span class="badge">Family Reunions</span>
+      <span class="badge">Birthday Parties</span>
+      <span class="badge">Lifestyle Sessions</span>
+      <span class="badge">Holiday Gatherings</span>
+    </div>
+    <div class="warm-note">“Come as you are. I’ll take care of preserving the beautiful chaos.”</div>
+  </section>
+
+  <div class="template-label" id="modern-family">
+    <span>Template 2: Modern Family</span>
+    <span>GPT-5.5 Family</span>
+  </div>
+  <section class="template modern">
+    <header class="modern-header">
+      <div>
+        <span class="modern-kicker">Austin's family photo crew</span>
+        <h1>The Harper Studio</h1>
+      </div>
+      <div class="modern-intro">
+        <p>Bright, honest photography for energetic families, milestone celebrations, and every wonderfully unscripted moment in between.</p>
+        <a class="button" href="mailto:hello@example.com">Book Your Session</a>
+        <div class="pills" aria-label="Specialties">
+          <span class="pill pink">Families</span>
+          <span class="pill blue">Birthdays</span>
+          <span class="pill yellow">Reunions</span>
+          <span class="pill green">Milestones</span>
+        </div>
+      </div>
+    </header>
+    <div class="geo-grid">
+      <div class="photo"><img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800" alt="Family portrait"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800" alt="Family picnic"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1504439904031-93ded9f93e4e?w=800" alt="Children playing"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1517554558809-9b4971b38f39?w=800" alt="Family outdoors"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=800" alt="Celebration"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?w=800" alt="Family gathering"></div>
+    </div>
+    <section class="testimonial-area">
+      <header class="testimonial-head">
+        <h2>Happy families, happy words.</h2>
+        <span>Austin, TX · Kind notes from recent sessions</span>
+      </header>
+      <div class="testimonials">
+        <article class="quote">
+          <p>“They captured our family exactly as we are—loud, loving, and laughing the entire time.”</p>
+          <footer>— The Martinez Family</footer>
+        </article>
+        <article class="quote">
+          <p>“Our kids forgot there was a camera. The photos feel natural, joyful, and completely us.”</p>
+          <footer>— Jamie &amp; Alex</footer>
+        </article>
+        <article class="quote">
+          <p>“Every generation together in one gallery. These are already the photographs we treasure most.”</p>
+          <footer>— The Wilson Family</footer>
+        </article>
+      </div>
+    </section>
+  </section>
+</body>
+</html>

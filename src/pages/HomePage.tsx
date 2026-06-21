@@ -99,7 +99,7 @@ export function HomePage() {
             </p>
             <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {photographers.map(p => (
-                <Link key={p.id} to={p.slug ? `/p/${p.slug}` : "/photographers"}
+                <Link key={p.id} to={p.slug ? `/${p.slug}` : "/photographers"}
                   className="rounded-xl border border-border bg-white p-5 transition-shadow hover:shadow-md">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 text-sm font-bold text-neutral-500">
                     {p.name.charAt(0)}

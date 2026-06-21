@@ -665,9 +665,9 @@ function PhotographerProfileCard() {
       <p className="mt-1 text-sm text-neutral-500">
         Your public profile at{" "}
         {profile.slug ? (
-          <a href={`/p/${profile.slug}`} className="text-primary-600 hover:underline">framenest.photos/p/{profile.slug}</a>
+          <a href={`/${profile.slug}`} className="text-primary-600 hover:underline">framenest.photos/{profile.slug}</a>
         ) : (
-          <span className="text-neutral-400">framenest.photos/p/your-slug</span>
+          <span className="text-neutral-400">framenest.photos/your-slug</span>
         )}
       </p>
 
@@ -681,7 +681,7 @@ function PhotographerProfileCard() {
         <div>
           <label className="block text-sm font-medium text-neutral-700">Profile URL slug</label>
           <div className="mt-1 flex items-center gap-2">
-            <span className="text-sm text-neutral-400">framenest.photos/p/</span>
+            <span className="text-sm text-neutral-400">framenest.photos/</span>
             <input type="text" value={profile.slug}
               onChange={e => setProfile(p => p ? { ...p, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-") } : p)}
               placeholder="jane-doe"

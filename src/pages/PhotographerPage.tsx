@@ -314,7 +314,7 @@ export function PhotographerPage() {
                   it look stunning.
                 </p>
                 <ul className="mt-6 space-y-3">
-                  {["Your own profile page at framenest.photos/p/you", "Hero gallery with crossfade transitions", "Portfolio grid, pricing display, and hire button"].map(t => (
+                  {["Your own profile page at framenest.photos/you", "Hero gallery with crossfade transitions", "Portfolio grid, pricing display, and hire button"].map(t => (
                     <li key={t} className="flex items-start gap-3 text-sm text-neutral-600">
                       <span className="mt-0.5 text-emerald-500">✓</span> {t}
                     </li>
@@ -436,7 +436,7 @@ export function PhotographerPage() {
                   </div>
                 );
                 return p.slug ? (
-                  <Link key={p.id} to={`/p/${p.slug}`}>{Card}</Link>
+                  <Link key={p.id} to={`/${p.slug}`}>{Card}</Link>
                 ) : p.website ? (
                   <a key={p.id} href={p.website} target="_blank" rel="noopener noreferrer">{Card}</a>
                 ) : (

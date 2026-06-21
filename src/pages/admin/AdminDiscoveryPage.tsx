@@ -424,7 +424,7 @@ export function AdminDiscoveryPage() {
                         Featured
                       </label>
                       <Link
-                        to={`/p/${p.slug}`}
+                        to={`/${p.slug}`}
                         className="rounded border border-neutral-200 px-3 py-1.5 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-50"
                       >
                         Preview

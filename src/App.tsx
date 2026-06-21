@@ -59,7 +59,6 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/photographers" element={<PhotographerPage />} />
-          <Route path="/p/:slug" element={<PhotographerProfilePage />} />
           <Route path="/inspiration" element={<InspirationMapPage />} />
           {/* Public space routes */}
           <Route path="/s/:spaceSlug" element={<SpacePage />} />
@@ -138,6 +137,8 @@ export default function App() {
           <Route path="/citysite/commerce" element={<ProtectedRoute requiredRole="platform_owner"><AdminCommercePage /></ProtectedRoute>} />
           <Route path="/citysite/discovery" element={<ProtectedRoute requiredRole="platform_owner"><AdminDiscoveryPage /></ProtectedRoute>} />
           <Route path="/citysite/system" element={<ProtectedRoute requiredRole="platform_owner"><AdminSystemPage /></ProtectedRoute>} />
+          {/* Photographer profile — catch-all (must be LAST before 404) */}
+          <Route path="/:slug" element={<PhotographerProfilePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

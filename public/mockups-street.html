@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FrameNest Street Photography Templates — GPT-5.5 Street</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;0,900;1,700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;600;700;800&display=swap');
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: #050505; color: #f5f5f5; }
+    img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    a { color: inherit; }
+    .template-label {
+      position: relative;
+      z-index: 50;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 15px 4vw;
+      color: #fff;
+      background: #080808;
+      border-top: 1px solid #383838;
+      border-bottom: 1px solid #000;
+      font: 700 11px/1 Inter, sans-serif;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .template-label span:last-child { color: #22d3ee; }
+    .template { position: relative; width: 100%; min-height: 600px; overflow: hidden; }
+    .photo { overflow: hidden; }
+    .photo img { transition: transform .6s cubic-bezier(.2,.7,.2,1), filter .45s ease, opacity .35s ease; }
+    .photo:hover img { transform: scale(1.045); }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 27px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform .25s, color .25s, background .25s, box-shadow .25s;
+    }
+    .button:hover { transform: translateY(-3px); }
+
+    /* Gritty Urban */
+    .gritty {
+      min-height: 1480px;
+      padding: 48px 4vw 95px;
+      color: #f0f0ec;
+      background:
+        linear-gradient(115deg, transparent 0 63%, rgba(255,255,255,.025) 63.1% 63.5%, transparent 63.6%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.012) 0 1px, transparent 1px 5px),
+        #1a1a1a;
+      font-family: "DM Mono", monospace;
+    }
+    .grain {
+      position: absolute;
+      z-index: 20;
+      inset: -50%;
+      width: 200%;
+      height: 200%;
+      pointer-events: none;
+      opacity: .12;
+      background-image:
+        radial-gradient(circle at 20% 30%, #fff 0 .7px, transparent .8px),
+        radial-gradient(circle at 70% 60%, #fff 0 .55px, transparent .65px),
+        radial-gradient(circle at 40% 80%, #000 0 .8px, transparent .9px);
+      background-size: 7px 7px, 9px 9px, 11px 11px;
+      animation: grain-shift .25s steps(2) infinite;
+    }
+    @keyframes grain-shift {
+      0% { transform: translate(0,0); }
+      25% { transform: translate(1.5%,-1%); }
+      50% { transform: translate(-1%,1.5%); }
+      75% { transform: translate(1%,-1.5%); }
+      100% { transform: translate(-1.5%,1%); }
+    }
+    @media (prefers-reduced-motion: reduce) { .grain { animation: none; } }
+    .scratches {
+      position: absolute;
+      z-index: 5;
+      inset: 0;
+      opacity: .12;
+      pointer-events: none;
+      background:
+        linear-gradient(93deg, transparent 12%, #fff 12.05%, transparent 12.15%),
+        linear-gradient(89deg, transparent 73%, #fff 73.04%, transparent 73.12%),
+        linear-gradient(177deg, transparent 48%, #fff 48.05%, transparent 48.1%);
+    }
+    .gritty-nav {
+      position: relative;
+      z-index: 25;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 30px;
+      align-items: center;
+      max-width: 1460px;
+      margin: auto;
+      padding: 17px 0;
+      border-top: 4px solid #eee;
+      border-bottom: 1px solid #777;
+    }
+    .gritty-nav span { color: #aaa; font-size: 9px; letter-spacing: .17em; text-transform: uppercase; }
+    .gritty-nav span:last-child { text-align: right; }
+    .gritty-nav strong { font: 800 23px/1 "Barlow Condensed", sans-serif; letter-spacing: .07em; text-transform: uppercase; }
+    .gritty-header {
+      position: relative;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: 1.35fr .65fr;
+      gap: 5vw;
+      align-items: end;
+      max-width: 1400px;
+      margin: 65px auto 35px;
+    }
+    .gritty-kicker { color: #aaa; font-size: 9px; letter-spacing: .23em; text-transform: uppercase; }
+    .gritty h1 {
+      margin: 10px 0 0;
+      font: 900 clamp(74px, 12vw, 175px)/.72 "Barlow Condensed", sans-serif;
+      letter-spacing: -.045em;
+      text-transform: uppercase;
+      transform: rotate(-1deg);
+    }
+    .gritty h1 span {
+      color: transparent;
+      -webkit-text-stroke: 2px #efefef;
+    }
+    .gritty-intro { padding: 20px 0 8px 25px; border-left: 5px solid #eee; }
+    .gritty-intro p { margin: 0; color: #b5b5b1; font-size: 11px; line-height: 1.75; }
+    .gritty .button {
+      margin-top: 23px;
+      color: #171717;
+      background: #f2f2ed;
+      border: 2px solid #f2f2ed;
+      clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%);
+      font-size: 10px;
+      letter-spacing: .11em;
+      text-transform: uppercase;
+    }
+    .gritty .button:hover { color: white; background: transparent; }
+    .grit-grid {
+      position: relative;
+      z-index: 8;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: 310px 250px 310px;
+      gap: 10px;
+      max-width: 1450px;
+      margin: auto;
+      transform: rotate(-.6deg);
+    }
+    .grit-grid .photo { position: relative; border: 4px solid #e4e4df; background: #080808; }
+    .grit-grid .photo:nth-child(1) { grid-column: 1 / 8; grid-row: 1 / 3; }
+    .grit-grid .photo:nth-child(2) { grid-column: 8 / 13; grid-row: 1; }
+    .grit-grid .photo:nth-child(3) { grid-column: 8 / 13; grid-row: 2 / 4; }
+    .grit-grid .photo:nth-child(4) { grid-column: 1 / 5; grid-row: 3; }
+    .grit-grid .photo:nth-child(5) { grid-column: 5 / 8; grid-row: 3; }
+    .grit-grid .photo:nth-child(6) { display: none; }
+    .grit-grid img { filter: grayscale(1) contrast(1.38) brightness(.83); }
+    .grit-grid .photo:hover img { filter: grayscale(1) contrast(1.15) brightness(.98); }
+    .frame-number {
+      position: absolute;
+      z-index: 2;
+      right: 13px;
+      bottom: 8px;
+      color: white;
+      font: 800 42px/1 "Barlow Condensed", sans-serif;
+      text-shadow: 2px 2px 0 #000;
+    }
+    .contact-sheet {
+      position: relative;
+      z-index: 9;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      max-width: 1150px;
+      margin: 70px auto 0;
+      border-top: 1px solid #777;
+      border-left: 1px solid #777;
+    }
+    .contact-sheet span {
+      min-height: 90px;
+      display: grid;
+      place-items: center;
+      color: #aaa;
+      border-right: 1px solid #777;
+      border-bottom: 1px solid #777;
+      font-size: 9px;
+      letter-spacing: .13em;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    /* Neon Nights */
+    .neon {
+      min-height: 1500px;
+      padding: 50px 5vw 100px;
+      color: #e6fbff;
+      background:
+        radial-gradient(circle at 17% 12%, rgba(34,211,238,.14), transparent 23%),
+        radial-gradient(circle at 86% 54%, rgba(244,114,182,.14), transparent 25%),
+        linear-gradient(135deg, #030307, #080510 55%, #02050a);
+      font-family: "DM Mono", monospace;
+    }
+    .neon::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .12;
+      background-image:
+        linear-gradient(rgba(34,211,238,.25) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(244,114,182,.22) 1px, transparent 1px);
+      background-size: 55px 55px;
+      mask-image: linear-gradient(transparent, black 22%, black 80%, transparent);
+      pointer-events: none;
+    }
+    .neon-nav {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      max-width: 1450px;
+      margin: auto;
+      padding: 19px 0;
+      border-top: 1px solid #22d3ee;
+      border-bottom: 1px solid #f472b6;
+      box-shadow: 0 -8px 25px rgba(34,211,238,.08), 0 8px 25px rgba(244,114,182,.08);
+      font-size: 9px;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+    }
+    .neon-nav strong { color: #22d3ee; text-shadow: 0 0 12px rgba(34,211,238,.8); }
+    .neon-header {
+      position: relative;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 5vw;
+      align-items: end;
+      max-width: 1380px;
+      margin: 75px auto 45px;
+    }
+    .neon-kicker { color: #f472b6; font-size: 9px; letter-spacing: .25em; text-transform: uppercase; text-shadow: 0 0 12px #f472b6; }
+    .neon h1 {
+      margin: 18px 0 0;
+      font: 800 clamp(56px, 8vw, 116px)/.82 Orbitron, sans-serif;
+      letter-spacing: -.065em;
+      text-transform: uppercase;
+    }
+    .neon h1 .cyan { color: #22d3ee; text-shadow: 0 0 15px rgba(34,211,238,.8), 0 0 45px rgba(34,211,238,.35); }
+    .neon h1 .pink { color: #f472b6; text-shadow: 0 0 15px rgba(244,114,182,.8), 0 0 45px rgba(244,114,182,.35); }
+    .neon-intro p { margin: 0; color: #9ca9b3; font-size: 11px; line-height: 1.8; }
+    .neon .button {
+      margin-top: 24px;
+      color: #05090c;
+      background: #22d3ee;
+      border: 1px solid #22d3ee;
+      box-shadow: 0 0 14px rgba(34,211,238,.7), 0 0 38px rgba(34,211,238,.3);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .neon .button:hover {
+      color: white;
+      background: transparent;
+      box-shadow: 0 0 18px rgba(34,211,238,.8), inset 0 0 15px rgba(34,211,238,.18);
+    }
+    .neon-grid {
+      position: relative;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: 330px 250px 300px;
+      gap: 20px;
+      max-width: 1400px;
+      margin: auto;
+    }
+    .neon-card {
+      position: relative;
+      padding: 4px;
+      background: #050508;
+      transition: transform .35s, box-shadow .35s;
+    }
+    .neon-card:nth-child(1) { grid-column: 1 / 8; grid-row: 1 / 3; border: 1px solid #22d3ee; box-shadow: 0 0 18px rgba(34,211,238,.35); }
+    .neon-card:nth-child(2) { grid-column: 8 / 13; grid-row: 1; border: 1px solid #f472b6; box-shadow: 0 0 18px rgba(244,114,182,.35); }
+    .neon-card:nth-child(3) { grid-column: 8 / 13; grid-row: 2 / 4; border: 1px solid #22d3ee; box-shadow: 0 0 18px rgba(34,211,238,.35); }
+    .neon-card:nth-child(4) { grid-column: 1 / 5; grid-row: 3; border: 1px solid #f472b6; box-shadow: 0 0 18px rgba(244,114,182,.35); }
+    .neon-card:nth-child(5) { grid-column: 5 / 8; grid-row: 3; border: 1px solid #22d3ee; box-shadow: 0 0 18px rgba(34,211,238,.35); }
+    .neon-card:nth-child(6) { display: none; }
+    .neon-card img { filter: saturate(.75) contrast(1.15) brightness(.7); }
+    .neon-card:hover { z-index: 5; transform: translateY(-6px) scale(1.012); }
+    .neon-card:nth-child(odd):hover { box-shadow: 0 0 22px rgba(34,211,238,.85), 0 0 70px rgba(34,211,238,.3); }
+    .neon-card:nth-child(even):hover { box-shadow: 0 0 22px rgba(244,114,182,.85), 0 0 70px rgba(244,114,182,.3); }
+    .neon-card:hover img { filter: saturate(1.15) contrast(1.08) brightness(.9); transform: scale(1.035); }
+    .neon-code {
+      position: absolute;
+      left: 14px;
+      bottom: 12px;
+      color: #fff;
+      font-size: 9px;
+      letter-spacing: .14em;
+      text-shadow: 0 0 9px #000;
+      text-transform: uppercase;
+    }
+    .neon-manifesto {
+      position: relative;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: .8fr 1.2fr;
+      gap: 6vw;
+      max-width: 1060px;
+      margin: 80px auto 0;
+      padding: 50px 0;
+      border-top: 1px solid #22d3ee;
+      border-bottom: 1px solid #f472b6;
+    }
+    .neon-manifesto h2 { margin: 0; color: #f472b6; font: 700 28px/1.15 Orbitron, sans-serif; text-shadow: 0 0 15px rgba(244,114,182,.5); }
+    .neon-manifesto p { margin: 0; color: #9aa6ae; font-size: 11px; line-height: 1.8; }
+
+    @media (max-width: 900px) {
+      .gritty-header, .neon-header { grid-template-columns: 1fr; }
+      .gritty-intro { max-width: 550px; }
+    }
+    @media (max-width: 600px) {
+      .template-label { flex-direction: column; align-items: flex-start; }
+      .gritty { padding: 35px 20px 75px; }
+      .gritty-nav { grid-template-columns: 1fr; text-align: center; }
+      .gritty-nav span:last-child { text-align: center; }
+      .grit-grid { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 250px); transform: none; }
+      .grit-grid .photo:nth-child(n) { display: block; grid-column: auto; grid-row: auto; }
+      .contact-sheet { grid-template-columns: 1fr 1fr; }
+      .neon { padding: 35px 20px 75px; }
+      .neon-nav { flex-direction: column; text-align: center; }
+      .neon-grid { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 250px); }
+      .neon-card:nth-child(n) { display: block; grid-column: auto; grid-row: auto; }
+      .neon-manifesto { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="template-label" id="gritty-urban">
+    <span>Template 1: Gritty Urban</span>
+    <span>GPT-5.5 Street</span>
+  </div>
+  <section class="template gritty">
+    <div class="grain" aria-hidden="true"></div>
+    <div class="scratches" aria-hidden="true"></div>
+    <nav class="gritty-nav" aria-label="Gritty Urban portfolio">
+      <span>Street documentary · Austin, TX</span>
+      <strong>Urban Lens Collective</strong>
+      <span>City / People / Motion / Chance</span>
+    </nav>
+    <header class="gritty-header">
+      <div>
+        <span class="gritty-kicker">No staging. No second takes.</span>
+        <h1>The street<br><span>doesn't pose.</span></h1>
+      </div>
+      <div class="gritty-intro">
+        <p>Raw city photography shaped by instinct, hard light, overlooked corners, and the split seconds that disappear before anyone else sees them.</p>
+        <a class="button" href="mailto:urban@example.com">Commission Work</a>
+      </div>
+    </header>
+    <div class="grit-grid">
+      <div class="photo"><img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800" alt="Dense city skyline"><span class="frame-number">01</span></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800" alt="Street scene"><span class="frame-number">02</span></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=800" alt="Urban architecture"><span class="frame-number">03</span></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800" alt="City at night"><span class="frame-number">04</span></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800" alt="Downtown city blocks"><span class="frame-number">05</span></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=800" alt="Neon city scene"><span class="frame-number">06</span></div>
+    </div>
+    <div class="contact-sheet">
+      <span>Editorial commissions</span><span>Brand documentary</span><span>Architecture</span><span>Urban field notes</span>
+    </div>
+  </section>
+
+  <div class="template-label" id="neon-nights">
+    <span>Template 2: Neon Nights</span>
+    <span>GPT-5.5 Street</span>
+  </div>
+  <section class="template neon">
+    <nav class="neon-nav" aria-label="Neon Nights portfolio">
+      <strong>Urban Lens Collective</strong>
+      <span>Austin, Texas // After-dark visual systems</span>
+    </nav>
+    <header class="neon-header">
+      <div>
+        <span class="neon-kicker">Night mode: active</span>
+        <h1><span class="cyan">Neon</span><br><span class="pink">Nights</span></h1>
+      </div>
+      <div class="neon-intro">
+        <p>Electric street photography for nightlife, culture, music, fashion, and brands that come alive after sundown.</p>
+        <a class="button" href="mailto:urban@example.com">Commission Work</a>
+      </div>
+    </header>
+    <div class="neon-grid">
+      <div class="photo neon-card"><img src="https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800" alt="Night city lights"><span class="neon-code">AUS_NIGHT // 001</span></div>
+      <div class="photo neon-card"><img src="https://images.unsplash.com/photo-1444723121867-7a241cacace9?w=800" alt="Neon-lit city"><span class="neon-code">SIGNAL // 002</span></div>
+      <div class="photo neon-card"><img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800" alt="City skyline"><span class="neon-code">GRID // 003</span></div>
+      <div class="photo neon-card"><img src="https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=800" alt="Street at night"><span class="neon-code">STREET // 004</span></div>
+      <div class="photo neon-card"><img src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800" alt="Downtown city"><span class="neon-code">DOWNTOWN // 005</span></div>
+      <div class="photo neon-card"><img src="https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=800" alt="Urban architecture"><span class="neon-code">STRUCTURE // 006</span></div>
+    </div>
+    <section class="neon-manifesto">
+      <h2>CHASE THE SIGNAL.</h2>
+      <p>Urban Lens Collective documents the color, speed, solitude, and strange beauty of the city after dark. Available for editorial assignments, visual campaigns, music coverage, and cultural commissions.</p>
+    </section>
+  </section>
+</body>
+</html>

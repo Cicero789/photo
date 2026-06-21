@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FrameNest Corporate Photography Templates — GPT-5.5 Corporate</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: #090e1a; color: #111827; }
+    img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    a { color: inherit; }
+    .template-label {
+      position: relative;
+      z-index: 30;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 15px 4vw;
+      background: #070b13;
+      color: #fff;
+      border-top: 1px solid #293244;
+      border-bottom: 1px solid #000;
+      font: 700 11px/1 Inter, sans-serif;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+    }
+    .template-label span:last-child { color: #aeb9ca; }
+    .template { position: relative; min-height: 600px; width: 100%; overflow: hidden; }
+    .photo { overflow: hidden; }
+    .photo img { transition: transform .65s cubic-bezier(.2,.7,.2,1), filter .5s ease, opacity .35s ease; }
+    .photo:hover img { transform: scale(1.04); }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 49px;
+      padding: 0 25px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform .25s, background .25s, color .25s, border-color .25s;
+    }
+    .button:hover { transform: translateY(-3px); }
+
+    /* Executive Suite */
+    .executive {
+      min-height: 1500px;
+      padding: 0 5vw 100px;
+      color: #e8edf5;
+      background:
+        linear-gradient(105deg, transparent 0 67%, rgba(148,163,184,.045) 67.1% 67.5%, transparent 67.6%),
+        #0f172a;
+      font-family: "Montserrat", sans-serif;
+    }
+    .exec-nav {
+      position: relative;
+      z-index: 4;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 30px;
+      max-width: 1500px;
+      margin: auto;
+      padding: 25px 0;
+      border-bottom: 1px solid #475569;
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .exec-nav strong { font-size: 17px; letter-spacing: .04em; }
+    .exec-nav span:last-child { justify-self: end; color: #94a3b8; }
+    .exec-hero {
+      display: grid;
+      grid-template-columns: .88fr 1.12fr;
+      min-height: 720px;
+      max-width: 1500px;
+      margin: auto;
+      border-left: 1px solid #334155;
+      border-right: 1px solid #334155;
+    }
+    .exec-copy {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 6vw;
+      background: #0f172a;
+    }
+    .exec-kicker {
+      color: #aab5c5;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .25em;
+      text-transform: uppercase;
+    }
+    .exec-copy h1 {
+      margin: 20px 0;
+      font: 600 clamp(52px, 7vw, 105px)/.86 "Space Grotesk", sans-serif;
+      letter-spacing: -.055em;
+    }
+    .exec-copy p { max-width: 520px; margin: 0; color: #9ba8ba; font-size: 13px; line-height: 1.8; }
+    .exec-actions { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-top: 30px; }
+    .executive .button {
+      color: #0f172a;
+      background: #d9e0e9;
+      border: 1px solid #d9e0e9;
+      clip-path: polygon(0 0, 92% 0, 100% 25%, 100% 100%, 0 100%);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .executive .button:hover { color: #fff; background: transparent; }
+    .exec-actions span { color: #8794a6; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+    .exec-image { position: relative; min-height: 720px; }
+    .exec-image img { filter: saturate(.45) contrast(1.1) brightness(.68); }
+    .exec-image::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, #0f172a, transparent 27%), linear-gradient(0deg, rgba(15,23,42,.5), transparent 40%);
+      pointer-events: none;
+    }
+    .exec-image:hover img { filter: saturate(.75) contrast(1.05) brightness(.8); transform: scale(1.025); }
+    .exec-index {
+      position: absolute;
+      z-index: 2;
+      right: 25px;
+      bottom: 22px;
+      color: #dce3ec;
+      font: 500 12px/1 "Space Grotesk", sans-serif;
+      letter-spacing: .16em;
+    }
+    .logo-band {
+      max-width: 1500px;
+      margin: auto;
+      border-top: 1px solid #475569;
+      border-bottom: 1px solid #475569;
+    }
+    .logo-band-title {
+      padding: 16px 0;
+      color: #77869b;
+      border-bottom: 1px solid #334155;
+      font-size: 9px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+    .logos {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+    }
+    .logo {
+      display: grid;
+      place-items: center;
+      min-height: 95px;
+      color: #b4bfce;
+      border-right: 1px solid #334155;
+      font: 700 14px/1 "Space Grotesk", sans-serif;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .logo:last-child { border-right: 0; }
+    .services {
+      max-width: 1500px;
+      margin: 80px auto 0;
+    }
+    .section-heading {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 50px;
+      align-items: end;
+      margin-bottom: 30px;
+    }
+    .section-heading h2 {
+      margin: 0;
+      font: 500 clamp(38px, 5vw, 72px)/.95 "Space Grotesk", sans-serif;
+      letter-spacing: -.045em;
+    }
+    .section-heading p { margin: 0; color: #8d9bad; font-size: 12px; line-height: 1.75; }
+    .pricing-table { border-top: 1px solid #718096; }
+    .price-row {
+      display: grid;
+      grid-template-columns: 70px 1.3fr 1fr 150px;
+      gap: 25px;
+      align-items: center;
+      min-height: 105px;
+      border-bottom: 1px solid #334155;
+      transition: background .3s, padding .3s;
+    }
+    .price-row:hover { padding: 0 18px; background: #17233a; }
+    .price-row > b { color: #6f8098; font: 500 12px/1 "Space Grotesk", sans-serif; }
+    .price-row h3 { margin: 0; font: 500 21px/1.15 "Space Grotesk", sans-serif; }
+    .price-row p { margin: 0; color: #8290a3; font-size: 11px; line-height: 1.6; }
+    .price { color: #e3e8ef; text-align: right; font-weight: 600; font-size: 13px; }
+    .exec-gallery {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr;
+      height: 430px;
+      gap: 12px;
+      max-width: 1500px;
+      margin: 75px auto 0;
+    }
+    .exec-gallery img { filter: saturate(.45) contrast(1.08); }
+    .exec-gallery .photo:hover img { filter: saturate(.85); }
+
+    /* Conference Pro */
+    .conference {
+      min-height: 1550px;
+      padding: 55px 5vw 100px;
+      color: #172033;
+      background: #f3f4f6;
+      font-family: "IBM Plex Sans", sans-serif;
+    }
+    .conf-header {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 45px;
+      align-items: center;
+      max-width: 1450px;
+      margin: auto;
+      padding: 0 0 28px;
+      border-bottom: 1px solid #b8bec8;
+    }
+    .conf-mark {
+      width: 43px;
+      height: 43px;
+      background: #2563eb;
+      clip-path: polygon(0 0, 100% 0, 100% 67%, 67% 67%, 67% 100%, 0 100%);
+    }
+    .conf-header strong { font: 700 19px/1 "Space Grotesk", sans-serif; }
+    .conf-header span { color: #687386; font-size: 10px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; }
+    .conf-header span:last-child { text-align: right; }
+    .conf-hero {
+      display: grid;
+      grid-template-columns: .82fr 1.18fr;
+      gap: 25px;
+      max-width: 1450px;
+      margin: 35px auto 0;
+    }
+    .conf-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 5vw 4vw 5vw 0;
+    }
+    .conf-kicker { color: #2563eb; font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+    .conf-copy h1 {
+      margin: 17px 0 22px;
+      font: 700 clamp(54px, 7vw, 103px)/.86 "Space Grotesk", sans-serif;
+      letter-spacing: -.065em;
+    }
+    .conf-copy p { max-width: 530px; margin: 0; color: #5e6878; font-size: 14px; line-height: 1.75; }
+    .conference .button {
+      align-self: flex-start;
+      margin-top: 28px;
+      color: white;
+      background: #2563eb;
+      border: 2px solid #2563eb;
+      border-radius: 7px;
+      font-size: 12px;
+    }
+    .conference .button:hover { color: #2563eb; background: transparent; }
+    .conf-image { min-height: 650px; border-radius: 7px; }
+    .conf-image img { filter: saturate(.82); }
+    .conf-image:hover img { transform: scale(1.025); filter: saturate(1); }
+    .event-timeline {
+      max-width: 1450px;
+      margin: 75px auto 0;
+      padding: 45px 0;
+      border-top: 1px solid #aeb5c0;
+      border-bottom: 1px solid #aeb5c0;
+    }
+    .timeline-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      align-items: end;
+      margin-bottom: 42px;
+    }
+    .timeline-head h2 { margin: 0; font: 700 40px/1 "Space Grotesk", sans-serif; letter-spacing: -.04em; }
+    .timeline-head span { color: #697487; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; }
+    .timeline {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 24px;
+    }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 7px;
+      height: 2px;
+      background: #c5cad2;
+    }
+    .event { position: relative; padding-top: 28px; }
+    .event::before {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      top: 0;
+      left: 0;
+      width: 14px;
+      height: 14px;
+      border: 3px solid #f3f4f6;
+      border-radius: 50%;
+      background: #2563eb;
+      box-shadow: 0 0 0 1px #2563eb;
+    }
+    .event b { display: block; margin-bottom: 7px; color: #2563eb; font-size: 11px; }
+    .event h3 { margin: 0 0 6px; font: 600 15px/1.25 "Space Grotesk", sans-serif; }
+    .event p { margin: 0; color: #6a7483; font-size: 10px; line-height: 1.5; }
+    .marquee {
+      margin: 70px -5vw 0;
+      padding: 27px 0;
+      overflow: hidden;
+      color: white;
+      background: #2563eb;
+      border-top: 1px solid #174fc5;
+      border-bottom: 1px solid #174fc5;
+    }
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: scroll 28s linear infinite;
+    }
+    .marquee-track span {
+      padding: 0 45px;
+      white-space: nowrap;
+      font: 500 20px/1 "Space Grotesk", sans-serif;
+    }
+    .marquee-track b { margin-left: 18px; opacity: .7; font-size: 10px; letter-spacing: .13em; text-transform: uppercase; }
+    @keyframes scroll { to { transform: translateX(-50%); } }
+    @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
+    .client-section { max-width: 1450px; margin: 70px auto 0; }
+    .client-section header {
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      align-items: end;
+      margin-bottom: 25px;
+    }
+    .client-section h2 { margin: 0; font: 700 42px/1 "Space Grotesk", sans-serif; letter-spacing: -.04em; }
+    .client-section header p { max-width: 520px; margin: 0; color: #697487; font-size: 12px; line-height: 1.6; text-align: right; }
+    .client-grid { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid #aeb5c0; border-left: 1px solid #aeb5c0; }
+    .client {
+      display: grid;
+      place-items: center;
+      min-height: 120px;
+      color: #4e5b70;
+      background: #fff;
+      border-right: 1px solid #aeb5c0;
+      border-bottom: 1px solid #aeb5c0;
+      font: 700 15px/1 "Space Grotesk", sans-serif;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      transition: color .25s, background .25s;
+    }
+    .client:hover { color: white; background: #2563eb; }
+    .conf-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      height: 360px;
+      max-width: 1450px;
+      margin: 60px auto 0;
+    }
+    .conf-gallery .photo { border-radius: 7px; }
+
+    @media (max-width: 900px) {
+      .exec-hero, .conf-hero { grid-template-columns: 1fr; }
+      .exec-image, .conf-image { min-height: 600px; }
+      .logos { grid-template-columns: repeat(3, 1fr); }
+      .logo:nth-child(3) { border-right: 0; }
+      .logo:nth-child(-n+3) { border-bottom: 1px solid #334155; }
+      .timeline { grid-template-columns: repeat(3, 1fr); gap: 35px; }
+      .timeline::before { display: none; }
+      .client-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      .template-label { flex-direction: column; align-items: flex-start; }
+      .executive { padding: 0 20px 70px; }
+      .exec-nav { grid-template-columns: 1fr; text-align: center; }
+      .exec-nav span:last-child { justify-self: center; }
+      .exec-copy { padding: 65px 25px; }
+      .exec-image, .conf-image { min-height: 500px; }
+      .logos { grid-template-columns: repeat(2, 1fr); }
+      .logo:nth-child(n) { border-right: 1px solid #334155; border-bottom: 1px solid #334155; }
+      .logo:nth-child(2n) { border-right: 0; }
+      .section-heading { grid-template-columns: 1fr; }
+      .price-row { grid-template-columns: 42px 1fr; padding: 20px 0; }
+      .price-row p, .price { grid-column: 2; text-align: left; }
+      .exec-gallery, .conf-gallery { grid-template-columns: 1fr; height: auto; }
+      .exec-gallery .photo, .conf-gallery .photo { height: 340px; }
+      .conference { padding: 38px 20px 70px; }
+      .conf-header { grid-template-columns: auto 1fr; }
+      .conf-header span:last-child { grid-column: 1 / -1; text-align: left; }
+      .conf-copy { padding: 45px 0; }
+      .timeline { grid-template-columns: 1fr; }
+      .event { padding-left: 30px; padding-top: 0; }
+      .event::before { top: 3px; }
+      .client-section header { align-items: flex-start; flex-direction: column; }
+      .client-section header p { text-align: left; }
+      .client-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="template-label" id="executive-suite">
+    <span>Template 1: Executive Suite</span>
+    <span>GPT-5.5 Corporate</span>
+  </div>
+  <section class="template executive">
+    <nav class="exec-nav" aria-label="Executive portfolio">
+      <span>Corporate event photography · Austin, TX</span>
+      <strong>Apex Visual Group</strong>
+      <span>Conferences / Galas / Leadership</span>
+    </nav>
+    <div class="exec-hero">
+      <div class="exec-copy">
+        <span class="exec-kicker">Visual authority for ambitious brands</span>
+        <h1>Every room.<br>Every leader.<br>At its best.</h1>
+        <p>Discreet, decisive corporate event coverage for organizations that understand every public moment is a reflection of their brand.</p>
+        <div class="exec-actions">
+          <a class="button" href="mailto:quotes@example.com">Request a Quote</a>
+          <span>Response within one business day</span>
+        </div>
+      </div>
+      <div class="photo exec-image">
+        <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800" alt="Large corporate conference">
+        <span class="exec-index">AUS / 01</span>
+      </div>
+    </div>
+    <section class="logo-band">
+      <div class="logo-band-title">Trusted by leaders in technology, finance, healthcare, and enterprise</div>
+      <div class="logos">
+        <span class="logo">Northstar</span>
+        <span class="logo">Vertex</span>
+        <span class="logo">Meridian</span>
+        <span class="logo">Arcwell</span>
+        <span class="logo">Summit</span>
+        <span class="logo">Axiom</span>
+      </div>
+    </section>
+    <section class="services">
+      <header class="section-heading">
+        <h2>Services built around the stakes.</h2>
+        <p>From a focused executive briefing to a multi-day national conference, every engagement includes pre-production planning, professional editing, and secure digital delivery.</p>
+      </header>
+      <div class="pricing-table">
+        <article class="price-row"><b>01</b><h3>Executive Event Coverage</h3><p>Keynotes, board meetings, leadership summits · Up to 4 hours</p><span class="price">From $1,450</span></article>
+        <article class="price-row"><b>02</b><h3>Full-Day Conference</h3><p>Speaker sessions, attendee experience, sponsor activations · Up to 10 hours</p><span class="price">From $2,800</span></article>
+        <article class="price-row"><b>03</b><h3>Multi-Day Production</h3><p>Dedicated coverage team, rapid selects, multi-location event documentation</p><span class="price">Custom Quote</span></article>
+        <article class="price-row"><b>04</b><h3>Corporate Gala</h3><p>Arrival, awards, leadership portraits, atmosphere, and guest candids</p><span class="price">From $1,950</span></article>
+      </div>
+    </section>
+    <div class="exec-gallery">
+      <div class="photo"><img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800" alt="Corporate presentation"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800" alt="Corporate team"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1559223607-b4d0555ae227?w=800" alt="Corporate gala"></div>
+    </div>
+  </section>
+
+  <div class="template-label" id="conference-pro">
+    <span>Template 2: Conference Pro</span>
+    <span>GPT-5.5 Corporate</span>
+  </div>
+  <section class="template conference">
+    <header class="conf-header">
+      <div class="conf-mark" aria-hidden="true"></div>
+      <strong>Apex Visual Group</strong>
+      <span>Austin, Texas · Corporate events documented with clarity</span>
+    </header>
+    <div class="conf-hero">
+      <div class="conf-copy">
+        <span class="conf-kicker">Professional event coverage</span>
+        <h1>Your event deserves a longer life.</h1>
+        <p>Trustworthy, brand-ready photography for conferences, presentations, company gatherings, and the people who make them matter.</p>
+        <a class="button" href="mailto:quotes@example.com">Request a Quote</a>
+      </div>
+      <div class="photo conf-image"><img src="https://images.unsplash.com/photo-1505373877841-8d25f7d46678?w=800" alt="Speaker presenting at a conference"></div>
+    </div>
+    <section class="event-timeline">
+      <header class="timeline-head">
+        <h2>Recent events</h2>
+        <span>Selected assignments · 2024–2026</span>
+      </header>
+      <div class="timeline">
+        <article class="event"><b>MAR 2024</b><h3>Texas Innovation Forum</h3><p>Austin Convention Center · 1,800 attendees</p></article>
+        <article class="event"><b>SEP 2024</b><h3>Meridian Leadership Week</h3><p>Downtown Austin · 3-day summit</p></article>
+        <article class="event"><b>FEB 2025</b><h3>Future Health Expo</h3><p>Keynotes, panels, and sponsor activations</p></article>
+        <article class="event"><b>OCT 2025</b><h3>Vertex Annual Gala</h3><p>Executive portraits and awards ceremony</p></article>
+        <article class="event"><b>MAY 2026</b><h3>ScaleUp Conference</h3><p>Multi-stage coverage · Rapid delivery</p></article>
+      </div>
+    </section>
+    <div class="marquee" aria-label="Client testimonials">
+      <div class="marquee-track">
+        <span>“Exceptional from briefing through delivery.” <b>Meridian Group</b></span>
+        <span>“Our most useful event gallery to date.” <b>Vertex Labs</b></span>
+        <span>“Professional, invisible, and always in the right place.” <b>Northstar</b></span>
+        <span>“Exceptional from briefing through delivery.” <b>Meridian Group</b></span>
+        <span>“Our most useful event gallery to date.” <b>Vertex Labs</b></span>
+        <span>“Professional, invisible, and always in the right place.” <b>Northstar</b></span>
+      </div>
+    </div>
+    <section class="client-section">
+      <header>
+        <h2>Our clients</h2>
+        <p>Chosen by organizations that need reliable coverage, consistent brand standards, and polished assets ready for immediate use.</p>
+      </header>
+      <div class="client-grid">
+        <span class="client">Northstar</span>
+        <span class="client">Vertex Labs</span>
+        <span class="client">Meridian</span>
+        <span class="client">Arcwell</span>
+        <span class="client">Summit Co.</span>
+        <span class="client">Axiom</span>
+        <span class="client">Brightline</span>
+        <span class="client">Westbridge</span>
+      </div>
+    </section>
+    <div class="conf-gallery">
+      <div class="photo"><img src="https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=800" alt="Corporate team event"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1528605248644-14dd04022da1?w=800" alt="Networking event"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800" alt="Corporate office meeting"></div>
+    </div>
+  </section>
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FrameNest Holiday Photography Templates — GPT-5.5 Holiday Season</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@400;500;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Oswald:wght@400;500;600&display=swap');
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: #261011; color: #2d2118; }
+    img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    a { color: inherit; }
+    .template-label {
+      position: relative;
+      z-index: 30;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 15px 4vw;
+      color: #fff;
+      background: #251112;
+      border-top: 1px solid #513033;
+      border-bottom: 1px solid #130708;
+      font: 600 11px/1 "DM Sans", sans-serif;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+    }
+    .template-label span:last-child { color: #d4af37; }
+    .template { position: relative; width: 100%; min-height: 600px; overflow: hidden; }
+    .photo { overflow: hidden; }
+    .photo img { transition: transform .75s cubic-bezier(.2,.7,.2,1), filter .5s ease; }
+    .photo:hover img { transform: scale(1.045); }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 49px;
+      padding: 0 28px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: transform .25s, color .25s, background .25s;
+    }
+    .button:hover { transform: translateY(-3px); }
+
+    /* Holiday Hearth */
+    .hearth {
+      min-height: 1350px;
+      padding: 42px 4vw 95px;
+      color: #fff8eb;
+      background:
+        radial-gradient(circle at 50% -10%, rgba(212,175,55,.18), transparent 33%),
+        linear-gradient(120deg, rgba(51,10,12,.18), transparent 45%),
+        #7f1d1d;
+      font-family: "DM Sans", sans-serif;
+    }
+    .hearth::before {
+      content: "";
+      position: absolute;
+      inset: 22px;
+      border: 1px solid rgba(212,175,55,.67);
+      pointer-events: none;
+    }
+    .hearth::after {
+      content: "";
+      position: absolute;
+      inset: 30px;
+      border: 1px solid rgba(212,175,55,.24);
+      pointer-events: none;
+    }
+    .snowflake {
+      position: absolute;
+      z-index: 1;
+      width: 70px;
+      height: 70px;
+      opacity: .22;
+      transform: rotate(22deg);
+    }
+    .snowflake::before,
+    .snowflake::after,
+    .snowflake span::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: #f6e8c5;
+    }
+    .snowflake::after { transform: rotate(60deg); }
+    .snowflake span::before { transform: rotate(120deg); }
+    .snowflake.one { top: 115px; left: 5%; }
+    .snowflake.two { top: 370px; right: 5%; width: 45px; height: 45px; transform: rotate(5deg); }
+    .snowflake.three { bottom: 155px; left: 8%; width: 55px; height: 55px; }
+    .hearth-nav {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      justify-content: space-between;
+      gap: 30px;
+      max-width: 1380px;
+      margin: auto;
+      padding: 20px 12px;
+      color: #e8d5b5;
+      border-bottom: 1px solid rgba(212,175,55,.55);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+    .hearth-hero {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      min-height: 710px;
+      max-width: 1280px;
+      margin: 55px auto 0;
+      border: 1px solid #d4af37;
+      box-shadow: 0 28px 70px rgba(30,0,0,.3);
+    }
+    .hearth-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 6vw;
+      text-align: center;
+      background: rgba(84,12,14,.86);
+    }
+    .ornament {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      width: 80%;
+      margin: 0 auto 25px;
+      color: #d4af37;
+    }
+    .ornament::before, .ornament::after { content: ""; flex: 1; height: 1px; background: currentColor; }
+    .ornament span { font-size: 18px; }
+    .hearth-kicker { color: #d9bf75; font-size: 9px; letter-spacing: .25em; text-transform: uppercase; }
+    .hearth h1 {
+      margin: 15px 0 12px;
+      font: 500 clamp(58px, 7vw, 103px)/.82 "Cormorant Garamond", serif;
+      letter-spacing: -.04em;
+    }
+    .hearth-tagline { margin: 0; color: #eadbc4; font: italic 400 19px/1.5 "Cormorant Garamond", serif; }
+    .hearth .button {
+      align-self: center;
+      margin-top: 30px;
+      color: #4d1012;
+      background: #d4af37;
+      border: 1px solid #d4af37;
+      font-size: 10px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    .hearth .button:hover { color: #e8cf82; background: transparent; }
+    .hearth-image { position: relative; min-height: 710px; }
+    .hearth-image img { filter: saturate(.75) sepia(.08) contrast(1.05) brightness(.83); }
+    .hearth-image::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(84,12,14,.5), transparent 25%), linear-gradient(0deg, rgba(43,5,6,.34), transparent 45%);
+      pointer-events: none;
+    }
+    .hearth-image:hover img { filter: saturate(.95) sepia(.03) brightness(.9); transform: scale(1.025); }
+    .hearth-gallery {
+      position: relative;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      max-width: 1280px;
+      margin: 50px auto 0;
+    }
+    .hearth-card {
+      position: relative;
+      height: 365px;
+      padding: 8px;
+      border: 1px solid rgba(212,175,55,.8);
+    }
+    .hearth-card img { filter: saturate(.72) sepia(.09); }
+    .hearth-card:hover img { filter: saturate(1); }
+    .hearth-card::after {
+      content: attr(data-title);
+      position: absolute;
+      left: 22px;
+      right: 22px;
+      bottom: 22px;
+      padding-top: 12px;
+      color: white;
+      border-top: 1px solid rgba(255,255,255,.65);
+      text-shadow: 0 2px 15px #000;
+      font: 500 21px/1 "Cormorant Garamond", serif;
+    }
+    .hearth-note {
+      position: relative;
+      z-index: 3;
+      max-width: 820px;
+      margin: 55px auto 0;
+      color: #edddc2;
+      text-align: center;
+      font: italic 400 22px/1.55 "Cormorant Garamond", serif;
+    }
+
+    /* Golden Feast */
+    .feast {
+      min-height: 1450px;
+      padding: 65px 5vw 100px;
+      color: #3b2717;
+      background:
+        radial-gradient(circle at 9% 18%, rgba(189,111,43,.1), transparent 22%),
+        radial-gradient(circle at 91% 74%, rgba(117,71,35,.08), transparent 25%),
+        #fff8e8;
+      font-family: "DM Sans", sans-serif;
+    }
+    .feast-header {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 30px;
+      align-items: center;
+      max-width: 1450px;
+      margin: auto;
+      padding: 19px 0;
+      border-top: 3px solid #92400e;
+      border-bottom: 1px solid #b4855d;
+    }
+    .feast-header span {
+      color: #7d5737;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    .feast-header span:last-child { text-align: right; }
+    .feast-header strong { font: 700 22px/1 "Libre Baskerville", serif; }
+    .feast-intro {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7vw;
+      align-items: end;
+      max-width: 1320px;
+      margin: 60px auto 35px;
+    }
+    .feast-kicker { color: #92400e; font-size: 10px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; }
+    .feast h1 {
+      margin: 15px 0 0;
+      font: 700 clamp(53px, 7vw, 102px)/.9 "Libre Baskerville", serif;
+      letter-spacing: -.055em;
+    }
+    .feast-intro-right p { margin: 0; color: #765a42; font-size: 13px; line-height: 1.8; }
+    .feast .button {
+      margin-top: 24px;
+      color: white;
+      background: #92400e;
+      border: 1px solid #92400e;
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .feast .button:hover { color: #92400e; background: transparent; }
+    .feast-grid {
+      display: grid;
+      grid-template-columns: 1.15fr .85fr;
+      grid-template-rows: 330px 270px;
+      gap: 20px;
+      max-width: 1320px;
+      margin: auto;
+    }
+    .feast-photo {
+      position: relative;
+      padding: 9px;
+      background: #fffdf5;
+      box-shadow: 0 15px 35px rgba(89,51,23,.13);
+    }
+    .feast-photo:nth-child(1) { grid-row: 1 / 3; border: 5px solid #a44b20; }
+    .feast-photo:nth-child(2) { border: 5px solid #c17d32; }
+    .feast-photo:nth-child(3) { border: 5px solid #7e572c; }
+    .feast-photo img { filter: saturate(.85) sepia(.06); }
+    .feast-photo:hover img { filter: saturate(1) sepia(0); }
+    .leaf {
+      position: absolute;
+      z-index: 4;
+      width: 42px;
+      height: 76px;
+      border-radius: 100% 0 100% 0;
+      background: #a94f25;
+      box-shadow: inset 0 0 0 1px rgba(68,31,13,.25);
+      transform: rotate(38deg);
+    }
+    .leaf::after {
+      content: "";
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      width: 1px;
+      height: 96%;
+      background: rgba(79,41,18,.5);
+      transform: rotate(-10deg);
+    }
+    .leaf.l1 { top: 250px; left: 2vw; background: #c4772d; }
+    .leaf.l2 { top: 620px; right: 2vw; background: #8d3b21; transform: rotate(110deg) scale(.8); }
+    .leaf.l3 { bottom: 360px; left: 6vw; background: #b08b35; transform: rotate(-30deg) scale(.7); }
+    .gratitude {
+      position: relative;
+      max-width: 1100px;
+      margin: 85px auto 0;
+      padding: 70px 8vw;
+      text-align: center;
+      border-top: 1px solid #b88a61;
+      border-bottom: 1px solid #b88a61;
+    }
+    .gratitude::before {
+      content: "“";
+      position: absolute;
+      top: 25px;
+      left: 50%;
+      color: rgba(146,64,14,.18);
+      font: 700 150px/1 "Libre Baskerville", serif;
+      transform: translateX(-50%);
+    }
+    .gratitude span { color: #92400e; font-size: 9px; font-weight: 600; letter-spacing: .25em; text-transform: uppercase; }
+    .gratitude h2 { margin: 12px 0 22px; font: 700 48px/1 "Libre Baskerville", serif; }
+    .gratitude p { position: relative; max-width: 760px; margin: auto; color: #6f533c; font: italic 400 20px/1.75 "Libre Baskerville", serif; }
+    .gratitude small { display: block; margin-top: 25px; color: #8c6441; font-size: 9px; letter-spacing: .15em; text-transform: uppercase; }
+    .feast-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      height: 390px;
+      max-width: 1320px;
+      margin: 70px auto 0;
+    }
+    .feast-gallery .photo {
+      padding: 8px;
+      background: #fffdf5;
+      box-shadow: 0 12px 30px rgba(89,51,23,.12);
+    }
+    .feast-gallery .photo:nth-child(1) { border-bottom: 8px solid #a44b20; }
+    .feast-gallery .photo:nth-child(2) { border-bottom: 8px solid #c18432; }
+    .feast-gallery .photo:nth-child(3) { border-bottom: 8px solid #7f5b31; }
+
+    @media (max-width: 900px) {
+      .hearth-hero { grid-template-columns: 1fr; }
+      .hearth-image { min-height: 600px; }
+      .hearth-gallery { grid-template-columns: 1fr 1fr; }
+      .hearth-card:last-child { grid-column: 1 / -1; }
+      .feast-intro { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .template-label { flex-direction: column; align-items: flex-start; }
+      .hearth { padding: 34px 28px 75px; }
+      .hearth::before { inset: 12px; }
+      .hearth::after { inset: 18px; }
+      .hearth-nav { flex-direction: column; align-items: center; text-align: center; }
+      .hearth-copy { padding: 65px 28px; }
+      .hearth-image { min-height: 500px; }
+      .hearth-gallery { grid-template-columns: 1fr; }
+      .hearth-card:last-child { grid-column: auto; }
+      .feast { padding: 42px 20px 75px; }
+      .feast-header { grid-template-columns: 1fr; text-align: center; }
+      .feast-header span:last-child { text-align: center; }
+      .feast-grid { grid-template-columns: 1fr; grid-template-rows: repeat(3, 360px); }
+      .feast-photo:nth-child(1) { grid-row: auto; }
+      .gratitude { padding: 65px 15px; }
+      .feast-gallery { grid-template-columns: 1fr; height: auto; }
+      .feast-gallery .photo { height: 350px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="template-label" id="holiday-hearth">
+    <span>Template 1: Holiday Hearth</span>
+    <span>GPT-5.5 Holiday Season</span>
+  </div>
+  <section class="template hearth">
+    <span class="snowflake one"><span></span></span>
+    <span class="snowflake two"><span></span></span>
+    <span class="snowflake three"><span></span></span>
+    <nav class="hearth-nav" aria-label="Holiday photography portfolio">
+      <span>Hearthstone Photography</span>
+      <span>Austin, Texas · Holiday portraits &amp; celebrations</span>
+    </nav>
+    <div class="hearth-hero">
+      <div class="hearth-copy">
+        <div class="ornament"><span>✦</span></div>
+        <span class="hearth-kicker">Christmas at home · 2026 sessions</span>
+        <h1>Warmth worth remembering.</h1>
+        <p class="hearth-tagline">Quiet wonder, glowing rooms, and everyone you love gathered close.</p>
+        <a class="button" href="mailto:holiday@example.com">Book Holiday Session</a>
+      </div>
+      <div class="photo hearth-image">
+        <img src="https://images.unsplash.com/photo-1512389142860-9c449e58a814?w=800" alt="Christmas tree glowing in a cozy home">
+      </div>
+    </div>
+    <div class="hearth-gallery">
+      <div class="photo hearth-card" data-title="A Place at the Table"><img src="https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=800" alt="Thanksgiving dinner table"></div>
+      <div class="photo hearth-card" data-title="Winter's First Light"><img src="https://images.unsplash.com/photo-1513297887119-d46091b24bfb?w=800" alt="Snowy holiday scene"></div>
+      <div class="photo hearth-card" data-title="The Glow of Home"><img src="https://images.unsplash.com/photo-1576919228236-a097c32a5cd4?w=800" alt="Christmas lights"></div>
+    </div>
+    <p class="hearth-note">Elegant holiday photography for the traditions you return to—and the unexpected moments that become new ones.</p>
+  </section>
+
+  <div class="template-label" id="golden-feast">
+    <span>Template 2: Golden Feast</span>
+    <span>GPT-5.5 Holiday Season</span>
+  </div>
+  <section class="template feast">
+    <span class="leaf l1"></span><span class="leaf l2"></span><span class="leaf l3"></span>
+    <header class="feast-header">
+      <span>Holiday gatherings · Austin, TX</span>
+      <strong>Hearthstone Photography</strong>
+      <span>Thanksgiving · Christmas · Family traditions</span>
+    </header>
+    <div class="feast-intro">
+      <div>
+        <span class="feast-kicker">Gather. Give thanks. Remember.</span>
+        <h1>The season is made around the table.</h1>
+      </div>
+      <div class="feast-intro-right">
+        <p>Warm, documentary-style photography for shared meals, returning family, treasured recipes, and all the honest joy that unfolds when everyone comes home.</p>
+        <a class="button" href="mailto:holiday@example.com">Book Holiday Session</a>
+      </div>
+    </div>
+    <div class="feast-grid">
+      <div class="photo feast-photo"><img src="https://images.unsplash.com/photo-1543589077-47d81606c1bf?w=800" alt="Thanksgiving feast"></div>
+      <div class="photo feast-photo"><img src="https://images.unsplash.com/photo-1482517967863-00e15c9b44be?w=800" alt="Family gathered for dinner"></div>
+      <div class="photo feast-photo"><img src="https://images.unsplash.com/photo-1542326237-94b1c5a538d4?w=800" alt="Holiday cookies"></div>
+    </div>
+    <section class="gratitude">
+      <span>Gratitude</span>
+      <h2>For the ordinary magic.</h2>
+      <p>For chairs pulled closer. For recipes written in familiar handwriting. For the stories told every year and the new laughter layered over them. These are the photographs that grow more valuable with time.</p>
+      <small>Hearthstone Photography · Austin, Texas</small>
+    </section>
+    <div class="feast-gallery">
+      <div class="photo"><img src="https://images.unsplash.com/photo-1512389142860-9c449e58a814?w=800" alt="Christmas tree"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1513297887119-d46091b24bfb?w=800" alt="Snowy holiday landscape"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1576919228236-a097c32a5cd4?w=800" alt="Festive Christmas lights"></div>
+    </div>
+  </section>
+</body>
+</html>

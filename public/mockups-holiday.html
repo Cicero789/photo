@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FrameNest General Holiday Photography Templates — GPT-5.5 Holiday</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Manrope:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap');
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: #17131d; color: #1e1924; }
+    img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    a { color: inherit; }
+    .template-label {
+      position: relative;
+      z-index: 40;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 15px 4vw;
+      color: #fff;
+      background: #17131d;
+      border-top: 1px solid #3f354c;
+      border-bottom: 1px solid #09070b;
+      font: 700 11px/1 "DM Sans", sans-serif;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+    }
+    .template-label span:last-child { color: #ffd85b; }
+    .template { position: relative; min-height: 600px; width: 100%; overflow: hidden; }
+    .photo { overflow: hidden; }
+    .photo img { transition: transform .7s cubic-bezier(.2,.7,.2,1), filter .5s ease; }
+    .photo:hover img { transform: scale(1.055); }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 0 28px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: transform .25s, box-shadow .25s, background .25s, color .25s;
+    }
+    .button:hover { transform: translateY(-3px); }
+
+    /* Festive Pop */
+    .festive {
+      min-height: 1350px;
+      padding: 65px 5vw 100px;
+      background:
+        radial-gradient(circle at 8% 12%, rgba(255,86,130,.12), transparent 20%),
+        radial-gradient(circle at 92% 20%, rgba(88,205,255,.14), transparent 21%),
+        radial-gradient(circle at 50% 90%, rgba(255,215,66,.11), transparent 24%),
+        #fff;
+      font-family: Manrope, sans-serif;
+    }
+    .confetti-field { position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+    .confetti {
+      position: absolute;
+      top: -10%;
+      width: 10px;
+      height: 22px;
+      border-radius: 3px;
+      opacity: .8;
+      animation: confetti-fall linear infinite;
+    }
+    .confetti:nth-child(1) { left: 5%; background: #ff4f87; animation-duration: 8s; animation-delay: -3s; }
+    .confetti:nth-child(2) { left: 14%; width: 8px; height: 8px; border-radius: 50%; background: #5fd0ff; animation-duration: 11s; animation-delay: -8s; }
+    .confetti:nth-child(3) { left: 25%; background: #ffd644; animation-duration: 9s; animation-delay: -4s; transform: rotate(35deg); }
+    .confetti:nth-child(4) { left: 38%; width: 17px; height: 7px; background: #7658ff; animation-duration: 12s; animation-delay: -10s; }
+    .confetti:nth-child(5) { left: 52%; background: #28d9a1; animation-duration: 8.5s; animation-delay: -6s; }
+    .confetti:nth-child(6) { left: 64%; width: 8px; height: 8px; border-radius: 50%; background: #ff6d3f; animation-duration: 10s; animation-delay: -2s; }
+    .confetti:nth-child(7) { left: 76%; background: #ff4f87; animation-duration: 12.5s; animation-delay: -7s; }
+    .confetti:nth-child(8) { left: 86%; width: 18px; height: 7px; background: #5fd0ff; animation-duration: 9.5s; animation-delay: -5s; }
+    .confetti:nth-child(9) { left: 95%; background: #ffd644; animation-duration: 11.5s; animation-delay: -9s; }
+    @keyframes confetti-fall {
+      0% { transform: translate3d(0,-8vh,0) rotate(0); }
+      50% { transform: translate3d(40px,65vh,0) rotate(430deg); }
+      100% { transform: translate3d(-20px,145vh,0) rotate(820deg); }
+    }
+    @media (prefers-reduced-motion: reduce) { .confetti { animation: none; top: var(--still, 25%); } }
+    .festive-header {
+      position: relative;
+      z-index: 3;
+      max-width: 1350px;
+      margin: auto;
+      text-align: center;
+    }
+    .festive-kicker {
+      display: inline-flex;
+      padding: 9px 15px;
+      color: #463c52;
+      background: #f2eaff;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .festive h1 {
+      margin: 20px auto 10px;
+      max-width: 1050px;
+      font: 800 clamp(62px, 10vw, 145px)/.77 Manrope, sans-serif;
+      letter-spacing: -.085em;
+    }
+    .festive h1 span {
+      color: transparent;
+      background: linear-gradient(100deg, #ff3979 5%, #ff8b35 28%, #e6c616 47%, #22c991 66%, #438eff 84%, #8357ef);
+      -webkit-background-clip: text;
+      background-clip: text;
+    }
+    .festive-header p { max-width: 650px; margin: 24px auto; color: #68616f; font-size: 14px; line-height: 1.75; }
+    .festive .button {
+      color: #fff;
+      background: #201b26;
+      border-radius: 999px;
+      box-shadow: 0 8px 0 #ffd644;
+      font-size: 12px;
+    }
+    .festive .button:hover { color: #201b26; background: #ffd644; box-shadow: 0 5px 0 #201b26; transform: translateY(3px); }
+    .pop-grid {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: 300px 240px 290px;
+      gap: 16px;
+      max-width: 1400px;
+      margin: 65px auto 0;
+    }
+    .pop-grid .photo {
+      position: relative;
+      border-radius: 30px;
+      box-shadow: 0 17px 40px rgba(42,27,53,.13);
+    }
+    .pop-grid .photo:nth-child(1) { grid-column: 1 / 8; grid-row: 1 / 3; border: 8px solid #ffd644; }
+    .pop-grid .photo:nth-child(2) { grid-column: 8 / 13; grid-row: 1; border: 8px solid #ff648f; }
+    .pop-grid .photo:nth-child(3) { grid-column: 8 / 13; grid-row: 2 / 4; border: 8px solid #5fd0ff; }
+    .pop-grid .photo:nth-child(4) { grid-column: 1 / 5; grid-row: 3; border: 8px solid #8c6aff; }
+    .pop-grid .photo:nth-child(5) { grid-column: 5 / 8; grid-row: 3; border: 8px solid #45d8a6; }
+    .pop-grid .photo:nth-child(6) { display: none; }
+    .pop-grid img { filter: saturate(1.08) contrast(1.02); }
+    .pop-label {
+      position: absolute;
+      left: 16px;
+      bottom: 16px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(25,21,29,.86);
+      backdrop-filter: blur(5px);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .occasion-strip {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      max-width: 1100px;
+      margin: 45px auto 0;
+    }
+    .occasion {
+      padding: 12px 18px;
+      border: 2px solid #221d28;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 4px 4px 0 #221d28;
+      font-size: 11px;
+      font-weight: 800;
+      transform: rotate(-1deg);
+    }
+    .occasion:nth-child(even) { background: #fff1a9; transform: rotate(1deg); }
+    .occasion:nth-child(3n) { background: #d8f5ff; }
+    .occasion:nth-child(4n) { background: #ffe0eb; }
+
+    /* Elegant Celebration */
+    .elegant {
+      min-height: 1450px;
+      padding: 45px 5vw 100px;
+      color: #33281f;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,.5), transparent 25%),
+        #fef3c7;
+      font-family: "DM Sans", sans-serif;
+    }
+    .sparkles { position: absolute; inset: 0; opacity: .5; pointer-events: none; }
+    .spark {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #b88828;
+      box-shadow: 0 0 9px #d4a847;
+    }
+    .spark::before, .spark::after { content: ""; position: absolute; top: 50%; left: 50%; background: #b88828; transform: translate(-50%,-50%); }
+    .spark::before { width: 1px; height: 18px; }
+    .spark::after { width: 18px; height: 1px; }
+    .spark.s1 { left: 8%; top: 11%; }
+    .spark.s2 { right: 11%; top: 28%; transform: scale(.7); }
+    .spark.s3 { left: 13%; top: 62%; transform: scale(.5); }
+    .spark.s4 { right: 7%; bottom: 13%; transform: scale(.85); }
+    .spark.s5 { left: 47%; bottom: 4%; transform: scale(.55); }
+    .elegant-nav {
+      position: relative;
+      z-index: 3;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 30px;
+      align-items: center;
+      max-width: 1420px;
+      margin: auto;
+      padding: 20px 0;
+      border-top: 1px solid #aa8746;
+      border-bottom: 1px solid #aa8746;
+    }
+    .elegant-nav span { color: #806842; font-size: 9px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; }
+    .elegant-nav span:last-child { text-align: right; }
+    .elegant-nav strong { font: 600 20px/1 "Playfair Display", serif; }
+    .elegant-hero {
+      position: relative;
+      z-index: 2;
+      height: min(72vw, 800px);
+      max-width: 1210px;
+      margin: 48px auto 0;
+      border: 1px solid #a77c2f;
+      padding: 11px;
+      background: rgba(255,250,231,.65);
+      box-shadow: 0 28px 70px rgba(94,67,25,.15);
+    }
+    .elegant-hero img { filter: saturate(.72) sepia(.1) brightness(.85); }
+    .elegant-hero::after {
+      content: "";
+      position: absolute;
+      inset: 11px;
+      background: linear-gradient(0deg, rgba(38,28,18,.67), transparent 65%);
+      pointer-events: none;
+    }
+    .elegant-hero:hover img { transform: scale(1.025); filter: saturate(.88) sepia(.05) brightness(.9); }
+    .elegant-copy {
+      position: absolute;
+      z-index: 3;
+      left: 9%;
+      right: 9%;
+      bottom: 9%;
+      color: #fffaf0;
+      text-align: center;
+    }
+    .elegant-copy span { color: #e4cb93; font-size: 9px; font-weight: 600; letter-spacing: .25em; text-transform: uppercase; }
+    .elegant-copy h1 {
+      max-width: 900px;
+      margin: 12px auto 18px;
+      font: 500 clamp(53px, 7vw, 100px)/.87 "Playfair Display", serif;
+      letter-spacing: -.04em;
+    }
+    .elegant-copy p { max-width: 670px; margin: auto; font: italic 500 18px/1.6 "Playfair Display", serif; }
+    .elegant-copy .button {
+      margin-top: 28px;
+      color: #3a2b1f;
+      background: #e7c878;
+      border: 1px solid #e7c878;
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+    .elegant-copy .button:hover { color: white; background: transparent; }
+    .celebration-intro {
+      display: grid;
+      grid-template-columns: .8fr 1.3fr;
+      gap: 7vw;
+      max-width: 1120px;
+      margin: 65px auto;
+      padding-bottom: 55px;
+      border-bottom: 1px solid #b89658;
+    }
+    .celebration-intro h2 { margin: 0; font: 500 45px/1.05 "Playfair Display", serif; }
+    .celebration-intro p { margin: 0; color: #6e5b40; font-size: 13px; line-height: 1.85; }
+    .luxury-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr 1fr;
+      gap: 18px;
+      height: 460px;
+      max-width: 1350px;
+      margin: auto;
+    }
+    .luxury-grid .photo {
+      position: relative;
+      padding: 8px;
+      border: 1px solid #b28c49;
+      background: #fff9e8;
+    }
+    .luxury-grid .photo:nth-child(1), .luxury-grid .photo:nth-child(3) { height: 78%; align-self: center; }
+    .luxury-grid img { filter: saturate(.7) sepia(.08); }
+    .luxury-grid .photo:hover img { filter: saturate(.92) sepia(.02); }
+    .elegant-footer {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 35px;
+      max-width: 1120px;
+      margin: 65px auto 0;
+      color: #7c6746;
+      font: italic 500 18px/1.5 "Playfair Display", serif;
+      text-align: center;
+    }
+    .elegant-footer::before, .elegant-footer::after { content: ""; height: 1px; background: #b28c49; }
+
+    @media (max-width: 900px) {
+      .pop-grid { grid-template-rows: 250px 210px 250px; }
+      .celebration-intro { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .template-label { flex-direction: column; align-items: flex-start; }
+      .festive { padding: 55px 20px 80px; }
+      .pop-grid { grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 245px); }
+      .pop-grid .photo:nth-child(n) { display: block; grid-column: auto; grid-row: auto; border-width: 5px; border-radius: 20px; }
+      .elegant { padding: 30px 20px 75px; }
+      .elegant-nav { grid-template-columns: 1fr; text-align: center; }
+      .elegant-nav span:last-child { text-align: center; }
+      .elegant-hero { height: 78vh; min-height: 590px; }
+      .elegant-copy { left: 5%; right: 5%; }
+      .luxury-grid { grid-template-columns: 1fr; height: auto; }
+      .luxury-grid .photo,
+      .luxury-grid .photo:nth-child(1),
+      .luxury-grid .photo:nth-child(3) { height: 370px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="template-label" id="festive-pop">
+    <span>Template 1: Festive Pop</span>
+    <span>GPT-5.5 Holiday</span>
+  </div>
+  <section class="template festive">
+    <div class="confetti-field" aria-hidden="true">
+      <i class="confetti"></i><i class="confetti"></i><i class="confetti"></i>
+      <i class="confetti"></i><i class="confetti"></i><i class="confetti"></i>
+      <i class="confetti"></i><i class="confetti"></i><i class="confetti"></i>
+    </div>
+    <header class="festive-header">
+      <span class="festive-kicker">Austin, TX · Every reason to celebrate</span>
+      <h1>Celebration <span>Lens</span></h1>
+      <p>Big energy, bright color, and all the blink-and-you-miss-it moments from the countdown to the final sparkler.</p>
+      <a class="button" href="mailto:celebrate@example.com">Book Your Event</a>
+    </header>
+    <div class="pop-grid">
+      <div class="photo"><img src="https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=800" alt="Fireworks lighting the night sky"><span class="pop-label">New Year</span></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=800" alt="Colorful balloons"><span class="pop-label">Valentine's</span></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?w=800" alt="Friends holding sparklers"><span class="pop-label">Fourth of July</span></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800" alt="Confetti celebration"><span class="pop-label">Party Time</span></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1513151233558-d860c5398176?w=800" alt="Festive party decorations"><span class="pop-label">All Together</span></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=800" alt="Celebration scene"><span class="pop-label">Celebrate</span></div>
+    </div>
+    <div class="occasion-strip" aria-label="Holiday specialties">
+      <span class="occasion">New Year's Eve</span>
+      <span class="occasion">Valentine's Day</span>
+      <span class="occasion">Easter</span>
+      <span class="occasion">Fourth of July</span>
+      <span class="occasion">Milestone Parties</span>
+      <span class="occasion">Everything Else!</span>
+    </div>
+  </section>
+
+  <div class="template-label" id="elegant-celebration">
+    <span>Template 2: Elegant Celebration</span>
+    <span>GPT-5.5 Holiday</span>
+  </div>
+  <section class="template elegant">
+    <div class="sparkles" aria-hidden="true">
+      <i class="spark s1"></i><i class="spark s2"></i><i class="spark s3"></i><i class="spark s4"></i><i class="spark s5"></i>
+    </div>
+    <nav class="elegant-nav" aria-label="Elegant celebration portfolio">
+      <span>Holiday &amp; event photography · Austin, TX</span>
+      <strong>Celebration Lens</strong>
+      <span>New Year · Garden parties · Private events</span>
+    </nav>
+    <div class="photo elegant-hero">
+      <img src="https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?w=800" alt="Elegant sparkler celebration">
+      <div class="elegant-copy">
+        <span>The art of a memorable occasion</span>
+        <h1>Where every celebration becomes timeless.</h1>
+        <p>Refined photography for beautiful gatherings, meaningful traditions, and evenings that deserve to linger.</p>
+        <a class="button" href="mailto:celebrate@example.com">Book Your Event</a>
+      </div>
+    </div>
+    <section class="celebration-intro">
+      <h2>Effortless imagery.<br>Enduring atmosphere.</h2>
+      <p>Celebration Lens documents each occasion with quiet attention and an editorial eye—from an intimate Valentine's dinner to a grand New Year's affair. The result is a polished, expressive gallery that holds onto both the elegance of the setting and the warmth within it.</p>
+    </section>
+    <div class="luxury-grid">
+      <div class="photo"><img src="https://images.unsplash.com/photo-1467810563316-b5476525c0f9?w=800" alt="Fireworks celebration"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800" alt="Confetti in the air"></div>
+      <div class="photo"><img src="https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=800" alt="Sophisticated celebration"></div>
+    </div>
+    <div class="elegant-footer">Beautifully observed celebrations, photographed in Austin and beyond.</div>
+  </section>
+</body>
+</html>
