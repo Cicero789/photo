@@ -8,6 +8,7 @@ import { SpaceEventMap } from "@/components/map/SpaceEventMap";
 import { ConnectionsTab } from "@/components/community/ConnectionsTab";
 import { CommunityFeed } from "@/components/community/CommunityFeed";
 import { PhotographerHero } from "@/components/photographer/PhotographerHero";
+import { TemplatePicker } from "@/components/photographer/TemplatePicker";
 import type { EventCategory, Photo } from "@/types";
 
 // ─── Types ───
@@ -635,13 +636,18 @@ const COLOR_PRESETS = ["#3b82f6", "#d946ef", "#16a34a", "#f59e0b", "#dc2626", "#
 
 // ─── Photographer Profile Card ───
 function PhotographerProfileCard() {
-  const [profile, setProfile] = useState<{ slug: string; tagline: string; specialties: string } | null>(null);
+  const [profile, setProfile] = useState<{ slug: string; tagline: string; specialties: string; template: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
-    api.get<{ slug: string; tagline: string; specialties: string }>("/photographers/config")
-      .then(d => { if (d.slug !== undefined) setProfile({ slug: d.slug || "", tagline: d.tagline || "", specialties: d.specialties || "" }); })
+    api.get<{ slug: string; tagline: string; specialties: string; design?: string }>("/photographers/config")
+      .then(d => {
+        if (d.slug !== undefined) {
+          const design = JSON.parse(d.design || "{}");
+          setProfile({ slug: d.slug || "", tagline: d.tagline || "", specialties: d.specialties || "", template: design.template || "clean-minimal" });
+        }
+      })
       .catch(() => {});
   }, []);
 
@@ -707,6 +713,17 @@ function PhotographerProfileCard() {
           className="rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:opacity-50">
           {saving ? "Saving..." : "Save profile"}
         </button>
+      </div>
+
+      <div className="mt-8 border-t border-border pt-8">
+        <TemplatePicker
+          currentTemplate={profile.template || "clean-minimal"}
+          onSave={async (templateId) => {
+            await api.put("/photographers/config", { design: JSON.stringify({ template: templateId }) });
+            setProfile(p => p ? { ...p, template: templateId } : p);
+            setMsg({ type: "success", text: "Template saved!" });
+          }}
+        />
       </div>
     </div>
   );
