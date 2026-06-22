@@ -1,0 +1,32 @@
+FRAMENEST AMAZON-STAFF PRR AUDIT
+================================
+Date: 2026-06-21
+Commit: a476505
+Reviewer: Staff Engineer (L7+ PRR)
+
+VERDICT: NOT production-ready for real users' private photos and real money.
+
+7 CRITICAL | 10 HIGH | 10 MEDIUM | 5 LOW
+8 VERIFIED FIXED | 11 STILL BROKEN
+
+CRITICAL:
+C-1: Media auth allows gate viewers to access private event media (canReadEvent policy not used)
+C-2: Stripe webhook signature verification may not match Stripe's actual algorithm
+C-3: Event deletion can timeout for large events, leaving partial state
+C-4: Password reset and magic tokens stored as plaintext (account takeover on DB leak)
+C-5: Logout is client-only; JWTs remain valid for 7 days (irrevocable)
+C-6: Admin purge deletes DB rows without removing R2 objects (orphan storage)
+C-7: Gallery color/font config does not affect public rendering (trust-destroying UX bug)
+
+VERIFIED FIXED:
+FN-005 admin password hash, FN-003 album delete, FN-004 admin wipe,
+FN-010 demo crash, FN-017 member deletion, FN-008 verification badge,
+FN-024 token key, FN-006 album signed URLs (partial)
+
+STILL BROKEN:
+FN-001 media auth, FN-023 gallery config, FN-025 zero commission,
+FN-009 migrations, FN-026 CI, FN-027 test quality, FN-028 integration tests,
+FN-030 rate limiting, FN-015 token plaintext, FN-019 Stripe idempotency,
+FN-048 credentials in docs
+
+See full audit agent output for complete details.

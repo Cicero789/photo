@@ -7,6 +7,7 @@ import { getUserByEmail } from "../../lib/db";
 import { json } from "../../lib/response";
 import { checkRateLimit, getClientIP } from "../../lib/rate-limit";
 import { sendEmail, type EmailEnv } from "../../lib/email";
+import { hashToken } from "../../lib/password";
 
 export async function onRequestPost(context: {
   request: Request;
@@ -33,11 +34,13 @@ export async function onRequestPost(context: {
 
     // Generate reset token (valid for 1 hour)
     const token = crypto.randomUUID();
+    const tokenHash = await hashToken(token);
     const expires = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
+    // Store the SHA-256 hash of the token in the DB, not the raw token
     await db
       .prepare("INSERT INTO password_resets (id, user_id, token, expires_at) VALUES (?, ?, ?, ?)")
-      .bind(crypto.randomUUID(), user.id as string, token, expires)
+      .bind(crypto.randomUUID(), user.id as string, tokenHash, expires)
       .run();
 
     const resetUrl = `${new URL(context.request.url).origin}/reset-password?token=${token}`;

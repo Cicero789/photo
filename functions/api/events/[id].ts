@@ -75,29 +75,38 @@ export async function onRequestDelete(context: { request: Request; env: { DB?: D
     const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ?").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
     if ((event as Record<string,unknown>).space_id !== authResult.spaceId || authResult.role === 'viewer') return json({ error: "Forbidden" }, 403);
 
-    // Clean up R2 storage before deleting DB rows
+    // STEP 1: Fetch storage keys before soft-delete (so we know what to clean up)
     const photoRows = await db.prepare("SELECT storage_key FROM photos WHERE event_id = ? AND deleted_at IS NULL").bind(context.params.id).all<{ storage_key: string }>();
     const videoRows = await db.prepare("SELECT storage_key FROM videos WHERE event_id = ? AND deleted_at IS NULL").bind(context.params.id).all<{ storage_key: string }>();
-    for (const row of photoRows.results ?? []) {
-      const obj = await context.env.PHOTOS?.get(row.storage_key);
-      if (obj) {
-        await context.env.PHOTOS?.put(`trash/${row.storage_key}`, obj.body, { httpMetadata: obj.httpMetadata });
-        await context.env.PHOTOS?.delete(row.storage_key);
-      }
-    }
-    for (const row of videoRows.results ?? []) {
-      const obj = await context.env.VIDEOS?.get(row.storage_key);
-      if (obj) {
-        await context.env.VIDEOS?.put(`trash/${row.storage_key}`, obj.body, { httpMetadata: obj.httpMetadata });
-        await context.env.VIDEOS?.delete(row.storage_key);
-      }
-    }
 
+    // STEP 2: Soft-delete in DB immediately (blocks all reads)
     await db.batch([
       db.prepare("UPDATE photos SET deleted_at = datetime('now') WHERE event_id = ? AND deleted_at IS NULL").bind(context.params.id),
       db.prepare("UPDATE videos SET deleted_at = datetime('now') WHERE event_id = ? AND deleted_at IS NULL").bind(context.params.id),
       db.prepare("UPDATE events SET deleted_at = datetime('now') WHERE id = ? AND deleted_at IS NULL").bind(context.params.id),
     ]);
+
+    // STEP 3: R2 cleanup (best effort — event already hidden from reads)
+    try {
+      for (const row of photoRows.results ?? []) {
+        try {
+          const obj = await context.env.PHOTOS?.get(row.storage_key);
+          if (obj) {
+            await context.env.PHOTOS?.put(`trash/${row.storage_key}`, obj.body, { httpMetadata: obj.httpMetadata });
+            await context.env.PHOTOS?.delete(row.storage_key);
+          }
+        } catch {} // Individual file cleanup failure is acceptable
+      }
+      for (const row of videoRows.results ?? []) {
+        try {
+          const obj = await context.env.VIDEOS?.get(row.storage_key);
+          if (obj) {
+            await context.env.VIDEOS?.put(`trash/${row.storage_key}`, obj.body, { httpMetadata: obj.httpMetadata });
+            await context.env.VIDEOS?.delete(row.storage_key);
+          }
+        } catch {} // Individual file cleanup failure is acceptable
+      }
+    } catch {} // Overall cleanup failure is acceptable — DB state is correct
     return json({ success: true });
   } catch (err) { console.error("Delete event error:", err); return json({ error: "Something went wrong" }, 500); }
 }

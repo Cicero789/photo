@@ -14,6 +14,7 @@
 
 import { verifyMediaSignature } from "../../lib/signed-url";
 import { requireAuth } from "../../lib/auth";
+import { canReadEvent } from "../../lib/event-access";
 
 export async function onRequestGet(context: {
   request: Request;
@@ -40,7 +41,8 @@ export async function onRequestGet(context: {
 
   if (expires && sig) {
     // Signed URL access
-    const secret = context.env.MEDIA_SIGNING_SECRET || context.env.JWT_SECRET || "";
+    const secret = context.env.MEDIA_SIGNING_SECRET || context.env.JWT_SECRET;
+    if (!secret) return new Response(JSON.stringify({ error: "Service unavailable" }), { status: 503 });
     const valid = await verifyMediaSignature(storageKey, sig, expires, secret);
     if (!valid) return new Response(JSON.stringify({ error: "Invalid or expired link" }), { status: 403, headers: { "Content-Type": "application/json" } });
   } else {
@@ -50,12 +52,22 @@ export async function onRequestGet(context: {
     const table = kind === "photos" ? "photos" : "videos";
     const media = await db.prepare(`SELECT m.space_id, e.visibility FROM ${table} m JOIN events e ON m.event_id = e.id WHERE m.storage_key = ? AND m.deleted_at IS NULL AND e.deleted_at IS NULL`).bind(storageKey).first<{ space_id: string; visibility: string }>();
     if (media) {
-      isPublic = media.visibility === "public";
-      if (media.visibility !== 'public' && media.visibility !== 'gate') {
-        // Private media — require auth + space ownership
+      // Determine actor from auth token (anonymous if no valid token)
+      let actor: { userId: string; spaceId: string; role: string } | null = null;
+      try {
         const a = await requireAuth(context.request, context.env);
-        if (a instanceof Response) return a;
-        if (a.spaceId !== media.space_id) return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { "Content-Type": "application/json" } });
+        if (!(a instanceof Response)) {
+          actor = { userId: a.userId, spaceId: a.spaceId, role: a.role };
+        }
+      } catch {}
+
+      // Use centralized canReadEvent policy — fail closed
+      const eventAccess = { id: "", space_id: media.space_id, visibility: media.visibility };
+      if (!canReadEvent(actor, eventAccess)) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { "Content-Type": "application/json" } });
+      }
+      if (media.visibility === "public") {
+        isPublic = true;
       }
     } else {
       // Check album_photos

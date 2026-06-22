@@ -3,7 +3,7 @@
  * Validates a reset token and updates the user's password.
  */
 
-import { hashPassword } from "../../lib/password";
+import { hashPassword, hashToken } from "../../lib/password";
 import { json } from "../../lib/response";
 
 export async function onRequestPost(context: {
@@ -22,10 +22,13 @@ export async function onRequestPost(context: {
 
     const db = context.env.DB!;
 
+    // Hash the incoming token to match the stored SHA-256 hash
+    const tokenHash = await hashToken(body.token);
+
     // Find valid reset token
     const reset = await db
       .prepare("SELECT * FROM password_resets WHERE token = ? AND expires_at > datetime('now')")
-      .bind(body.token)
+      .bind(tokenHash)
       .first<{ id: string; user_id: string; token: string }>();
 
     if (!reset) {

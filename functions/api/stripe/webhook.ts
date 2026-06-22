@@ -6,9 +6,11 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     const body = await context.request.text();
     const secret = context.env.STRIPE_WEBHOOK_SECRET;
 
-    if (!sig || !secret) return json({ error: "Unauthorized" }, 401);
+    if (!secret) return json({ error: "Webhook not configured" }, 500);
+    if (!sig) return json({ error: "Unauthorized" }, 401);
 
-    // Verify Stripe signature: compute HMAC-SHA256(timestamp.rawBody) and compare
+    // Verify Stripe signature per Stripe's v1 scheme:
+    // HMAC-SHA256(whsec_... raw key bytes, "${timestamp}.${rawBody}") compared constant-time via crypto.subtle.verify
     const parts: Record<string, string> = {};
     sig.split(",").forEach(p => { const [k, ...v] = p.split("="); if (k) parts[k.trim()] = v.join("="); });
     const timestamp = parts.t;

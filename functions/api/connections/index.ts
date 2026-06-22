@@ -6,7 +6,7 @@
 
 import { json } from "../../lib/response";
 import { requireAuth, requireRole } from "../../lib/auth";
-import { hashPassword } from "../../lib/password";
+import { hashPassword, hashToken } from "../../lib/password";
 import { sendEmail } from "../../lib/email";
 import { logActivity } from "../../lib/activity";
 
@@ -65,6 +65,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
 
     const connId = crypto.randomUUID();
     const magicToken = crypto.randomUUID();
+    const magicTokenHash = await hashToken(magicToken);
     const now = new Date().toISOString();
     const toUserId = targetUser?.id ?? null;
 
@@ -74,8 +75,8 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
 
     // If user doesn't exist, just proceed — account creation happens when they accept via magic-login
 
-    // Create connection
-    await db.prepare("INSERT INTO connections (id, from_user, to_email, to_user, connection_type, status, message, magic_token, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(connId, a.userId, email, toUserId, body.connectionType, "pending", body.message ?? "", magicToken, now).run();
+    // Create connection (store hashed token, send raw token in email)
+    await db.prepare("INSERT INTO connections (id, from_user, to_email, to_user, connection_type, status, message, magic_token, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(connId, a.userId, email, toUserId, body.connectionType, "pending", body.message ?? "", magicTokenHash, now).run();
 
     // Get inviter name (used for email + notification)
     const inviter = await db.prepare("SELECT name FROM users WHERE id = ?").bind(a.userId).first<{name:string}>();

@@ -6,6 +6,7 @@
 import { getUserById } from "../../lib/db";
 import { signToken, getJwtSecret } from "../../lib/jwt";
 import { json } from "../../lib/response";
+import { hashToken } from "../../lib/password";
 
 export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string } }): Promise<Response> {
   try {
@@ -13,9 +14,11 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     if (!body.token) return json({ error: "Token required" }, 400);
 
     const db = context.env.DB!;
+    // Hash the incoming token to match the stored SHA-256 hash
+    const tokenHash = await hashToken(body.token);
     const conn = await db.prepare(
       "SELECT * FROM connections WHERE magic_token = ? AND created_at > datetime('now', '-7 days')"
-    ).bind(body.token).first<Record<string,unknown>>();
+    ).bind(tokenHash).first<Record<string,unknown>>();
     if (!conn) return json({ error: "Invalid or expired token" }, 400);
 
     const email = conn.to_email as string;
@@ -30,7 +33,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     }
 
     // Ensure all connections with this magic token are invalidated
-    await db.prepare("UPDATE connections SET magic_token = NULL WHERE magic_token = ?").bind(body.token).run();
+    await db.prepare("UPDATE connections SET magic_token = NULL WHERE magic_token = ?").bind(tokenHash).run();
 
     const space = await db.prepare("SELECT * FROM spaces WHERE id = ?").bind(user.space_id as string).first<Record<string,unknown>>();
     const token = await signToken({
