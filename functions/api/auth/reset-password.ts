@@ -55,6 +55,11 @@ export async function onRequestPost(context: {
       .prepare("DELETE FROM password_resets WHERE expires_at < datetime('now')")
       .run();
 
+    // Note: Existing JWT sessions are not explicitly invalidated on password change.
+    // With JWT lifetime reduced to 24 hours (C-5), the blast radius of leaked tokens
+    // is limited. For full invalidation, a token-revocation list or DB-stored session
+    // IDs would be needed.
+
     return json({ success: true, message: "Password has been reset. You can now log in." });
   } catch (err) {
     console.error("Reset password error:", err);

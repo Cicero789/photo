@@ -12,6 +12,8 @@ export interface TemplateProps {
   portfolio: { id: string; url: string; filename: string }[];
   onHire: () => void;
   onPhotoClick: (index: number) => void;
+  colorScheme?: { bg: string; text: string; accent: string };
+  fontPairing?: { heading: string; body: string };
 }
 
 export interface TemplateInfo {

@@ -1,7 +1,7 @@
 import { json } from "../../lib/response";
 import { requireAuth, requireRole } from "../../lib/auth";
 
-interface Env { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; [key: string]: unknown }
+interface Env { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; PHOTOS?: R2Bucket; [key: string]: unknown }
 
 export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string } }): Promise<Response> {
   try {
@@ -72,7 +72,7 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
   }
 }
 
-export async function onRequestDelete(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string } }): Promise<Response> {
+export async function onRequestDelete(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; PHOTOS?: R2Bucket } }): Promise<Response> {
   try {
     const a = await requireAuth(context.request, context.env);
     if (a instanceof Response) return a;
@@ -84,11 +84,26 @@ export async function onRequestDelete(context: { request: Request; env: { DB?: D
     if (!body.id) return json({ error: "ID is required" }, 400);
 
     if (body.type === "photo") {
+      // Delete R2 objects before removing the DB row
+      const photo = await db.prepare("SELECT storage_key FROM photos WHERE id = ?").bind(body.id).first<{ storage_key: string }>();
+      if (photo) {
+        try { await context.env.PHOTOS?.delete(photo.storage_key); } catch {}
+        // Also try to delete the trash copy
+        try { await context.env.PHOTOS?.delete(`trash/${photo.storage_key}`); } catch {}
+      }
       await db.prepare("DELETE FROM photos WHERE id = ?").bind(body.id).run();
       return json({ success: true });
     }
 
     if (body.type === "album") {
+      // Delete album photos from R2 (only album-owned keys)
+      const albumPhotos = await db.prepare("SELECT storage_key FROM album_photos WHERE album_id = ?").bind(body.id).all<{ storage_key: string }>();
+      for (const p of albumPhotos.results || []) {
+        if (p.storage_key && p.storage_key.startsWith("albums/")) {
+          try { await context.env.PHOTOS?.delete(p.storage_key); } catch {}
+        }
+      }
+      await db.prepare("DELETE FROM album_photos WHERE album_id = ?").bind(body.id).run();
       await db.prepare("DELETE FROM albums WHERE id = ?").bind(body.id).run();
       return json({ success: true });
     }

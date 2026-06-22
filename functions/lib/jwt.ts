@@ -21,7 +21,7 @@ export async function signToken(payload: Omit<JWTPayload, "iat" | "exp" | "jti">
   const key = await getKey(secret || DEV_SECRET);
   const header = base64urlEncode(ENCODER.encode(JSON.stringify({ alg: "HS256", typ: "JWT" })));
   const now = Math.floor(Date.now() / 1000);
-  const fullPayload: JWTPayload = { ...payload, jti: crypto.randomUUID(), iat: now, exp: now + 60 * 60 * 24 * 7 };
+  const fullPayload: JWTPayload = { ...payload, jti: crypto.randomUUID(), iat: now, exp: now + 60 * 60 * 24 };
   const payloadB64 = base64urlEncode(ENCODER.encode(JSON.stringify(fullPayload)));
   const signingInput = `${header}.${payloadB64}`;
   const signature = await crypto.subtle.sign("HMAC", key, ENCODER.encode(signingInput));

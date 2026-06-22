@@ -3,6 +3,7 @@ import { useParams, Link, useSearchParams } from "react-router-dom";
 import { HireButton } from "@/components/photographer/HireButton";
 import { templateComponents } from "@/components/templates";
 import { TEMPLATE_REGISTRY } from "@/components/templates/types";
+import { COLOR_SCHEMES, FONT_PAIRINGS } from "@/components/photographer/TemplatePicker";
 
 interface ProfileData {
   id: string;
@@ -18,7 +19,7 @@ interface ProfileData {
   pricing: { downloads?: { single?: number; full?: number } };
   heroPhotos: string[];
   portfolio: { id: string; url: string; filename: string }[];
-  galleryConfig?: { template?: string };
+  galleryConfig?: { template?: string; colorScheme?: string; fontPairing?: string };
 }
 
 export function PhotographerProfilePage() {
@@ -73,6 +74,13 @@ export function PhotographerProfilePage() {
   const templateId = previewTemplate || profile.galleryConfig?.template || "clean-minimal";
   const TemplateComponent = templateComponents[templateId];
 
+  // Resolve color scheme and font pairing from config or preview params
+  const schemeKey = previewColor || profile.galleryConfig?.colorScheme || "light";
+  const fontKey = previewFont || profile.galleryConfig?.fontPairing || "modern";
+  const schemes = COLOR_SCHEMES.default!;
+  const scheme = schemes.find(s => s.key === schemeKey) ?? schemes[0]!;
+  const font = FONT_PAIRINGS.find(f => f.key === fontKey) ?? FONT_PAIRINGS[0]!;
+
   if (TemplateComponent) {
     return (
       <div>
@@ -92,13 +100,17 @@ export function PhotographerProfilePage() {
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={async () => {
                 try {
-                  await fetch("/api/photographers/config", {
+                  const resp = await fetch("/api/photographers/config", {
                     method: "PUT",
                     headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("photo_token")}` },
                     body: JSON.stringify({ design: JSON.stringify({ template: previewTemplate, colorScheme: previewColor || "light", fontPairing: previewFont || "modern" }) }),
                   });
+                  if (!resp.ok) {
+                    console.error("Failed to save template config:", resp.status);
+                    return;
+                  }
                   window.location.href = `/${slug}`;
-                } catch {}
+                } catch (e) { console.error("Save template error:", e); }
               }} style={{
                 padding: "8px 20px", background: "#22c55e", color: "white", border: "none",
                 borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: "pointer"
@@ -116,6 +128,13 @@ export function PhotographerProfilePage() {
         )}
         <div style={{ paddingTop: previewTemplate ? 52 : 0 }}>
         <Suspense fallback={<div className="flex min-h-[60vh] items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-2 border-neutral-200 border-t-neutral-600" /></div>}>
+          <div style={{
+            '--theme-bg': scheme.bg,
+            '--theme-text': scheme.text,
+            '--theme-accent': scheme.accent,
+            '--theme-heading-font': `"${font.heading}", sans-serif`,
+            '--theme-body-font': `"${font.body}", sans-serif`,
+          } as React.CSSProperties}>
           <TemplateComponent
             name={profile.name}
             tagline={profile.tagline}
@@ -128,7 +147,10 @@ export function PhotographerProfilePage() {
             portfolio={profile.portfolio}
             onHire={() => setShowHireModal(true)}
             onPhotoClick={(i: number) => setLightbox(i)}
+            colorScheme={{ bg: scheme.bg, text: scheme.text, accent: scheme.accent }}
+            fontPairing={{ heading: font.heading, body: font.body }}
           />
+          </div>
         </Suspense>
         </div>
 
@@ -186,13 +208,17 @@ export function PhotographerProfilePage() {
           <div style={{ display: "flex", gap: 8 }}>
             <button onClick={async () => {
               try {
-                await fetch("/api/photographers/config", {
+                const resp = await fetch("/api/photographers/config", {
                   method: "PUT",
                   headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("photo_token")}` },
                   body: JSON.stringify({ design: JSON.stringify({ template: previewTemplate, colorScheme: previewColor || "light", fontPairing: previewFont || "modern" }) }),
                 });
+                if (!resp.ok) {
+                  console.error("Failed to save template config:", resp.status);
+                  return;
+                }
                 window.location.href = `/${slug}`;
-              } catch {}
+              } catch (e) { console.error("Save template error:", e); }
             }} style={{
               padding: "8px 20px", background: "#22c55e", color: "white", border: "none",
               borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: "pointer"
