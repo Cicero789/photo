@@ -64,7 +64,7 @@ export function PhotographerPage() {
             Store your portfolio. Share albums with clients. Get discovered by new customers.
             FrameNest is the platform that turns your work into your business.
           </p>
-          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+          <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:flex-wrap sm:justify-center">
             <a href="#apply" className="rounded-xl bg-accent-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all hover:bg-accent-500 active:scale-[0.98]">
               Apply to Join — Free
             </a>
@@ -226,10 +226,10 @@ export function PhotographerPage() {
                 </h2>
                 <p className="mt-4 text-base leading-relaxed text-neutral-600">
                   When someone loves a location on the map, they can hire YOU. Your profile appears
-                  in search results. Clients send inquiries directly — no middleman, no commission.
+                  in search results. Clients send inquiries directly — Direct client payments with a small 5% platform fee.
                 </p>
                 <ul className="mt-6 space-y-3">
-                  {["Appear in photographer search results", "Receive hire inquiries with context", "Zero commission — we don't take a cut"].map(t => (
+                  {["Appear in photographer search results", "Receive hire inquiries with context", "Low 5% platform fee — more money in your pocket"].map(t => (
                     <li key={t} className="flex items-start gap-3 text-sm text-neutral-600">
                       <span className="mt-0.5 text-emerald-500">✓</span> {t}
                     </li>

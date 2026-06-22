@@ -23,16 +23,18 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     // Authenticated non-owners: filter by visibility + scrub
     const isOwner = authResult.spaceId === targetSpaceId && authResult.role !== "viewer";
     const isPlatformOwner = authResult.role === "platform_owner";
-    // Gate viewers always see only public+gate events (scrubbed), even in their own space
+    // Gate viewers: public+gate only for their OWN space; public-only for other spaces
     if (authResult.role === "viewer") {
-      const result = await db.prepare("SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND deleted_at IS NULL) as photo_count FROM events e WHERE e.space_id = ? AND e.visibility IN ('public','gate') AND e.deleted_at IS NULL ORDER BY e.event_date DESC").bind(targetSpaceId).all<EventRow & {photo_count: number}>();
+      const visFilter = (targetSpaceId === authResult.spaceId) ? "IN ('public','gate')" : "= 'public'";
+      const result = await db.prepare(`SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND deleted_at IS NULL) as photo_count FROM events e WHERE e.space_id = ? AND e.visibility ${visFilter} AND e.deleted_at IS NULL ORDER BY e.event_date DESC`).bind(targetSpaceId).all<EventRow & {photo_count: number}>();
       const enriched = (result.results ?? []).map((e) => {
         return { ...toPublicEventDto({...e, photoCount: e.photo_count ?? 0}), photoCount: e.photo_count ?? 0 };
       });
       return json({ events: enriched });
     }
+    // Authenticated non-owners requesting another space: public events only
     if (spaceId && !isOwner && !isPlatformOwner) {
-      const result = await db.prepare("SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND deleted_at IS NULL) as photo_count FROM events e WHERE e.space_id = ? AND e.visibility IN ('public','gate') AND e.deleted_at IS NULL ORDER BY e.event_date DESC").bind(targetSpaceId).all<EventRow & {photo_count: number}>();
+      const result = await db.prepare("SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND deleted_at IS NULL) as photo_count FROM events e WHERE e.space_id = ? AND e.visibility = 'public' AND e.deleted_at IS NULL ORDER BY e.event_date DESC").bind(targetSpaceId).all<EventRow & {photo_count: number}>();
       const enriched = (result.results ?? []).map((e) => {
         return { ...toPublicEventDto({...e, photoCount: e.photo_count ?? 0}), photoCount: e.photo_count ?? 0 };
       });

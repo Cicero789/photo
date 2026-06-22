@@ -8,7 +8,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     const roleCheck = requireRole(authResult, "staff"); if (roleCheck) return roleCheck;
     const body = await context.request.json() as { eventId: string }; if (!body.eventId) return json({ error: "eventId is required" }, 400);
     const db = context.env.DB!;
-    const event = await db.prepare("SELECT * FROM events WHERE id = ? AND space_id = ?").bind(body.eventId, authResult.spaceId).first<{ id: string; title: string; category: string; description: string }>(); if (!event) return json({ error: "Event not found or access denied" }, 404);
+    const event = await db.prepare("SELECT * FROM events WHERE id = ? AND space_id = ? AND deleted_at IS NULL").bind(body.eventId, authResult.spaceId).first<{ id: string; title: string; category: string; description: string }>(); if (!event) return json({ error: "Event not found or access denied" }, 404);
     if (!event.description || event.description.trim().length < 10) return json({ error: "Description too short to summarize" }, 400);
     const summary = await generateSummary(event.description, event.title, event.category, getDeepSeekKey(context.env));
     if (summary) await db.prepare("UPDATE events SET ai_summary = ?, updated_at = ? WHERE id = ?").bind(summary, new Date().toISOString(), body.eventId).run();

@@ -72,20 +72,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     const origin = new URL(context.request.url).origin;
     const magicLink = `${origin}/login?magic=${encodeURIComponent(magicToken)}`;
 
-    // If user doesn't exist, auto-create account + space
-    if (!targetUser) {
-      const newUserId = crypto.randomUUID();
-      const newSpaceId = crypto.randomUUID();
-      const randomPw = crypto.randomUUID().slice(0, 16);
-      const pwHash = await hashPassword(randomPw);
-
-      const memberId = crypto.randomUUID();
-      await db.batch([
-        db.prepare("INSERT INTO users (id, email, name, password_hash, role, space_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(newUserId, email, body.email.split("@")[0], pwHash, "page_admin", newSpaceId, now),
-        db.prepare("INSERT INTO spaces (id, name, slug, password_hash, owner_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(newSpaceId, body.email.split("@")[0], `space-${newSpaceId.slice(0,8)}`, pwHash, newUserId, now, now),
-        db.prepare("INSERT INTO space_members (id, space_id, user_id, role) VALUES (?, ?, ?, ?)").bind(memberId, newSpaceId, newUserId, "page_admin"),
-      ]);
-    }
+    // If user doesn't exist, just proceed — account creation happens when they accept via magic-login
 
     // Create connection
     await db.prepare("INSERT INTO connections (id, from_user, to_email, to_user, connection_type, status, message, magic_token, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(connId, a.userId, email, toUserId, body.connectionType, "pending", body.message ?? "", magicToken, now).run();

@@ -23,12 +23,12 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
 
     const events = await db.prepare(
       `SELECT e.*, u.name as owner_name, s.slug as space_slug, u.id as owner_id,
-        (SELECT COUNT(*) FROM photos WHERE event_id = e.id) as photo_count,
-        (SELECT storage_key FROM photos WHERE event_id = e.id LIMIT 1) as cover_key,
-        (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND favorite = 1) as fav_count
+        (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND deleted_at IS NULL) as photo_count,
+        (SELECT storage_key FROM photos WHERE event_id = e.id AND deleted_at IS NULL LIMIT 1) as cover_key,
+        (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND favorite = 1 AND deleted_at IS NULL) as fav_count
        FROM events e JOIN users u ON e.space_id = u.space_id
        JOIN spaces s ON e.space_id = s.id
-       WHERE u.id IN (${placeholders}) AND e.visibility = 'public'
+       WHERE u.id IN (${placeholders}) AND e.visibility = 'public' AND e.deleted_at IS NULL
        ORDER BY e.event_date DESC LIMIT 50`
     ).bind(...connectedUserIds).all();
 

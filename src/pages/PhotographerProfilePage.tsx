@@ -31,6 +31,7 @@ export function PhotographerProfilePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const [showHireModal, setShowHireModal] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -125,11 +126,20 @@ export function PhotographerProfilePage() {
             verified={profile.verified}
             pricing={profile.pricing}
             portfolio={profile.portfolio}
-            onHire={() => {/* open hire modal — handled by HireButton inline below */}}
+            onHire={() => setShowHireModal(true)}
             onPhotoClick={(i: number) => setLightbox(i)}
           />
         </Suspense>
         </div>
+
+        {/* Hire modal triggered by template onHire */}
+        {showHireModal && (
+          <HireButton
+            photographerName={profile.name}
+            autoOpen
+            onDismiss={() => setShowHireModal(false)}
+          />
+        )}
 
         {/* Lightbox */}
         {lightbox !== null && profile.portfolio[lightbox] && (

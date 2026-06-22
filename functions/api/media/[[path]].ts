@@ -48,7 +48,7 @@ export async function onRequestGet(context: {
     const db = context.env.DB;
     if (!db) return new Response(JSON.stringify({ error: "Service unavailable" }), { status: 503, headers: { "Content-Type": "application/json" } });
     const table = kind === "photos" ? "photos" : "videos";
-    const media = await db.prepare(`SELECT m.space_id, e.visibility FROM ${table} m JOIN events e ON m.event_id = e.id WHERE m.storage_key = ?`).bind(storageKey).first<{ space_id: string; visibility: string }>();
+    const media = await db.prepare(`SELECT m.space_id, e.visibility FROM ${table} m JOIN events e ON m.event_id = e.id WHERE m.storage_key = ? AND m.deleted_at IS NULL AND e.deleted_at IS NULL`).bind(storageKey).first<{ space_id: string; visibility: string }>();
     if (media) {
       isPublic = media.visibility === "public";
       if (media.visibility !== 'public' && media.visibility !== 'gate') {

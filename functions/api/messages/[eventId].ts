@@ -9,6 +9,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
 
 export async function onRequestPost(context: { request: Request; env: { DB?: D1Database }; params: { eventId: string } }): Promise<Response> {
   const a = await requireAuth(context.request, context.env); if (a instanceof Response) return a;
+  if (a.role === 'viewer' && a.userId === 'viewer') return json({ error: "Gate viewers cannot post messages" }, 403);
   const ev = await requireReadableEvent(context.env.DB!, context.params.eventId, a); if (ev instanceof Response) return ev;
   const body = await context.request.json() as { message: string };
   if (!body.message?.trim()) return json({ error: "Message required" }, 400);

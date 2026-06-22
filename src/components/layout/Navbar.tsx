@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { NotificationBell } from "@/components/shared/NotificationBell";
@@ -14,6 +15,7 @@ export function Navbar() {
   const { pathname } = useLocation();
   const { user, space, logout } = useAuth();
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
@@ -53,8 +55,8 @@ export function Navbar() {
           FrameNest
         </Link>
 
-        {/* Nav Links */}
-        <div className="flex items-center gap-1">
+        {/* Desktop Nav Links — hidden on mobile */}
+        <div className={cn("flex items-center gap-1", "max-lg:hidden")}>
           {NAV_LINKS.map((link) => (
             <Link
               key={link.to}
@@ -122,7 +124,62 @@ export function Navbar() {
             )}
           </div>
         </div>
+
+        {/* Hamburger button — visible only on mobile */}
+        <button onClick={() => setMenuOpen(!menuOpen)} className="lg:hidden p-2" aria-label="Toggle menu">
+          <span className="text-xl">{menuOpen ? '✕' : '☰'}</span>
+        </button>
       </nav>
+
+      {/* Mobile menu dropdown */}
+      {menuOpen && (
+        <div className="lg:hidden absolute top-16 left-0 right-0 bg-white border-b border-border p-4 flex flex-col gap-2 shadow-lg z-40">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              onClick={() => setMenuOpen(false)}
+              className={cn(
+                "px-3 py-2 text-sm font-medium rounded-lg",
+                pathname === link.to
+                  ? "bg-primary-50 text-primary-700"
+                  : "text-neutral-600 hover:bg-neutral-50",
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+          <div className="border-t border-border mt-2 pt-2 flex flex-col gap-2">
+            {user ? (
+              <>
+                <Link to="/albums" onClick={() => setMenuOpen(false)}
+                  className="px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 rounded-lg">
+                  Albums
+                </Link>
+                <Link to="/dashboard" onClick={() => setMenuOpen(false)}
+                  className="px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 rounded-lg">
+                  {space?.name ?? "Dashboard"}
+                </Link>
+                <button onClick={() => { setMenuOpen(false); handleLogout(); }}
+                  className="px-3 py-2 text-sm font-medium text-neutral-500 hover:bg-neutral-50 rounded-lg text-left">
+                  Sign out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setMenuOpen(false)}
+                  className="px-3 py-2 text-sm font-medium text-neutral-600 hover:bg-neutral-50 rounded-lg">
+                  Log in
+                </Link>
+                <Link to="/signup" onClick={() => setMenuOpen(false)}
+                  className="px-3 py-2 text-sm font-semibold text-white bg-primary-600 hover:bg-primary-700 rounded-lg text-center">
+                  Sign up free
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }

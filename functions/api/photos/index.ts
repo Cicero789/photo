@@ -25,7 +25,7 @@ export async function onRequestGet(context: {
     }
 
     const db = context.env.DB!;
-    let query = "SELECT * FROM photos WHERE space_id = ?";
+    let query = "SELECT * FROM photos WHERE space_id = ? AND deleted_at IS NULL";
     if (hasLocation) query += " AND latitude IS NOT NULL AND longitude IS NOT NULL";
     query += " ORDER BY created_at DESC LIMIT 500";
 

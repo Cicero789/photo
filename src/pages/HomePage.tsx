@@ -31,7 +31,7 @@ export function HomePage() {
               Create your family or business photo space in seconds. Share life&apos;s moments with
               the people who matter — protected by your own gate key. Free, beautiful, and yours.
             </p>
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:flex-wrap sm:justify-center">
               <Link
                 to="/signup"
                 className="rounded-xl bg-primary-600 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-primary-200 transition-all hover:bg-primary-700 hover:shadow-xl hover:shadow-primary-300 active:scale-[0.98]"

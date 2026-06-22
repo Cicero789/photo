@@ -37,9 +37,9 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
       const photographerId = obj.metadata?.photographer_id;
 
       if (obj.mode === "subscription" && photographerId) {
-        // Verified subscription activated
+        // Subscription activated — do NOT set verified (that requires identity verification)
         await context.env.DB!.prepare(
-          "UPDATE photographers SET verified = 1, verified_at = datetime('now'), subscription_id = ?, subscription_status = 'active' WHERE id = ?"
+          "UPDATE photographers SET subscription_id = ?, subscription_status = 'active' WHERE id = ?"
         ).bind(obj.subscription, photographerId).run();
       } else if (orderId) {
         // One-time payment order
@@ -48,19 +48,19 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
         await context.env.DB!.prepare("UPDATE orders SET status = 'paid' WHERE stripe_id = ? AND status = 'pending'").bind(obj.id).run();
       }
     } else if (event.type === "customer.subscription.deleted") {
-      // Subscription cancelled — remove verified badge
+      // Subscription cancelled — only update subscription status, not verified badge
       await context.env.DB!.prepare(
-        "UPDATE photographers SET verified = 0, subscription_status = 'cancelled' WHERE subscription_id = ?"
+        "UPDATE photographers SET subscription_status = 'cancelled' WHERE subscription_id = ?"
       ).bind(obj.id).run();
     } else if (event.type === "invoice.payment_failed") {
       await context.env.DB!.prepare(
         "UPDATE photographers SET subscription_status = 'past_due' WHERE subscription_id = ?"
       ).bind(obj.subscription).run();
     } else if (event.type === "identity.verification_session.verified") {
-      // ID verification passed
+      // ID verification passed — this is the ONLY path that sets verified=1
       const photographerId = obj.metadata?.photographer_id;
       if (photographerId) {
-        await context.env.DB!.prepare("UPDATE photographers SET verified_at = datetime('now') WHERE id = ?").bind(photographerId).run();
+        await context.env.DB!.prepare("UPDATE photographers SET verified = 1, verified_at = datetime('now') WHERE id = ?").bind(photographerId).run();
       }
     } else if (event.type === "payment_intent.succeeded") {
       await context.env.DB!.prepare("UPDATE orders SET status = 'paid' WHERE stripe_id = ? AND status = 'pending'").bind(obj.id).run();

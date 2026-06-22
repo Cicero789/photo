@@ -28,10 +28,9 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
 
     if (type === "albums") {
       const r = await db.prepare(
-        `SELECT a.*, s.name as space_name, u.name as owner_name, u.email as owner_email
+        `SELECT a.*, u.name as owner_name, u.email as owner_email
          FROM albums a
-         LEFT JOIN spaces s ON a.space_id = s.id
-         LEFT JOIN users u ON s.owner_id = u.id
+         JOIN users u ON a.user_id = u.id
          WHERE a.deleted_at IS NULL
          ORDER BY a.created_at DESC`
       ).all();
