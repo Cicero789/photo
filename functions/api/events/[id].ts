@@ -35,7 +35,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
 
     // Return scrubbed public data for readable non-owner events
     const photos = await db.prepare("SELECT id, storage_key, width, height, license FROM photos WHERE event_id = ? AND deleted_at IS NULL ORDER BY created_at").bind(context.params.id).all();
-    return json({ event: toPublicEventDto(ev), photos: (photos.results ?? []).map(toPublicPhotoDto) });
+    return json({ event: toPublicEventDto(ev), photos: (photos.results ?? []).map(toPublicPhotoDto), videos: [] });
   } catch (err) { console.error("Get event error:", err); return json({ error: "Something went wrong" }, 500); }
 }
 
@@ -82,12 +82,14 @@ export async function onRequestDelete(context: { request: Request; env: { DB?: D
       const obj = await context.env.PHOTOS?.get(row.storage_key);
       if (obj) {
         await context.env.PHOTOS?.put(`trash/${row.storage_key}`, obj.body, { httpMetadata: obj.httpMetadata });
+        await context.env.PHOTOS?.delete(row.storage_key);
       }
     }
     for (const row of videoRows.results ?? []) {
       const obj = await context.env.VIDEOS?.get(row.storage_key);
       if (obj) {
         await context.env.VIDEOS?.put(`trash/${row.storage_key}`, obj.body, { httpMetadata: obj.httpMetadata });
+        await context.env.VIDEOS?.delete(row.storage_key);
       }
     }
 

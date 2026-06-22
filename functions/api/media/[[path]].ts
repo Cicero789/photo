@@ -33,6 +33,7 @@ export async function onRequestGet(context: {
   }
 
   // --- Authorization check ---
+  let isPublic = false;
   const url = new URL(context.request.url);
   const expires = url.searchParams.get("expires");
   const sig = url.searchParams.get("sig");
@@ -45,36 +46,37 @@ export async function onRequestGet(context: {
   } else {
     // Must be authenticated OR media must be in a public/gate event
     const db = context.env.DB;
-    if (db) {
-      const table = kind === "photos" ? "photos" : "videos";
-      const media = await db.prepare(`SELECT m.space_id, e.visibility FROM ${table} m JOIN events e ON m.event_id = e.id WHERE m.storage_key = ?`).bind(storageKey).first<{ space_id: string; visibility: string }>();
-      if (media) {
-        if (media.visibility !== 'public' && media.visibility !== 'gate') {
-          // Private media — require auth + space ownership
-          const a = await requireAuth(context.request, context.env);
-          if (a instanceof Response) return a;
-          if (a.spaceId !== media.space_id) return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { "Content-Type": "application/json" } });
+    if (!db) return new Response(JSON.stringify({ error: "Service unavailable" }), { status: 503, headers: { "Content-Type": "application/json" } });
+    const table = kind === "photos" ? "photos" : "videos";
+    const media = await db.prepare(`SELECT m.space_id, e.visibility FROM ${table} m JOIN events e ON m.event_id = e.id WHERE m.storage_key = ?`).bind(storageKey).first<{ space_id: string; visibility: string }>();
+    if (media) {
+      isPublic = media.visibility === "public";
+      if (media.visibility !== 'public' && media.visibility !== 'gate') {
+        // Private media — require auth + space ownership
+        const a = await requireAuth(context.request, context.env);
+        if (a instanceof Response) return a;
+        if (a.spaceId !== media.space_id) return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { "Content-Type": "application/json" } });
+      }
+    } else {
+      // Check album_photos
+      const albumPhoto = await db.prepare("SELECT album_id FROM album_photos WHERE storage_key = ?").bind(storageKey).first() as any;
+      if (albumPhoto) {
+        // Password-protected albums require signed URL
+        const album = await db.prepare("SELECT password FROM albums WHERE id = ?").bind(albumPhoto.album_id).first() as any;
+        if (album?.password) {
+          // Password-protected — must use signed URL (checked above, would have passed)
+          return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { "Content-Type": "application/json" } });
         }
+        // No password — share link is sufficient, allow access
       } else {
-        // Check album_photos
-        const albumPhoto = await db.prepare("SELECT album_id FROM album_photos WHERE storage_key = ?").bind(storageKey).first() as any;
-        if (albumPhoto) {
-          // Password-protected albums require signed URL
-          const album = await db.prepare("SELECT password FROM albums WHERE id = ?").bind(albumPhoto.album_id).first() as any;
-          if (album?.password) {
-            // Password-protected — must use signed URL (checked above, would have passed)
-            return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { "Content-Type": "application/json" } });
-          }
-          // No password — share link is sufficient, allow access
+        // Check photographer_portfolio
+        const portfolioPhoto = await db.prepare("SELECT photographer_id FROM photographer_portfolio WHERE storage_key = ?").bind(storageKey).first();
+        if (portfolioPhoto) {
+          // allow — portfolio is public
+          isPublic = true;
         } else {
-          // Check photographer_portfolio
-          const portfolioPhoto = await db.prepare("SELECT photographer_id FROM photographer_portfolio WHERE storage_key = ?").bind(storageKey).first();
-          if (portfolioPhoto) {
-            // allow — portfolio is public
-          } else {
-            // Unknown key — reject
-            return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { "Content-Type": "application/json" } });
-          }
+          // Unknown key — reject
+          return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { "Content-Type": "application/json" } });
         }
       }
     }
@@ -94,7 +96,9 @@ export async function onRequestGet(context: {
 
   const headers = new Headers();
   headers.set("Content-Type", object.httpMetadata?.contentType ?? (kind === "videos" ? "video/webm" : "image/jpeg"));
-  headers.set("Cache-Control", "public, max-age=31536000, immutable");
+  headers.set("Cache-Control", isPublic
+    ? "public, max-age=31536000, immutable"
+    : "private, no-store");
   headers.set("Accept-Ranges", "bytes");
   headers.set("ETag", object.httpEtag);
 

@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Allow: /photographers
+Allow: /inspiration
+
+Disallow: /dashboard
+Disallow: /citysite
+Disallow: /albums
+Disallow: /api/
+Disallow: /login
+Disallow: /signup
+Disallow: /forgot-password
+Disallow: /reset-password
+
+Sitemap: https://framenest.photos/sitemap.xml

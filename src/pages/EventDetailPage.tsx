@@ -48,8 +48,8 @@ export function EventDetailPage() {
       .get<{ event: EventDetail; photos: Photo[]; videos: Video[] }>(`/events/${eventId}`)
       .then((data) => {
         setEvent(data.event);
-        setPhotos(data.photos);
-        setVideos(data.videos);
+        setPhotos(Array.isArray(data.photos) ? data.photos : []);
+        setVideos(Array.isArray(data.videos) ? data.videos : []);
       })
       .catch((err) => setError(err instanceof Error ? err.message : "Event not found"))
       .finally(() => setLoading(false));

@@ -1,8 +1,9 @@
 /** Public album viewer — GET /api/albums/view/:token (no auth required) */
 import { json } from "../../../lib/response";
 import { verifyPassword } from "../../../lib/password";
+import { signMediaUrl } from "../../../lib/signed-url";
 
-export async function onRequestGet(context: { request: Request; env: { DB?: D1Database }; params: { token: string } }): Promise<Response> {
+export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; MEDIA_SIGNING_SECRET?: string; JWT_SECRET?: string }; params: { token: string } }): Promise<Response> {
   const { token } = context.params;
   if (!token) return json({ error: "Token required" }, 400);
 
@@ -28,19 +29,22 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
   await context.env.DB!.prepare("UPDATE albums SET view_count = view_count + 1 WHERE id = ?").bind(album.id).run();
 
   // Get photos
-  const photos = await context.env.DB!.prepare(
+  const photosResult = await context.env.DB!.prepare(
     "SELECT storage_key, filename, sort_order FROM album_photos WHERE album_id = ? ORDER BY sort_order, created_at"
   ).bind(album.id).all();
+
+  const secret = context.env.MEDIA_SIGNING_SECRET || context.env.JWT_SECRET || "";
+  const photos = await Promise.all((photosResult.results || []).map(async (p: any) => ({
+    key: p.storage_key,
+    filename: p.filename || "",
+    url: await signMediaUrl(p.storage_key, secret, 3600),
+  })));
 
   return json({
     name: album.name,
     ownerName: album.owner_name,
     downloads: album.downloads,
-    photoCount: (photos.results || []).length,
-    photos: (photos.results || []).map((p: any) => ({
-      key: p.storage_key,
-      filename: p.filename || "",
-      url: `/api/media/photos/${p.storage_key}`,
-    })),
+    photoCount: photos.length,
+    photos,
   });
 }

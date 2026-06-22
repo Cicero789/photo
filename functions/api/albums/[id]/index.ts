@@ -11,10 +11,13 @@ export async function onRequestDelete(context: { request: Request; env: { DB?: D
   const album = await context.env.DB!.prepare("SELECT id FROM albums WHERE id = ? AND user_id = ?").bind(id, a.userId).first();
   if (!album) return json({ error: "Album not found" }, 404);
 
-  // Delete photos from R2 and DB
+  // Delete album-owned photos from R2 (skip referenced event photos)
   const photos = await context.env.DB!.prepare("SELECT storage_key FROM album_photos WHERE album_id = ?").bind(id).all();
   for (const p of (photos.results || []) as any[]) {
-    try { await context.env.PHOTOS?.delete(p.storage_key); } catch {}
+    // Only delete album-owned objects, not referenced event photos
+    if (p.storage_key.startsWith("albums/")) {
+      try { await context.env.PHOTOS?.delete(p.storage_key); } catch {}
+    }
   }
   await context.env.DB!.prepare("DELETE FROM album_photos WHERE album_id = ?").bind(id).run();
   await context.env.DB!.prepare("DELETE FROM albums WHERE id = ?").bind(id).run();

@@ -59,7 +59,7 @@ export function AlbumsPage() {
       try {
         await fetch(`/api/albums/${albumId}/photos`, {
           method: "POST",
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: { Authorization: `Bearer ${localStorage.getItem("photo_token")}` },
           body: form,
         });
       } catch {}

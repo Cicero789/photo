@@ -93,7 +93,7 @@ export function PhotographerProfilePage() {
                 try {
                   await fetch("/api/photographers/config", {
                     method: "PUT",
-                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("photo_token")}` },
                     body: JSON.stringify({ design: JSON.stringify({ template: previewTemplate, colorScheme: previewColor || "light", fontPairing: previewFont || "modern" }) }),
                   });
                   window.location.href = `/${slug}`;
@@ -178,7 +178,7 @@ export function PhotographerProfilePage() {
               try {
                 await fetch("/api/photographers/config", {
                   method: "PUT",
-                  headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token")}` },
+                  headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("photo_token")}` },
                   body: JSON.stringify({ design: JSON.stringify({ template: previewTemplate, colorScheme: previewColor || "light", fontPairing: previewFont || "modern" }) }),
                 });
                 window.location.href = `/${slug}`;

@@ -1,0 +1,1593 @@
+FRAMENEST FULL SITE AND CODE AUDIT
+=================================
+
+Audit date: 2026-06-21
+Repository: Cicero789/photo
+Audited commit: 9ccc570a3e9ef91cdada25c66b15cc309ae30bac
+Production site: https://framenest.photos
+Stack: React 19, TypeScript, Vite, Tailwind CSS v4, Cloudflare Pages
+       Functions, D1, R2, Stripe, Mapbox
+
+AUDIT RULE
+----------
+
+No application code was changed. This TXT report is the only file created.
+
+This audit examined:
+
+1. Frontend routes, components, authentication, data loading, templates,
+   accessibility, responsive behavior, SEO, and performance characteristics.
+2. Cloudflare Pages Functions, authorization, media delivery, uploads, soft
+   deletion, administration, Stripe, photographer marketplace, albums,
+   reviews, bookings, rate limiting, and input validation.
+3. D1 schema initialization, migrations, foreign keys, and representative
+   production queries against a clean local database.
+4. Build, tests, lint, generated Worker types, dependency audit, CI workflow,
+   Cloudflare configuration, and release-gate documentation.
+5. Anonymous live-site behavior on desktop and a 375 x 812 mobile viewport.
+
+No destructive production actions were performed. The audit did not submit
+real payments, upload malicious files, modify production records, or exercise
+authenticated owner/admin actions against production.
+
+A Chrome DevTools performance trace was not available in this environment.
+Therefore this report does not invent Lighthouse or Core Web Vitals numbers.
+Performance conclusions are based on build artifacts, response headers,
+network behavior, DOM inspection, and code structure.
+
+
+EXECUTIVE VERDICT
+=================
+
+FrameNest builds successfully and its public shell, demo space, photographer
+directory, and profile pages are online. The security-header and validation
+work is visibly better than in older revisions. The repository also has a
+working unit-test command and a valid clean schema bootstrap.
+
+However, the current production revision is not yet safe for broad use with
+private customer media or destructive admin actions. The highest-risk issues
+are not cosmetic:
+
+* Media authorization does not reliably enforce gate access, private-event
+  boundaries, deletion state, or revocation.
+* Event deletion copies media to trash but leaves the original public object.
+* Deleting an album can delete original event photos that the album only
+  referenced.
+* Deleting a staff user can soft-delete an entire shared space's content.
+* The admin user API sends password hashes to the browser.
+* A public demo event crashes to a blank screen in production.
+* Password-protected albums cannot successfully render their own images.
+* The D1 migration history cannot recreate the current application schema.
+* Several newly added gallery-template controls do not affect the public
+  profile and the live Hire Me button is a no-op.
+
+RELEASE RECOMMENDATION
+----------------------
+
+Treat findings FN-001 through FN-010 as production hotfix work. Do not market
+the product as private, gate-protected, commission-free, or identity-verified
+until the related findings are resolved and regression-tested.
+
+
+VERIFICATION RESULTS
+====================
+
+PASS  npm run build
+      TypeScript and Vite production build completed.
+
+WARN  Main application JavaScript:
+      571.35 kB minified / 150.79 kB gzip
+      This exceeds the repository's documented 550 kB release budget.
+
+WARN  PhotoEditor lazy chunk:
+      950.32 kB minified / 278.36 kB gzip
+
+PASS  npm test
+      5 test files, 61 tests passed.
+
+FAIL  npm run lint
+      52 problems: 1 error and 51 warnings.
+      The error references react-hooks/exhaustive-deps without configuring
+      the corresponding plugin/rule. The remaining findings are
+      no-floating-promises warnings. The command fails because max warnings
+      is zero.
+
+FAIL  npx wrangler types --check
+      No generated worker-configuration.d.ts exists.
+
+FAIL  npm audit
+      5 known dependency vulnerabilities: 4 high and 1 low.
+      Affected dependency chain includes wrangler, miniflare, undici, ws,
+      and esbuild.
+
+PASS  Clean D1 bootstrap from db/schema.sql
+      44 commands executed successfully.
+
+PASS  PRAGMA foreign_key_check
+      Zero rows returned immediately after clean schema creation.
+
+FAIL  D1 migration discovery
+      "No migrations folder found."
+      wrangler.toml does not point Wrangler at db/migrations.
+
+FAIL  Representative current admin albums query
+      Error: no such column: a.space_id
+      The albums table has user_id and no space_id.
+
+PASS  Production revision match
+      The deployed index references the same hashed JS and CSS output as the
+      clean build of audited commit 9ccc570.
+
+
+POSITIVE FINDINGS
+=================
+
+These are worth preserving while the high-risk work is completed:
+
+* Production API CORS correctly withheld Access-Control-Allow-Origin from a
+  request using an untrusted Origin.
+* Production serves HSTS, CSP, X-Content-Type-Options, X-Frame-Options, and a
+  restrictive Referrer-Policy.
+* TypeScript and the production build complete successfully.
+* The clean schema creates successfully and passes an initial foreign-key
+  check.
+* Signup now uses a D1 batch for related writes.
+* Photographer portfolio uploads have MIME and size checks, although the
+  shared validator still needs strengthening.
+* Event-photo deletion moves the original object to trash and deletes the
+  source object. Event deletion should adopt equivalent semantics.
+* New gallery templates are split into lazy chunks rather than all being
+  embedded in the main bundle.
+* .env is ignored and was not found in tracked files.
+* No tracked private key or Stripe secret pattern was found in repository
+  history during this audit.
+
+
+PRIORITY 0: SECURITY, PRIVACY, AND DATA LOSS
+============================================
+
+FN-001 - CRITICAL - Media authorization can expose gate, private, and deleted
+media
+-----------------------------------------------------------------------------
+
+Evidence:
+
+* functions/api/media/[[path]].ts does not consistently filter photo, video,
+  event, or album deleted_at state.
+* Gate-event media is permitted without proving possession of the gate key.
+* A gate JWT has the same space identifier used by the private-media check.
+  Therefore a gate viewer who learns a private storage key may satisfy the
+  current same-space test.
+* A valid signed URL can name an arbitrary R2 key because the signature is not
+  bound to a database row and its access policy.
+* MEDIA_SIGNING_SECRET falls back to JWT_SECRET and then to an empty string.
+  If both secrets are absent, signatures are forgeable.
+* The signature comparison uses normal string equality.
+* Private and signed responses use:
+      Cache-Control: public, max-age=31536000, immutable
+  This permits shared caches to retain protected media after access is
+  revoked or a signature expires.
+* If the DB binding is unavailable, the route can still proceed toward
+  serving the R2 object. Authorization must fail closed.
+
+Impact:
+
+People with guessed, logged, copied, or previously authorized object URLs may
+retrieve content outside the intended gate, private-event, deletion, album,
+or expiry rules.
+
+Required fix:
+
+1. Resolve every requested key to exactly one active DB record.
+2. Join its active event/album/space and reject any deleted or missing parent.
+3. Model token type explicitly: user, gate, album-share, media-signed.
+4. For gate tokens, require event.space_id and event.access_type = gate.
+5. Never let a gate token authorize private content.
+6. Require a dedicated non-empty MEDIA_SIGNING_SECRET at startup.
+7. Bind a signature to key, audience, parent resource, and expiration.
+8. Use Web Crypto HMAC verification rather than string equality.
+9. Use private/no-store caching for protected media.
+10. Return 503 or 500 if policy dependencies such as D1 are unavailable.
+
+Suggested authorization shape:
+
+    type MediaPolicy = {
+      key: string;
+      kind: "photo" | "video" | "album";
+      spaceId: string;
+      eventId?: string;
+      albumId?: string;
+      accessType: "public" | "gate" | "private" | "album";
+      deleted: boolean;
+    };
+
+    async function authorizeMedia(
+      env: Env,
+      request: Request,
+      key: string,
+    ): Promise<MediaPolicy> {
+      if (!env.DB) throw new HttpError(503, "Media policy unavailable");
+
+      const media = await findActiveMediaPolicy(env.DB, key);
+      if (!media || media.deleted) throw new HttpError(404, "Not found");
+
+      const actor = await resolveTypedActor(request, env);
+
+      if (media.accessType === "public") return media;
+
+      if (media.accessType === "gate") {
+        if (actor.type !== "gate" || actor.spaceId !== media.spaceId) {
+          throw new HttpError(403, "Gate access required");
+        }
+        return media;
+      }
+
+      if (media.accessType === "private") {
+        if (actor.type !== "user" ||
+            !(await canManageSpace(env.DB, actor.userId, media.spaceId))) {
+          throw new HttpError(403, "Private media");
+        }
+        return media;
+      }
+
+      if (actor.type !== "album-share" ||
+          actor.albumId !== media.albumId) {
+        throw new HttpError(403, "Album access required");
+      }
+      return media;
+    }
+
+Protected response headers:
+
+    const headers = new Headers(object.httpMetadata?.contentType
+      ? { "Content-Type": object.httpMetadata.contentType }
+      : undefined);
+    headers.set("Cache-Control", "private, no-store");
+    headers.set("Vary", "Authorization, Cookie");
+
+For genuinely public immutable media, a long public cache is reasonable.
+Choose the cache policy after authorization, not before it.
+
+Acceptance tests:
+
+* Anonymous cannot fetch gate media by a known key.
+* Gate token for space A cannot fetch private media from space A.
+* Gate token for space A cannot fetch any media from space B.
+* Deleted media and media under a deleted event return 404.
+* Expired/revoked album grants return 401/403 and are not served from cache.
+* Missing DB or signing secret fails closed.
+* A valid signature for key A does not authorize key B.
+
+
+FN-002 - CRITICAL - Event deletion leaves original R2 objects accessible
+-----------------------------------------------------------------------
+
+Evidence:
+
+functions/api/events/[id].ts copies event objects into trash/ but does not
+delete the original R2 objects. It then marks DB rows deleted. Because FN-001
+does not enforce deleted_at, the original URLs can remain usable.
+
+The event detail query also needs an explicit deleted_at IS NULL predicate.
+Sequentially copying every object inside a request is also likely to exceed
+request duration limits for large events.
+
+Required fix:
+
+* Hide the event transactionally in D1 first.
+* Queue storage cleanup as an idempotent background job.
+* For each owned object: copy to a trash key, verify success, delete source,
+  and record completion.
+* Retry failed jobs safely.
+* Never make authorization depend on R2 cleanup finishing; DB deleted state
+  must immediately block reads.
+
+Minimal idempotent object operation:
+
+    async function moveToTrash(bucket: R2Bucket, key: string) {
+      const source = await bucket.get(key);
+      if (!source) return;
+
+      const trashKey = `trash/${key}`;
+      await bucket.put(trashKey, source.body, {
+        httpMetadata: source.httpMetadata,
+        customMetadata: source.customMetadata,
+      });
+      await bucket.delete(key);
+    }
+
+For real events, send keys to a Cloudflare Queue instead of awaiting a long
+serial loop in the HTTP request.
+
+
+FN-003 - CRITICAL - Deleting an album can destroy original event photos
+----------------------------------------------------------------------
+
+Evidence:
+
+Albums can contain an existing event photo's storage key. The album deletion
+handler iterates album_photos and deletes every referenced storage key from
+R2. A linked event photo is a reference, not an album-owned object.
+
+Impact:
+
+Deleting a presentation album can permanently break the source event and any
+other album referencing the same object.
+
+Required fix:
+
+Represent storage ownership explicitly:
+
+    CREATE TABLE album_photos (
+      id TEXT PRIMARY KEY,
+      album_id TEXT NOT NULL,
+      source_photo_id TEXT,
+      owned_storage_key TEXT,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      CHECK (
+        (source_photo_id IS NOT NULL AND owned_storage_key IS NULL) OR
+        (source_photo_id IS NULL AND owned_storage_key IS NOT NULL)
+      ),
+      FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE,
+      FOREIGN KEY (source_photo_id) REFERENCES photos(id) ON DELETE SET NULL
+    );
+
+Deletion rule:
+
+* source_photo_id: delete only the album_photos reference.
+* owned_storage_key: move/delete that album-owned object.
+
+Add a migration and a regression test in which the same event photo appears
+in two albums, one album is deleted, and the event plus second album continue
+to render.
+
+
+FN-004 - CRITICAL - Deleting one admin user can wipe a shared space
+------------------------------------------------------------------
+
+Evidence:
+
+functions/api/admin/users.ts derives the selected user's space_id and then
+soft-deletes photos, videos, and events for that entire space. It also deletes
+all memberships in that space before deleting the selected user.
+
+Impact:
+
+Deleting a staff member can remove the owner and every other member's access
+and hide the whole space's content.
+
+Required fix:
+
+User deletion and space deletion must be separate operations.
+
+For deleting a member:
+
+    await env.DB.prepare(
+      "DELETE FROM space_members WHERE user_id = ? AND space_id = ?"
+    ).bind(targetUserId, spaceId).run();
+
+Do not delete the users row unless the operation is an explicit account
+closure and dependency ownership has been transferred or anonymized.
+
+Server-side safeguards:
+
+* Prohibit deleting the current platform owner.
+* Prohibit self-deletion from the generic admin action.
+* Require recent re-authentication for destructive account closure.
+* Require owner transfer before deleting the last owner/admin of a space.
+* Show and validate a resource-impact preview.
+* Record an immutable audit event.
+
+
+FN-005 - HIGH - Admin users endpoint exposes password hashes to the browser
+----------------------------------------------------------------------------
+
+Evidence:
+
+functions/api/admin/users.ts selects u.* and returns the result. This includes
+password_hash and potentially future internal columns.
+
+Required fix:
+
+Use a permanent public/admin projection:
+
+    SELECT
+      u.id,
+      u.email,
+      u.name,
+      u.role,
+      u.created_at,
+      u.updated_at,
+      u.last_login_at,
+      u.deleted_at
+    FROM users u
+
+Never serialize password hashes, reset tokens, magic tokens, internal Stripe
+identifiers, or secret metadata to a browser.
+
+Add a response-contract test:
+
+    expect(response.users[0]).not.toHaveProperty("password_hash");
+
+
+FN-006 - HIGH - Password-protected album images cannot render
+----------------------------------------------------------------
+
+Evidence:
+
+The album view verifies the password in an API request and then returns raw
+/api/media/photos/<key> image URLs. Browser <img> requests cannot attach the
+custom X-Album-Password header expected by the media route.
+
+The same model has the opposite problem for unprotected albums: knowing a raw
+storage key can bypass the share token because media authorization does not
+bind the request to the album share.
+
+Required fix:
+
+After successful share/password verification, issue one of:
+
+1. A short-lived, HttpOnly, Secure, SameSite cookie scoped to that album; or
+2. Short-lived signed media URLs bound to album_id, key, and expiration.
+
+Example signed claim payload:
+
+    {
+      "aud": "album-media",
+      "albumId": album.id,
+      "key": photo.storageKey,
+      "exp": now + 300
+    }
+
+Changing the share token, changing the password, expiring the album, or
+deleting it must invalidate future access. Protected responses must not be
+publicly cacheable.
+
+
+FN-007 - HIGH - Album upload accepts inadequately validated content
+-------------------------------------------------------------------
+
+Evidence:
+
+The album upload endpoint has no strong route-level MIME allowlist or file
+size limit. The shared content validator returns valid for many non-media
+types unless the first bytes match a short dangerous-signature list. Filename
+extensions are reused without proving that they match sniffed content.
+
+The ISO BMFF detector treats broad ftyp content as valid for formats that need
+more precise distinction, which can confuse AVIF/HEIC and MP4/MOV handling.
+There is no per-request file count, aggregate size, user quota, or space quota.
+R2 writes occur before DB writes, leaving orphan objects if D1 fails.
+
+Required fix:
+
+* Explicit allowlist at every upload route.
+* Derive extension from validated MIME; ignore user extension.
+* Validate actual magic bytes with format-specific parsing.
+* Enforce per-file, per-request, daily, and total storage limits.
+* Reject SVG and HTML unless separately sanitized and intentionally served.
+* Store uploads under generated keys, never user-controlled paths.
+* If DB insert fails, delete the just-written object.
+* Exclude deleted events from video/photo upload targets.
+* Add malware scanning or quarantine before public availability.
+
+Example route guard:
+
+    const ALLOWED = new Set([
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/avif",
+    ]);
+
+    if (!ALLOWED.has(file.type)) {
+      return json({ error: "Unsupported image type" }, 415);
+    }
+    if (file.size <= 0 || file.size > 20 * 1024 * 1024) {
+      return json({ error: "Image must be 1 byte to 20 MB" }, 413);
+    }
+
+    const detected = await detectImageType(await file.slice(0, 64).arrayBuffer());
+    if (!detected || detected.mime !== file.type) {
+      return json({ error: "File content does not match its type" }, 415);
+    }
+
+
+FN-008 - HIGH - Verification badge conflates payment with identity
+------------------------------------------------------------------
+
+Evidence:
+
+Stripe subscription handling sets verified = 1. Subscription cancellation
+sets verified = 0. Stripe Identity verification records verified_at but does
+not consistently set the same public flag.
+
+Impact:
+
+A paid subscription can appear to customers as identity verification. A
+genuinely identity-verified person can lose the badge because billing status
+changed. This is a trust and consumer-protection problem.
+
+Required fix:
+
+Use separate fields and badges:
+
+    subscription_status
+    identity_verification_status
+    identity_verified_at
+    portfolio_review_status
+
+Only Stripe Identity's verified event may set identity verification. The UI
+must label paid benefits as "Pro" or "Subscriber", not "Verified."
+
+
+FN-009 - HIGH - D1 migration history cannot reconstruct current schema
+----------------------------------------------------------------------
+
+Evidence:
+
+* db/schema.sql can initialize a clean database.
+* Wrangler reports no migration directory because wrangler.toml does not set
+  migrations_dir = "db/migrations".
+* Existing migrations do not contain all current tables/columns. Later
+  migrations assume tables such as reviews already exist.
+* CI neither applies migrations nor verifies a fresh database.
+* functions/api/admin/content.ts joins albums through a.space_id, but the
+  current albums schema has no space_id. The query fails on a clean database.
+
+Required fix:
+
+wrangler.toml:
+
+    [[d1_databases]]
+    binding = "DB"
+    database_name = "photo-db"
+    database_id = "075806fa-1702-4c71-84c3-7ac84aeb4c33"
+    migrations_dir = "db/migrations"
+
+Then create a complete forward-only baseline/migration sequence. Do not edit
+already-applied production migrations unless deployment history proves they
+were never applied.
+
+CI database check:
+
+    npx wrangler d1 migrations apply photo-db --local
+    npx wrangler d1 execute photo-db --local \
+      --command="PRAGMA foreign_key_check;"
+
+Fix the admin albums query by joining through the actual owner/membership
+model, or add a deliberate space_id foreign key with a migration if albums
+are intended to be space-owned.
+
+
+FN-010 - HIGH - Live demo event crashes to a blank page
+-------------------------------------------------------
+
+Production reproduction:
+
+    https://framenest.photos/s/demo/e/demo-beach
+
+Observed console error:
+
+    TypeError: Cannot read properties of undefined (reading 'length')
+
+Cause:
+
+The event API's non-owner response returns { event, photos } and omits videos.
+src/pages/EventDetailPage.tsx assigns data.videos without a fallback and later
+reads videos.length.
+
+Required fix:
+
+Make the API contract stable:
+
+    return json({
+      event,
+      photos: photos.results ?? [],
+      videos: videos?.results ?? [],
+    });
+
+Defend at the client boundary too:
+
+    setPhotos(Array.isArray(data.photos) ? data.photos : []);
+    setVideos(Array.isArray(data.videos) ? data.videos : []);
+
+Add a route-level error boundary so one malformed payload does not blank the
+whole application.
+
+Regression tests:
+
+* Public, gate, private-owner, and staff event responses all have the same
+  top-level collection fields.
+* Missing optional collections render an empty state.
+* The live demo URL renders without console errors.
+
+
+PRIORITY 1: AUTHORIZATION, BUSINESS LOGIC, AND PRODUCT INTEGRITY
+================================================================
+
+FN-011 - HIGH - Cross-space gate event listing is insufficiently authorized
+-----------------------------------------------------------------------------
+
+functions/api/events/index.ts allows a viewer or authenticated non-owner to
+request another spaceId and list public plus gate events. The request does not
+prove a gate grant for the target space.
+
+Fix:
+
+* Anonymous: public events only.
+* Gate actor: public + gate events only for actor.spaceId.
+* User actor: events allowed by membership/role for the requested space.
+* Never trust a query-string spaceId as authorization evidence.
+
+
+FN-012 - HIGH - Message write permission is incorrectly inherited from read
+permission
+-----------------------------------------------------------------------------
+
+functions/api/messages/[eventId].ts uses readable-event authorization for
+POST. Gate viewers and any user who can read may therefore be allowed to post.
+The synthetic gate user id "viewer" is not a real users row, so the author
+join can make messages disappear or create integrity problems.
+
+Fix:
+
+Create separate policies:
+
+    canReadEvent(actor, event)
+    canPostEventMessage(actor, event)
+    canManageEvent(actor, event)
+
+Use a typed actor with actor.type = "gate" instead of pretending a gate viewer
+is a database user. Either prohibit gate messages or create a dedicated guest
+identity/message model.
+
+
+FN-013 - HIGH - Soft-deletion semantics are inconsistent across routes
+----------------------------------------------------------------------
+
+Queries in media delivery, event detail/access, feed, photo lists/favorites,
+video upload, and event summarization do not all require deleted_at IS NULL.
+This permits hidden content to reappear through direct routes or derived
+features.
+
+Fix:
+
+Centralize active-resource predicates or repository functions:
+
+    const ACTIVE_EVENT = "e.deleted_at IS NULL";
+    const ACTIVE_PHOTO =
+      "p.deleted_at IS NULL AND e.deleted_at IS NULL";
+
+Better still, use named repository functions such as getActiveEventById and
+getActivePhotoPolicy rather than copying SQL across endpoints.
+
+Add deletion-contract tests for every read route.
+
+
+FN-014 - HIGH - JWT and gate tokens lack robust type and revocation semantics
+----------------------------------------------------------------------------
+
+Problems:
+
+* Gate identity is inferred from role = viewer and userId = viewer.
+* Gate and user grants do not have a clear token-type claim.
+* Tokens live in localStorage, increasing impact of any XSS.
+* Logout is client-only; existing JWTs remain valid.
+* Gate tokens last seven days without a server-side revocation record.
+* A known development JWT secret fallback remains possible outside production
+  if deployment secrets are misconfigured.
+
+Fix:
+
+Use explicit claims:
+
+    {
+      "sub": "user-id-or-grant-id",
+      "typ": "user" | "gate" | "album",
+      "spaceId": "...",
+      "sessionId": "...",
+      "iat": 0,
+      "exp": 0
+    }
+
+Use Secure HttpOnly cookies for browser sessions where practical. Store a
+hashed session/grant identifier so logout, password reset, role changes, and
+gate rotation can revoke access. Fail startup/deployment when JWT_SECRET is
+missing; never fall back to a source-code secret.
+
+
+FN-015 - HIGH - Password-reset and magic-login token storage/lifetime need
+hardening
+-----------------------------------------------------------------------------
+
+Problems:
+
+* Reset and magic tokens are stored as plaintext.
+* The reset expiration is an ISO string compared with SQLite datetime text,
+  which can produce incorrect lexicographic ordering.
+* Magic login lifetime is seven days, excessive for an emailed login grant.
+* Password reset does not revoke existing sessions.
+
+Fix:
+
+Store SHA-256 token hashes, use Unix epoch seconds consistently, make each
+token single-use, and revoke sessions after password changes.
+
+    const token = crypto.randomUUID() + crypto.randomUUID();
+    const tokenHash = await sha256Hex(token);
+    const expiresAt = Math.floor(Date.now() / 1000) + 15 * 60;
+
+Query:
+
+    WHERE token_hash = ?
+      AND used_at IS NULL
+      AND expires_at_epoch > unixepoch()
+
+
+FN-016 - HIGH - Connection invitations create privileged accounts too early
+-----------------------------------------------------------------------------
+
+The connection flow creates a full page_admin user and a space before the
+recipient verifies email or accepts the invitation.
+
+Impact:
+
+Attackers or accidental submissions can squat email addresses, create junk
+spaces, and assign unintended privilege.
+
+Fix:
+
+Create a pending_invites row only. On acceptance:
+
+1. Verify the signed, short-lived, single-use invite.
+2. Require the recipient to authenticate or verify email.
+3. Create/link the user.
+4. Add the minimum required membership role.
+5. Do not automatically create a separate space unless that is an explicit
+   onboarding choice.
+
+
+FN-017 - HIGH - Membership deletion removes the global user
+------------------------------------------------------------
+
+functions/api/spaces/members.ts deletes the users row rather than only the
+membership. A person may belong to another space or own unrelated records.
+
+Fix:
+
+    DELETE FROM space_members
+    WHERE space_id = ? AND user_id = ?
+
+Account deletion must be a separate, explicit workflow.
+
+
+FN-018 - HIGH - Reviews and bookings do not prove a completed relationship
+----------------------------------------------------------------------------
+
+Review eligibility accepts any booking inquiry, including pending or
+unaccepted inquiries. Gate/synthetic actors may reach booking or review paths
+because authentication and database relationships are weak. Photographer IDs
+are not always proven to exist. Review text has insufficient length limits,
+and decimal ratings are silently rounded.
+
+Fix:
+
+* Require a real user actor.
+* Require an accepted/completed booking tied to both parties.
+* Add foreign keys for reviewer, photographer, and booking.
+* Add UNIQUE(booking_id, reviewer_id).
+* Accept only integer ratings 1 through 5.
+* Apply comment length and abuse controls.
+* Allow moderation without silently changing genuine rating values.
+
+
+FN-019 - HIGH - Stripe checkout does not verify the purchased asset
+-------------------------------------------------------------------
+
+The checkout endpoint does not sufficiently prove that the requested photo
+or event exists, belongs to the named photographer, is purchasable, and has a
+valid server-controlled price. It creates an order before Stripe session
+creation and has no idempotency key.
+
+The frontend BuyButton expects a clientSecret and calls confirmPayment, while
+the backend returns a Checkout URL and orderId. The component is currently
+not wired into the live purchase path.
+
+Fix:
+
+* Load product/price from D1 by immutable server ID.
+* Ignore price, ownership, and fee values from the browser.
+* Validate finite positive bounds in cents.
+* Create Stripe Checkout with an idempotency key.
+* Store a pending order only after, or transactionally around, successful
+  session creation.
+* Use one frontend flow: redirect to Checkout URL, or Payment Element with a
+  PaymentIntent clientSecret. Do not mix both APIs.
+* Verify webhook signatures and transition orders idempotently.
+
+Example:
+
+    const photo = await getPurchasablePhoto(env.DB, photoId);
+    if (!photo) return json({ error: "Not for sale" }, 404);
+
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        line_items: [{
+          price_data: {
+            currency: "usd",
+            unit_amount: photo.price_cents,
+            product_data: { name: photo.title },
+          },
+          quantity: 1,
+        }],
+        metadata: { photoId: photo.id, buyerId: actor.userId },
+      },
+      { idempotencyKey: `checkout:${actor.userId}:${requestId}` },
+    );
+
+
+FN-020 - HIGH - Photographer Stripe account configuration is client-mutable
+----------------------------------------------------------------------------
+
+A profile/config endpoint permits client-supplied stripe_config data,
+including a Stripe account identifier, to replace server-managed state.
+
+Fix:
+
+Never accept Stripe account IDs, onboarding status, payout status, or webhook
+state from a normal profile update. Keep these in server-only columns updated
+only by Stripe API responses and verified webhooks.
+
+
+FN-021 - HIGH - Admin purge leaves objects and references behind
+----------------------------------------------------------------
+
+Admin content purge removes DB rows without reliably deleting R2 objects.
+Album purge can leave album_photos rows. Once a parent album row is gone, the
+current media route may interpret the missing password policy permissively.
+
+Fix:
+
+* Enforce foreign keys and ON DELETE behavior.
+* Queue R2 deletion before/after a tombstoned state.
+* Media lookup must deny when its parent row is absent.
+* Add an idempotent purge ledger and operator audit log.
+
+
+FN-022 - HIGH - Admin role changes lack invariants
+--------------------------------------------------
+
+Role updates need an explicit enum allowlist and must remain consistent with
+space_members roles. The admin path also needs protections against removing
+the last platform owner, demoting oneself accidentally, or escalating beyond
+the acting administrator's authority.
+
+Fix:
+
+Validate:
+
+    const ROLES = new Set([
+      "viewer", "staff", "page_admin", "platform_owner"
+    ]);
+
+Then enforce:
+
+    actorRank > targetRank
+    actorRank >= requestedRank
+    atLeastOnePlatformOwnerRemains
+
+Use one source of truth for platform role versus per-space role.
+
+
+FN-023 - HIGH - Public gallery-template system is only partially connected
+----------------------------------------------------------------------------
+
+Confirmed problems:
+
+* The public photographer API does not select/return gallery_config.
+* Public profiles therefore fall back to clean-minimal.
+* The live Hire Me button passes onHire={() => {}} and does nothing.
+* Saved color scheme and font pairing values are not represented in
+  TemplateProps and do not affect public rendering.
+* Preview save reads localStorage key "token"; the app uses "photo_token".
+* The preview ignores non-OK save responses and redirects as if saving worked.
+* Photographer review/save paths contain the same wrong token-key pattern.
+* Dynamically inserted Google Font links are not removed when previews change.
+
+Fix:
+
+1. Add a typed public presentation object:
+
+    type PublicGalleryConfig = {
+      templateId: GalleryTemplateId;
+      colorSchemeId: ColorSchemeId;
+      fontPairingId: FontPairingId;
+    };
+
+2. Return it from /api/photographers/profile/:slug.
+3. Validate IDs server-side against allowlists.
+4. Pass resolved theme tokens to every template.
+5. Connect onHire to the real HireButton/inquiry action.
+6. Use the shared api wrapper, never raw localStorage token lookups.
+7. Check response.ok before navigation.
+8. Self-host the permitted font files or update CSP deliberately.
+
+Example save:
+
+    await api.put("/photographers/profile", {
+      galleryConfig: {
+        templateId,
+        colorSchemeId,
+        fontPairingId,
+      },
+    });
+    navigate(`/photographers/${slug}`);
+
+Do not redirect when the API rejects the save.
+
+
+FN-024 - HIGH - Album upload and photographer actions use the wrong token key
+----------------------------------------------------------------------------
+
+Direct localStorage reads use "token" in paths such as AlbumsPage and
+PhotographerProfilePage, while the auth implementation stores "photo_token".
+These requests send Bearer null or otherwise fail despite an authenticated UI.
+
+Fix:
+
+Remove direct token access from pages. Route all authenticated calls through
+src/lib/api.ts. Keep token storage and refresh behavior in one module.
+
+Search gate for future regressions:
+
+    rg -n 'localStorage.*token|Authorization.*Bearer' src
+
+The expected result should be only the central auth/API implementation.
+
+
+FN-025 - HIGH - "Zero commission" claim conflicts with checkout code
+--------------------------------------------------------------------
+
+The photographers page says "no middleman, no commission" and "Zero
+commission - we don't take a cut." The checkout code calculates a 5 percent
+platform fee.
+
+Fix:
+
+Choose one model, then make code, pricing UI, terms, receipts, and onboarding
+language agree. If the platform fee is charged to buyers rather than deducted
+from photographers, say that plainly. Have legal counsel review payment,
+refund, tax, marketplace, and fee disclosures before launch.
+
+
+PRIORITY 2: RELIABILITY, TESTING, AND DEPLOYMENT
+================================================
+
+FN-026 - HIGH - CI deploys without running tests or lint
+--------------------------------------------------------
+
+.github/workflows/deploy.yml performs npm ci and npm run build, then deploys.
+It does not run lint, unit tests, dependency audit, Wrangler type generation,
+schema/migration checks, or a post-deploy smoke test.
+
+RELEASE_GATES.md describes checks that are not enforced. It also describes a
+550 kB main-bundle budget that the current build exceeds.
+
+Suggested CI sequence:
+
+    - run: npm ci
+    - run: npm run lint
+    - run: npm test -- --run
+    - run: npm run build
+    - run: npx wrangler types
+    - run: git diff --exit-code -- worker-configuration.d.ts
+    - run: npx wrangler d1 migrations apply photo-db --local
+    - run: npx wrangler d1 execute photo-db --local \
+             --command="PRAGMA foreign_key_check;"
+    - run: npm audit --audit-level=high
+
+After deployment, request at least:
+
+    /
+    /api/health
+    /s/demo
+    /s/demo/e/demo-beach
+    /photographers
+
+Fail if status, expected content, or browser console checks fail.
+
+
+FN-027 - HIGH - Tests mostly simulate logic instead of executing production
+code
+-----------------------------------------------------------------------------
+
+Only signed-url.test.ts imports production implementation. Several auth,
+upload, validation, and Stripe tests duplicate simplified logic inside test
+files. Such tests can remain green while production handlers regress.
+
+Fix:
+
+Refactor policy and validation logic into importable modules, then test those
+exact exports. Add route tests that invoke actual Pages Function handlers with
+realistic Request objects and test bindings.
+
+Minimum test matrix:
+
+* Each role against every sensitive endpoint.
+* Public/gate/private/deleted media.
+* Cross-space and cross-event object access.
+* Album password, expiry, token rotation, and deletion.
+* Upload MIME spoofing, oversized files, quotas, and DB failure cleanup.
+* User/member/space deletion blast radius.
+* Stripe duplicate webhook and duplicate checkout request.
+* Clean migration from zero and upgrade from the previous production version.
+
+
+FN-028 - HIGH - No Cloudflare runtime integration-test environment
+------------------------------------------------------------------
+
+Vitest uses a generic Node environment. It does not use
+@cloudflare/vitest-pool-workers and does not exercise D1, R2, crypto,
+executionCtx.waitUntil, or Pages routing behavior.
+
+Fix:
+
+Add Cloudflare's Vitest pool and test with local D1/R2 bindings. Keep ordinary
+pure unit tests fast, but run Worker integration tests in CI for every PR.
+
+
+FN-029 - MEDIUM - Lint configuration is broken and promises are untracked
+---------------------------------------------------------------------------
+
+The lint command references react-hooks/exhaustive-deps without the plugin
+being configured. There are 51 no-floating-promises warnings.
+
+Some server-side background work, including activity logging and AI summary
+updates, is started without context.waitUntil. Cloudflare may terminate work
+after the response is returned.
+
+Fix:
+
+* Install/configure eslint-plugin-react-hooks or remove the invalid rule.
+* Await user-visible work.
+* Pass ExecutionContext to background helpers and use ctx.waitUntil.
+* Handle/log failures from every background promise.
+
+    context.waitUntil(
+      recordActivity(env, entry).catch(error =>
+        console.error("activity_write_failed", { error, entry })
+      )
+    );
+
+
+FN-030 - MEDIUM - Rate limiting is race-prone
+---------------------------------------------
+
+The D1 read-count/write pattern can admit concurrent requests beyond the
+intended limit. Some requests are limited both by middleware and handlers,
+creating inconsistent behavior and extra D1 writes.
+
+Fix:
+
+For security-sensitive limits, use a Durable Object, Cloudflare Rate Limiting,
+or another atomic counter. Define one policy per route and return standard
+RateLimit headers plus Retry-After.
+
+
+FN-031 - MEDIUM - Health endpoint can false-pass
+------------------------------------------------
+
+The expected table list is stale and omits newer tables such as albums,
+reviews, bookings, and portfolio data. A static signup-validation check does
+not prove the real signup path works.
+
+Fix:
+
+Health checks should verify:
+
+* All required bindings exist.
+* Current schema_migrations version equals the application requirement.
+* A read-only representative query works.
+* R2 binding is reachable without mutating user data.
+
+Keep deep dependency health private or admin-only; expose a minimal public
+liveness endpoint.
+
+
+FN-032 - MEDIUM - Environment types are handwritten and drift-prone
+-------------------------------------------------------------------
+
+Worker bindings and request data use repeated handwritten Env shapes and a
+substantial amount of any/type assertion usage. Wrangler's type check already
+fails because generated bindings are missing.
+
+Fix:
+
+Generate and commit worker-configuration.d.ts:
+
+    npx wrangler types
+
+Use the generated Cloudflare bindings as the base Env type. Parse unknown
+JSON at runtime with a schema library. The repository includes zod but does
+not meaningfully use it for these boundaries.
+
+
+FN-033 - MEDIUM - Dependency vulnerabilities and stale tooling
+---------------------------------------------------------------
+
+npm audit reported 4 high and 1 low vulnerabilities. Installed Wrangler is
+4.99.0 while npm reported 4.103.0 as current on the audit date.
+@cloudflare/workers-types also has a newer release.
+
+Fix:
+
+Update in a dedicated branch, regenerate the lockfile and Worker types, then
+run build, lint, tests, local migrations, and production smoke tests. Avoid
+blind npm audit fix --force updates without reviewing major-version effects.
+
+
+FN-034 - MEDIUM - Compatibility date and observability configuration lag
+--------------------------------------------------------------------------
+
+wrangler.toml uses compatibility_date = 2025-06-09, roughly one year behind
+the audit date, and no explicit observability configuration is present.
+
+Fix:
+
+Advance the compatibility date deliberately after integration tests. Enable
+structured logs and appropriate Workers/Pages observability. Log request ID,
+route, status, latency, actor type, and sanitized error code. Never log JWTs,
+passwords, gate keys, reset tokens, or signed media URLs.
+
+
+PRIORITY 3: UX, ACCESSIBILITY, SEO, AND PERFORMANCE
+===================================================
+
+FN-035 - HIGH - Mobile layout has horizontal overflow and no mobile navigation
+-----------------------------------------------------------------------------
+
+At a 375 x 812 viewport, the homepage measured approximately:
+
+    clientWidth: 369
+    scrollWidth: 652
+
+Desktop navigation links remained visible and no menu button appeared.
+
+Fix:
+
+* Identify the overflowing element with a development outline script.
+* Make the header collapse to an accessible menu.
+* Audit fixed widths, min-width, whitespace, transforms, and absolute content.
+* Add Playwright assertions at 320, 375, 390, 768, and desktop widths:
+
+    expect(await page.evaluate(
+      () => document.documentElement.scrollWidth <=
+            document.documentElement.clientWidth
+    )).toBe(true);
+
+
+FN-036 - HIGH - Legal pages and footer links are missing/inert
+--------------------------------------------------------------
+
+Privacy and Terms are rendered as generic footer text rather than links.
+Unknown routes fall through to the SPA shell. The site handles accounts,
+location data, private photos, messaging, payments, identity verification,
+analytics-like profile views, and AI features, so legal disclosures are not
+optional launch polish.
+
+Fix:
+
+Create reviewed Privacy, Terms, cookie/analytics disclosure, marketplace
+terms, acceptable-use policy, copyright/takedown process, refund/payment
+terms, data retention/deletion policy, and identity-verification disclosure.
+Link them from signup, checkout, uploads, and the footer as appropriate.
+
+
+FN-037 - MEDIUM - robots.txt, sitemap.xml, and unknown-route behavior are wrong
+----------------------------------------------------------------------------
+
+Production /robots.txt and /sitemap.xml return the SPA HTML document with
+HTTP 200. An arbitrary unknown URL also returns the app shell with 200.
+
+Fix:
+
+Add real static files under public/:
+
+    public/robots.txt
+    public/sitemap.xml
+
+Render an explicit application Not Found route. For accurate HTTP 404 status
+on unknown paths, use a Pages Function or server-rendering strategy that can
+distinguish supported SPA route families from invalid URLs.
+
+
+FN-038 - MEDIUM - Page metadata is generic
+------------------------------------------
+
+Public photographer profiles retain the generic "FrameNest" document title.
+The observed template used an H2 for the photographer name without a page H1.
+Event/profile descriptions, canonical URLs, Open Graph fields, and structured
+data are not reliably route-specific.
+
+Fix:
+
+For each public event/profile:
+
+* Unique title and meta description.
+* Canonical URL.
+* Open Graph/Twitter image and text.
+* Exactly one descriptive H1.
+* Appropriate Person/LocalBusiness/Event structured data where factually
+  valid.
+* noindex for private, gate, preview, and account routes.
+
+
+FN-039 - MEDIUM - Inspiration page eagerly renders 100 weakly described images
+-------------------------------------------------------------------------------
+
+Live inspection found:
+
+* 100 images rendered at once.
+* Empty alt text on all observed images.
+* No width/height attributes.
+* No loading="lazy".
+* More than 100 buttons.
+* No pagination or virtualization.
+
+Impact:
+
+Excessive network/DOM work, layout-shift risk, poor screen-reader context, and
+difficult keyboard navigation.
+
+Fix:
+
+* Paginate or virtualize.
+* Lazy-load below-the-fold images.
+* Include width and height or aspect-ratio.
+* Use meaningful alt text when the image conveys content; use empty alt only
+  for genuinely decorative images.
+* Give each action a unique accessible name.
+* Prefer one semantic link/button per intended action.
+
+
+FN-040 - MEDIUM - Main bundle exceeds the documented budget
+------------------------------------------------------------
+
+The main JS bundle is 571.35 kB minified, above the documented 550 kB budget.
+App.tsx eagerly imports route pages, so users download code for routes they
+may never visit.
+
+Fix:
+
+Use React.lazy for route components:
+
+    const AdminPage = lazy(() => import("./pages/AdminPage"));
+    const InspirationPage = lazy(() => import("./pages/InspirationPage"));
+
+Wrap route content in Suspense, preserve template/editor lazy loading, and
+add a CI bundle-size gate. Analyze dependency composition before removing
+useful features.
+
+
+FN-041 - MEDIUM - Hashed static assets are not cached immutably
+----------------------------------------------------------------
+
+Production hashed assets were observed with:
+
+    Cache-Control: public, max-age=0, must-revalidate
+
+Hashed filenames are safe to cache for a long period.
+
+Fix:
+
+Serve /assets/* with:
+
+    Cache-Control: public, max-age=31536000, immutable
+
+Keep index.html short-lived/revalidated so deployments are discovered.
+
+
+FN-042 - MEDIUM - CSP blocks intended fonts and inline Stripe configuration
+-----------------------------------------------------------------------------
+
+Current CSP permits Mapbox styles but not fonts.googleapis.com or
+fonts.gstatic.com. New templates dynamically request Google Fonts, so their
+intended typography falls back.
+
+index.html initializes window.STRIPE_PK inline, but script-src does not permit
+that inline script. The live browser did not expose window.STRIPE_PK.
+BuyButton masks this with another hardcoded publishable key, creating two
+sources of configuration.
+
+Fix:
+
+Preferred:
+
+* Self-host licensed font files under /assets/fonts.
+* Use one build/runtime source for the Stripe publishable key.
+* Avoid inline script.
+* Keep private Stripe keys only in Cloudflare secrets.
+
+Also harden CSP with directives appropriate to the app:
+
+    object-src 'none'
+    base-uri 'self'
+    form-action 'self' https://checkout.stripe.com
+    frame-ancestors 'none'
+
+Add a Permissions-Policy based on actually used browser features.
+
+
+FN-043 - MEDIUM - Public profile Hire Me wiring and modal accessibility
+------------------------------------------------------------------------
+
+The live /candlevision Hire Me button did nothing because the selected
+template receives an empty callback. The reusable HireButton component also
+needs dialog semantics and keyboard behavior.
+
+Fix:
+
+Connect the real inquiry action and implement:
+
+* role="dialog" and aria-modal="true".
+* An accessible dialog label.
+* Focus moved into the dialog on open.
+* Focus trap while open.
+* Escape closes the dialog.
+* Focus returns to the triggering button.
+* Labeled textarea.
+* aria-label on the icon-only close button.
+* No emoji-only meaning without accessible text.
+
+
+FN-044 - MEDIUM - External website URLs need protocol validation
+----------------------------------------------------------------
+
+Photographer-supplied website links should not be rendered from arbitrary
+schemes.
+
+Fix:
+
+    function safeExternalUrl(value: string): string | null {
+      try {
+        const url = new URL(value);
+        return url.protocol === "https:" || url.protocol === "http:"
+          ? url.toString()
+          : null;
+      } catch {
+        return null;
+      }
+    }
+
+Render rel="noopener noreferrer" for new-tab external links.
+
+
+FN-045 - MEDIUM - List endpoints need pagination and narrower projections
+---------------------------------------------------------------------------
+
+Photos can return up to 500 rows using broad projections. Event and
+inspiration lists also lack robust cursor pagination.
+
+Fix:
+
+Use stable cursor pagination:
+
+    WHERE (created_at < ? OR (created_at = ? AND id < ?))
+    ORDER BY created_at DESC, id DESC
+    LIMIT ?
+
+Select only fields needed by the card/list view. Set conservative maximum
+page sizes and return nextCursor.
+
+
+FN-046 - MEDIUM - Public API errors are masked as empty success
+----------------------------------------------------------------
+
+The public photographer profile endpoint catches database failure and can
+return an empty 200 response. This hides outages from monitoring and creates
+misleading "not found/empty" UI. Profile view count also increments on every
+GET, including refreshes and bots.
+
+Fix:
+
+* Return 404 for a real absence and 5xx for dependency failure.
+* Log a sanitized error with request ID.
+* Count views asynchronously, deduplicate by privacy-preserving session/time
+  window, and exclude obvious bots and owner previews.
+
+
+FN-047 - LOW/MEDIUM - Security header baseline can be tightened
+----------------------------------------------------------------
+
+Existing headers are a positive foundation. Remaining gaps include no
+Permissions-Policy and an incomplete CSP baseline. style-src still permits
+'unsafe-inline'.
+
+Fix:
+
+Inventory actual resources, remove unused origins, self-host fonts, migrate
+inline styles where practical, and add CSP reporting in report-only mode
+before tightening enforcement.
+
+
+FN-048 - LOW/MEDIUM - Repository documentation contains a plaintext
+production-looking administrator credential
+-----------------------------------------------------------------------------
+
+AGENTS.md includes a platform-owner email/password pair. This report does not
+repeat it.
+
+Fix:
+
+If it is or ever was valid:
+
+1. Rotate the password immediately.
+2. Revoke all sessions and reset/magic tokens for that account.
+3. Remove the credential from documentation.
+4. Review git history and deployment logs for use.
+5. Use a password manager or secret store for operational credentials.
+6. Seed local/demo admins through environment-controlled tooling with
+   non-production values.
+
+
+RECOMMENDED IMPLEMENTATION ORDER
+================================
+
+PHASE A - IMMEDIATE HOTFIX
+
+1. Fix media authorization and protected cache headers.
+2. Block all deleted media/event reads.
+3. Fix event deletion so source objects are removed asynchronously.
+4. Stop album deletion from deleting referenced event objects.
+5. Replace admin user deletion with membership-only behavior.
+6. Remove password_hash and internal fields from admin responses.
+7. Fix the live event videos contract and add an error boundary.
+8. Disable or repair password-protected album sharing before promoting it.
+9. Rotate the documented admin credential if real.
+
+PHASE B - AUTHORIZATION AND DATA MODEL
+
+1. Introduce typed actors and explicit user/gate/album token claims.
+2. Separate read, message-write, and manage policies.
+3. Repair member deletion, invitations, reviews, bookings, and role invariants.
+4. Separate identity verification from paid subscription state.
+5. Redesign album photo ownership and protected-media grants.
+6. Make reset/magic tokens hashed, short-lived, and revocable.
+
+PHASE C - DATABASE AND DELIVERY SAFETY
+
+1. Complete and configure D1 migrations.
+2. Fix the broken admin albums query.
+3. Add storage quotas and strong upload validation.
+4. Make R2 deletion/purge jobs queued and idempotent.
+5. Add server-controlled Stripe product validation and idempotency.
+
+PHASE D - ENFORCEMENT
+
+1. Repair lint configuration and resolve promise warnings.
+2. Add production-importing unit tests.
+3. Add Cloudflare Worker integration tests with D1/R2.
+4. Make CI run lint, tests, type generation, migrations, audit, build budgets,
+   and post-deploy smoke tests.
+5. Enable structured observability and alerts.
+
+PHASE E - PUBLIC EXPERIENCE
+
+1. Finish gallery configuration, colors/fonts, and Hire Me integration.
+2. Fix mobile overflow/navigation.
+3. Add legal pages and reconcile commission/verification claims.
+4. Add real robots.txt, sitemap.xml, route metadata, and a Not Found page.
+5. Paginate/lazy-load image grids and improve accessibility.
+6. Route-split the main bundle and cache hashed assets immutably.
+
+
+DEFINITION OF DONE FOR THE AI CODER
+===================================
+
+A fix should not be considered complete merely because the happy-path UI
+works. Require all of the following:
+
+* A focused regression test imports the changed production module or invokes
+  the actual handler.
+* Cross-user, cross-space, deleted-resource, and missing-binding cases are
+  tested for sensitive endpoints.
+* npm run lint passes with zero warnings.
+* npm test passes.
+* npm run build passes.
+* npx wrangler types --check passes.
+* Fresh local migrations apply successfully.
+* PRAGMA foreign_key_check returns zero rows.
+* No new npm audit high/critical vulnerability is introduced.
+* Production smoke URLs render without browser console errors.
+* Mobile pages have no horizontal overflow.
+* Protected media responses are not publicly cached.
+* API responses never contain password/token/secret fields.
+* Destructive actions have an impact test proving unrelated records survive.
+
+
+SUGGESTED REGRESSION TEST NAMES
+===============================
+
+media-gate-known-key-denied.test.ts
+media-gate-cannot-read-private.test.ts
+media-deleted-parent-returns-404.test.ts
+media-signature-bound-to-key.test.ts
+album-password-media-session.test.ts
+album-delete-preserves-source-photo.test.ts
+event-delete-blocks-original-key.test.ts
+admin-delete-member-preserves-space.test.ts
+admin-users-never-return-password-hash.test.ts
+event-public-contract-includes-videos.test.ts
+cross-space-event-list-authorization.test.ts
+gate-actor-cannot-post-message.test.ts
+reset-token-expiry-and-session-revocation.test.ts
+invite-does-not-create-user-before-acceptance.test.ts
+review-requires-completed-booking.test.ts
+stripe-checkout-uses-server-price.test.ts
+stripe-webhook-idempotency.test.ts
+gallery-config-round-trip.test.ts
+gallery-hire-action.test.ts
+mobile-no-horizontal-overflow.spec.ts
+
+
+LIVE-SITE OBSERVATIONS
+======================
+
+Confirmed working:
+
+* Homepage renders on desktop.
+* Demo space renders four events.
+* Photographer directory renders.
+* Public /candlevision profile renders.
+* Security headers are present.
+* API response does not grant CORS to an untrusted Origin.
+
+Confirmed broken or misleading:
+
+* /s/demo/e/demo-beach crashes to a blank page.
+* /candlevision Hire Me does nothing.
+* Public profile ignores the saved gallery template configuration.
+* New font choices are blocked by CSP.
+* Homepage overflows horizontally at 375 px.
+* Navigation does not collapse for mobile.
+* Footer Privacy and Terms are not links.
+* /robots.txt returns app HTML.
+* /sitemap.xml returns app HTML.
+* Unknown URLs return app HTML with HTTP 200.
+* Inspiration renders 100 images at once without lazy loading or dimensions.
+* Public photographer marketing says zero commission while backend checkout
+  code calculates a platform fee.
+
+
+REFERENCE SOURCES
+=================
+
+Cloudflare Workers best practices:
+https://developers.cloudflare.com/workers/best-practices/workers-best-practices/
+
+Cloudflare D1 migrations:
+https://developers.cloudflare.com/d1/reference/migrations/
+
+Web Vitals:
+https://web.dev/articles/vitals
+
+Lighthouse performance scoring:
+https://developer.chrome.com/docs/lighthouse/performance/performance-scoring
+
+
+FINAL ASSESSMENT
+================
+
+The project has a credible product foundation and several improvements are
+real: the build works, the public experience is substantial, schema bootstrap
+works, and security headers are much better. The remaining issues are
+concentrated in the exact areas that matter most for a photo platform:
+authorization of private media, ownership of stored objects, destructive
+admin behavior, database evolution, and truthful marketplace trust signals.
+
+Fixing those boundaries first will produce a much larger safety improvement
+than adding more templates or visual polish. Once the P0/P1 findings are
+closed with production-importing tests and enforced CI, the project will be
+in a far stronger position for real customer media and paid transactions.
