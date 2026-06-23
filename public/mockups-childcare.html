@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrameNest Templates — Childcare, Family & Senior Support</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=Playfair+Display:wght@600;700;800&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+:root{--ink:#111827;--muted:#64748b;--shadow:0 28px 90px rgba(15,23,42,.16);--radius:30px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:#0f172a}
+img{display:block;width:100%;object-fit:cover}
+a{text-decoration:none;color:inherit}
+input,select,textarea,button{font:inherit}
+.cover{min-height:72vh;display:grid;place-items:center;padding:84px 6vw;text-align:center;color:white;background:radial-gradient(circle at 16% 18%,rgba(45,212,191,.30),transparent 28%),radial-gradient(circle at 84% 18%,rgba(244,114,182,.28),transparent 30%),linear-gradient(135deg,#020617,#0f172a 58%,#134e4a)}
+.cover .eyebrow{display:inline-flex;padding:10px 16px;border:1px solid rgba(255,255,255,.22);border-radius:999px;color:#ccfbf1;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:900}
+.cover h1{max-width:1140px;margin:24px auto 18px;font-size:clamp(42px,7vw,94px);line-height:.94;letter-spacing:-.07em}
+.cover p{max-width:850px;margin:0 auto;color:#d1d5db;font-size:clamp(18px,2vw,23px);line-height:1.65}
+.template{min-height:780px;padding:78px 6vw;position:relative;overflow:hidden;color:var(--fg,#111827);background:var(--bg,#fff)}
+.template:before{content:"";position:absolute;width:440px;height:440px;border-radius:999px;background:var(--orb,rgba(45,212,191,.18));top:-150px;right:-130px;filter:blur(5px)}
+.template:after{content:"";position:absolute;width:330px;height:330px;border:1px solid var(--mark,rgba(15,23,42,.08));left:-120px;bottom:-130px;border-radius:80px;transform:rotate(24deg)}
+.wrap{width:min(1220px,100%);margin:0 auto;position:relative;z-index:2}
+.template-number{position:absolute;top:22px;right:5vw;z-index:2;opacity:.42;font-size:12px;letter-spacing:.17em;text-transform:uppercase;font-weight:950}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-bottom:46px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.03em}
+.logo{width:42px;height:42px;display:grid;place-items:center;border-radius:15px;background:var(--accent,#0f766e);color:var(--accentText,#fff);font-weight:950;box-shadow:0 14px 34px rgba(0,0,0,.18)}
+.navlinks{display:flex;gap:18px;flex-wrap:wrap;justify-content:flex-end;font-size:14px;font-weight:850;opacity:.72}
+.hero{display:grid;grid-template-columns:1.04fr .96fr;gap:42px;align-items:center}
+.hero h2{margin:0;color:var(--head,currentColor);font-family:var(--display,Inter),sans-serif;font-size:clamp(40px,5.5vw,78px);line-height:.95;letter-spacing:-.06em}
+.hero p{max-width:700px;margin:22px 0 0;color:var(--text,currentColor);opacity:.78;font-size:18px;line-height:1.7}
+.pills{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.pill{padding:10px 14px;border-radius:999px;background:var(--pill,rgba(255,255,255,.72));border:1px solid var(--pillLine,rgba(15,23,42,.1));font-size:13px;font-weight:900}
+.btn-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 22px;border-radius:999px;background:var(--accent,#0f766e);color:var(--accentText,#fff);border:0;cursor:pointer;font-weight:950;box-shadow:0 18px 46px rgba(15,23,42,.20)}
+.btn.secondary{background:transparent;border:1px solid currentColor;color:var(--head,currentColor);box-shadow:none;opacity:.8}
+.media{position:relative;overflow:hidden;border-radius:var(--shape,var(--radius));background:white;box-shadow:var(--shadow);border:1px solid var(--mediaLine,rgba(255,255,255,.5))}
+.media img{height:430px}
+.media-note{position:absolute;left:22px;right:22px;bottom:22px;padding:18px;border-radius:22px;background:rgba(255,255,255,.9);backdrop-filter:blur(16px);color:#0f172a;font-weight:850;line-height:1.45;box-shadow:0 16px 48px rgba(15,23,42,.18)}
+.credential-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px}
+.cred-mini{padding:16px;border-radius:22px;background:var(--card,rgba(255,255,255,.82));border:1px solid var(--cardLine,rgba(15,23,42,.08));box-shadow:0 14px 34px rgba(15,23,42,.06);font-weight:900}
+.cred-mini:before{content:"✓ ";color:var(--accent,#0f766e);font-weight:950}
+.main-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:24px;margin-top:52px}
+.panel{background:var(--card,rgba(255,255,255,.84));border:1px solid var(--cardLine,rgba(15,23,42,.08));border-radius:26px;padding:26px;box-shadow:0 18px 50px rgba(15,23,42,.08);backdrop-filter:blur(14px)}
+.panel h3{margin:0 0 12px;color:var(--head,currentColor);font-size:24px;letter-spacing:-.035em}
+.panel p{margin:0;color:var(--mutedText,#64748b);line-height:1.65}
+.services{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:0;padding:0;list-style:none}
+.services li{min-height:54px;padding:14px;border-radius:18px;display:flex;gap:10px;align-items:flex-start;background:var(--serviceBg,rgba(255,255,255,.72));border:1px solid var(--cardLine,rgba(15,23,42,.08));font-weight:850}
+.services li:before{content:"✦";color:var(--accent,#0f766e);font-weight:950}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+.info{padding:22px;border-radius:24px;background:var(--card,rgba(255,255,255,.84));border:1px solid var(--cardLine,rgba(15,23,42,.08));box-shadow:0 16px 42px rgba(15,23,42,.07)}
+.info b{display:block;color:var(--head,currentColor);margin-bottom:9px}
+.info p{margin:0;color:var(--mutedText,#64748b);line-height:1.6}
+.lower-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin-top:24px}
+.form{display:grid;gap:12px;margin-top:12px}
+.form input,.form select,.form textarea{width:100%;border:1px solid var(--cardLine,rgba(15,23,42,.12));border-radius:16px;padding:13px 14px;background:rgba(255,255,255,.84);color:#111827;outline:none}
+.form textarea{min-height:96px;resize:vertical}
+.review{padding:24px;border-radius:26px;background:var(--accent,#0f766e);color:var(--accentText,#fff);box-shadow:0 18px 50px rgba(15,23,42,.16)}
+.review h3{margin:0 0 12px;font-size:28px;letter-spacing:-.04em}
+.review p{margin:0;line-height:1.65;opacity:.92}
+.gallery{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:14px;margin-top:26px}
+.gallery img{height:172px;border-radius:24px;box-shadow:0 18px 42px rgba(15,23,42,.10)}
+.gallery img:first-child{height:224px}
+
+/* Themes */
+.daycare{--bg:radial-gradient(circle at 16% 18%,rgba(45,212,191,.24),transparent 25%),linear-gradient(135deg,#ecfeff,#fff 48%,#fef9c3);--accent:#0f766e;--display:"Space Grotesk";--shape:999px 999px 40px 40px}
+.nanny{--bg:linear-gradient(135deg,#fff7ed,#fff 48%,#fce7f3);--accent:#be185d;--display:"Playfair Display";--shape:80px 28px 80px 28px}
+.babysitter{--bg:radial-gradient(circle at 16% 18%,rgba(244,114,182,.24),transparent 25%),linear-gradient(135deg,#fff,#fdf2f8 52%,#e0f2fe);--accent:#db2777;--display:"Space Grotesk";--shape:26px 90px 26px 90px}
+.consultant{--bg:linear-gradient(135deg,#f8fafc,#fff 48%,#e2e8f0);--accent:#334155;--display:"Libre Baskerville";--shape:28px}
+.parentcoach{--bg:linear-gradient(135deg,#f0fdf4,#fff 48%,#dcfce7);--accent:#16a34a;--accentText:#052e16;--display:"Playfair Display";--shape:44px}
+.seniorcare{--bg:linear-gradient(135deg,#faf7ef,#fff 48%,#f3e8d6);--accent:#92400e;--display:"Libre Baskerville";--shape:34px}
+.eldercoord{--bg:linear-gradient(135deg,#eff6ff,#fff 48%,#dbeafe);--accent:#2563eb;--display:"Space Grotesk";--shape:18px}
+.disability{--bg:linear-gradient(135deg,#f5f3ff,#fff 48%,#ecfeff);--accent:#7c3aed;--display:"Space Grotesk";--shape:26px}
+.doula{--bg:linear-gradient(135deg,#fff1f2,#fff 48%,#fde68a);--accent:#e11d48;--display:"Playfair Display";--shape:80px 28px 80px 28px}
+.sleep{--bg:linear-gradient(135deg,#eef2ff,#fff 48%,#e0f2fe);--accent:#4f46e5;--display:"Libre Baskerville";--shape:999px 999px 40px 40px}
+
+/* Accents */
+.nanny .media:before,.babysitter .media:before{content:"BACKGROUND CHECKED";position:absolute;top:18px;left:18px;z-index:2;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.9);color:#111827;font-weight:950;letter-spacing:.08em;font-size:12px}
+.daycare .media:before{content:"FACILITY TOUR";position:absolute;top:18px;left:18px;z-index:2;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.9);color:#0f766e;font-weight:950;letter-spacing:.08em;font-size:12px}
+.doula .media:before{content:"BIRTH SUPPORT";position:absolute;top:18px;left:18px;z-index:2;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.9);color:#be123c;font-weight:950;letter-spacing:.08em;font-size:12px}
+.daycare .hero,.babysitter .hero,.parentcoach .hero,.eldercoord .hero,.doula .hero{grid-template-columns:.95fr 1.05fr}
+.nanny .hero,.consultant .hero,.seniorcare .hero,.disability .hero,.sleep .hero{grid-template-columns:1.1fr .9fr}
+
+@media(max-width:980px){
+  .hero,.main-grid,.lower-grid{grid-template-columns:1fr!important}
+  .credential-strip,.info-grid,.gallery{grid-template-columns:1fr}
+  .services{grid-template-columns:1fr}
+  .gallery img,.gallery img:first-child{height:220px}
+  .media img{height:340px}
+  .nav{align-items:flex-start;flex-direction:column}
+  .navlinks{justify-content:flex-start}
+}
+@media(max-width:620px){
+  .cover,.template{padding:64px 5vw}
+  .hero h2{font-size:40px}
+  .panel,.review,.info{padding:20px}
+  .media-note{position:static;margin:-48px 18px 18px}
+}
+</style>
+</head>
+<body>
+  <header class="cover">
+    <div>
+      <span class="eyebrow">FrameNest Mockup Collection</span>
+      <h1>Childcare, Family & Senior Support Website Templates</h1>
+      <p>Ten professional website sections for daycare centers, nanny services, babysitters, childcare consultants, parenting coaches, senior care providers, elder care coordinators, disability support teams, doulas, and sleep consultants.</p>
+    </div>
+  </header>
+  
+  <!-- 01. Daycare Center -->
+  <section class="template daycare">
+    <span class="template-number">Template 01 / Daycare Center</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">D</span>BrightStart Learning Center</div>
+        <div class="navlinks"><span>Credentials</span><span>Services</span><span>Availability</span><span>Safety</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Infants</span><span class="pill">Toddlers</span><span class="pill">Pre-K</span></div>
+          <h2>A bright, safe place for little learners to grow.</h2>
+          <p>A professional daycare website section with age-based programs, facility tour highlights, parent testimonials, and safety-first trust signals.</p>
+          <div class="credential-strip"><div class="cred-mini">State Licensed Childcare Center</div><div class="cred-mini">CPR/First Aid Certified Staff</div><div class="cred-mini">Secure Check-In System</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Inquire About Care</a>
+            <a class="btn secondary" href="#safety">Safety Info</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800" alt="Daycare Center care website hero">
+          <div class="media-note">Programs by age · Parent testimonials · Facility tour</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Infant care</li><li>Toddler program</li><li>Pre-K readiness</li><li>Outdoor play</li><li>Meals and snacks</li><li>Parent updates</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Credentials & Background Check</h3>
+          <p>Prominently show training, licensing, background screening, references, certifications, and safety practices so families can evaluate trust quickly.</p>
+          <div class="credential-strip"><div class="cred-mini">State Licensed Childcare Center</div><div class="cred-mini">CPR/First Aid Certified Staff</div><div class="cred-mini">Secure Check-In System</div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Availability</b>
+          <p>Limited openings for toddlers and pre-K. Infant waitlist available for fall enrollment.</p>
+        </div>
+        <div class="info" id="safety">
+          <b>Safety Info</b>
+          <p>Locked entry, digital check-in, allergy-aware meals, daily classroom cleaning, and emergency drills.</p>
+        </div>
+        <div class="info">
+          <b>Family Fit</b>
+          <p>Use this card for ages served, care philosophy, service radius, virtual options, or intake requirements.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Care Inquiry Form</h3>
+          <p>Collect family needs, age range, schedule, start date, location, and support preferences.</p>
+          <form class="form">
+            <input type="text" placeholder="Parent or family contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Type of care needed</option>
+              <option>Childcare</option>
+              <option>Senior care</option>
+              <option>Family coaching</option>
+              <option>Birth or postpartum support</option>
+              <option>Specialized support</option>
+            </select>
+            <textarea placeholder="Tell us about the care or support needed"></textarea>
+            <button class="btn" type="button">Inquire About Care</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Family Testimonial</h3>
+          <p>“The teachers know our child deeply, and the updates make us feel connected all day.”</p>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800" alt="Daycare Center care photo one">
+        <img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800" alt="Daycare Center care photo two">
+        <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800" alt="Daycare Center care photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 02. Nanny Service -->
+  <section class="template nanny">
+    <span class="template-number">Template 02 / Nanny Service</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">N</span>Trusted Nest Nannies</div>
+        <div class="navlinks"><span>Credentials</span><span>Services</span><span>Availability</span><span>Safety</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Vetted Nannies</span><span class="pill">Full-Time</span><span class="pill">Part-Time</span></div>
+          <h2>Warm, vetted childcare matched to your family rhythm.</h2>
+          <p>A warm nanny agency section with background-check badges, caregiver experience, availability calendar, and family matching support.</p>
+          <div class="credential-strip"><div class="cred-mini">Background Checked Caregivers</div><div class="cred-mini">Reference Verified</div><div class="cred-mini">CPR/First Aid Certified</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Inquire About Care</a>
+            <a class="btn secondary" href="#safety">Safety Info</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800" alt="Nanny Service care website hero">
+          <div class="media-note">Background check badge · Experience profiles · Availability calendar</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Full-time nanny placement</li><li>Part-time care</li><li>After-school support</li><li>Newborn care</li><li>Travel nanny options</li><li>Family matching</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Credentials & Background Check</h3>
+          <p>Prominently show training, licensing, background screening, references, certifications, and safety practices so families can evaluate trust quickly.</p>
+          <div class="credential-strip"><div class="cred-mini">Background Checked Caregivers</div><div class="cred-mini">Reference Verified</div><div class="cred-mini">CPR/First Aid Certified</div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Availability</b>
+          <p>New family consultations available weekly. Placements typically begin within 2–4 weeks.</p>
+        </div>
+        <div class="info" id="safety">
+          <b>Safety Info</b>
+          <p>All candidates complete identity verification, reference checks, interview screening, and safety training review.</p>
+        </div>
+        <div class="info">
+          <b>Family Fit</b>
+          <p>Use this card for ages served, care philosophy, service radius, virtual options, or intake requirements.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Care Inquiry Form</h3>
+          <p>Collect family needs, age range, schedule, start date, location, and support preferences.</p>
+          <form class="form">
+            <input type="text" placeholder="Parent or family contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Type of care needed</option>
+              <option>Childcare</option>
+              <option>Senior care</option>
+              <option>Family coaching</option>
+              <option>Birth or postpartum support</option>
+              <option>Specialized support</option>
+            </select>
+            <textarea placeholder="Tell us about the care or support needed"></textarea>
+            <button class="btn" type="button">Inquire About Care</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Family Testimonial</h3>
+          <p>“They matched us with someone who felt like the right fit from the first week.”</p>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800" alt="Nanny Service care photo one">
+        <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800" alt="Nanny Service care photo two">
+        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800" alt="Nanny Service care photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 03. Babysitter -->
+  <section class="template babysitter">
+    <span class="template-number">Template 03 / Babysitter</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">B</span>Mia Care Babysitting</div>
+        <div class="navlinks"><span>Credentials</span><span>Services</span><span>Availability</span><span>Safety</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Date Nights</span><span class="pill">Weekends</span><span class="pill">After School</span></div>
+          <h2>Reliable babysitting for date nights, weekends, and busy weeks.</h2>
+          <p>A young, fresh babysitter template with availability, rates, certifications, parent reviews, and easy inquiry flow.</p>
+          <div class="credential-strip"><div class="cred-mini">CPR Certified</div><div class="cred-mini">Infant Safety Training</div><div class="cred-mini">Background Check Available</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Inquire About Care</a>
+            <a class="btn secondary" href="#safety">Safety Info</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800" alt="Babysitter care website hero">
+          <div class="media-note">Availability · Rates · Certifications · Parent reviews</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Evening babysitting</li><li>Weekend care</li><li>After-school pickup</li><li>Homework help</li><li>Meal prep</li><li>Bedtime routines</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Credentials & Background Check</h3>
+          <p>Prominently show training, licensing, background screening, references, certifications, and safety practices so families can evaluate trust quickly.</p>
+          <div class="credential-strip"><div class="cred-mini">CPR Certified</div><div class="cred-mini">Infant Safety Training</div><div class="cred-mini">Background Check Available</div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Availability</b>
+          <p>Available most weeknights after 5 PM and select weekends. Advance booking recommended.</p>
+        </div>
+        <div class="info" id="safety">
+          <b>Safety Info</b>
+          <p>Emergency contacts, family routines, allergy notes, and bedtime instructions are reviewed before every booking.</p>
+        </div>
+        <div class="info">
+          <b>Family Fit</b>
+          <p>Use this card for ages served, care philosophy, service radius, virtual options, or intake requirements.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Care Inquiry Form</h3>
+          <p>Collect family needs, age range, schedule, start date, location, and support preferences.</p>
+          <form class="form">
+            <input type="text" placeholder="Parent or family contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Type of care needed</option>
+              <option>Childcare</option>
+              <option>Senior care</option>
+              <option>Family coaching</option>
+              <option>Birth or postpartum support</option>
+              <option>Specialized support</option>
+            </select>
+            <textarea placeholder="Tell us about the care or support needed"></textarea>
+            <button class="btn" type="button">Inquire About Care</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Family Testimonial</h3>
+          <p>“Mia is dependable, calm, and our kids ask when she is coming back.”</p>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800" alt="Babysitter care photo one">
+        <img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800" alt="Babysitter care photo two">
+        <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800" alt="Babysitter care photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 04. Childcare Consultant -->
+  <section class="template consultant">
+    <span class="template-number">Template 04 / Childcare Consultant</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">C</span>Little Steps Consulting</div>
+        <div class="navlinks"><span>Credentials</span><span>Services</span><span>Availability</span><span>Safety</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Sleep</span><span class="pill">Feeding</span><span class="pill">Development</span></div>
+          <h2>Practical guidance for sleep, feeding, routines, and development.</h2>
+          <p>A professional childcare consultant section for sleep training, feeding support, developmental guidance, and parent education.</p>
+          <div class="credential-strip"><div class="cred-mini">Certified Childcare Consultant</div><div class="cred-mini">Early Childhood Development Training</div><div class="cred-mini">Parent Education Specialist</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Inquire About Care</a>
+            <a class="btn secondary" href="#safety">Safety Info</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800" alt="Childcare Consultant care website hero">
+          <div class="media-note">Sleep training · Feeding support · Developmental guidance</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Sleep plans</li><li>Feeding routines</li><li>Developmental guidance</li><li>Caregiver coaching</li><li>Schedule design</li><li>Home routine audits</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Credentials & Background Check</h3>
+          <p>Prominently show training, licensing, background screening, references, certifications, and safety practices so families can evaluate trust quickly.</p>
+          <div class="credential-strip"><div class="cred-mini">Certified Childcare Consultant</div><div class="cred-mini">Early Childhood Development Training</div><div class="cred-mini">Parent Education Specialist</div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Availability</b>
+          <p>Virtual consults available Tuesday through Friday. In-home assessments available locally.</p>
+        </div>
+        <div class="info" id="safety">
+          <b>Safety Info</b>
+          <p>Guidance is age-appropriate, responsive, and adapted to your child, family culture, and pediatric recommendations.</p>
+        </div>
+        <div class="info">
+          <b>Family Fit</b>
+          <p>Use this card for ages served, care philosophy, service radius, virtual options, or intake requirements.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Care Inquiry Form</h3>
+          <p>Collect family needs, age range, schedule, start date, location, and support preferences.</p>
+          <form class="form">
+            <input type="text" placeholder="Parent or family contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Type of care needed</option>
+              <option>Childcare</option>
+              <option>Senior care</option>
+              <option>Family coaching</option>
+              <option>Birth or postpartum support</option>
+              <option>Specialized support</option>
+            </select>
+            <textarea placeholder="Tell us about the care or support needed"></textarea>
+            <button class="btn" type="button">Inquire About Care</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Family Testimonial</h3>
+          <p>“The plan gave us structure without making us feel judged.”</p>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800" alt="Childcare Consultant care photo one">
+        <img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800" alt="Childcare Consultant care photo two">
+        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800" alt="Childcare Consultant care photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 05. Parenting Coach -->
+  <section class="template parentcoach">
+    <span class="template-number">Template 05 / Parenting Coach</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Calm Home Parenting</div>
+        <div class="navlinks"><span>Credentials</span><span>Services</span><span>Availability</span><span>Safety</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Toddlers</span><span class="pill">School Age</span><span class="pill">Workshops</span></div>
+          <h2>Supportive coaching for the messy middle of family life.</h2>
+          <p>A supportive parenting coach website section with age-based programs, workshops, community group details, and family-centered messaging.</p>
+          <div class="credential-strip"><div class="cred-mini">Certified Parent Coach</div><div class="cred-mini">Positive Discipline Training</div><div class="cred-mini">Trauma-Informed Approach</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Inquire About Care</a>
+            <a class="btn secondary" href="#safety">Safety Info</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800" alt="Parenting Coach care website hero">
+          <div class="media-note">Age-based programs · Workshops · Community group</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Parent coaching</li><li>Behavior support</li><li>Sibling conflict tools</li><li>Workshops</li><li>Community groups</li><li>Family routine planning</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Credentials & Background Check</h3>
+          <p>Prominently show training, licensing, background screening, references, certifications, and safety practices so families can evaluate trust quickly.</p>
+          <div class="credential-strip"><div class="cred-mini">Certified Parent Coach</div><div class="cred-mini">Positive Discipline Training</div><div class="cred-mini">Trauma-Informed Approach</div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Availability</b>
+          <p>Private coaching spots open monthly. Group workshops run every quarter.</p>
+        </div>
+        <div class="info" id="safety">
+          <b>Safety Info</b>
+          <p>Coaching emphasizes connection, emotional safety, realistic expectations, and practical tools over shame or punishment.</p>
+        </div>
+        <div class="info">
+          <b>Family Fit</b>
+          <p>Use this card for ages served, care philosophy, service radius, virtual options, or intake requirements.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Care Inquiry Form</h3>
+          <p>Collect family needs, age range, schedule, start date, location, and support preferences.</p>
+          <form class="form">
+            <input type="text" placeholder="Parent or family contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Type of care needed</option>
+              <option>Childcare</option>
+              <option>Senior care</option>
+              <option>Family coaching</option>
+              <option>Birth or postpartum support</option>
+              <option>Specialized support</option>
+            </select>
+            <textarea placeholder="Tell us about the care or support needed"></textarea>
+            <button class="btn" type="button">Inquire About Care</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Family Testimonial</h3>
+          <p>“We left every session with language we could use the same day.”</p>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800" alt="Parenting Coach care photo one">
+        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800" alt="Parenting Coach care photo two">
+        <img src="https://images.unsplash.com/photo-1544776193-352d25ca82cd?w=800" alt="Parenting Coach care photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 06. Senior Care -->
+  <section class="template seniorcare">
+    <span class="template-number">Template 06 / Senior Care</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">S</span>Golden Hour Senior Care</div>
+        <div class="navlinks"><span>Credentials</span><span>Services</span><span>Availability</span><span>Safety</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Companionship</span><span class="pill">Daily Help</span><span class="pill">Family Support</span></div>
+          <h2>Respectful in-home support that protects dignity and independence.</h2>
+          <p>A respectful senior care template with service lists, caregiver qualifications, family resources, and clear inquiry options.</p>
+          <div class="credential-strip"><div class="cred-mini">Certified Caregivers</div><div class="cred-mini">Background Checked Team</div><div class="cred-mini">Medication Reminder Training</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Inquire About Care</a>
+            <a class="btn secondary" href="#safety">Safety Info</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=800" alt="Senior Care care website hero">
+          <div class="media-note">Services list · Caregiver qualifications · Family resources</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Companionship</li><li>Meal preparation</li><li>Light housekeeping</li><li>Transportation</li><li>Medication reminders</li><li>Respite care</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Credentials & Background Check</h3>
+          <p>Prominently show training, licensing, background screening, references, certifications, and safety practices so families can evaluate trust quickly.</p>
+          <div class="credential-strip"><div class="cred-mini">Certified Caregivers</div><div class="cred-mini">Background Checked Team</div><div class="cred-mini">Medication Reminder Training</div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Availability</b>
+          <p>Hourly care and recurring weekly schedules available. Overnight care by consultation.</p>
+        </div>
+        <div class="info" id="safety">
+          <b>Safety Info</b>
+          <p>Care plans include fall-risk notes, emergency contacts, medication reminders, and family communication preferences.</p>
+        </div>
+        <div class="info">
+          <b>Family Fit</b>
+          <p>Use this card for ages served, care philosophy, service radius, virtual options, or intake requirements.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Care Inquiry Form</h3>
+          <p>Collect family needs, age range, schedule, start date, location, and support preferences.</p>
+          <form class="form">
+            <input type="text" placeholder="Parent or family contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Type of care needed</option>
+              <option>Childcare</option>
+              <option>Senior care</option>
+              <option>Family coaching</option>
+              <option>Birth or postpartum support</option>
+              <option>Specialized support</option>
+            </select>
+            <textarea placeholder="Tell us about the care or support needed"></textarea>
+            <button class="btn" type="button">Inquire About Care</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Family Testimonial</h3>
+          <p>“They treat my father with patience, respect, and real warmth.”</p>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=800" alt="Senior Care care photo one">
+        <img src="https://images.unsplash.com/photo-1544776193-352d25ca82cd?w=800" alt="Senior Care care photo two">
+        <img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800" alt="Senior Care care photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 07. Elder Care Coordinator -->
+  <section class="template eldercoord">
+    <span class="template-number">Template 07 / Elder Care Coordinator</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">E</span>CarePath Coordination</div>
+        <div class="navlinks"><span>Credentials</span><span>Services</span><span>Availability</span><span>Safety</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Care Planning</span><span class="pill">Provider Network</span><span class="pill">Family Meetings</span></div>
+          <h2>Organized care planning when families need a clearer path.</h2>
+          <p>An organized elder care coordinator section with care planning, provider networks, family support, and decision-making tools.</p>
+          <div class="credential-strip"><div class="cred-mini">Aging Care Specialist</div><div class="cred-mini">Care Coordination Training</div><div class="cred-mini">Healthcare Navigation Experience</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Inquire About Care</a>
+            <a class="btn secondary" href="#safety">Safety Info</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1544776193-352d25ca82cd?w=800" alt="Elder Care Coordinator care website hero">
+          <div class="media-note">Care planning · Provider network · Family support</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Care assessments</li><li>Provider referrals</li><li>Family meetings</li><li>Home safety planning</li><li>Appointment coordination</li><li>Long-term care planning</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Credentials & Background Check</h3>
+          <p>Prominently show training, licensing, background screening, references, certifications, and safety practices so families can evaluate trust quickly.</p>
+          <div class="credential-strip"><div class="cred-mini">Aging Care Specialist</div><div class="cred-mini">Care Coordination Training</div><div class="cred-mini">Healthcare Navigation Experience</div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Availability</b>
+          <p>Initial family consultations available by video or phone. Urgent care planning slots reserved weekly.</p>
+        </div>
+        <div class="info" id="safety">
+          <b>Safety Info</b>
+          <p>Plans include medical context, home safety, family roles, provider communication, and escalation steps.</p>
+        </div>
+        <div class="info">
+          <b>Family Fit</b>
+          <p>Use this card for ages served, care philosophy, service radius, virtual options, or intake requirements.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Care Inquiry Form</h3>
+          <p>Collect family needs, age range, schedule, start date, location, and support preferences.</p>
+          <form class="form">
+            <input type="text" placeholder="Parent or family contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Type of care needed</option>
+              <option>Childcare</option>
+              <option>Senior care</option>
+              <option>Family coaching</option>
+              <option>Birth or postpartum support</option>
+              <option>Specialized support</option>
+            </select>
+            <textarea placeholder="Tell us about the care or support needed"></textarea>
+            <button class="btn" type="button">Inquire About Care</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Family Testimonial</h3>
+          <p>“They helped our family stop guessing and start making calm decisions.”</p>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1544776193-352d25ca82cd?w=800" alt="Elder Care Coordinator care photo one">
+        <img src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=800" alt="Elder Care Coordinator care photo two">
+        <img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800" alt="Elder Care Coordinator care photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 08. Disability Support -->
+  <section class="template disability">
+    <span class="template-number">Template 08 / Disability Support</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">D</span>OpenPath Support Services</div>
+        <div class="navlinks"><span>Credentials</span><span>Services</span><span>Availability</span><span>Safety</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Adaptive Support</span><span class="pill">Advocacy</span><span class="pill">Community</span></div>
+          <h2>Inclusive support designed around autonomy, access, and belonging.</h2>
+          <p>An inclusive disability support section with adaptive services, advocacy, community resources, and family/client-centered language.</p>
+          <div class="credential-strip"><div class="cred-mini">Background Checked Support Team</div><div class="cred-mini">Disability Inclusion Training</div><div class="cred-mini">Person-Centered Planning</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Inquire About Care</a>
+            <a class="btn secondary" href="#safety">Safety Info</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1544776193-352d25ca82cd?w=800" alt="Disability Support care website hero">
+          <div class="media-note">Adaptive services · Community resources · Advocacy</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Daily living support</li><li>Community access</li><li>Adaptive routines</li><li>Caregiver respite</li><li>Advocacy support</li><li>Resource navigation</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Credentials & Background Check</h3>
+          <p>Prominently show training, licensing, background screening, references, certifications, and safety practices so families can evaluate trust quickly.</p>
+          <div class="credential-strip"><div class="cred-mini">Background Checked Support Team</div><div class="cred-mini">Disability Inclusion Training</div><div class="cred-mini">Person-Centered Planning</div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Availability</b>
+          <p>Flexible weekday and weekend support options. Custom schedules built around client goals.</p>
+        </div>
+        <div class="info" id="safety">
+          <b>Safety Info</b>
+          <p>Support plans are consent-based, person-centered, accessibility-aware, and reviewed with families or advocates.</p>
+        </div>
+        <div class="info">
+          <b>Family Fit</b>
+          <p>Use this card for ages served, care philosophy, service radius, virtual options, or intake requirements.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Care Inquiry Form</h3>
+          <p>Collect family needs, age range, schedule, start date, location, and support preferences.</p>
+          <form class="form">
+            <input type="text" placeholder="Parent or family contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Type of care needed</option>
+              <option>Childcare</option>
+              <option>Senior care</option>
+              <option>Family coaching</option>
+              <option>Birth or postpartum support</option>
+              <option>Specialized support</option>
+            </select>
+            <textarea placeholder="Tell us about the care or support needed"></textarea>
+            <button class="btn" type="button">Inquire About Care</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Family Testimonial</h3>
+          <p>“They focus on capability, choice, and respect — not just tasks.”</p>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1544776193-352d25ca82cd?w=800" alt="Disability Support care photo one">
+        <img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800" alt="Disability Support care photo two">
+        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800" alt="Disability Support care photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 09. Doula Services -->
+  <section class="template doula">
+    <span class="template-number">Template 09 / Doula Services</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">D</span>Root &amp; Rise Doula Care</div>
+        <div class="navlinks"><span>Credentials</span><span>Services</span><span>Availability</span><span>Safety</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Birth Doula</span><span class="pill">Postpartum</span><span class="pill">Prenatal</span></div>
+          <h2>Steady, nurturing support before, during, and after birth.</h2>
+          <p>A nurturing doula services template with birth philosophy, prenatal and postnatal packages, birth gallery, and gentle inquiry flow.</p>
+          <div class="credential-strip"><div class="cred-mini">Certified Birth Doula</div><div class="cred-mini">Postpartum Support Training</div><div class="cred-mini">Infant Feeding Education</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Inquire About Care</a>
+            <a class="btn secondary" href="#safety">Safety Info</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1604881991720-f91add269bed?w=800" alt="Doula Services care website hero">
+          <div class="media-note">Birth philosophy · Prenatal/postnatal packages · Birth gallery</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Birth support</li><li>Prenatal visits</li><li>Postpartum care</li><li>Feeding support</li><li>Birth plan guidance</li><li>Partner support</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Credentials & Background Check</h3>
+          <p>Prominently show training, licensing, background screening, references, certifications, and safety practices so families can evaluate trust quickly.</p>
+          <div class="credential-strip"><div class="cred-mini">Certified Birth Doula</div><div class="cred-mini">Postpartum Support Training</div><div class="cred-mini">Infant Feeding Education</div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Availability</b>
+          <p>Accepting birth clients with estimated due dates 3–8 months out. Postpartum care booked monthly.</p>
+        </div>
+        <div class="info" id="safety">
+          <b>Safety Info</b>
+          <p>Care is non-medical, collaborative, consent-centered, and coordinated with your clinical birth team.</p>
+        </div>
+        <div class="info">
+          <b>Family Fit</b>
+          <p>Use this card for ages served, care philosophy, service radius, virtual options, or intake requirements.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Care Inquiry Form</h3>
+          <p>Collect family needs, age range, schedule, start date, location, and support preferences.</p>
+          <form class="form">
+            <input type="text" placeholder="Parent or family contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Type of care needed</option>
+              <option>Childcare</option>
+              <option>Senior care</option>
+              <option>Family coaching</option>
+              <option>Birth or postpartum support</option>
+              <option>Specialized support</option>
+            </select>
+            <textarea placeholder="Tell us about the care or support needed"></textarea>
+            <button class="btn" type="button">Inquire About Care</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Family Testimonial</h3>
+          <p>“Her presence helped us feel grounded, informed, and cared for.”</p>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1604881991720-f91add269bed?w=800" alt="Doula Services care photo one">
+        <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800" alt="Doula Services care photo two">
+        <img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800" alt="Doula Services care photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Sleep Consultant -->
+  <section class="template sleep">
+    <span class="template-number">Template 10 / Sleep Consultant</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">S</span>Moonlit Sleep Consulting</div>
+        <div class="navlinks"><span>Credentials</span><span>Services</span><span>Availability</span><span>Safety</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Infants</span><span class="pill">Toddlers</span><span class="pill">Gentle Methods</span></div>
+          <h2>Gentle sleep support for tired families and growing children.</h2>
+          <p>A calming sleep consultant section with age-based programs, method explanation, success stories, and parent-friendly education.</p>
+          <div class="credential-strip"><div class="cred-mini">Certified Pediatric Sleep Consultant</div><div class="cred-mini">Infant Safety Education</div><div class="cred-mini">Responsive Sleep Training</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Inquire About Care</a>
+            <a class="btn secondary" href="#safety">Safety Info</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800" alt="Sleep Consultant care website hero">
+          <div class="media-note">Age-based programs · Method explanation · Success stories</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Newborn sleep foundations</li><li>Infant sleep plans</li><li>Toddler sleep support</li><li>Schedule troubleshooting</li><li>Nap transitions</li><li>Parent coaching</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Credentials & Background Check</h3>
+          <p>Prominently show training, licensing, background screening, references, certifications, and safety practices so families can evaluate trust quickly.</p>
+          <div class="credential-strip"><div class="cred-mini">Certified Pediatric Sleep Consultant</div><div class="cred-mini">Infant Safety Education</div><div class="cred-mini">Responsive Sleep Training</div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Availability</b>
+          <p>Two-week and four-week support packages available. Free discovery calls open weekly.</p>
+        </div>
+        <div class="info" id="safety">
+          <b>Safety Info</b>
+          <p>Methods are age-appropriate, responsive, and adapted to feeding, development, medical history, and family values.</p>
+        </div>
+        <div class="info">
+          <b>Family Fit</b>
+          <p>Use this card for ages served, care philosophy, service radius, virtual options, or intake requirements.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Care Inquiry Form</h3>
+          <p>Collect family needs, age range, schedule, start date, location, and support preferences.</p>
+          <form class="form">
+            <input type="text" placeholder="Parent or family contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Type of care needed</option>
+              <option>Childcare</option>
+              <option>Senior care</option>
+              <option>Family coaching</option>
+              <option>Birth or postpartum support</option>
+              <option>Specialized support</option>
+            </select>
+            <textarea placeholder="Tell us about the care or support needed"></textarea>
+            <button class="btn" type="button">Inquire About Care</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Family Testimonial</h3>
+          <p>“We finally understood what was happening and had a plan we could follow.”</p>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800" alt="Sleep Consultant care photo one">
+        <img src="https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800" alt="Sleep Consultant care photo two">
+        <img src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800" alt="Sleep Consultant care photo three">
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

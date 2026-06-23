@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrameNest Templates — Pet Services</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=Playfair+Display:wght@600;700;800&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+:root{--ink:#111827;--muted:#64748b;--shadow:0 28px 90px rgba(15,23,42,.16);--radius:30px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:#0f172a}
+img{display:block;width:100%;object-fit:cover}
+a{text-decoration:none;color:inherit}
+input,select,textarea,button{font:inherit}
+.cover{min-height:72vh;display:grid;place-items:center;padding:84px 6vw;text-align:center;color:white;background:radial-gradient(circle at 16% 18%,rgba(34,197,94,.30),transparent 28%),radial-gradient(circle at 84% 18%,rgba(245,158,11,.28),transparent 30%),linear-gradient(135deg,#020617,#0f172a 58%,#14532d)}
+.cover .eyebrow{display:inline-flex;padding:10px 16px;border:1px solid rgba(255,255,255,.22);border-radius:999px;color:#dcfce7;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:900}
+.cover h1{max-width:1140px;margin:24px auto 18px;font-size:clamp(42px,7vw,94px);line-height:.94;letter-spacing:-.07em}
+.cover p{max-width:850px;margin:0 auto;color:#d1d5db;font-size:clamp(18px,2vw,23px);line-height:1.65}
+.template{min-height:780px;padding:78px 6vw;position:relative;overflow:hidden;color:var(--fg,#111827);background:var(--bg,#fff)}
+.template:before{content:"";position:absolute;width:440px;height:440px;border-radius:999px;background:var(--orb,rgba(34,197,94,.18));top:-150px;right:-130px;filter:blur(5px)}
+.template:after{content:"";position:absolute;width:330px;height:330px;border:1px solid var(--mark,rgba(15,23,42,.08));left:-120px;bottom:-130px;border-radius:80px;transform:rotate(24deg)}
+.wrap{width:min(1220px,100%);margin:0 auto;position:relative;z-index:2}
+.template-number{position:absolute;top:22px;right:5vw;z-index:2;opacity:.42;font-size:12px;letter-spacing:.17em;text-transform:uppercase;font-weight:950}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-bottom:46px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.03em}
+.logo{width:42px;height:42px;display:grid;place-items:center;border-radius:15px;background:var(--accent,#16a34a);color:var(--accentText,#fff);font-weight:950;box-shadow:0 14px 34px rgba(0,0,0,.18)}
+.navlinks{display:flex;gap:18px;flex-wrap:wrap;justify-content:flex-end;font-size:14px;font-weight:850;opacity:.72}
+.hero{display:grid;grid-template-columns:1.04fr .96fr;gap:42px;align-items:center}
+.hero h2{margin:0;color:var(--head,currentColor);font-family:var(--display,Inter),sans-serif;font-size:clamp(40px,5.5vw,78px);line-height:.95;letter-spacing:-.06em}
+.hero p{max-width:700px;margin:22px 0 0;color:var(--text,currentColor);opacity:.78;font-size:18px;line-height:1.7}
+.pills{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.pill{padding:10px 14px;border-radius:999px;background:var(--pill,rgba(255,255,255,.72));border:1px solid var(--pillLine,rgba(15,23,42,.1));font-size:13px;font-weight:900}
+.btn-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 22px;border-radius:999px;background:var(--accent,#16a34a);color:var(--accentText,#fff);border:0;cursor:pointer;font-weight:950;box-shadow:0 18px 46px rgba(15,23,42,.20)}
+.btn.secondary{background:transparent;border:1px solid currentColor;color:var(--head,currentColor);box-shadow:none;opacity:.8}
+.media{position:relative;overflow:hidden;border-radius:var(--shape,var(--radius));background:white;box-shadow:var(--shadow);border:1px solid var(--mediaLine,rgba(255,255,255,.5))}
+.media img{height:430px}
+.media-note{position:absolute;left:22px;right:22px;bottom:22px;padding:18px;border-radius:22px;background:rgba(255,255,255,.9);backdrop-filter:blur(16px);color:#0f172a;font-weight:850;line-height:1.45;box-shadow:0 16px 48px rgba(15,23,42,.18)}
+.price-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px}
+.price-mini{padding:16px;border-radius:22px;background:var(--card,rgba(255,255,255,.82));border:1px solid var(--cardLine,rgba(15,23,42,.08));box-shadow:0 14px 34px rgba(15,23,42,.06)}
+.price-mini b{display:block;color:var(--head,currentColor);margin-bottom:6px}
+.price-mini strong{display:block;color:var(--accent,#16a34a);font-size:28px;line-height:1;letter-spacing:-.06em;margin-bottom:8px}
+.price-mini span{color:var(--mutedText,#64748b);line-height:1.45}
+.main-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:24px;margin-top:52px}
+.panel{background:var(--card,rgba(255,255,255,.84));border:1px solid var(--cardLine,rgba(15,23,42,.08));border-radius:26px;padding:26px;box-shadow:0 18px 50px rgba(15,23,42,.08);backdrop-filter:blur(14px)}
+.panel h3{margin:0 0 12px;color:var(--head,currentColor);font-size:24px;letter-spacing:-.035em}
+.panel p{margin:0;color:var(--mutedText,#64748b);line-height:1.65}
+.services{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:0;padding:0;list-style:none}
+.services li{min-height:54px;padding:14px;border-radius:18px;display:flex;gap:10px;align-items:flex-start;background:var(--serviceBg,rgba(255,255,255,.72));border:1px solid var(--cardLine,rgba(15,23,42,.08));font-weight:850}
+.services li:before{content:"🐾";font-weight:950}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+.info{padding:22px;border-radius:24px;background:var(--card,rgba(255,255,255,.84));border:1px solid var(--cardLine,rgba(15,23,42,.08));box-shadow:0 16px 42px rgba(15,23,42,.07)}
+.info b{display:block;color:var(--head,currentColor);margin-bottom:9px}
+.info p{margin:0;color:var(--mutedText,#64748b);line-height:1.6}
+.lower-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin-top:24px}
+.form{display:grid;gap:12px;margin-top:12px}
+.form input,.form select,.form textarea{width:100%;border:1px solid var(--cardLine,rgba(15,23,42,.12));border-radius:16px;padding:13px 14px;background:rgba(255,255,255,.84);color:#111827;outline:none}
+.form textarea{min-height:96px;resize:vertical}
+.review{padding:24px;border-radius:26px;background:var(--accent,#16a34a);color:var(--accentText,#fff);box-shadow:0 18px 50px rgba(15,23,42,.16)}
+.review h3{margin:0 0 12px;font-size:28px;letter-spacing:-.04em}
+.review p{margin:0;line-height:1.65;opacity:.92}
+.gallery{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:14px;margin-top:26px}
+.gallery img{height:172px;border-radius:24px;box-shadow:0 18px 42px rgba(15,23,42,.10)}
+.gallery img:first-child{height:224px}
+
+/* Themes */
+.trainer{--bg:linear-gradient(135deg,#fff7ed,#fff 48%,#fef3c7);--accent:#ea580c;--display:"Space Grotesk";--shape:26px}
+.groomer{--bg:radial-gradient(circle at 16% 18%,rgba(244,114,182,.26),transparent 25%),linear-gradient(135deg,#fff,#fdf2f8 52%,#fae8ff);--accent:#db2777;--display:"Playfair Display";--shape:80px 28px 80px 28px}
+.sitter{--bg:linear-gradient(135deg,#f0fdf4,#fff 48%,#dcfce7);--accent:#16a34a;--accentText:#052e16;--display:"Libre Baskerville";--shape:34px}
+.walker{--bg:linear-gradient(135deg,#ecfeff,#fff 48%,#f0fdfa);--accent:#0891b2;--accentText:#ecfeff;--display:"Space Grotesk";--shape:999px 999px 40px 40px}
+.veterinarian{--bg:linear-gradient(135deg,#f8fafc,#fff 48%,#dbeafe);--accent:#2563eb;--display:"Space Grotesk";--shape:18px}
+.mobilevet{--bg:linear-gradient(135deg,#f5f3ff,#fff 48%,#e0f2fe);--accent:#7c3aed;--display:"Space Grotesk";--shape:26px 90px 26px 90px}
+.photographer{--bg:linear-gradient(135deg,#fff7ed,#fff 48%,#fce7f3);--accent:#be185d;--display:"Playfair Display";--shape:44px}
+.boarding{--bg:linear-gradient(135deg,#07111f,#0f1e34 55%,#111827);--fg:#f8fafc;--head:#fff;--text:#dbeafe;--mutedText:#cbd5e1;--accent:#d6a74a;--accentText:#07111f;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Playfair Display";--shape:44px}
+.daycare{--bg:radial-gradient(circle at 16% 18%,rgba(34,197,94,.26),transparent 25%),linear-gradient(135deg,#fff,#ecfccb 52%,#fef9c3);--accent:#65a30d;--accentText:#1a2e05;--display:"Space Grotesk";--shape:26px 90px 26px 90px}
+
+/* Accents */
+.walker .media:before{content:"GPS TRACKED";position:absolute;top:18px;left:18px;z-index:2;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.9);color:#0e7490;font-weight:950;letter-spacing:.08em;font-size:12px}
+.boarding .media:before{content:"WEBCAM AVAILABLE";position:absolute;top:18px;left:18px;z-index:2;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.9);color:#111827;font-weight:950;letter-spacing:.08em;font-size:12px}
+.mobilevet .media:before{content:"HOUSE CALL";position:absolute;top:18px;left:18px;z-index:2;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.9);color:#6d28d9;font-weight:950;letter-spacing:.08em;font-size:12px}
+.trainer .hero,.groomer .hero,.veterinarian .hero,.photographer .hero,.daycare .hero{grid-template-columns:.95fr 1.05fr}
+.sitter .hero,.walker .hero,.mobilevet .hero,.boarding .hero{grid-template-columns:1.1fr .9fr}
+
+@media(max-width:980px){
+  .hero,.main-grid,.lower-grid{grid-template-columns:1fr!important}
+  .price-strip,.info-grid,.gallery{grid-template-columns:1fr}
+  .services{grid-template-columns:1fr}
+  .gallery img,.gallery img:first-child{height:220px}
+  .media img{height:340px}
+  .nav{align-items:flex-start;flex-direction:column}
+  .navlinks{justify-content:flex-start}
+}
+@media(max-width:620px){
+  .cover,.template{padding:64px 5vw}
+  .hero h2{font-size:40px}
+  .panel,.review,.info{padding:20px}
+  .media-note{position:static;margin:-48px 18px 18px}
+}
+</style>
+</head>
+<body>
+  <header class="cover">
+    <div>
+      <span class="eyebrow">FrameNest Mockup Collection</span>
+      <h1>Pet Service Website Templates</h1>
+      <p>Nine professional website sections for dog trainers, pet groomers, pet sitters, dog walkers, veterinarians, mobile vets, pet photographers, pet boarding facilities, and pet daycare businesses.</p>
+    </div>
+  </header>
+  
+  <!-- 01. Dog Trainer -->
+  <section class="template trainer">
+    <span class="template-number">Template 01 / Dog Trainer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">D</span>GoodPup Training Co.</div>
+        <div class="navlinks"><span>Services</span><span>Pricing</span><span>Photos</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Puppy Basics</span><span class="pill">Leash Skills</span><span class="pill">Behavior Support</span></div>
+          <h2>Better behavior, clearer communication, happier walks.</h2>
+          <p>An energetic dog trainer template with training programs, behavior transformation cards, certification proof, and booking flow.</p>
+          <div class="price-strip"><div class="price-mini"><b>Puppy Start</b><strong>$220</strong><span>Two private sessions</span></div><div class="price-mini"><b>Behavior Reset</b><strong>$640</strong><span>Six-week coaching package</span></div><div class="price-mini"><b>Group Class</b><strong>$180</strong><span>Four weekly classes</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book for Your Pet</a>
+            <a class="btn secondary" href="#photos">View Pet Photos</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800" alt="Dog Trainer pet service website hero">
+          <div class="media-note">Training programs · Before/after behavior · Certification</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Puppy foundations</li><li>Loose-leash walking</li><li>Recall training</li><li>Reactivity coaching</li><li>Private lessons</li><li>Group classes</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <p>Clear pricing cards help pet parents compare options, understand inclusions, and book the right level of care.</p>
+          <div class="price-strip"><div class="price-mini"><b>Puppy Start</b><strong>$220</strong><span>Two private sessions</span></div><div class="price-mini"><b>Behavior Reset</b><strong>$640</strong><span>Six-week coaching package</span></div><div class="price-mini"><b>Group Class</b><strong>$180</strong><span>Four weekly classes</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Service Area</b>
+          <p>Serving North Park, Midtown, Lakeside, and virtual coaching clients.</p>
+        </div>
+        <div class="info">
+          <b>Pet Care Notes</b>
+          <p>Use this space for vaccination requirements, temperament notes, intake forms, safety policies, or owner instructions.</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this CTA to appointment scheduling, intake forms, new client screening, or service package checkout.</p>
+          <a class="btn" href="#booking">Book for Your Pet</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Capture pet name, species, service type, preferred date, neighborhood, and special care instructions.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="text" placeholder="Pet name">
+            <select>
+              <option>Service needed</option>
+              <option>Training</option>
+              <option>Grooming</option>
+              <option>Walking or sitting</option>
+              <option>Veterinary care</option>
+              <option>Boarding or daycare</option>
+              <option>Photo session</option>
+            </select>
+            <textarea placeholder="Tell us about your pet"></textarea>
+            <button class="btn" type="button">Book for Your Pet</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Pet Parent Review</h3>
+          <p>“Our dog finally walks calmly, and we understand how to keep the progress going.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="photos">
+        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800" alt="Dog Trainer pet photo one">
+        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800" alt="Dog Trainer pet photo two">
+        <img src="https://images.unsplash.com/photo-1544568100-847a948585b9?w=800" alt="Dog Trainer pet photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 02. Pet Groomer -->
+  <section class="template groomer">
+    <span class="template-number">Template 02 / Pet Groomer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Fluff &amp; Shine Grooming</div>
+        <div class="navlinks"><span>Services</span><span>Pricing</span><span>Photos</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Baths</span><span class="pill">Breed Cuts</span><span class="pill">Nail Care</span></div>
+          <h2>Cute cuts, clean coats, and calm grooming appointments.</h2>
+          <p>A cute pet groomer template with breed gallery, service menu, grooming packages, and trust-forward pet care notes.</p>
+          <div class="price-strip"><div class="price-mini"><b>Bath Package</b><strong>$55+</strong><span>Bath, brush, ears, nails</span></div><div class="price-mini"><b>Full Groom</b><strong>$95+</strong><span>Cut, bath, brush, nails</span></div><div class="price-mini"><b>Spa Add-On</b><strong>$25</strong><span>Teeth, balm, premium shampoo</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book for Your Pet</a>
+            <a class="btn secondary" href="#photos">View Pet Photos</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=800" alt="Pet Groomer pet service website hero">
+          <div class="media-note">Breed gallery · Service menu · Grooming packages</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Bath and brush</li><li>Full groom</li><li>Breed-specific trims</li><li>Nail grinding</li><li>De-shedding</li><li>Puppy intro groom</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <p>Clear pricing cards help pet parents compare options, understand inclusions, and book the right level of care.</p>
+          <div class="price-strip"><div class="price-mini"><b>Bath Package</b><strong>$55+</strong><span>Bath, brush, ears, nails</span></div><div class="price-mini"><b>Full Groom</b><strong>$95+</strong><span>Cut, bath, brush, nails</span></div><div class="price-mini"><b>Spa Add-On</b><strong>$25</strong><span>Teeth, balm, premium shampoo</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Service Area</b>
+          <p>Salon appointments available downtown with limited mobile grooming nearby.</p>
+        </div>
+        <div class="info">
+          <b>Pet Care Notes</b>
+          <p>Use this space for vaccination requirements, temperament notes, intake forms, safety policies, or owner instructions.</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this CTA to appointment scheduling, intake forms, new client screening, or service package checkout.</p>
+          <a class="btn" href="#booking">Book for Your Pet</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Capture pet name, species, service type, preferred date, neighborhood, and special care instructions.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="text" placeholder="Pet name">
+            <select>
+              <option>Service needed</option>
+              <option>Training</option>
+              <option>Grooming</option>
+              <option>Walking or sitting</option>
+              <option>Veterinary care</option>
+              <option>Boarding or daycare</option>
+              <option>Photo session</option>
+            </select>
+            <textarea placeholder="Tell us about your pet"></textarea>
+            <button class="btn" type="button">Book for Your Pet</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Pet Parent Review</h3>
+          <p>“Our anxious pup came home clean, happy, and not stressed.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="photos">
+        <img src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=800" alt="Pet Groomer pet photo one">
+        <img src="https://images.unsplash.com/photo-1544568100-847a948585b9?w=800" alt="Pet Groomer pet photo two">
+        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800" alt="Pet Groomer pet photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 03. Pet Sitter -->
+  <section class="template sitter">
+    <span class="template-number">Template 03 / Pet Sitter</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Cozy Paws Pet Sitting</div>
+        <div class="navlinks"><span>Services</span><span>Pricing</span><span>Photos</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Drop-Ins</span><span class="pill">Overnights</span><span class="pill">Daily Updates</span></div>
+          <h2>At-home pet care with updates you can count on.</h2>
+          <p>A trustworthy pet sitter template with home-environment photos, daily update promise, rates, and simple booking.</p>
+          <div class="price-strip"><div class="price-mini"><b>Drop-In Visit</b><strong>$28</strong><span>30-minute home visit</span></div><div class="price-mini"><b>Extended Visit</b><strong>$42</strong><span>60-minute care visit</span></div><div class="price-mini"><b>Overnight Stay</b><strong>$110</strong><span>In-home overnight care</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book for Your Pet</a>
+            <a class="btn secondary" href="#photos">View Pet Photos</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=800" alt="Pet Sitter pet service website hero">
+          <div class="media-note">Home care photos · Daily updates · Transparent rates</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Cat visits</li><li>Dog drop-ins</li><li>Overnight sitting</li><li>Medication reminders</li><li>Feeding routines</li><li>Plant and mail check</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <p>Clear pricing cards help pet parents compare options, understand inclusions, and book the right level of care.</p>
+          <div class="price-strip"><div class="price-mini"><b>Drop-In Visit</b><strong>$28</strong><span>30-minute home visit</span></div><div class="price-mini"><b>Extended Visit</b><strong>$42</strong><span>60-minute care visit</span></div><div class="price-mini"><b>Overnight Stay</b><strong>$110</strong><span>In-home overnight care</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Service Area</b>
+          <p>Serving downtown condos, Eastside homes, and West Hills neighborhoods.</p>
+        </div>
+        <div class="info">
+          <b>Pet Care Notes</b>
+          <p>Use this space for vaccination requirements, temperament notes, intake forms, safety policies, or owner instructions.</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this CTA to appointment scheduling, intake forms, new client screening, or service package checkout.</p>
+          <a class="btn" href="#booking">Book for Your Pet</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Capture pet name, species, service type, preferred date, neighborhood, and special care instructions.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="text" placeholder="Pet name">
+            <select>
+              <option>Service needed</option>
+              <option>Training</option>
+              <option>Grooming</option>
+              <option>Walking or sitting</option>
+              <option>Veterinary care</option>
+              <option>Boarding or daycare</option>
+              <option>Photo session</option>
+            </select>
+            <textarea placeholder="Tell us about your pet"></textarea>
+            <button class="btn" type="button">Book for Your Pet</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Pet Parent Review</h3>
+          <p>“The photo updates made traveling so much easier.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="photos">
+        <img src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=800" alt="Pet Sitter pet photo one">
+        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800" alt="Pet Sitter pet photo two">
+        <img src="https://images.unsplash.com/photo-1544568100-847a948585b9?w=800" alt="Pet Sitter pet photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 04. Dog Walker -->
+  <section class="template walker">
+    <span class="template-number">Template 04 / Dog Walker</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">D</span>TrailTail Dog Walking</div>
+        <div class="navlinks"><span>Services</span><span>Pricing</span><span>Photos</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">GPS Tracking</span><span class="pill">Solo Walks</span><span class="pill">Pack Walks</span></div>
+          <h2>Reliable walks, fresh air, and happy tired dogs.</h2>
+          <p>An active dog walker template with route area map styling, walk options, GPS tracking mention, and neighborhood proof.</p>
+          <div class="price-strip"><div class="price-mini"><b>Quick Walk</b><strong>$22</strong><span>20-minute visit</span></div><div class="price-mini"><b>Standard Walk</b><strong>$32</strong><span>40-minute neighborhood walk</span></div><div class="price-mini"><b>Adventure Walk</b><strong>$55</strong><span>75-minute park outing</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book for Your Pet</a>
+            <a class="btn secondary" href="#photos">View Pet Photos</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800" alt="Dog Walker pet service website hero">
+          <div class="media-note">Route area map · Walk options · GPS tracking</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Solo walks</li><li>Small pack walks</li><li>Midday potty breaks</li><li>Puppy walks</li><li>Adventure walks</li><li>Weather-safe updates</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <p>Clear pricing cards help pet parents compare options, understand inclusions, and book the right level of care.</p>
+          <div class="price-strip"><div class="price-mini"><b>Quick Walk</b><strong>$22</strong><span>20-minute visit</span></div><div class="price-mini"><b>Standard Walk</b><strong>$32</strong><span>40-minute neighborhood walk</span></div><div class="price-mini"><b>Adventure Walk</b><strong>$55</strong><span>75-minute park outing</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Service Area</b>
+          <p>Routes cover River District, Maple Grove, North Park, and Lakeside trails.</p>
+        </div>
+        <div class="info">
+          <b>Pet Care Notes</b>
+          <p>Use this space for vaccination requirements, temperament notes, intake forms, safety policies, or owner instructions.</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this CTA to appointment scheduling, intake forms, new client screening, or service package checkout.</p>
+          <a class="btn" href="#booking">Book for Your Pet</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Capture pet name, species, service type, preferred date, neighborhood, and special care instructions.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="text" placeholder="Pet name">
+            <select>
+              <option>Service needed</option>
+              <option>Training</option>
+              <option>Grooming</option>
+              <option>Walking or sitting</option>
+              <option>Veterinary care</option>
+              <option>Boarding or daycare</option>
+              <option>Photo session</option>
+            </select>
+            <textarea placeholder="Tell us about your pet"></textarea>
+            <button class="btn" type="button">Book for Your Pet</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Pet Parent Review</h3>
+          <p>“The GPS notes and photos are excellent, and our dog comes home relaxed.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="photos">
+        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800" alt="Dog Walker pet photo one">
+        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800" alt="Dog Walker pet photo two">
+        <img src="https://images.unsplash.com/photo-1544568100-847a948585b9?w=800" alt="Dog Walker pet photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 05. Veterinarian -->
+  <section class="template veterinarian">
+    <span class="template-number">Template 05 / Veterinarian</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">V</span>KindVet Animal Clinic</div>
+        <div class="navlinks"><span>Services</span><span>Pricing</span><span>Photos</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Wellness</span><span class="pill">Surgery</span><span class="pill">Emergency Info</span></div>
+          <h2>Clinical care with a warm touch for pets and their people.</h2>
+          <p>A clinical yet warm veterinarian template with wellness plans, services, emergency info, and appointment booking.</p>
+          <div class="price-strip"><div class="price-mini"><b>Wellness Exam</b><strong>$78</strong><span>Nose-to-tail health check</span></div><div class="price-mini"><b>Puppy/Kitten Plan</b><strong>$39/mo</strong><span>Vaccines and early care</span></div><div class="price-mini"><b>Senior Plan</b><strong>$59/mo</strong><span>Labs and preventive care</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book for Your Pet</a>
+            <a class="btn secondary" href="#photos">View Pet Photos</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800" alt="Veterinarian pet service website hero">
+          <div class="media-note">Warm clinical care · Emergency info · Wellness plans</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Wellness exams</li><li>Vaccinations</li><li>Dental care</li><li>Diagnostics</li><li>Spay/neuter</li><li>Senior pet care</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <p>Clear pricing cards help pet parents compare options, understand inclusions, and book the right level of care.</p>
+          <div class="price-strip"><div class="price-mini"><b>Wellness Exam</b><strong>$78</strong><span>Nose-to-tail health check</span></div><div class="price-mini"><b>Puppy/Kitten Plan</b><strong>$39/mo</strong><span>Vaccines and early care</span></div><div class="price-mini"><b>Senior Plan</b><strong>$59/mo</strong><span>Labs and preventive care</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Service Area</b>
+          <p>Clinic located in Central District with referrals to 24-hour emergency partners.</p>
+        </div>
+        <div class="info">
+          <b>Pet Care Notes</b>
+          <p>Use this space for vaccination requirements, temperament notes, intake forms, safety policies, or owner instructions.</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this CTA to appointment scheduling, intake forms, new client screening, or service package checkout.</p>
+          <a class="btn" href="#booking">Book for Your Pet</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Capture pet name, species, service type, preferred date, neighborhood, and special care instructions.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="text" placeholder="Pet name">
+            <select>
+              <option>Service needed</option>
+              <option>Training</option>
+              <option>Grooming</option>
+              <option>Walking or sitting</option>
+              <option>Veterinary care</option>
+              <option>Boarding or daycare</option>
+              <option>Photo session</option>
+            </select>
+            <textarea placeholder="Tell us about your pet"></textarea>
+            <button class="btn" type="button">Book for Your Pet</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Pet Parent Review</h3>
+          <p>“They explain everything clearly and treat our pets like family.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="photos">
+        <img src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800" alt="Veterinarian pet photo one">
+        <img src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=800" alt="Veterinarian pet photo two">
+        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800" alt="Veterinarian pet photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 06. Mobile Vet -->
+  <section class="template mobilevet">
+    <span class="template-number">Template 06 / Mobile Vet</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">M</span>HouseCall Vet Studio</div>
+        <div class="navlinks"><span>Services</span><span>Pricing</span><span>Photos</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">House Calls</span><span class="pill">Vaccines</span><span class="pill">Low-Stress Care</span></div>
+          <h2>Veterinary care brought gently to your front door.</h2>
+          <p>A convenient mobile vet template with service area, house-call booking, vaccination schedule, and calm in-home care positioning.</p>
+          <div class="price-strip"><div class="price-mini"><b>House Call Fee</b><strong>$95</strong><span>Travel and setup</span></div><div class="price-mini"><b>Wellness Visit</b><strong>$165</strong><span>Exam plus consultation</span></div><div class="price-mini"><b>Vaccine Visit</b><strong>$140+</strong><span>Core vaccines by schedule</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book for Your Pet</a>
+            <a class="btn secondary" href="#photos">View Pet Photos</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800" alt="Mobile Vet pet service website hero">
+          <div class="media-note">Service area · House-call booking · Vaccination schedule</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>In-home exams</li><li>Vaccinations</li><li>Senior care visits</li><li>Minor illness checks</li><li>Lab pickups</li><li>End-of-life support</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <p>Clear pricing cards help pet parents compare options, understand inclusions, and book the right level of care.</p>
+          <div class="price-strip"><div class="price-mini"><b>House Call Fee</b><strong>$95</strong><span>Travel and setup</span></div><div class="price-mini"><b>Wellness Visit</b><strong>$165</strong><span>Exam plus consultation</span></div><div class="price-mini"><b>Vaccine Visit</b><strong>$140+</strong><span>Core vaccines by schedule</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Service Area</b>
+          <p>Mobile service within 18 miles of downtown, including suburbs by appointment.</p>
+        </div>
+        <div class="info">
+          <b>Pet Care Notes</b>
+          <p>Use this space for vaccination requirements, temperament notes, intake forms, safety policies, or owner instructions.</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this CTA to appointment scheduling, intake forms, new client screening, or service package checkout.</p>
+          <a class="btn" href="#booking">Book for Your Pet</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Capture pet name, species, service type, preferred date, neighborhood, and special care instructions.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="text" placeholder="Pet name">
+            <select>
+              <option>Service needed</option>
+              <option>Training</option>
+              <option>Grooming</option>
+              <option>Walking or sitting</option>
+              <option>Veterinary care</option>
+              <option>Boarding or daycare</option>
+              <option>Photo session</option>
+            </select>
+            <textarea placeholder="Tell us about your pet"></textarea>
+            <button class="btn" type="button">Book for Your Pet</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Pet Parent Review</h3>
+          <p>“Our senior cat was so much calmer at home than at the clinic.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="photos">
+        <img src="https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800" alt="Mobile Vet pet photo one">
+        <img src="https://images.unsplash.com/photo-1544568100-847a948585b9?w=800" alt="Mobile Vet pet photo two">
+        <img src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=800" alt="Mobile Vet pet photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 07. Pet Photographer -->
+  <section class="template photographer">
+    <span class="template-number">Template 07 / Pet Photographer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Wag &amp; Wonder Studio</div>
+        <div class="navlinks"><span>Services</span><span>Pricing</span><span>Photos</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Portraits</span><span class="pill">Studio</span><span class="pill">Prints</span></div>
+          <h2>Portraits that capture every whisker, wiggle, and personality.</h2>
+          <p>An adorable pet photographer template with portfolio gallery, session types, print packages, and booking calendar.</p>
+          <div class="price-strip"><div class="price-mini"><b>Mini Session</b><strong>$175</strong><span>20 minutes, 5 edited images</span></div><div class="price-mini"><b>Signature Session</b><strong>$425</strong><span>60 minutes, full gallery</span></div><div class="price-mini"><b>Print Collection</b><strong>$220+</strong><span>Framed prints and albums</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book for Your Pet</a>
+            <a class="btn secondary" href="#photos">View Pet Photos</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1544568100-847a948585b9?w=800" alt="Pet Photographer pet service website hero">
+          <div class="media-note">Adorable portfolio · Session types · Print packages</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Studio portraits</li><li>Outdoor sessions</li><li>Senior pet sessions</li><li>Multi-pet photos</li><li>Holiday minis</li><li>Print ordering</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <p>Clear pricing cards help pet parents compare options, understand inclusions, and book the right level of care.</p>
+          <div class="price-strip"><div class="price-mini"><b>Mini Session</b><strong>$175</strong><span>20 minutes, 5 edited images</span></div><div class="price-mini"><b>Signature Session</b><strong>$425</strong><span>60 minutes, full gallery</span></div><div class="price-mini"><b>Print Collection</b><strong>$220+</strong><span>Framed prints and albums</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Service Area</b>
+          <p>Studio in Arts District with outdoor sessions at partner parks.</p>
+        </div>
+        <div class="info">
+          <b>Pet Care Notes</b>
+          <p>Use this space for vaccination requirements, temperament notes, intake forms, safety policies, or owner instructions.</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this CTA to appointment scheduling, intake forms, new client screening, or service package checkout.</p>
+          <a class="btn" href="#booking">Book for Your Pet</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Capture pet name, species, service type, preferred date, neighborhood, and special care instructions.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="text" placeholder="Pet name">
+            <select>
+              <option>Service needed</option>
+              <option>Training</option>
+              <option>Grooming</option>
+              <option>Walking or sitting</option>
+              <option>Veterinary care</option>
+              <option>Boarding or daycare</option>
+              <option>Photo session</option>
+            </select>
+            <textarea placeholder="Tell us about your pet"></textarea>
+            <button class="btn" type="button">Book for Your Pet</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Pet Parent Review</h3>
+          <p>“They captured our dog’s exact personality in every photo.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="photos">
+        <img src="https://images.unsplash.com/photo-1544568100-847a948585b9?w=800" alt="Pet Photographer pet photo one">
+        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800" alt="Pet Photographer pet photo two">
+        <img src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=800" alt="Pet Photographer pet photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 08. Pet Boarding -->
+  <section class="template boarding">
+    <span class="template-number">Template 08 / Pet Boarding</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Happy Den Boarding</div>
+        <div class="navlinks"><span>Services</span><span>Pricing</span><span>Photos</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Boarding</span><span class="pill">Webcam</span><span class="pill">Play Groups</span></div>
+          <h2>Safe stays, cozy suites, and plenty of playtime.</h2>
+          <p>A pet boarding template with facility showcase, activities, webcam mention, booking calendar, and owner reassurance.</p>
+          <div class="price-strip"><div class="price-mini"><b>Dog Suite</b><strong>$68/night</strong><span>Private suite and playtime</span></div><div class="price-mini"><b>Cat Condo</b><strong>$42/night</strong><span>Quiet cat boarding room</span></div><div class="price-mini"><b>Premium Stay</b><strong>$92/night</strong><span>Extra walks, webcam, bath</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book for Your Pet</a>
+            <a class="btn secondary" href="#photos">View Pet Photos</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800" alt="Pet Boarding pet service website hero">
+          <div class="media-note">Facility showcase · Activities · Webcam mention · Booking calendar</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Overnight boarding</li><li>Cat condos</li><li>Playtime add-ons</li><li>Medication support</li><li>Feeding routines</li><li>Bath before pickup</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <p>Clear pricing cards help pet parents compare options, understand inclusions, and book the right level of care.</p>
+          <div class="price-strip"><div class="price-mini"><b>Dog Suite</b><strong>$68/night</strong><span>Private suite and playtime</span></div><div class="price-mini"><b>Cat Condo</b><strong>$42/night</strong><span>Quiet cat boarding room</span></div><div class="price-mini"><b>Premium Stay</b><strong>$92/night</strong><span>Extra walks, webcam, bath</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Service Area</b>
+          <p>Conveniently located near the airport with pickup windows seven days a week.</p>
+        </div>
+        <div class="info">
+          <b>Pet Care Notes</b>
+          <p>Use this space for vaccination requirements, temperament notes, intake forms, safety policies, or owner instructions.</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this CTA to appointment scheduling, intake forms, new client screening, or service package checkout.</p>
+          <a class="btn" href="#booking">Book for Your Pet</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Capture pet name, species, service type, preferred date, neighborhood, and special care instructions.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="text" placeholder="Pet name">
+            <select>
+              <option>Service needed</option>
+              <option>Training</option>
+              <option>Grooming</option>
+              <option>Walking or sitting</option>
+              <option>Veterinary care</option>
+              <option>Boarding or daycare</option>
+              <option>Photo session</option>
+            </select>
+            <textarea placeholder="Tell us about your pet"></textarea>
+            <button class="btn" type="button">Book for Your Pet</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Pet Parent Review</h3>
+          <p>“The webcam and daily report cards made us feel completely at ease.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="photos">
+        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800" alt="Pet Boarding pet photo one">
+        <img src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800" alt="Pet Boarding pet photo two">
+        <img src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=800" alt="Pet Boarding pet photo three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 09. Pet Daycare -->
+  <section class="template daycare">
+    <span class="template-number">Template 09 / Pet Daycare</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>PlayYard Pet Daycare</div>
+        <div class="navlinks"><span>Services</span><span>Pricing</span><span>Photos</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Daycare</span><span class="pill">Facility Tour</span><span class="pill">Enrollment</span></div>
+          <h2>A playful day of social time, enrichment, and supervision.</h2>
+          <p>A playful pet daycare template with activity schedule, facility tour, enrollment form, reviews, and package pricing.</p>
+          <div class="price-strip"><div class="price-mini"><b>Half Day</b><strong>$32</strong><span>Up to 5 hours</span></div><div class="price-mini"><b>Full Day</b><strong>$48</strong><span>Supervised play and rest</span></div><div class="price-mini"><b>10-Day Pass</b><strong>$430</strong><span>Flexible daycare bundle</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book for Your Pet</a>
+            <a class="btn secondary" href="#photos">View Pet Photos</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800" alt="Pet Daycare pet service website hero">
+          <div class="media-note">Activity schedule · Facility tour · Enrollment form</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Full-day daycare</li><li>Half-day daycare</li><li>Puppy social hour</li><li>Enrichment games</li><li>Nap breaks</li><li>Bath add-ons</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <p>Clear pricing cards help pet parents compare options, understand inclusions, and book the right level of care.</p>
+          <div class="price-strip"><div class="price-mini"><b>Half Day</b><strong>$32</strong><span>Up to 5 hours</span></div><div class="price-mini"><b>Full Day</b><strong>$48</strong><span>Supervised play and rest</span></div><div class="price-mini"><b>10-Day Pass</b><strong>$430</strong><span>Flexible daycare bundle</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Service Area</b>
+          <p>Located in Midtown with easy drop-off from downtown, North Park, and Eastside.</p>
+        </div>
+        <div class="info">
+          <b>Pet Care Notes</b>
+          <p>Use this space for vaccination requirements, temperament notes, intake forms, safety policies, or owner instructions.</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this CTA to appointment scheduling, intake forms, new client screening, or service package checkout.</p>
+          <a class="btn" href="#booking">Book for Your Pet</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Capture pet name, species, service type, preferred date, neighborhood, and special care instructions.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="text" placeholder="Pet name">
+            <select>
+              <option>Service needed</option>
+              <option>Training</option>
+              <option>Grooming</option>
+              <option>Walking or sitting</option>
+              <option>Veterinary care</option>
+              <option>Boarding or daycare</option>
+              <option>Photo session</option>
+            </select>
+            <textarea placeholder="Tell us about your pet"></textarea>
+            <button class="btn" type="button">Book for Your Pet</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Pet Parent Review</h3>
+          <p>“Our dog runs to the door every morning and comes home happy.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="photos">
+        <img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800" alt="Pet Daycare pet photo one">
+        <img src="https://images.unsplash.com/photo-1544568100-847a948585b9?w=800" alt="Pet Daycare pet photo two">
+        <img src="https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=800" alt="Pet Daycare pet photo three">
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

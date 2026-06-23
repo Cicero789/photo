@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrameNest Templates — Travel & Hospitality</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=Playfair+Display:wght@600;700;800&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+:root{--ink:#111827;--muted:#64748b;--shadow:0 28px 90px rgba(15,23,42,.16);--radius:30px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:#07111f}
+img{display:block;width:100%;object-fit:cover}
+a{text-decoration:none;color:inherit}
+input,select,textarea,button{font:inherit}
+.cover{min-height:72vh;display:grid;place-items:center;padding:84px 6vw;text-align:center;color:white;background:radial-gradient(circle at 16% 18%,rgba(14,165,233,.34),transparent 28%),radial-gradient(circle at 84% 18%,rgba(245,158,11,.26),transparent 30%),linear-gradient(135deg,#020617,#0f172a 58%,#164e63)}
+.cover .eyebrow{display:inline-flex;padding:10px 16px;border:1px solid rgba(255,255,255,.22);border-radius:999px;color:#cffafe;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:900}
+.cover h1{max-width:1140px;margin:24px auto 18px;font-size:clamp(42px,7vw,94px);line-height:.94;letter-spacing:-.07em}
+.cover p{max-width:850px;margin:0 auto;color:#d1d5db;font-size:clamp(18px,2vw,23px);line-height:1.65}
+.template{min-height:780px;padding:78px 6vw;position:relative;overflow:hidden;color:var(--fg,#111827);background:var(--bg,#fff)}
+.template:before{content:"";position:absolute;width:440px;height:440px;border-radius:999px;background:var(--orb,rgba(14,165,233,.18));top:-150px;right:-130px;filter:blur(5px)}
+.template:after{content:"";position:absolute;width:330px;height:330px;border:1px solid var(--mark,rgba(15,23,42,.08));left:-120px;bottom:-130px;border-radius:80px;transform:rotate(24deg)}
+.wrap{width:min(1220px,100%);margin:0 auto;position:relative;z-index:2}
+.template-number{position:absolute;top:22px;right:5vw;z-index:2;opacity:.42;font-size:12px;letter-spacing:.17em;text-transform:uppercase;font-weight:950}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-bottom:46px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.03em}
+.logo{width:42px;height:42px;display:grid;place-items:center;border-radius:15px;background:var(--accent,#0891b2);color:var(--accentText,#fff);font-weight:950;box-shadow:0 14px 34px rgba(0,0,0,.18)}
+.navlinks{display:flex;gap:18px;flex-wrap:wrap;justify-content:flex-end;font-size:14px;font-weight:850;opacity:.72}
+.hero{display:grid;grid-template-columns:1.04fr .96fr;gap:42px;align-items:center}
+.hero h2{margin:0;color:var(--head,currentColor);font-family:var(--display,Inter),sans-serif;font-size:clamp(40px,5.5vw,78px);line-height:.95;letter-spacing:-.06em}
+.hero p{max-width:700px;margin:22px 0 0;color:var(--text,currentColor);opacity:.78;font-size:18px;line-height:1.7}
+.pills{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.pill{padding:10px 14px;border-radius:999px;background:var(--pill,rgba(255,255,255,.72));border:1px solid var(--pillLine,rgba(15,23,42,.1));font-size:13px;font-weight:900}
+.btn-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 22px;border-radius:999px;background:var(--accent,#0891b2);color:var(--accentText,#fff);border:0;cursor:pointer;font-weight:950;box-shadow:0 18px 46px rgba(15,23,42,.20)}
+.btn.secondary{background:transparent;border:1px solid currentColor;color:var(--head,currentColor);box-shadow:none;opacity:.8}
+.media{position:relative;overflow:hidden;border-radius:var(--shape,var(--radius));background:white;box-shadow:var(--shadow);border:1px solid var(--mediaLine,rgba(255,255,255,.5))}
+.media img{height:430px}
+.media-note{position:absolute;left:22px;right:22px;bottom:22px;padding:18px;border-radius:22px;background:rgba(255,255,255,.9);backdrop-filter:blur(16px);color:#0f172a;font-weight:850;line-height:1.45;box-shadow:0 16px 48px rgba(15,23,42,.18)}
+.package-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px}
+.pkg-mini{padding:16px;border-radius:22px;background:var(--card,rgba(255,255,255,.82));border:1px solid var(--cardLine,rgba(15,23,42,.08));box-shadow:0 14px 34px rgba(15,23,42,.06)}
+.pkg-mini b{display:block;color:var(--head,currentColor);margin-bottom:6px}
+.pkg-mini strong{display:block;color:var(--accent,#0891b2);font-size:22px;line-height:1.1;letter-spacing:-.05em;margin-bottom:8px}
+.pkg-mini span{color:var(--mutedText,#64748b);line-height:1.45}
+.main-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:24px;margin-top:52px}
+.panel{background:var(--card,rgba(255,255,255,.84));border:1px solid var(--cardLine,rgba(15,23,42,.08));border-radius:26px;padding:26px;box-shadow:0 18px 50px rgba(15,23,42,.08);backdrop-filter:blur(14px)}
+.panel h3{margin:0 0 12px;color:var(--head,currentColor);font-size:24px;letter-spacing:-.035em}
+.panel p{margin:0;color:var(--mutedText,#64748b);line-height:1.65}
+.rooms{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+.room-card{overflow:hidden;border-radius:24px;background:var(--serviceBg,rgba(255,255,255,.72));border:1px solid var(--cardLine,rgba(15,23,42,.08))}
+.room-card img{height:150px}
+.room-card div{padding:14px}
+.room-card b{display:block;color:var(--head,currentColor);margin-bottom:5px}
+.room-card span{color:var(--mutedText,#64748b);line-height:1.45}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+.info{padding:22px;border-radius:24px;background:var(--card,rgba(255,255,255,.84));border:1px solid var(--cardLine,rgba(15,23,42,.08));box-shadow:0 16px 42px rgba(15,23,42,.07)}
+.info b{display:block;color:var(--head,currentColor);margin-bottom:9px}
+.info p{margin:0;color:var(--mutedText,#64748b);line-height:1.6}
+.lower-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin-top:24px}
+.form{display:grid;gap:12px;margin-top:12px}
+.form input,.form select,.form textarea{width:100%;border:1px solid var(--cardLine,rgba(15,23,42,.12));border-radius:16px;padding:13px 14px;background:rgba(255,255,255,.84);color:#111827;outline:none}
+.form textarea{min-height:96px;resize:vertical}
+.review{padding:24px;border-radius:26px;background:var(--accent,#0891b2);color:var(--accentText,#fff);box-shadow:0 18px 50px rgba(15,23,42,.16)}
+.review h3{margin:0 0 12px;font-size:28px;letter-spacing:-.04em}
+.review p{margin:0;line-height:1.65;opacity:.92}
+.gallery{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:14px;margin-top:26px}
+.gallery img{height:172px;border-radius:24px;box-shadow:0 18px 42px rgba(15,23,42,.10)}
+.gallery img:first-child{height:224px}
+
+/* Themes */
+.agent{--bg:linear-gradient(135deg,#ecfeff,#fff 48%,#fef3c7);--accent:#0891b2;--accentText:#ecfeff;--display:"Space Grotesk";--shape:26px 90px 26px 90px}
+.guide{--bg:linear-gradient(135deg,#f0fdf4,#fff 48%,#dcfce7);--accent:#16a34a;--accentText:#052e16;--display:"Space Grotesk";--shape:34px}
+.airbnb{--bg:linear-gradient(135deg,#fff7ed,#fff 48%,#fce7f3);--accent:#be185d;--display:"Playfair Display";--shape:80px 28px 80px 28px}
+.bnb{--bg:linear-gradient(135deg,#faf7ef,#fff 48%,#f3e8d6);--accent:#92400e;--display:"Libre Baskerville";--shape:44px}
+.hotel{--bg:linear-gradient(135deg,#07111f,#0f1e34 55%,#111827);--fg:#f8fafc;--head:#fff;--text:#dbeafe;--mutedText:#cbd5e1;--accent:#d6a74a;--accentText:#07111f;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Playfair Display";--shape:44px}
+.retreat{--bg:linear-gradient(135deg,#f0fdfa,#fff 48%,#e0f2fe);--accent:#0f766e;--display:"Playfair Display";--shape:999px 999px 40px 40px}
+.consultant{--bg:linear-gradient(135deg,#fff,#f8fafc 48%,#e0f2fe);--accent:#2563eb;--display:"Libre Baskerville";--shape:26px}
+.experience{--bg:radial-gradient(circle at 16% 18%,rgba(249,115,22,.24),transparent 25%),linear-gradient(135deg,#fff7ed,#fff 48%,#fed7aa);--accent:#c2410c;--display:"Space Grotesk";--shape:18px}
+
+/* Accents */
+.hotel .media:before{content:"DIRECT BOOKING";position:absolute;top:18px;left:18px;z-index:2;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.9);color:#111827;font-weight:950;letter-spacing:.08em;font-size:12px}
+.retreat .media:before{content:"RETREAT CALENDAR";position:absolute;top:18px;left:18px;z-index:2;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.9);color:#0f766e;font-weight:950;letter-spacing:.08em;font-size:12px}
+.airbnb .media:before{content:"LOCAL GUIDE";position:absolute;top:18px;left:18px;z-index:2;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.9);color:#be185d;font-weight:950;letter-spacing:.08em;font-size:12px}
+.agent .hero,.airbnb .hero,.hotel .hero,.consultant .hero{grid-template-columns:.95fr 1.05fr}
+.guide .hero,.bnb .hero,.retreat .hero,.experience .hero{grid-template-columns:1.1fr .9fr}
+
+@media(max-width:980px){
+  .hero,.main-grid,.lower-grid{grid-template-columns:1fr!important}
+  .package-strip,.rooms,.info-grid,.gallery{grid-template-columns:1fr}
+  .gallery img,.gallery img:first-child{height:220px}
+  .room-card img{height:220px}
+  .media img{height:340px}
+  .nav{align-items:flex-start;flex-direction:column}
+  .navlinks{justify-content:flex-start}
+}
+@media(max-width:620px){
+  .cover,.template{padding:64px 5vw}
+  .hero h2{font-size:40px}
+  .panel,.review,.info{padding:20px}
+  .media-note{position:static;margin:-48px 18px 18px}
+}
+</style>
+</head>
+<body>
+  <header class="cover">
+    <div>
+      <span class="eyebrow">FrameNest Mockup Collection</span>
+      <h1>Travel & Hospitality Website Templates</h1>
+      <p>Eight professional website sections for travel agents, tour guides, Airbnb hosts, bed-and-breakfast owners, boutique hotels, retreat organizers, travel consultants, and local experience hosts.</p>
+    </div>
+  </header>
+  
+  <!-- 01. Travel Agent -->
+  <section class="template agent">
+    <span class="template-number">Template 01 / Travel Agent</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">T</span>Compass &amp; Coast Travel</div>
+        <div class="navlinks"><span>Packages</span><span>Photos</span><span>Availability</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Destination Planning</span><span class="pill">Package Deals</span><span class="pill">Group Trips</span></div>
+          <h2>Curated trips for travelers who want the details handled.</h2>
+          <p>A wanderlust-rich travel agent template with destination cards, package deals, group trip highlights, and a polished trip inquiry flow.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Greek Islands</b><strong>From $3,200</strong><span>8 nights, ferries, boutique hotels</span></div><div class="pkg-mini"><b>Japan Spring</b><strong>From $4,850</strong><span>Tokyo, Kyoto, rail, guided days</span></div><div class="pkg-mini"><b>Costa Rica Group</b><strong>From $2,400</strong><span>Rainforest, coast, adventure add-ons</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book a Trip</a>
+            <a class="btn secondary" href="#availability">Check Availability</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800" alt="Travel Agent travel website hero">
+          <div class="media-note">Destination cards · Package deals · Group trips</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Packages / Rooms</h3>
+          <p>Showcase room types, itinerary options, tour formats, retreat dates, experiences, or direct-booking offers.</p>
+          <div class="rooms"><div class="room-card"><img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800" alt="Travel Agent photo"><div><b>Greek Islands</b><span>From $3,200 · 8 nights, ferries, boutique hotels</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" alt="Travel Agent photo"><div><b>Japan Spring</b><span>From $4,850 · Tokyo, Kyoto, rail, guided days</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800" alt="Travel Agent photo"><div><b>Costa Rica Group</b><span>From $2,400 · Rainforest, coast, adventure add-ons</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section for destination imagery, rooms, amenities, host photos, activity previews, or location galleries.</p>
+          <div class="gallery">
+            <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800" alt="Travel Agent gallery one">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" alt="Travel Agent gallery two">
+            <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800" alt="Travel Agent gallery three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info" id="availability">
+          <b>Availability</b>
+          <p>Summer Europe planning is open now. Group departures run quarterly.</p>
+        </div>
+        <div class="info">
+          <b>Location</b>
+          <p>Remote planning studio · Trips worldwide</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this block to a booking engine, calendar, inquiry form, package checkout, or reservation platform.</p>
+          <a class="btn" href="#booking">Book a Trip</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect travel dates, destination, group size, budget, preferences, and any accessibility or celebration details.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Booking type</option>
+              <option>Trip planning</option>
+              <option>Tour or experience</option>
+              <option>Room or stay</option>
+              <option>Retreat registration</option>
+              <option>Custom itinerary</option>
+            </select>
+            <textarea placeholder="Tell us about your dates, group, and travel style"></textarea>
+            <button class="btn" type="button">Book a Trip</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“Every transfer, hotel, and tour was perfectly timed.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02. Tour Guide -->
+  <section class="template guide">
+    <span class="template-number">Template 02 / Tour Guide</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">T</span>Local Lens Tours</div>
+        <div class="navlinks"><span>Packages</span><span>Photos</span><span>Availability</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Walking Tours</span><span class="pill">Food Tours</span><span class="pill">Private Groups</span></div>
+          <h2>See the city through stories only locals know.</h2>
+          <p>A local-expert tour guide template with tour types, schedule, group-size limits, reviews, and quick availability checks.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Old Town Walk</b><strong>$45/person</strong><span>2 hours, small group</span></div><div class="pkg-mini"><b>Food Market Tour</b><strong>$95/person</strong><span>Tastings and local vendors</span></div><div class="pkg-mini"><b>Private Custom Tour</b><strong>$350+</strong><span>Half-day private itinerary</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Check Availability</a>
+            <a class="btn secondary" href="#availability">Check Availability</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800" alt="Tour Guide travel website hero">
+          <div class="media-note">Tour types · Schedule · Group size · Reviews</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Packages / Rooms</h3>
+          <p>Showcase room types, itinerary options, tour formats, retreat dates, experiences, or direct-booking offers.</p>
+          <div class="rooms"><div class="room-card"><img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800" alt="Tour Guide photo"><div><b>Old Town Walk</b><span>$45/person · 2 hours, small group</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800" alt="Tour Guide photo"><div><b>Food Market Tour</b><span>$95/person · Tastings and local vendors</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800" alt="Tour Guide photo"><div><b>Private Custom Tour</b><span>$350+ · Half-day private itinerary</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section for destination imagery, rooms, amenities, host photos, activity previews, or location galleries.</p>
+          <div class="gallery">
+            <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800" alt="Tour Guide gallery one">
+            <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800" alt="Tour Guide gallery two">
+            <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800" alt="Tour Guide gallery three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info" id="availability">
+          <b>Availability</b>
+          <p>Public tours run Thursday through Sunday. Private tours available by request.</p>
+        </div>
+        <div class="info">
+          <b>Location</b>
+          <p>Meeting point: Central Fountain · Custom pickup for private groups</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this block to a booking engine, calendar, inquiry form, package checkout, or reservation platform.</p>
+          <a class="btn" href="#booking">Check Availability</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect travel dates, destination, group size, budget, preferences, and any accessibility or celebration details.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Booking type</option>
+              <option>Trip planning</option>
+              <option>Tour or experience</option>
+              <option>Room or stay</option>
+              <option>Retreat registration</option>
+              <option>Custom itinerary</option>
+            </select>
+            <textarea placeholder="Tell us about your dates, group, and travel style"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“It felt like walking with a brilliant friend, not following a script.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03. Airbnb Host -->
+  <section class="template airbnb">
+    <span class="template-number">Template 03 / Airbnb Host</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">A</span>The Willow House Stay</div>
+        <div class="navlinks"><span>Packages</span><span>Photos</span><span>Availability</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Entire Home</span><span class="pill">Local Tips</span><span class="pill">Guest Guide</span></div>
+          <h2>A comfortable local stay with thoughtful details everywhere.</h2>
+          <p>A home-showcase Airbnb host template with amenities grid, house rules, local tips, booking flow, and guest-friendly visuals.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Weeknight Stay</b><strong>$185/night</strong><span>2 bedrooms, full kitchen</span></div><div class="pkg-mini"><b>Weekend Escape</b><strong>$240/night</strong><span>Late checkout available</span></div><div class="pkg-mini"><b>Monthly Stay</b><strong>Custom</strong><span>Discounted extended stays</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Check Availability</a>
+            <a class="btn secondary" href="#availability">Check Availability</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800" alt="Airbnb Host travel website hero">
+          <div class="media-note">Home showcase · Amenities grid · House rules · Local tips</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Packages / Rooms</h3>
+          <p>Showcase room types, itinerary options, tour formats, retreat dates, experiences, or direct-booking offers.</p>
+          <div class="rooms"><div class="room-card"><img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800" alt="Airbnb Host photo"><div><b>Weeknight Stay</b><span>$185/night · 2 bedrooms, full kitchen</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800" alt="Airbnb Host photo"><div><b>Weekend Escape</b><span>$240/night · Late checkout available</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" alt="Airbnb Host photo"><div><b>Monthly Stay</b><span>Custom · Discounted extended stays</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section for destination imagery, rooms, amenities, host photos, activity previews, or location galleries.</p>
+          <div class="gallery">
+            <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800" alt="Airbnb Host gallery one">
+            <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800" alt="Airbnb Host gallery two">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" alt="Airbnb Host gallery three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info" id="availability">
+          <b>Availability</b>
+          <p>Two-night minimum on weekends. Monthly stays available in winter.</p>
+        </div>
+        <div class="info">
+          <b>Location</b>
+          <p>Willow District · 8 minutes from downtown and river trail</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this block to a booking engine, calendar, inquiry form, package checkout, or reservation platform.</p>
+          <a class="btn" href="#booking">Check Availability</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect travel dates, destination, group size, budget, preferences, and any accessibility or celebration details.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Booking type</option>
+              <option>Trip planning</option>
+              <option>Tour or experience</option>
+              <option>Room or stay</option>
+              <option>Retreat registration</option>
+              <option>Custom itinerary</option>
+            </select>
+            <textarea placeholder="Tell us about your dates, group, and travel style"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“The home was spotless, cozy, and the local guide was genuinely useful.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04. B&amp;B Owner -->
+  <section class="template bnb">
+    <span class="template-number">Template 04 / B&amp;B Owner</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">B</span>Rosegate Bed &amp; Breakfast</div>
+        <div class="navlinks"><span>Packages</span><span>Photos</span><span>Availability</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Rooms</span><span class="pill">Breakfast</span><span class="pill">Weekend Stays</span></div>
+          <h2>A charming stay, a quiet room, and breakfast worth waking up for.</h2>
+          <p>A charming bed-and-breakfast template with room gallery, rates calendar, breakfast menu, availability blocks, and guest reviews.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Garden Room</b><strong>$165/night</strong><span>Queen bed, garden view</span></div><div class="pkg-mini"><b>Heritage Suite</b><strong>$245/night</strong><span>King bed, sitting area</span></div><div class="pkg-mini"><b>Romance Weekend</b><strong>$620</strong><span>Two nights, breakfast, flowers</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Check Availability</a>
+            <a class="btn secondary" href="#availability">Check Availability</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800" alt="B&amp;B Owner travel website hero">
+          <div class="media-note">Room gallery · Rates calendar · Breakfast menu</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Packages / Rooms</h3>
+          <p>Showcase room types, itinerary options, tour formats, retreat dates, experiences, or direct-booking offers.</p>
+          <div class="rooms"><div class="room-card"><img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800" alt="B&amp;B Owner photo"><div><b>Garden Room</b><span>$165/night · Queen bed, garden view</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800" alt="B&amp;B Owner photo"><div><b>Heritage Suite</b><span>$245/night · King bed, sitting area</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800" alt="B&amp;B Owner photo"><div><b>Romance Weekend</b><span>$620 · Two nights, breakfast, flowers</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section for destination imagery, rooms, amenities, host photos, activity previews, or location galleries.</p>
+          <div class="gallery">
+            <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800" alt="B&amp;B Owner gallery one">
+            <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800" alt="B&amp;B Owner gallery two">
+            <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800" alt="B&amp;B Owner gallery three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info" id="availability">
+          <b>Availability</b>
+          <p>Peak weekends book 6–10 weeks ahead. Weekday rooms often available.</p>
+        </div>
+        <div class="info">
+          <b>Location</b>
+          <p>22 Rosegate Lane · Historic village district</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this block to a booking engine, calendar, inquiry form, package checkout, or reservation platform.</p>
+          <a class="btn" href="#booking">Check Availability</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect travel dates, destination, group size, budget, preferences, and any accessibility or celebration details.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Booking type</option>
+              <option>Trip planning</option>
+              <option>Tour or experience</option>
+              <option>Room or stay</option>
+              <option>Retreat registration</option>
+              <option>Custom itinerary</option>
+            </select>
+            <textarea placeholder="Tell us about your dates, group, and travel style"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“The breakfast, the linens, and the old-house charm were perfect.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05. Boutique Hotel -->
+  <section class="template hotel">
+    <span class="template-number">Template 05 / Boutique Hotel</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">B</span>Hotel Aurelia</div>
+        <div class="navlinks"><span>Packages</span><span>Photos</span><span>Availability</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Rooms</span><span class="pill">Amenities</span><span class="pill">Direct Booking</span></div>
+          <h2>A polished boutique stay in the center of it all.</h2>
+          <p>A luxury boutique hotel template with room types, amenities, booking-engine placeholder, location notes, and high-end photography.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Classic King</b><strong>From $289</strong><span>City view, premium linens</span></div><div class="pkg-mini"><b>Terrace Suite</b><strong>From $520</strong><span>Private terrace and lounge</span></div><div class="pkg-mini"><b>Stay + Spa</b><strong>From $680</strong><span>Suite, breakfast, spa credit</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Check Availability</a>
+            <a class="btn secondary" href="#availability">Check Availability</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800" alt="Boutique Hotel travel website hero">
+          <div class="media-note">Room types · Amenities · Booking engine placeholder</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Packages / Rooms</h3>
+          <p>Showcase room types, itinerary options, tour formats, retreat dates, experiences, or direct-booking offers.</p>
+          <div class="rooms"><div class="room-card"><img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800" alt="Boutique Hotel photo"><div><b>Classic King</b><span>From $289 · City view, premium linens</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800" alt="Boutique Hotel photo"><div><b>Terrace Suite</b><span>From $520 · Private terrace and lounge</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" alt="Boutique Hotel photo"><div><b>Stay + Spa</b><span>From $680 · Suite, breakfast, spa credit</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section for destination imagery, rooms, amenities, host photos, activity previews, or location galleries.</p>
+          <div class="gallery">
+            <img src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800" alt="Boutique Hotel gallery one">
+            <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800" alt="Boutique Hotel gallery two">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" alt="Boutique Hotel gallery three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info" id="availability">
+          <b>Availability</b>
+          <p>Direct booking calendar placeholder with seasonal offers and flexible rates.</p>
+        </div>
+        <div class="info">
+          <b>Location</b>
+          <p>100 Meridian Avenue · Arts and dining district</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this block to a booking engine, calendar, inquiry form, package checkout, or reservation platform.</p>
+          <a class="btn" href="#booking">Check Availability</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect travel dates, destination, group size, budget, preferences, and any accessibility or celebration details.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Booking type</option>
+              <option>Trip planning</option>
+              <option>Tour or experience</option>
+              <option>Room or stay</option>
+              <option>Retreat registration</option>
+              <option>Custom itinerary</option>
+            </select>
+            <textarea placeholder="Tell us about your dates, group, and travel style"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“Elegant without being cold — the service felt personal from arrival.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06. Retreat Organizer -->
+  <section class="template retreat">
+    <span class="template-number">Template 06 / Retreat Organizer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">R</span>Stillwater Retreats</div>
+        <div class="navlinks"><span>Packages</span><span>Photos</span><span>Availability</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Wellness</span><span class="pill">Retreat Calendar</span><span class="pill">Registration</span></div>
+          <h2>Step away, reset deeply, and return with a clearer rhythm.</h2>
+          <p>A wellness retreat organizer template with retreat calendar, location gallery, registration cards, and calming conversion sections.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Coastal Reset</b><strong>$1,850</strong><span>4 days, yoga, meals, lodging</span></div><div class="pkg-mini"><b>Mountain Silence</b><strong>$2,400</strong><span>5 days, meditation, hiking</span></div><div class="pkg-mini"><b>Private Retreat</b><strong>Custom</strong><span>Team or group retreat design</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book a Trip</a>
+            <a class="btn secondary" href="#availability">Check Availability</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" alt="Retreat Organizer travel website hero">
+          <div class="media-note">Retreat calendar · Location gallery · Registration</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Packages / Rooms</h3>
+          <p>Showcase room types, itinerary options, tour formats, retreat dates, experiences, or direct-booking offers.</p>
+          <div class="rooms"><div class="room-card"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" alt="Retreat Organizer photo"><div><b>Coastal Reset</b><span>$1,850 · 4 days, yoga, meals, lodging</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800" alt="Retreat Organizer photo"><div><b>Mountain Silence</b><span>$2,400 · 5 days, meditation, hiking</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800" alt="Retreat Organizer photo"><div><b>Private Retreat</b><span>Custom · Team or group retreat design</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section for destination imagery, rooms, amenities, host photos, activity previews, or location galleries.</p>
+          <div class="gallery">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" alt="Retreat Organizer gallery one">
+            <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800" alt="Retreat Organizer gallery two">
+            <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800" alt="Retreat Organizer gallery three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info" id="availability">
+          <b>Availability</b>
+          <p>Spring and fall retreat registration is open. Private groups accepted year-round.</p>
+        </div>
+        <div class="info">
+          <b>Location</b>
+          <p>Rotating retreat locations · Coast, mountains, desert</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this block to a booking engine, calendar, inquiry form, package checkout, or reservation platform.</p>
+          <a class="btn" href="#booking">Book a Trip</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect travel dates, destination, group size, budget, preferences, and any accessibility or celebration details.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Booking type</option>
+              <option>Trip planning</option>
+              <option>Tour or experience</option>
+              <option>Room or stay</option>
+              <option>Retreat registration</option>
+              <option>Custom itinerary</option>
+            </select>
+            <textarea placeholder="Tell us about your dates, group, and travel style"></textarea>
+            <button class="btn" type="button">Book a Trip</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“The schedule felt spacious, nourishing, and beautifully organized.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07. Travel Consultant -->
+  <section class="template consultant">
+    <span class="template-number">Template 07 / Travel Consultant</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">T</span>Atelier Itinerary</div>
+        <div class="navlinks"><span>Packages</span><span>Photos</span><span>Availability</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Bespoke Trips</span><span class="pill">Honeymoons</span><span class="pill">Luxury Planning</span></div>
+          <h2>Bespoke itineraries for honeymoons, milestones, and rare escapes.</h2>
+          <p>A premium travel consultant template with bespoke itinerary design, honeymoon specialization, trip types, and concierge-style booking.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Honeymoon Design</b><strong>$950 planning fee</strong><span>Hotels, transfers, experiences</span></div><div class="pkg-mini"><b>Milestone Journey</b><strong>$1,400 planning fee</strong><span>Complex multi-stop itinerary</span></div><div class="pkg-mini"><b>Annual Travel Desk</b><strong>Custom</strong><span>Ongoing family travel planning</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book a Trip</a>
+            <a class="btn secondary" href="#availability">Check Availability</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800" alt="Travel Consultant travel website hero">
+          <div class="media-note">Bespoke itineraries · Honeymoon specialist · Trip types</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Packages / Rooms</h3>
+          <p>Showcase room types, itinerary options, tour formats, retreat dates, experiences, or direct-booking offers.</p>
+          <div class="rooms"><div class="room-card"><img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800" alt="Travel Consultant photo"><div><b>Honeymoon Design</b><span>$950 planning fee · Hotels, transfers, experiences</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800" alt="Travel Consultant photo"><div><b>Milestone Journey</b><span>$1,400 planning fee · Complex multi-stop itinerary</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" alt="Travel Consultant photo"><div><b>Annual Travel Desk</b><span>Custom · Ongoing family travel planning</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section for destination imagery, rooms, amenities, host photos, activity previews, or location galleries.</p>
+          <div class="gallery">
+            <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800" alt="Travel Consultant gallery one">
+            <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800" alt="Travel Consultant gallery two">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800" alt="Travel Consultant gallery three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info" id="availability">
+          <b>Availability</b>
+          <p>Planning begins with a private consultation. Best for trips 3+ months away.</p>
+        </div>
+        <div class="info">
+          <b>Location</b>
+          <p>Virtual consulting · Preferred partners worldwide</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this block to a booking engine, calendar, inquiry form, package checkout, or reservation platform.</p>
+          <a class="btn" href="#booking">Book a Trip</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect travel dates, destination, group size, budget, preferences, and any accessibility or celebration details.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Booking type</option>
+              <option>Trip planning</option>
+              <option>Tour or experience</option>
+              <option>Room or stay</option>
+              <option>Retreat registration</option>
+              <option>Custom itinerary</option>
+            </select>
+            <textarea placeholder="Tell us about your dates, group, and travel style"></textarea>
+            <button class="btn" type="button">Book a Trip</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“The itinerary felt personal, elevated, and completely stress-free.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08. Experience Host -->
+  <section class="template experience">
+    <span class="template-number">Template 08 / Experience Host</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">E</span>Hidden Harbor Experiences</div>
+        <div class="navlinks"><span>Packages</span><span>Photos</span><span>Availability</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Local Activity</span><span class="pill">Small Group</span><span class="pill">What’s Included</span></div>
+          <h2>Local activities with a memorable host and a clear meeting point.</h2>
+          <p>A local experience-host template with activity photos, availability, what’s included, meeting point details, and quick booking.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Sunset Paddle</b><strong>$75/person</strong><span>Gear, guide, photos</span></div><div class="pkg-mini"><b>Market Cooking Walk</b><strong>$120/person</strong><span>Tastings and recipe card</span></div><div class="pkg-mini"><b>Private Experience</b><strong>$420+</strong><span>Custom timing and route</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Check Availability</a>
+            <a class="btn secondary" href="#availability">Check Availability</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800" alt="Experience Host travel website hero">
+          <div class="media-note">Activity photos · Availability · What’s included · Meeting point</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Packages / Rooms</h3>
+          <p>Showcase room types, itinerary options, tour formats, retreat dates, experiences, or direct-booking offers.</p>
+          <div class="rooms"><div class="room-card"><img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800" alt="Experience Host photo"><div><b>Sunset Paddle</b><span>$75/person · Gear, guide, photos</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800" alt="Experience Host photo"><div><b>Market Cooking Walk</b><span>$120/person · Tastings and recipe card</span></div></div><div class="room-card"><img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800" alt="Experience Host photo"><div><b>Private Experience</b><span>$420+ · Custom timing and route</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section for destination imagery, rooms, amenities, host photos, activity previews, or location galleries.</p>
+          <div class="gallery">
+            <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800" alt="Experience Host gallery one">
+            <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800" alt="Experience Host gallery two">
+            <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800" alt="Experience Host gallery three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info" id="availability">
+          <b>Availability</b>
+          <p>Small-group experiences run Friday through Monday. Private slots by request.</p>
+        </div>
+        <div class="info">
+          <b>Location</b>
+          <p>Meeting point: Harbor Gate 3 · Exact pin sent after booking</p>
+        </div>
+        <div class="info">
+          <b>Booking</b>
+          <p>Connect this block to a booking engine, calendar, inquiry form, package checkout, or reservation platform.</p>
+          <a class="btn" href="#booking">Check Availability</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect travel dates, destination, group size, budget, preferences, and any accessibility or celebration details.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Booking type</option>
+              <option>Trip planning</option>
+              <option>Tour or experience</option>
+              <option>Room or stay</option>
+              <option>Retreat registration</option>
+              <option>Custom itinerary</option>
+            </select>
+            <textarea placeholder="Tell us about your dates, group, and travel style"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“It was the most local, relaxed, and fun part of our trip.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrameNest Templates — Restaurant & Food Business</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=Playfair+Display:wght@600;700;800&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+:root{
+  --ink:#111827;
+  --muted:#64748b;
+  --shadow:0 28px 90px rgba(15,23,42,.16);
+  --radius:30px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink);
+  background:#120b08;
+}
+img{display:block;width:100%;object-fit:cover}
+a{text-decoration:none;color:inherit}
+.cover{
+  min-height:72vh;
+  display:grid;
+  place-items:center;
+  padding:84px 6vw;
+  text-align:center;
+  color:white;
+  background:
+    radial-gradient(circle at 16% 18%,rgba(245,158,11,.32),transparent 28%),
+    radial-gradient(circle at 84% 18%,rgba(220,38,38,.26),transparent 30%),
+    linear-gradient(135deg,#120b08,#26130c 58%,#431407);
+}
+.cover .eyebrow{
+  display:inline-flex;
+  padding:10px 16px;
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;
+  color:#fed7aa;
+  font-size:12px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  font-weight:900;
+}
+.cover h1{
+  max-width:1140px;
+  margin:24px auto 18px;
+  font-size:clamp(42px,7vw,94px);
+  line-height:.94;
+  letter-spacing:-.07em;
+}
+.cover p{
+  max-width:850px;
+  margin:0 auto;
+  color:#d1d5db;
+  font-size:clamp(18px,2vw,23px);
+  line-height:1.65;
+}
+.template{
+  min-height:780px;
+  padding:78px 6vw;
+  position:relative;
+  overflow:hidden;
+  color:var(--fg,#111827);
+  background:var(--bg,#fff);
+}
+.template:before{
+  content:"";
+  position:absolute;
+  width:440px;
+  height:440px;
+  border-radius:999px;
+  background:var(--orb,rgba(245,158,11,.18));
+  top:-150px;
+  right:-130px;
+  filter:blur(5px);
+}
+.template:after{
+  content:"";
+  position:absolute;
+  width:330px;
+  height:330px;
+  border:1px solid var(--mark,rgba(15,23,42,.08));
+  left:-120px;
+  bottom:-130px;
+  border-radius:80px;
+  transform:rotate(24deg);
+}
+.wrap{
+  width:min(1220px,100%);
+  margin:0 auto;
+  position:relative;
+  z-index:2;
+}
+.template-number{
+  position:absolute;
+  top:22px;
+  right:5vw;
+  z-index:2;
+  opacity:.42;
+  font-size:12px;
+  letter-spacing:.17em;
+  text-transform:uppercase;
+  font-weight:950;
+}
+.nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:22px;
+  margin-bottom:46px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-weight:950;
+  letter-spacing:-.03em;
+}
+.logo{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:15px;
+  background:var(--accent,#f97316);
+  color:var(--accentText,#fff);
+  font-weight:950;
+  box-shadow:0 14px 34px rgba(0,0,0,.18);
+}
+.navlinks{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  font-size:14px;
+  font-weight:850;
+  opacity:.72;
+}
+.hero{
+  display:grid;
+  grid-template-columns:1.04fr .96fr;
+  gap:42px;
+  align-items:center;
+}
+.hero h2{
+  margin:0;
+  color:var(--head,currentColor);
+  font-family:var(--display,Inter),sans-serif;
+  font-size:clamp(40px,5.5vw,78px);
+  line-height:.95;
+  letter-spacing:-.06em;
+}
+.hero p{
+  max-width:700px;
+  margin:22px 0 0;
+  color:var(--text,currentColor);
+  opacity:.78;
+  font-size:18px;
+  line-height:1.7;
+}
+.pills{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:24px;
+}
+.pill{
+  padding:10px 14px;
+  border-radius:999px;
+  background:var(--pill,rgba(255,255,255,.72));
+  border:1px solid var(--pillLine,rgba(15,23,42,.1));
+  font-size:13px;
+  font-weight:900;
+}
+.btn-row{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-top:30px;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:52px;
+  padding:0 22px;
+  border-radius:999px;
+  background:var(--accent,#f97316);
+  color:var(--accentText,#fff);
+  border:0;
+  cursor:pointer;
+  font-weight:950;
+  box-shadow:0 18px 46px rgba(15,23,42,.20);
+}
+.btn.secondary{
+  background:transparent;
+  border:1px solid currentColor;
+  color:var(--head,currentColor);
+  box-shadow:none;
+  opacity:.8;
+}
+.media{
+  position:relative;
+  overflow:hidden;
+  border-radius:var(--shape,var(--radius));
+  background:white;
+  box-shadow:var(--shadow);
+  border:1px solid var(--mediaLine,rgba(255,255,255,.5));
+}
+.media img{height:430px}
+.media-note{
+  position:absolute;
+  left:22px;
+  right:22px;
+  bottom:22px;
+  padding:18px;
+  border-radius:22px;
+  background:rgba(255,255,255,.9);
+  backdrop-filter:blur(16px);
+  color:#0f172a;
+  font-weight:850;
+  line-height:1.45;
+  box-shadow:0 16px 48px rgba(15,23,42,.18);
+}
+.menu-strip{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:28px;
+}
+.menu-mini{
+  padding:16px;
+  border-radius:22px;
+  background:var(--card,rgba(255,255,255,.82));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  box-shadow:0 14px 34px rgba(15,23,42,.06);
+}
+.menu-mini b{
+  display:block;
+  color:var(--head,currentColor);
+  margin-bottom:6px;
+}
+.menu-mini strong{
+  display:block;
+  color:var(--accent,#f97316);
+  font-size:28px;
+  line-height:1;
+  letter-spacing:-.06em;
+  margin-bottom:8px;
+}
+.menu-mini span{
+  color:var(--mutedText,#64748b);
+  line-height:1.45;
+}
+.main-grid{
+  display:grid;
+  grid-template-columns:.92fr 1.08fr;
+  gap:24px;
+  margin-top:52px;
+}
+.panel{
+  background:var(--card,rgba(255,255,255,.84));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  border-radius:26px;
+  padding:26px;
+  box-shadow:0 18px 50px rgba(15,23,42,.08);
+  backdrop-filter:blur(14px);
+}
+.panel h3{
+  margin:0 0 12px;
+  color:var(--head,currentColor);
+  font-size:24px;
+  letter-spacing:-.035em;
+}
+.panel p{
+  margin:0;
+  color:var(--mutedText,#64748b);
+  line-height:1.65;
+}
+.menu-list{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+.menu-list li{
+  min-height:54px;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  padding:14px;
+  border-radius:18px;
+  background:var(--serviceBg,rgba(255,255,255,.72));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  font-weight:850;
+}
+.menu-list li:before{
+  content:"✦";
+  color:var(--accent,#f97316);
+  font-weight:950;
+}
+.info-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+  margin-top:24px;
+}
+.info{
+  padding:22px;
+  border-radius:24px;
+  background:var(--card,rgba(255,255,255,.84));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  box-shadow:0 16px 42px rgba(15,23,42,.07);
+}
+.info b{
+  display:block;
+  color:var(--head,currentColor);
+  margin-bottom:9px;
+}
+.info p{
+  margin:0;
+  color:var(--mutedText,#64748b);
+  line-height:1.6;
+}
+.lower-grid{
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:24px;
+  margin-top:24px;
+}
+.review{
+  padding:24px;
+  border-radius:26px;
+  background:var(--accent,#f97316);
+  color:var(--accentText,#fff);
+  box-shadow:0 18px 50px rgba(15,23,42,.16);
+}
+.review h3{
+  margin:0 0 12px;
+  font-size:28px;
+  letter-spacing:-.04em;
+}
+.review p{
+  margin:0;
+  line-height:1.65;
+  opacity:.92;
+}
+.photo-grid{
+  display:grid;
+  grid-template-columns:1.2fr .8fr .8fr;
+  gap:14px;
+  margin-top:26px;
+}
+.photo-grid img{
+  height:172px;
+  border-radius:24px;
+  box-shadow:0 18px 42px rgba(15,23,42,.10);
+}
+.photo-grid img:first-child{height:224px}
+
+/* Themes */
+.fine{--bg:linear-gradient(135deg,#09090b,#1c1917 55%,#26130c);--fg:#f8fafc;--head:#fff7ed;--text:#fed7aa;--mutedText:#e7e5e4;--accent:#d6a74a;--accentText:#111827;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Playfair Display";--shape:44px}
+.casual{--bg:linear-gradient(135deg,#fff7ed,#fff 48%,#fef3c7);--accent:#ea580c;--display:"Space Grotesk";--shape:34px}
+.cafe{--bg:linear-gradient(135deg,#faf7ef,#fff 48%,#f3e8d6);--accent:#92400e;--display:"Libre Baskerville";--shape:80px 28px 80px 28px}
+.bakery{--bg:linear-gradient(135deg,#fffbeb,#fff 48%,#fef3c7);--accent:#b45309;--display:"Playfair Display";--shape:999px 999px 40px 40px}
+.truck{--bg:radial-gradient(circle at 16% 18%,rgba(239,68,68,.28),transparent 25%),radial-gradient(circle at 82% 16%,rgba(250,204,21,.24),transparent 26%),linear-gradient(135deg,#fff,#fee2e2 55%,#fef3c7);--accent:#dc2626;--display:"Space Grotesk";--shape:14px}
+.catering{--bg:linear-gradient(135deg,#f8fafc,#fff 48%,#e2e8f0);--accent:#334155;--display:"Playfair Display";--shape:26px}
+.chef{--bg:linear-gradient(135deg,#07111f,#0f1e34 55%,#111827);--fg:#f8fafc;--head:#fff;--text:#dbeafe;--mutedText:#cbd5e1;--accent:#d6a74a;--accentText:#07111f;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Playfair Display";--shape:44px}
+.mealprep{--bg:linear-gradient(135deg,#f0fdf4,#fff 48%,#dcfce7);--accent:#16a34a;--accentText:#052e16;--display:"Space Grotesk";--shape:26px}
+.juice{--bg:radial-gradient(circle at 16% 18%,rgba(34,197,94,.25),transparent 25%),radial-gradient(circle at 82% 16%,rgba(251,191,36,.25),transparent 26%),linear-gradient(135deg,#fff,#ecfccb 55%,#fef9c3);--accent:#65a30d;--accentText:#1a2e05;--display:"Space Grotesk";--shape:26px 90px 26px 90px}
+.dessert{--bg:radial-gradient(circle at 16% 18%,rgba(244,114,182,.28),transparent 25%),linear-gradient(135deg,#fff,#fdf2f8 52%,#fae8ff);--accent:#db2777;--display:"Playfair Display";--shape:80px 26px 80px 26px}
+.roaster{--bg:linear-gradient(135deg,#1c1917,#292524 55%,#120b08);--fg:#f8fafc;--head:#fff7ed;--text:#fed7aa;--mutedText:#e7e5e4;--accent:#f59e0b;--accentText:#111827;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Libre Baskerville";--shape:26px}
+.bar{--bg:linear-gradient(135deg,#020617,#111827 52%,#581c87);--fg:#f8fafc;--head:#fff;--text:#ede9fe;--mutedText:#ddd6fe;--accent:#c084fc;--accentText:#111827;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Playfair Display";--shape:18px}
+.popup{--bg:linear-gradient(135deg,#ecfeff,#fff 48%,#fef3c7);--accent:#0891b2;--accentText:#ecfeff;--display:"Space Grotesk";--shape:18px}
+
+/* special details */
+.fine .media:before,.chef .media:before{
+  content:"RESERVATIONS";
+  position:absolute;
+  top:18px;
+  left:18px;
+  z-index:2;
+  padding:9px 13px;
+  border-radius:999px;
+  background:rgba(255,255,255,.9);
+  color:#111827;
+  font-weight:950;
+  letter-spacing:.08em;
+  font-size:12px;
+}
+.truck .media:before,.popup .media:before{
+  content:"NEXT STOP";
+  position:absolute;
+  top:18px;
+  left:18px;
+  z-index:2;
+  padding:9px 13px;
+  border-radius:999px;
+  background:rgba(255,255,255,.9);
+  color:#111827;
+  font-weight:950;
+  letter-spacing:.08em;
+  font-size:12px;
+}
+.bar .media:before{
+  content:"HAPPY HOUR";
+  position:absolute;
+  top:18px;
+  left:18px;
+  z-index:2;
+  padding:9px 13px;
+  border-radius:999px;
+  background:rgba(255,255,255,.9);
+  color:#581c87;
+  font-weight:950;
+  letter-spacing:.08em;
+  font-size:12px;
+}
+.fine .hero,.cafe .hero,.bakery .hero,.chef .hero,.juice .hero,.roaster .hero,.bar .hero{grid-template-columns:.95fr 1.05fr}
+.casual .hero,.truck .hero,.catering .hero,.mealprep .hero,.dessert .hero,.popup .hero{grid-template-columns:1.1fr .9fr}
+
+@media(max-width:980px){
+  .hero,.main-grid,.lower-grid{grid-template-columns:1fr!important}
+  .menu-strip,.info-grid,.photo-grid{grid-template-columns:1fr}
+  .menu-list{grid-template-columns:1fr}
+  .photo-grid img,.photo-grid img:first-child{height:220px}
+  .media img{height:340px}
+  .nav{align-items:flex-start;flex-direction:column}
+  .navlinks{justify-content:flex-start}
+}
+@media(max-width:620px){
+  .cover,.template{padding:64px 5vw}
+  .hero h2{font-size:40px}
+  .panel,.review,.info{padding:20px}
+  .media-note{position:static;margin:-48px 18px 18px}
+}
+</style>
+</head>
+<body>
+  <header class="cover">
+    <div>
+      <span class="eyebrow">FrameNest Mockup Collection</span>
+      <h1>Restaurant & Food Business Website Templates</h1>
+      <p>Thirteen professional website sections for restaurants, cafes, bakeries, food trucks, caterers, private chefs, meal prep services, juice bars, dessert shops, coffee roasters, bars, lounges, and pop-up vendors.</p>
+    </div>
+  </header>
+  
+  <!-- 01. Fine Dining -->
+  <section class="template fine">
+    <span class="template-number">Template 01 / Fine Dining</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">F</span>Maison Nocturne</div>
+        <div class="navlinks"><span>Menu</span><span>Hours</span><span>Order</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Tasting Menu</span><span class="pill">Wine Pairings</span><span class="pill">Reservations</span></div>
+          <h2>An elegant tasting menu for unforgettable evenings.</h2>
+          <p>A dark, refined fine-dining template with tasting menu display, wine pairings, reservation flow, and polished photography.</p>
+          <div class="menu-strip"><div class="menu-mini"><b>Six-Course Tasting</b><strong>$145</strong><span>Seasonal chef’s menu</span></div><div class="menu-mini"><b>Reserve Wine Pairing</b><strong>$85</strong><span>Old-world and new-world selections</span></div><div class="menu-mini"><b>Chef’s Table</b><strong>$245</strong><span>Private counter experience</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#order">Reserve a Table</a>
+            <a class="btn secondary" href="#menu">View Menu</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800" alt="Fine Dining restaurant website hero">
+          <div class="media-note">Tasting menu · Wine list · Premium reservation flow</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="menu">
+          <h3>Menu</h3>
+          <ul class="menu-list"><li>Six-Course Tasting · $145 — Seasonal chef’s menu</li><li>Reserve Wine Pairing · $85 — Old-world and new-world selections</li><li>Chef’s Table · $245 — Private counter experience</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section to show dining room atmosphere, signature dishes, product details, or event-ready food photography.</p>
+          <div class="photo-grid">
+            <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800" alt="Fine Dining photo one">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800" alt="Fine Dining photo two">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Fine Dining photo three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Tue–Sat 5:00 PM–11:00 PM · Sunday private events<br>18 Velvet Row · Downtown Arts District</p>
+        </div>
+        <div class="info" id="order">
+          <b>Online Ordering</b>
+          <p>Connect this button to pickup, delivery, catering request, event booking, or preorder checkout.</p>
+          <a class="btn" href="#order">Order Now</a>
+        </div>
+        <div class="info">
+          <b>Reservations</b>
+          <p>Accept reservations, waitlist requests, private dining inquiries, or special-event booking.</p>
+          <a class="btn secondary" href="#reservation">Reserve a Table</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Guest Experience</h3>
+          <p>Highlight dietary notes, hospitality style, ambiance, events, delivery radius, wholesale terms, or special ordering policies.</p>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“The tasting menu was precise, intimate, and beautifully paced.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02. Casual Restaurant -->
+  <section class="template casual">
+    <span class="template-number">Template 02 / Casual Restaurant</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">C</span>Maple &amp; Main Kitchen</div>
+        <div class="navlinks"><span>Menu</span><span>Hours</span><span>Order</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Family Dining</span><span class="pill">Daily Specials</span><span class="pill">Takeout</span></div>
+          <h2>Warm neighborhood food for the whole table.</h2>
+          <p>A family-friendly restaurant template with full menu sections, daily specials, accessible hours, and easy online ordering.</p>
+          <div class="menu-strip"><div class="menu-mini"><b>Classic Burger</b><strong>$16</strong><span>Cheddar, house pickles, fries</span></div><div class="menu-mini"><b>Roasted Chicken</b><strong>$22</strong><span>Herbs, seasonal vegetables</span></div><div class="menu-mini"><b>Kids Pasta</b><strong>$9</strong><span>Butter or marinara</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#order">Order Now</a>
+            <a class="btn secondary" href="#menu">View Menu</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800" alt="Casual Restaurant restaurant website hero">
+          <div class="media-note">Full menu · Daily specials · Family-friendly hours</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="menu">
+          <h3>Menu</h3>
+          <ul class="menu-list"><li>Classic Burger · $16 — Cheddar, house pickles, fries</li><li>Roasted Chicken · $22 — Herbs, seasonal vegetables</li><li>Kids Pasta · $9 — Butter or marinara</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section to show dining room atmosphere, signature dishes, product details, or event-ready food photography.</p>
+          <div class="photo-grid">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800" alt="Casual Restaurant photo one">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Casual Restaurant photo two">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800" alt="Casual Restaurant photo three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Mon–Thu 11:00 AM–9:00 PM · Fri–Sat 11:00 AM–10:00 PM · Sun 10:00 AM–8:00 PM<br>420 Main Street · Family booths and patio seating</p>
+        </div>
+        <div class="info" id="order">
+          <b>Online Ordering</b>
+          <p>Connect this button to pickup, delivery, catering request, event booking, or preorder checkout.</p>
+          <a class="btn" href="#order">Order Now</a>
+        </div>
+        <div class="info">
+          <b>Reservations</b>
+          <p>Accept reservations, waitlist requests, private dining inquiries, or special-event booking.</p>
+          <a class="btn secondary" href="#reservation">Reserve a Table</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Guest Experience</h3>
+          <p>Highlight dietary notes, hospitality style, ambiance, events, delivery radius, wholesale terms, or special ordering policies.</p>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“Comfortable, consistent, and the kind of place we bring everyone.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03. Cafe Culture -->
+  <section class="template cafe">
+    <span class="template-number">Template 03 / Cafe Culture</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">C</span>Hearthside Cafe</div>
+        <div class="navlinks"><span>Menu</span><span>Hours</span><span>Order</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Espresso</span><span class="pill">Pastries</span><span class="pill">WiFi</span></div>
+          <h2>Coffee, pastries, and slow mornings that linger.</h2>
+          <p>A cozy cafe template with rustic ambiance, drink menus, pastry showcase, WiFi notes, and neighborhood feel.</p>
+          <div class="menu-strip"><div class="menu-mini"><b>Maple Latte</b><strong>$6</strong><span>Espresso, oat milk, maple</span></div><div class="menu-mini"><b>House Drip</b><strong>$4</strong><span>Rotating single origin</span></div><div class="menu-mini"><b>Morning Pastry</b><strong>$5</strong><span>Daily baker’s choice</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#order">Order Now</a>
+            <a class="btn secondary" href="#menu">View Menu</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800" alt="Cafe Culture restaurant website hero">
+          <div class="media-note">Drink menu · Pastry showcase · WiFi and ambiance</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="menu">
+          <h3>Menu</h3>
+          <ul class="menu-list"><li>Maple Latte · $6 — Espresso, oat milk, maple</li><li>House Drip · $4 — Rotating single origin</li><li>Morning Pastry · $5 — Daily baker’s choice</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section to show dining room atmosphere, signature dishes, product details, or event-ready food photography.</p>
+          <div class="photo-grid">
+            <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800" alt="Cafe Culture photo one">
+            <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800" alt="Cafe Culture photo two">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800" alt="Cafe Culture photo three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Daily 7:00 AM–4:00 PM · WiFi available weekdays<br>9 Copper Lane · Window seats, shared tables, quiet corners</p>
+        </div>
+        <div class="info" id="order">
+          <b>Online Ordering</b>
+          <p>Connect this button to pickup, delivery, catering request, event booking, or preorder checkout.</p>
+          <a class="btn" href="#order">Order Now</a>
+        </div>
+        <div class="info">
+          <b>Reservations</b>
+          <p>Accept reservations, waitlist requests, private dining inquiries, or special-event booking.</p>
+          <a class="btn secondary" href="#reservation">Reserve a Table</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Guest Experience</h3>
+          <p>Highlight dietary notes, hospitality style, ambiance, events, delivery radius, wholesale terms, or special ordering policies.</p>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“The perfect place to work, read, and accidentally stay for lunch.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04. Artisan Bakery -->
+  <section class="template bakery">
+    <span class="template-number">Template 04 / Artisan Bakery</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">A</span>Flour &amp; Stone Bakery</div>
+        <div class="navlinks"><span>Menu</span><span>Hours</span><span>Order</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Sourdough</span><span class="pill">Custom Orders</span><span class="pill">Wholesale</span></div>
+          <h2>Naturally leavened bread, baked before the city wakes.</h2>
+          <p>A flour-dusted bakery template with daily bread lists, custom orders, wholesale inquiries, and warm product photography.</p>
+          <div class="menu-strip"><div class="menu-mini"><b>Country Sourdough</b><strong>$9</strong><span>Naturally leavened</span></div><div class="menu-mini"><b>Almond Croissant</b><strong>$6</strong><span>Twice baked</span></div><div class="menu-mini"><b>Celebration Tart</b><strong>$38</strong><span>Seasonal fruit</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#order">Order Now</a>
+            <a class="btn secondary" href="#menu">View Menu</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800" alt="Artisan Bakery restaurant website hero">
+          <div class="media-note">Daily bread list · Custom orders · Wholesale inquiry</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="menu">
+          <h3>Menu</h3>
+          <ul class="menu-list"><li>Country Sourdough · $9 — Naturally leavened</li><li>Almond Croissant · $6 — Twice baked</li><li>Celebration Tart · $38 — Seasonal fruit</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section to show dining room atmosphere, signature dishes, product details, or event-ready food photography.</p>
+          <div class="photo-grid">
+            <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800" alt="Artisan Bakery photo one">
+            <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800" alt="Artisan Bakery photo two">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Artisan Bakery photo three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Tue–Sun 7:00 AM–2:00 PM · Bread sells out early<br>112 Mill Street · Pickup window and retail counter</p>
+        </div>
+        <div class="info" id="order">
+          <b>Online Ordering</b>
+          <p>Connect this button to pickup, delivery, catering request, event booking, or preorder checkout.</p>
+          <a class="btn" href="#order">Order Now</a>
+        </div>
+        <div class="info">
+          <b>Reservations</b>
+          <p>Accept reservations, waitlist requests, private dining inquiries, or special-event booking.</p>
+          <a class="btn secondary" href="#reservation">Reserve a Table</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Guest Experience</h3>
+          <p>Highlight dietary notes, hospitality style, ambiance, events, delivery radius, wholesale terms, or special ordering policies.</p>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“The crust, the crumb, the smell — this bakery is the real thing.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05. Food Truck -->
+  <section class="template truck">
+    <span class="template-number">Template 05 / Food Truck</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">F</span>Firewheel Street Eats</div>
+        <div class="navlinks"><span>Menu</span><span>Hours</span><span>Order</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Location Schedule</span><span class="pill">Events</span><span class="pill">Street Food</span></div>
+          <h2>Bold street food rolling into your neighborhood.</h2>
+          <p>A punchy food-truck template with location schedule, priced menu, event booking, and social-first updates.</p>
+          <div class="menu-strip"><div class="menu-mini"><b>Smash Taco Trio</b><strong>$14</strong><span>Three loaded tacos</span></div><div class="menu-mini"><b>Street Corn Bowl</b><strong>$11</strong><span>Lime crema, cotija</span></div><div class="menu-mini"><b>Crispy Churros</b><strong>$7</strong><span>Cinnamon sugar</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#order">Order Now</a>
+            <a class="btn secondary" href="#menu">View Menu</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800" alt="Food Truck restaurant website hero">
+          <div class="media-note">Location schedule · Menu with prices · Event booking</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="menu">
+          <h3>Menu</h3>
+          <ul class="menu-list"><li>Smash Taco Trio · $14 — Three loaded tacos</li><li>Street Corn Bowl · $11 — Lime crema, cotija</li><li>Crispy Churros · $7 — Cinnamon sugar</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section to show dining room atmosphere, signature dishes, product details, or event-ready food photography.</p>
+          <div class="photo-grid">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800" alt="Food Truck photo one">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Food Truck photo two">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800" alt="Food Truck photo three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Wed–Fri lunch routes · Sat–Sun festivals and private events<br>Weekly stops posted on Instagram · Event booking available</p>
+        </div>
+        <div class="info" id="order">
+          <b>Online Ordering</b>
+          <p>Connect this button to pickup, delivery, catering request, event booking, or preorder checkout.</p>
+          <a class="btn" href="#order">Order Now</a>
+        </div>
+        <div class="info">
+          <b>Reservations</b>
+          <p>Accept reservations, waitlist requests, private dining inquiries, or special-event booking.</p>
+          <a class="btn secondary" href="#reservation">Reserve a Table</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Guest Experience</h3>
+          <p>Highlight dietary notes, hospitality style, ambiance, events, delivery radius, wholesale terms, or special ordering policies.</p>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“Fast line, huge flavor, and the schedule is always easy to find.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06. Catering Company -->
+  <section class="template catering">
+    <span class="template-number">Template 06 / Catering Company</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">C</span>Gather &amp; Garnish Catering</div>
+        <div class="navlinks"><span>Menu</span><span>Hours</span><span>Order</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Weddings</span><span class="pill">Corporate</span><span class="pill">Private Events</span></div>
+          <h2>Event catering that feels composed from first taste to final plate.</h2>
+          <p>An event-focused catering template with package menus, event galleries, inquiry form, and polished service options.</p>
+          <div class="menu-strip"><div class="menu-mini"><b>Cocktail Reception</b><strong>$42/guest</strong><span>Passed bites and grazing table</span></div><div class="menu-mini"><b>Dinner Service</b><strong>$85/guest</strong><span>Plated or family-style</span></div><div class="menu-mini"><b>Full Event Package</b><strong>Custom</strong><span>Staffing, rentals, timeline</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#order">Reserve a Table</a>
+            <a class="btn secondary" href="#menu">View Menu</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Catering Company restaurant website hero">
+          <div class="media-note">Menu packages · Event gallery · Inquiry form</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="menu">
+          <h3>Menu</h3>
+          <ul class="menu-list"><li>Cocktail Reception · $42/guest — Passed bites and grazing table</li><li>Dinner Service · $85/guest — Plated or family-style</li><li>Full Event Package · Custom — Staffing, rentals, timeline</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section to show dining room atmosphere, signature dishes, product details, or event-ready food photography.</p>
+          <div class="photo-grid">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Catering Company photo one">
+            <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800" alt="Catering Company photo two">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800" alt="Catering Company photo three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Consultations Mon–Fri · Events booked year-round<br>Serving the full metro area and surrounding venues</p>
+        </div>
+        <div class="info" id="order">
+          <b>Online Ordering</b>
+          <p>Connect this button to pickup, delivery, catering request, event booking, or preorder checkout.</p>
+          <a class="btn" href="#order">Order Now</a>
+        </div>
+        <div class="info">
+          <b>Reservations</b>
+          <p>Accept reservations, waitlist requests, private dining inquiries, or special-event booking.</p>
+          <a class="btn secondary" href="#reservation">Reserve a Table</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Guest Experience</h3>
+          <p>Highlight dietary notes, hospitality style, ambiance, events, delivery radius, wholesale terms, or special ordering policies.</p>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“They made dinner feel effortless, beautiful, and perfectly timed.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07. Private Chef -->
+  <section class="template chef">
+    <span class="template-number">Template 07 / Private Chef</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Chef Aurelia Private Dining</div>
+        <div class="navlinks"><span>Menu</span><span>Hours</span><span>Order</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">In-Home Dining</span><span class="pill">Tasting Menus</span><span class="pill">Dietary Care</span></div>
+          <h2>Restaurant-level dining brought into your home.</h2>
+          <p>A premium private-chef template with tasting menus, in-home dining experience, dietary accommodations, and intimate event booking.</p>
+          <div class="menu-strip"><div class="menu-mini"><b>Four-Course Dinner</b><strong>$165/guest</strong><span>Seasonal private menu</span></div><div class="menu-mini"><b>Celebration Tasting</b><strong>$225/guest</strong><span>Multi-course chef experience</span></div><div class="menu-mini"><b>Wellness Dinner</b><strong>$140/guest</strong><span>Dietary-focused menu</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#order">Reserve a Table</a>
+            <a class="btn secondary" href="#menu">View Menu</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800" alt="Private Chef restaurant website hero">
+          <div class="media-note">Premium tasting menu · In-home dining · Dietary accommodations</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="menu">
+          <h3>Menu</h3>
+          <ul class="menu-list"><li>Four-Course Dinner · $165/guest — Seasonal private menu</li><li>Celebration Tasting · $225/guest — Multi-course chef experience</li><li>Wellness Dinner · $140/guest — Dietary-focused menu</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section to show dining room atmosphere, signature dishes, product details, or event-ready food photography.</p>
+          <div class="photo-grid">
+            <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800" alt="Private Chef photo one">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Private Chef photo two">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800" alt="Private Chef photo three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Private bookings Thu–Sun · Weekday corporate dinners by request<br>In-home dining across the metro and private estates</p>
+        </div>
+        <div class="info" id="order">
+          <b>Online Ordering</b>
+          <p>Connect this button to pickup, delivery, catering request, event booking, or preorder checkout.</p>
+          <a class="btn" href="#order">Order Now</a>
+        </div>
+        <div class="info">
+          <b>Reservations</b>
+          <p>Accept reservations, waitlist requests, private dining inquiries, or special-event booking.</p>
+          <a class="btn secondary" href="#reservation">Reserve a Table</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Guest Experience</h3>
+          <p>Highlight dietary notes, hospitality style, ambiance, events, delivery radius, wholesale terms, or special ordering policies.</p>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“It felt like having a calm, five-star restaurant in our own dining room.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08. Meal Prep Service -->
+  <section class="template mealprep">
+    <span class="template-number">Template 08 / Meal Prep Service</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">M</span>GoodWeek Meals</div>
+        <div class="navlinks"><span>Menu</span><span>Hours</span><span>Order</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Weekly Menu</span><span class="pill">Subscriptions</span><span class="pill">Delivery</span></div>
+          <h2>Healthy weekly meals without the Sunday scramble.</h2>
+          <p>A clean meal-prep service template with weekly menus, subscription plans, delivery area, nutrition focus, and ordering CTA.</p>
+          <div class="menu-strip"><div class="menu-mini"><b>5-Meal Pack</b><strong>$72</strong><span>Balanced lunches or dinners</span></div><div class="menu-mini"><b>10-Meal Pack</b><strong>$135</strong><span>Best for busy weeks</span></div><div class="menu-mini"><b>Family Pack</b><strong>$190</strong><span>Four dinners for four</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#order">Order Now</a>
+            <a class="btn secondary" href="#menu">View Menu</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Meal Prep Service restaurant website hero">
+          <div class="media-note">Weekly menu · Subscription plans · Delivery area</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="menu">
+          <h3>Menu</h3>
+          <ul class="menu-list"><li>5-Meal Pack · $72 — Balanced lunches or dinners</li><li>10-Meal Pack · $135 — Best for busy weeks</li><li>Family Pack · $190 — Four dinners for four</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section to show dining room atmosphere, signature dishes, product details, or event-ready food photography.</p>
+          <div class="photo-grid">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Meal Prep Service photo one">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800" alt="Meal Prep Service photo two">
+            <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800" alt="Meal Prep Service photo three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Orders close Friday · Deliveries Sunday and Monday<br>Delivery to Central, Northside, West Hills, and Lakeside</p>
+        </div>
+        <div class="info" id="order">
+          <b>Online Ordering</b>
+          <p>Connect this button to pickup, delivery, catering request, event booking, or preorder checkout.</p>
+          <a class="btn" href="#order">Order Now</a>
+        </div>
+        <div class="info">
+          <b>Reservations</b>
+          <p>Accept reservations, waitlist requests, private dining inquiries, or special-event booking.</p>
+          <a class="btn secondary" href="#reservation">Reserve a Table</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Guest Experience</h3>
+          <p>Highlight dietary notes, hospitality style, ambiance, events, delivery radius, wholesale terms, or special ordering policies.</p>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“The meals are fresh, filling, and make weekdays dramatically easier.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09. Juice Bar -->
+  <section class="template juice">
+    <span class="template-number">Template 09 / Juice Bar</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">J</span>BrightPress Juice Bar</div>
+        <div class="navlinks"><span>Menu</span><span>Hours</span><span>Order</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Cold-Pressed</span><span class="pill">Cleanses</span><span class="pill">Wellness</span></div>
+          <h2>Fresh-pressed color for everyday wellness.</h2>
+          <p>A vibrant juice-bar template with ingredient lists, cleanse programs, wellness messaging, and bright photography.</p>
+          <div class="menu-strip"><div class="menu-mini"><b>Green Reset</b><strong>$9</strong><span>Kale, apple, cucumber, lemon</span></div><div class="menu-mini"><b>Golden Glow</b><strong>$10</strong><span>Carrot, orange, turmeric</span></div><div class="menu-mini"><b>Three-Day Cleanse</b><strong>$135</strong><span>Six bottles per day</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#order">Order Now</a>
+            <a class="btn secondary" href="#menu">View Menu</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Juice Bar restaurant website hero">
+          <div class="media-note">Ingredient lists · Cleanse programs · Wellness focus</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="menu">
+          <h3>Menu</h3>
+          <ul class="menu-list"><li>Green Reset · $9 — Kale, apple, cucumber, lemon</li><li>Golden Glow · $10 — Carrot, orange, turmeric</li><li>Three-Day Cleanse · $135 — Six bottles per day</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section to show dining room atmosphere, signature dishes, product details, or event-ready food photography.</p>
+          <div class="photo-grid">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Juice Bar photo one">
+            <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800" alt="Juice Bar photo two">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800" alt="Juice Bar photo three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Daily 8:00 AM–6:00 PM · Online cleanse orders open anytime<br>55 Market Hall · Grab-and-go cooler and wellness bar</p>
+        </div>
+        <div class="info" id="order">
+          <b>Online Ordering</b>
+          <p>Connect this button to pickup, delivery, catering request, event booking, or preorder checkout.</p>
+          <a class="btn" href="#order">Order Now</a>
+        </div>
+        <div class="info">
+          <b>Reservations</b>
+          <p>Accept reservations, waitlist requests, private dining inquiries, or special-event booking.</p>
+          <a class="btn secondary" href="#reservation">Reserve a Table</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Guest Experience</h3>
+          <p>Highlight dietary notes, hospitality style, ambiance, events, delivery radius, wholesale terms, or special ordering policies.</p>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“The ingredient lists are clear, and everything tastes bright and fresh.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Dessert Shop -->
+  <section class="template dessert">
+    <span class="template-number">Template 10 / Dessert Shop</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">D</span>Sugar Moon Sweets</div>
+        <div class="navlinks"><span>Menu</span><span>Hours</span><span>Order</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Cupcakes</span><span class="pill">Custom Cakes</span><span class="pill">Events</span></div>
+          <h2>Playful treats for birthdays, events, and everyday cravings.</h2>
+          <p>A sweet dessert-shop template with showcase gallery, custom orders, event treats, colorful menus, and quick order links.</p>
+          <div class="menu-strip"><div class="menu-mini"><b>Cupcake Box</b><strong>$28</strong><span>Six assorted flavors</span></div><div class="menu-mini"><b>Custom Cake</b><strong>$95+</strong><span>Designed for your event</span></div><div class="menu-mini"><b>Dessert Table</b><strong>$240+</strong><span>Mini treats and display</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#order">Order Now</a>
+            <a class="btn secondary" href="#menu">View Menu</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800" alt="Dessert Shop restaurant website hero">
+          <div class="media-note">Showcase gallery · Custom orders · Event treats</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="menu">
+          <h3>Menu</h3>
+          <ul class="menu-list"><li>Cupcake Box · $28 — Six assorted flavors</li><li>Custom Cake · $95+ — Designed for your event</li><li>Dessert Table · $240+ — Mini treats and display</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section to show dining room atmosphere, signature dishes, product details, or event-ready food photography.</p>
+          <div class="photo-grid">
+            <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800" alt="Dessert Shop photo one">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Dessert Shop photo two">
+            <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800" alt="Dessert Shop photo three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Tue–Sat 10:00 AM–7:00 PM · Sunday pickup by appointment<br>77 Cherry Street · Custom order pickup counter</p>
+        </div>
+        <div class="info" id="order">
+          <b>Online Ordering</b>
+          <p>Connect this button to pickup, delivery, catering request, event booking, or preorder checkout.</p>
+          <a class="btn" href="#order">Order Now</a>
+        </div>
+        <div class="info">
+          <b>Reservations</b>
+          <p>Accept reservations, waitlist requests, private dining inquiries, or special-event booking.</p>
+          <a class="btn secondary" href="#reservation">Reserve a Table</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Guest Experience</h3>
+          <p>Highlight dietary notes, hospitality style, ambiance, events, delivery radius, wholesale terms, or special ordering policies.</p>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“Every dessert looked adorable and tasted even better.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. Coffee Roaster -->
+  <section class="template roaster">
+    <span class="template-number">Template 11 / Coffee Roaster</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">C</span>Ember &amp; Origin Roasters</div>
+        <div class="navlinks"><span>Menu</span><span>Hours</span><span>Order</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Single Origin</span><span class="pill">Subscriptions</span><span class="pill">Wholesale</span></div>
+          <h2>Small-batch coffee with a traceable story.</h2>
+          <p>An artisanal coffee-roaster template with bean origins, brewing guides, subscriptions, wholesale links, and product photography.</p>
+          <div class="menu-strip"><div class="menu-mini"><b>Ethiopia Guji</b><strong>$22</strong><span>Floral, citrus, tea-like</span></div><div class="menu-mini"><b>House Blend</b><strong>$18</strong><span>Chocolate, caramel, balanced</span></div><div class="menu-mini"><b>Roaster’s Subscription</b><strong>$28/mo</strong><span>Two rotating bags</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#order">Order Now</a>
+            <a class="btn secondary" href="#menu">View Menu</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800" alt="Coffee Roaster restaurant website hero">
+          <div class="media-note">Bean origins · Brewing guides · Subscription and wholesale</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="menu">
+          <h3>Menu</h3>
+          <ul class="menu-list"><li>Ethiopia Guji · $22 — Floral, citrus, tea-like</li><li>House Blend · $18 — Chocolate, caramel, balanced</li><li>Roaster’s Subscription · $28/mo — Two rotating bags</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section to show dining room atmosphere, signature dishes, product details, or event-ready food photography.</p>
+          <div class="photo-grid">
+            <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800" alt="Coffee Roaster photo one">
+            <img src="https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800" alt="Coffee Roaster photo two">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800" alt="Coffee Roaster photo three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Roastery pickup Wed–Sat 9:00 AM–3:00 PM<br>31 Roaster Alley · Cuppings every first Saturday</p>
+        </div>
+        <div class="info" id="order">
+          <b>Online Ordering</b>
+          <p>Connect this button to pickup, delivery, catering request, event booking, or preorder checkout.</p>
+          <a class="btn" href="#order">Order Now</a>
+        </div>
+        <div class="info">
+          <b>Reservations</b>
+          <p>Accept reservations, waitlist requests, private dining inquiries, or special-event booking.</p>
+          <a class="btn secondary" href="#reservation">Reserve a Table</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Guest Experience</h3>
+          <p>Highlight dietary notes, hospitality style, ambiance, events, delivery radius, wholesale terms, or special ordering policies.</p>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“The brewing guides made every bag taste better at home.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12. Bar &amp; Lounge -->
+  <section class="template bar">
+    <span class="template-number">Template 12 / Bar &amp; Lounge</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">B</span>The Velvet Signal</div>
+        <div class="navlinks"><span>Menu</span><span>Hours</span><span>Order</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Cocktails</span><span class="pill">Happy Hour</span><span class="pill">Private Events</span></div>
+          <h2>Cocktails, low light, and nights worth staying for.</h2>
+          <p>A moody bar and lounge template with cocktail menu, events calendar, happy hour, private events, and reservation options.</p>
+          <div class="menu-strip"><div class="menu-mini"><b>House Martini</b><strong>$16</strong><span>Gin, vermouth, olive oil wash</span></div><div class="menu-mini"><b>Velvet Old Fashioned</b><strong>$18</strong><span>Bourbon, bitters, smoked orange</span></div><div class="menu-mini"><b>Happy Hour Board</b><strong>$22</strong><span>Snacks for two</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#order">Reserve a Table</a>
+            <a class="btn secondary" href="#menu">View Menu</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800" alt="Bar &amp; Lounge restaurant website hero">
+          <div class="media-note">Cocktail menu · Events calendar · Happy hour · Private events</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="menu">
+          <h3>Menu</h3>
+          <ul class="menu-list"><li>House Martini · $16 — Gin, vermouth, olive oil wash</li><li>Velvet Old Fashioned · $18 — Bourbon, bitters, smoked orange</li><li>Happy Hour Board · $22 — Snacks for two</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section to show dining room atmosphere, signature dishes, product details, or event-ready food photography.</p>
+          <div class="photo-grid">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800" alt="Bar &amp; Lounge photo one">
+            <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800" alt="Bar &amp; Lounge photo two">
+            <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800" alt="Bar &amp; Lounge photo three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Wed–Thu 5:00 PM–12:00 AM · Fri–Sat 5:00 PM–2:00 AM<br>Basement lounge · 100 Night Market Lane</p>
+        </div>
+        <div class="info" id="order">
+          <b>Online Ordering</b>
+          <p>Connect this button to pickup, delivery, catering request, event booking, or preorder checkout.</p>
+          <a class="btn" href="#order">Order Now</a>
+        </div>
+        <div class="info">
+          <b>Reservations</b>
+          <p>Accept reservations, waitlist requests, private dining inquiries, or special-event booking.</p>
+          <a class="btn secondary" href="#reservation">Reserve a Table</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Guest Experience</h3>
+          <p>Highlight dietary notes, hospitality style, ambiance, events, delivery radius, wholesale terms, or special ordering policies.</p>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“The atmosphere is moody, the drinks are precise, and the staff knows the menu.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13. Pop-Up Vendor -->
+  <section class="template popup">
+    <span class="template-number">Template 13 / Pop-Up Vendor</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Miso Moon Pop-Up</div>
+        <div class="navlinks"><span>Menu</span><span>Hours</span><span>Order</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Pop-Ups</span><span class="pill">Event Calendar</span><span class="pill">Social Drops</span></div>
+          <h2>A rotating menu, one-night drops, and food worth following.</h2>
+          <p>A trendy pop-up vendor template with upcoming events, menu previews, social links, booking, and a flexible brand-forward layout.</p>
+          <div class="menu-strip"><div class="menu-mini"><b>Next Drop Bowl</b><strong>$16</strong><span>Rotating seasonal bowl</span></div><div class="menu-mini"><b>Snack Flight</b><strong>$12</strong><span>Three small bites</span></div><div class="menu-mini"><b>Event Buyout</b><strong>Custom</strong><span>Private pop-up menu</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#order">Order Now</a>
+            <a class="btn secondary" href="#menu">View Menu</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Pop-Up Vendor restaurant website hero">
+          <div class="media-note">Upcoming events · Menu preview · Social links · Booking</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="menu">
+          <h3>Menu</h3>
+          <ul class="menu-list"><li>Next Drop Bowl · $16 — Rotating seasonal bowl</li><li>Snack Flight · $12 — Three small bites</li><li>Event Buyout · Custom — Private pop-up menu</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Photos</h3>
+          <p>Use this section to show dining room atmosphere, signature dishes, product details, or event-ready food photography.</p>
+          <div class="photo-grid">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800" alt="Pop-Up Vendor photo one">
+            <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800" alt="Pop-Up Vendor photo two">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800" alt="Pop-Up Vendor photo three">
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Pop-up dates announced monthly · Follow socials for drops<br>Rotating venues · Markets, breweries, galleries, and private events</p>
+        </div>
+        <div class="info" id="order">
+          <b>Online Ordering</b>
+          <p>Connect this button to pickup, delivery, catering request, event booking, or preorder checkout.</p>
+          <a class="btn" href="#order">Order Now</a>
+        </div>
+        <div class="info">
+          <b>Reservations</b>
+          <p>Accept reservations, waitlist requests, private dining inquiries, or special-event booking.</p>
+          <a class="btn secondary" href="#reservation">Reserve a Table</a>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Guest Experience</h3>
+          <p>Highlight dietary notes, hospitality style, ambiance, events, delivery radius, wholesale terms, or special ordering policies.</p>
+        </div>
+        <div class="review">
+          <h3>Guest Review</h3>
+          <p>“Every event feels fresh, fun, and worth planning around.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

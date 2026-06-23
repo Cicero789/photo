@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrameNest Templates — Medical & Health</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Nunito:wght@500;600;700;800;900&family=Playfair+Display:wght@600;700;800&family=Libre+Baskerville:wght@400;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+:root{--ink:#111827;--muted:#64748b;--paper:#ffffff;--soft:#f8fafc;--line:rgba(15,23,42,.12);--shadow:0 28px 90px rgba(15,23,42,.15);--radius:28px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:#0f172a}img{width:100%;display:block;object-fit:cover}a{color:inherit;text-decoration:none}.landing{min-height:72vh;display:grid;place-items:center;padding:80px 6vw;text-align:center;color:white;background:radial-gradient(circle at 18% 18%,rgba(56,189,248,.38),transparent 30%),radial-gradient(circle at 84% 22%,rgba(20,184,166,.26),transparent 28%),linear-gradient(135deg,#020617,#0f172a 55%,#083344)}.landing .eyebrow{display:inline-flex;padding:10px 16px;border:1px solid rgba(255,255,255,.22);border-radius:999px;font-size:12px;text-transform:uppercase;letter-spacing:.16em;color:#dbeafe;font-weight:900}.landing h1{max-width:1080px;margin:24px auto 18px;font-size:clamp(42px,7vw,94px);line-height:.94;letter-spacing:-.07em}.landing p{max-width:780px;margin:0 auto;font-size:clamp(18px,2vw,23px);line-height:1.65;color:#d1d5db}.template{min-height:760px;padding:78px 6vw;position:relative;overflow:hidden;color:var(--ink);background:var(--bg,#fff)}.template:before,.template:after{content:"";position:absolute;pointer-events:none;z-index:0}.template:before{width:420px;height:420px;border-radius:999px;background:var(--orb,rgba(14,165,233,.18));top:-140px;right:-120px;filter:blur(6px)}.template:after{width:280px;height:280px;border-radius:80px;border:1px solid var(--mark,rgba(15,23,42,.08));left:-90px;bottom:-110px;transform:rotate(22deg)}.wrap{width:min(1200px,100%);margin:0 auto;position:relative;z-index:2}.template-number{position:absolute;top:20px;right:5vw;z-index:2;color:currentColor;opacity:.42;font-weight:900;letter-spacing:.18em;text-transform:uppercase;font-size:12px}.nav{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:46px;color:var(--nav,currentColor)}.brand{display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.03em}.logo{width:42px;height:42px;border-radius:16px;display:grid;place-items:center;background:var(--accent,#2563eb);color:var(--accentText,#fff);box-shadow:0 14px 32px rgba(15,23,42,.18);font-weight:950}.navlinks{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:18px;font-weight:800;font-size:14px;opacity:.72}.hero{display:grid;grid-template-columns:1.04fr .96fr;gap:42px;align-items:center}.hero h2{margin:0;font-family:var(--display,Inter),sans-serif;font-size:clamp(40px,5.5vw,78px);line-height:.95;letter-spacing:-.06em;color:var(--head,currentColor)}.hero p{max-width:690px;margin:22px 0 0;font-size:18px;line-height:1.72;color:var(--text,currentColor);opacity:.78}.pills{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 24px}.pill{padding:10px 14px;border-radius:999px;background:var(--pill,rgba(255,255,255,.72));border:1px solid var(--pillBorder,rgba(15,23,42,.1));color:var(--pillText,currentColor);font-weight:900;font-size:13px}.btn-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:30px}.btn{min-height:52px;display:inline-flex;align-items:center;justify-content:center;padding:0 22px;border-radius:999px;background:var(--accent,#2563eb);color:var(--accentText,#fff);font-weight:950;box-shadow:0 18px 46px rgba(15,23,42,.18)}.btn.secondary{background:transparent;color:var(--head,currentColor);border:1px solid currentColor;box-shadow:none;opacity:.78}.media{position:relative;border-radius:var(--radius);overflow:hidden;background:white;box-shadow:var(--shadow);border:1px solid var(--mediaLine,rgba(255,255,255,.5))}.media.main img{height:430px}.media-note{position:absolute;left:22px;right:22px;bottom:22px;padding:18px;border-radius:22px;background:rgba(255,255,255,.9);backdrop-filter:blur(16px);box-shadow:0 16px 48px rgba(15,23,42,.18);color:#0f172a;font-weight:850;line-height:1.45}.statbar{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:28px}.stat{border-radius:22px;padding:18px;background:var(--card,rgba(255,255,255,.78));border:1px solid var(--cardLine,rgba(15,23,42,.08));box-shadow:0 14px 34px rgba(15,23,42,.06)}.stat strong{display:block;font-size:32px;line-height:1;letter-spacing:-.06em;color:var(--accent,#2563eb)}.main-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:24px;margin-top:52px}.panel{background:var(--card,rgba(255,255,255,.8));border:1px solid var(--cardLine,rgba(15,23,42,.08));border-radius:26px;padding:26px;box-shadow:0 18px 50px rgba(15,23,42,.08);backdrop-filter:blur(14px)}.panel h3{margin:0 0 12px;font-size:24px;letter-spacing:-.035em;color:var(--head,currentColor)}.panel p{margin:0;color:var(--mutedText,var(--muted));line-height:1.65}.services{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:0;padding:0;list-style:none}.services li{display:flex;align-items:flex-start;gap:10px;min-height:54px;padding:14px;border-radius:18px;background:var(--serviceBg,rgba(255,255,255,.72));border:1px solid var(--cardLine,rgba(15,23,42,.08));font-weight:800}.services li:before{content:"+";color:var(--accent,#2563eb);font-weight:950}.credential-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.credential{padding:10px 13px;border-radius:999px;background:var(--credential,rgba(15,23,42,.06));color:var(--credText,currentColor);font-weight:900;font-size:13px}.info-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}.info-card{background:var(--card,rgba(255,255,255,.8));border:1px solid var(--cardLine,rgba(15,23,42,.08));border-radius:24px;padding:22px;box-shadow:0 16px 42px rgba(15,23,42,.07)}.info-card b{display:block;margin-bottom:9px;color:var(--head,currentColor)}.info-card p{margin:0;color:var(--mutedText,var(--muted));line-height:1.6}.gallery{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:14px;margin-top:26px}.gallery img{height:170px;border-radius:24px;box-shadow:0 18px 42px rgba(15,23,42,.1)}.gallery img:first-child{height:220px}.forms-link{color:var(--accent,#2563eb);font-weight:950;display:inline-flex;margin-top:12px}.family{--bg:linear-gradient(135deg,#f8fbff,#eaf5ff 55%,#ffffff);--accent:#2563eb;--orb:rgba(37,99,235,.18);--display:Inter;--card:rgba(255,255,255,.86)}.dental{--bg:linear-gradient(135deg,#ecfeff,#ffffff 48%,#f0fdf4);--accent:#06b6d4;--accentText:#062f3a;--orb:rgba(34,211,238,.25);--display:Nunito}.ortho{--bg:linear-gradient(120deg,#fff,#eef2ff 45%,#fdf2f8);--accent:#7c3aed;--orb:rgba(124,58,237,.2);--display:Space Grotesk}.derma{--bg:linear-gradient(135deg,#fff7ed,#fff 40%,#ffe4e6);--accent:#be123c;--head:#3f1724;--orb:rgba(251,113,133,.22);--display:"Playfair Display";--card:rgba(255,255,255,.82)}.vision{--bg:linear-gradient(135deg,#eff6ff,#ffffff 52%,#dbeafe);--accent:#1d4ed8;--orb:rgba(29,78,216,.16);--display:Space Grotesk}.vision .hero h2:after{content:"  E F P T O Z";display:block;font-size:18px;letter-spacing:.22em;margin-top:18px;color:#1d4ed8}.pt{--bg:radial-gradient(circle at 15% 20%,rgba(34,197,94,.2),transparent 26%),linear-gradient(135deg,#07140d,#10251a 52%,#0f172a);--accent:#22c55e;--accentText:#052e16;--head:#fff;--text:#d1fae5;--mutedText:#d1fae5;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.14);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillBorder:rgba(255,255,255,.16);--display:Space Grotesk;color:white}.chiro{--bg:linear-gradient(135deg,#f7fee7,#ffffff 48%,#ecfccb);--accent:#65a30d;--accentText:#1a2e05;--orb:rgba(132,204,22,.28);--display:"Libre Baskerville"}.mind{--bg:linear-gradient(135deg,#f5f3ff,#ffffff 48%,#e0f2fe);--accent:#6366f1;--orb:rgba(99,102,241,.18);--display:"Playfair Display"}.counsel{--bg:linear-gradient(135deg,#fff7ed,#fffaf5 46%,#fde68a);--accent:#d97706;--accentText:#fff7ed;--orb:rgba(245,158,11,.23);--display:"Libre Baskerville"}.psych{--bg:linear-gradient(135deg,#f8fafc,#e2e8f0 55%,#ffffff);--accent:#334155;--orb:rgba(51,65,85,.14);--display:Inter}.speech{--bg:radial-gradient(circle at 14% 16%,rgba(251,207,232,.56),transparent 24%),linear-gradient(135deg,#fff,#ecfeff 50%,#fef3c7);--accent:#ec4899;--orb:rgba(45,212,191,.23);--display:Nunito}.ot{--bg:linear-gradient(135deg,#f0fdfa,#ffffff 48%,#fef9c3);--accent:#0f766e;--orb:rgba(20,184,166,.2);--display:Nunito}.nutrition{--bg:linear-gradient(135deg,#f0fdf4,#ffffff 44%,#dcfce7);--accent:#16a34a;--accentText:#052e16;--orb:rgba(22,163,74,.23);--display:"Playfair Display"}.acu{--bg:linear-gradient(135deg,#faf7ef,#fff 48%,#f3e8d6);--accent:#92400e;--orb:rgba(146,64,14,.18);--display:"Libre Baskerville"}.massage{--bg:linear-gradient(135deg,#fff1f2,#fff 50%,#fce7f3);--accent:#9f1239;--orb:rgba(244,114,182,.22);--display:"Playfair Display"}.specialist{--bg:linear-gradient(135deg,#0b1220,#111827 55%,#172554);--accent:#60a5fa;--accentText:#07111f;--head:#fff;--text:#dbeafe;--mutedText:#cbd5e1;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillBorder:rgba(255,255,255,.16);--display:"Playfair Display";color:white}.telehealth{--bg:radial-gradient(circle at 80% 12%,rgba(6,182,212,.3),transparent 28%),linear-gradient(135deg,#020617,#0f172a 48%,#083344);--accent:#22d3ee;--accentText:#062f3a;--head:#fff;--text:#cffafe;--mutedText:#cbd5e1;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillBorder:rgba(255,255,255,.16);--display:Space Grotesk;color:white}.layout-b .hero,.layout-e .hero,.layout-h .hero,.layout-k .hero,.layout-n .hero{grid-template-columns:.92fr 1.08fr}.layout-c .hero,.layout-f .hero,.layout-i .hero,.layout-l .hero,.layout-o .hero{grid-template-columns:1fr 1fr}.layout-d .hero,.layout-g .hero,.layout-j .hero,.layout-m .hero,.layout-p .hero,.layout-q .hero{grid-template-columns:1.12fr .88fr}.layout-b .media.main,.layout-d .media.main,.layout-o .media.main{border-radius:44px}.layout-c .media.main,.layout-f .media.main,.layout-q .media.main{border-radius:18px}.layout-g .media.main{border-radius:80px 28px 80px 28px}.layout-i .media.main{border-radius:28px 90px 28px 90px}.layout-q .media.main:before{content:"";position:absolute;inset:18px 18px auto;height:28px;border-radius:999px;background:rgba(255,255,255,.22);z-index:2}.layout-q .media.main img{padding:22px;background:rgba(255,255,255,.08);border-radius:34px}.layout-m .gallery img,.layout-d .gallery img{filter:saturate(1.08)}.layout-f .services li,.layout-p .services li,.layout-q .services li{color:var(--text,#fff)}@media(max-width:980px){.hero,.main-grid{grid-template-columns:1fr!important}.info-row,.gallery{grid-template-columns:1fr}.gallery img,.gallery img:first-child{height:220px}.services{grid-template-columns:1fr}.media.main img{height:340px}.nav{align-items:flex-start;flex-direction:column}.navlinks{justify-content:flex-start}}@media(max-width:620px){.landing,.template{padding:64px 5vw}.hero h2{font-size:40px}.panel,.info-card{padding:20px}.media-note{position:static;margin:-46px 18px 18px}.statbar{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <header class="landing"><div><span class="eyebrow">FrameNest Mockup Collection</span><h1>Medical & Health Website Templates</h1><p>Seventeen professional healthcare website sections for clinics, specialists, therapists, wellness providers, and virtual care brands. Each section includes the core patient trust blocks: credentials, services, insurance, booking, forms, location, and hours.</p></div></header>
+
+  <!-- 01. Family Doctor -->
+  <section class="template family layout-a">
+    <span class="template-number">Template 01 / Family Doctor</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">F</span>Harbor Family Medicine</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Annual physicals</span><span class="pill">Same-week sick visits</span><span class="pill">Chronic care</span></div>
+          <h2>Trusted care for your whole family.</h2>
+          <p>A clean, reassuring primary care website for family doctors, internists, and community clinics that need patient trust, easy scheduling, and clear insurance information.</p>
+          <div class="statbar">
+            <div class="stat"><strong>24hr</strong>Portal replies</div>
+            <div class="stat"><strong>Most weekdays</strong>Appointments</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Family Doctor healthcare website hero"><div class="media-note">Patient portal link · Lab results · Prescription refills · Secure messages</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Primary care for every stage of life</p><div class="credential-grid"><span class="credential">Board-Certified Family Physician</span><span class="credential">State Medical License</span><span class="credential">HIPAA-Compliant Portal</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Preventive exams</li><li>Pediatric and adult care</li><li>Vaccinations</li><li>Diabetes and blood pressure care</li><li>Women’s health</li><li>Lab coordination</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Accepts major PPO, HMO, Medicare Advantage, and self-pay plans. Insurance verification available before your visit.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Mon–Fri 8:00 AM–5:30 PM · Saturday urgent slots by request<br>Suite 210 · 1450 Wellness Avenue · Patient parking available</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>New patient intake, medical history, HIPAA consent, records release</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Family Doctor gallery image one"><img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800" alt="Family Doctor gallery image two"><img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800" alt="Family Doctor gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 02. Dental Smile -->
+  <section class="template dental layout-b">
+    <span class="template-number">Template 02 / Dental Smile</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">D</span>Brightline Dental Studio</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Cleanings</span><span class="pill">Cosmetic dentistry</span><span class="pill">Emergency visits</span></div>
+          <h2>Healthy smiles, calm visits, clear plans.</h2>
+          <p>A bright dental template with treatment lists, smile gallery areas, before-and-after cards, and patient-friendly booking for general and cosmetic dentists.</p>
+          <div class="statbar">
+            <div class="stat"><strong>4.9★</strong>Patient rating</div>
+            <div class="stat"><strong>0%</strong>Financing options</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800" alt="Dental Smile healthcare website hero"><div class="media-note">Smile gallery · Before/after cases · Treatment comfort menu</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Friendly dental care with a brighter first impression</p><div class="credential-grid"><span class="credential">DDS / DMD Licensed Dentist</span><span class="credential">State Dental Board</span><span class="credential">Invisalign Provider</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Cleanings and exams</li><li>Whitening</li><li>Crowns and bridges</li><li>Fillings</li><li>Veneers</li><li>Emergency dental care</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>In-network with many dental PPO plans. Membership plan available for uninsured patients.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Mon–Thu 8:00 AM–6:00 PM · Fri 8:00 AM–2:00 PM<br>Downtown smile studio · Free 2-hour garage validation</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>Dental history, insurance upload, consent forms, smile goals questionnaire</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800" alt="Dental Smile gallery image one"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Dental Smile gallery image two"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Dental Smile gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 03. Ortho Perfect -->
+  <section class="template ortho layout-c">
+    <span class="template-number">Template 03 / Ortho Perfect</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">O</span>OrthoPerfect Aligners</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Braces</span><span class="pill">Clear aligners</span><span class="pill">Retainers</span></div>
+          <h2>A straighter smile, mapped from day one.</h2>
+          <p>A modern orthodontic design with timeline steps, teen-friendly visuals, payment plan messaging, and treatment comparison areas.</p>
+          <div class="statbar">
+            <div class="stat"><strong>18mo</strong>Typical timeline</div>
+            <div class="stat"><strong>$0</strong>Consultation</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800" alt="Ortho Perfect healthcare website hero"><div class="media-note">Treatment timeline · Digital scan preview · Monthly payment estimator</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Modern orthodontics for teens and adults</p><div class="credential-grid"><span class="credential">Orthodontic Specialist</span><span class="credential">AAO Member</span><span class="credential">State Dental License</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Metal braces</li><li>Ceramic braces</li><li>Clear aligners</li><li>Retainers</li><li>Digital scans</li><li>Teen and adult treatment</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Orthodontic benefits accepted. Flexible monthly payment plans and family discounts available.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Mon–Fri 7:30 AM–5:00 PM · After-school appointments available<br>Modern ortho lounge · Near high school and transit stop</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>Smile assessment, insurance benefits form, treatment consent, payment plan worksheet</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800" alt="Ortho Perfect gallery image one"><img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800" alt="Ortho Perfect gallery image two"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Ortho Perfect gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 04. Derma Glow -->
+  <section class="template derma layout-d">
+    <span class="template-number">Template 04 / Derma Glow</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">D</span>DermaGlow Skin Clinic</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Medical derm</span><span class="pill">Cosmetic procedures</span><span class="pill">Skin plans</span></div>
+          <h2>Clinical skin care with a luxury touch.</h2>
+          <p>A polished dermatology template for medical, cosmetic, and aesthetic skin practices with procedure galleries and elegant before-and-after presentation.</p>
+          <div class="statbar">
+            <div class="stat"><strong>12+</strong>Procedures</div>
+            <div class="stat"><strong>Board</strong>Certified</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Derma Glow healthcare website hero"><div class="media-note">Procedure gallery · Before/after photos · Personalized skin plan</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Luxury dermatology and aesthetic skin care</p><div class="credential-grid"><span class="credential">Board-Certified Dermatologist</span><span class="credential">Licensed Medical Aesthetic Team</span><span class="credential">Laser Safety Certified</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Acne treatment</li><li>Skin cancer screenings</li><li>Botox and fillers</li><li>Laser resurfacing</li><li>Chemical peels</li><li>Rosacea care</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Medical dermatology visits may be billed to insurance. Cosmetic services are self-pay with package pricing.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Tue–Sat 9:00 AM–6:00 PM · Private consult blocks available<br>Luxury skin suite · 3rd floor medical spa entrance</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>Skin history, medication list, cosmetic consent, photo release options</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Derma Glow gallery image one"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Derma Glow gallery image two"><img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800" alt="Derma Glow gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 05. Clear Vision -->
+  <section class="template vision layout-e">
+    <span class="template-number">Template 05 / Clear Vision</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">C</span>Clear Vision Optometry</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Eye exams</span><span class="pill">Contacts</span><span class="pill">Designer frames</span></div>
+          <h2>See clearly. Choose frames confidently.</h2>
+          <p>An optometry template with an eye-chart motif, exam types, frame gallery, insurance details, and quick scheduling for annual eye care.</p>
+          <div class="statbar">
+            <div class="stat"><strong>E F P</strong>Vision checks</div>
+            <div class="stat"><strong>300+</strong>Frames</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Clear Vision healthcare website hero"><div class="media-note">Frame gallery · Eye-chart hero · Digital retinal imaging</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Eye exams, modern frames, and clearer days</p><div class="credential-grid"><span class="credential">Licensed Optometrist</span><span class="credential">Therapeutic Optometry Certification</span><span class="credential">Vision Plan Provider</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Comprehensive eye exams</li><li>Contact lens fittings</li><li>Dry eye care</li><li>Pediatric vision</li><li>Frame styling</li><li>Retinal imaging</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Accepts common vision plans and medical insurance for eligible eye health visits.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Mon–Fri 9:00 AM–6:00 PM · Sat 10:00 AM–3:00 PM<br>Street-level optical boutique · Walk-ins welcome for frame browsing</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>Vision history, insurance upload, contact lens consent, frame preferences</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Clear Vision gallery image one"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Clear Vision gallery image two"><img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800" alt="Clear Vision gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 06. Move Well PT -->
+  <section class="template pt layout-f">
+    <span class="template-number">Template 06 / Move Well PT</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">M</span>Move Well Physical Therapy</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Sports rehab</span><span class="pill">Post-op recovery</span><span class="pill">Exercise library</span></div>
+          <h2>Recover stronger than before.</h2>
+          <p>An athletic physical therapy template built for rehab programs, injury recovery, exercise video libraries, and performance-focused patient education.</p>
+          <div class="statbar">
+            <div class="stat"><strong>6wk</strong>Return plans</div>
+            <div class="stat"><strong>1:1</strong>Care model</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800" alt="Move Well PT healthcare website hero"><div class="media-note">Exercise video library · Return-to-sport milestones · Home program portal</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Rehab, strength, and return-to-life programs</p><div class="credential-grid"><span class="credential">Doctor of Physical Therapy</span><span class="credential">State PT License</span><span class="credential">Orthopedic Clinical Specialist</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Sports injury rehab</li><li>Post-surgical therapy</li><li>Back and neck pain</li><li>Running analysis</li><li>Strength programming</li><li>Mobility assessments</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Most major medical plans accepted. Cash-pay performance sessions available.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Mon–Fri 6:30 AM–7:00 PM · Early athlete sessions available<br>Performance clinic with turf lane, treatment tables, and exercise zone</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>Injury history, referral upload, movement screen, consent to treat</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800" alt="Move Well PT gallery image one"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Move Well PT gallery image two"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Move Well PT gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 07. Align Chiro -->
+  <section class="template chiro layout-g">
+    <span class="template-number">Template 07 / Align Chiro</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">A</span>Align Chiropractic &amp; Wellness</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Spinal adjustments</span><span class="pill">Mobility work</span><span class="pill">Wellness plans</span></div>
+          <h2>Better alignment for everyday movement.</h2>
+          <p>A holistic chiropractic website concept with first-visit information, wellness imagery, care plans, and treatment types for families and active adults.</p>
+          <div class="statbar">
+            <div class="stat"><strong>45min</strong>First visit</div>
+            <div class="stat"><strong>3step</strong>Care plan</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Align Chiro healthcare website hero"><div class="media-note">First visit walkthrough · Posture screen · Care plan preview</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Spine care, mobility, and whole-body wellness</p><div class="credential-grid"><span class="credential">Doctor of Chiropractic</span><span class="credential">State Chiropractic License</span><span class="credential">X-Ray Referral Network</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Spinal adjustments</li><li>Neck and back pain</li><li>Posture assessments</li><li>Prenatal chiropractic</li><li>Soft tissue work</li><li>Wellness maintenance</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Chiropractic benefits accepted when available. Transparent self-pay packages offered.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Mon, Wed, Fri 8:00 AM–6:00 PM · Tue/Thu wellness blocks<br>Ground-floor wellness office · Easy parking · Accessible entry</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>First visit paperwork, pain map, health history, consent to treat</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Align Chiro gallery image one"><img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800" alt="Align Chiro gallery image two"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Align Chiro gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 08. Mind Matters -->
+  <section class="template mind layout-h">
+    <span class="template-number">Template 08 / Mind Matters</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">M</span>Mind Matters Psychology</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Anxiety</span><span class="pill">Trauma</span><span class="pill">Life transitions</span></div>
+          <h2>A safe space to understand what hurts.</h2>
+          <p>A calming psychology website for licensed clinicians who need trust, specialty areas, safe-space messaging, teletherapy options, and clear intake flow.</p>
+          <div class="statbar">
+            <div class="stat"><strong>100%</strong>Confidential</div>
+            <div class="stat"><strong>Online</strong>Therapy option</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800" alt="Mind Matters healthcare website hero"><div class="media-note">Safe-space messaging · Specialty areas · Secure client portal</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Evidence-based therapy in a calm, private setting</p><div class="credential-grid"><span class="credential">Licensed Psychologist</span><span class="credential">PhD / PsyD</span><span class="credential">State Board License</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Individual therapy</li><li>Anxiety treatment</li><li>Trauma-informed care</li><li>Life transitions</li><li>Burnout support</li><li>Clinical assessments</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Private pay and superbills available. Select insurance panels may be accepted depending on provider.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Mon–Thu 10:00 AM–7:00 PM · Teletherapy by appointment<br>Quiet therapy office · Confidential waiting area · Virtual sessions available</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>Confidential intake, consent for treatment, privacy practices, teletherapy agreement</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800" alt="Mind Matters gallery image one"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Mind Matters gallery image two"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Mind Matters gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 09. Talk Therapy -->
+  <section class="template counsel layout-i">
+    <span class="template-number">Template 09 / Talk Therapy</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">T</span>Kind Harbor Counseling</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Counseling</span><span class="pill">Sliding scale</span><span class="pill">Crisis resources</span></div>
+          <h2>You do not have to carry this alone.</h2>
+          <p>A warm counseling template with sliding scale information, gentle design, crisis resources, specialties, and low-friction intake scheduling.</p>
+          <div class="statbar">
+            <div class="stat"><strong>15min</strong>Intro call</div>
+            <div class="stat"><strong>Scale</strong>Available</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800" alt="Talk Therapy healthcare website hero"><div class="media-note">Crisis resources link · Sliding scale info · Gentle first-session guide</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Warm counseling with practical support</p><div class="credential-grid"><span class="credential">Licensed Professional Counselor</span><span class="credential">State Counseling Board</span><span class="credential">EMDR-Trained Clinician</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Individual counseling</li><li>Couples counseling</li><li>Grief support</li><li>Stress and anxiety</li><li>Identity work</li><li>EMDR-informed support</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Sliding scale spaces available. Out-of-network superbills provided for reimbursement requests.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Tue–Fri 9:00 AM–6:00 PM · Evening sessions limited<br>Warm private office · Online counseling available in-state</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>Intake questionnaire, informed consent, sliding scale request, crisis plan worksheet</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800" alt="Talk Therapy gallery image one"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Talk Therapy gallery image two"><img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800" alt="Talk Therapy gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 10. Psychiatry Center -->
+  <section class="template psych layout-j">
+    <span class="template-number">Template 10 / Psychiatry Center</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Northstar Psychiatry Center</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Medication management</span><span class="pill">Telehealth</span><span class="pill">Adult psychiatry</span></div>
+          <h2>Clear psychiatric care, without the cold feeling.</h2>
+          <p>A clinical but approachable psychiatry template with medication management, telehealth, intake forms, and secure patient communication.</p>
+          <div class="statbar">
+            <div class="stat"><strong>60min</strong>Initial eval</div>
+            <div class="stat"><strong>20min</strong>Follow-ups</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Psychiatry Center healthcare website hero"><div class="media-note">Medication follow-ups · Secure portal · Telehealth option</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Medication management and integrated mental health care</p><div class="credential-grid"><span class="credential">Board-Certified Psychiatrist</span><span class="credential">DEA Registered</span><span class="credential">State Medical License</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Psychiatric evaluation</li><li>Medication management</li><li>Depression care</li><li>Anxiety care</li><li>ADHD evaluation</li><li>Telepsychiatry</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Select insurance plans accepted. Self-pay evaluation and follow-up pricing available.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Mon–Fri 9:00 AM–5:00 PM · Telehealth follow-ups available<br>Medical office suite · Secure virtual visit option</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>Psychiatric intake, medication history, pharmacy details, telehealth consent</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Psychiatry Center gallery image one"><img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800" alt="Psychiatry Center gallery image two"><img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800" alt="Psychiatry Center gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 11. Speech Path -->
+  <section class="template speech layout-k">
+    <span class="template-number">Template 11 / Speech Path</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">S</span>Speech Path Pediatrics</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Speech delays</span><span class="pill">Language therapy</span><span class="pill">Parent coaching</span></div>
+          <h2>Helping children find their voice.</h2>
+          <p>A pediatric speech pathology template with parent resources, developmental milestones, playful visuals, and therapy program explanations.</p>
+          <div class="statbar">
+            <div class="stat"><strong>Ages</strong>18mo–12yr</div>
+            <div class="stat"><strong>Play</strong>Based care</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800" alt="Speech Path healthcare website hero"><div class="media-note">Milestone guide · Parent resources · Home practice activities</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Pediatric speech therapy for growing communicators</p><div class="credential-grid"><span class="credential">Licensed SLP</span><span class="credential">CCC-SLP Certified</span><span class="credential">Pediatric Feeding Training</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Speech sound therapy</li><li>Language development</li><li>Early intervention</li><li>Fluency support</li><li>Feeding therapy</li><li>Parent coaching</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Insurance billing and superbills available. Early intervention funding support may apply.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Mon–Fri 8:30 AM–5:30 PM · After-school therapy blocks<br>Child-friendly clinic · Sensory-aware therapy rooms · Parent seating</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>Developmental history, parent concerns, pediatric consent, school report upload</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800" alt="Speech Path gallery image one"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Speech Path gallery image two"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Speech Path gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 12. OT Solutions -->
+  <section class="template ot layout-l">
+    <span class="template-number">Template 12 / OT Solutions</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">O</span>OT Solutions Studio</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Sensory support</span><span class="pill">Fine motor</span><span class="pill">Daily living skills</span></div>
+          <h2>Practical therapy for real-life skills.</h2>
+          <p>An occupational therapy template with adaptive tools, sensory-friendly design, functional goals, and family-centered education.</p>
+          <div class="statbar">
+            <div class="stat"><strong>Goal</strong>Based care</div>
+            <div class="stat"><strong>Tools</strong>Included</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800" alt="OT Solutions healthcare website hero"><div class="media-note">Adaptive tools · Sensory-friendly design · Goal tracking dashboard</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Adaptive skills, sensory support, and daily independence</p><div class="credential-grid"><span class="credential">Licensed Occupational Therapist</span><span class="credential">NBCOT Certified</span><span class="credential">Sensory Integration Training</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Fine motor skills</li><li>Sensory processing</li><li>Daily living skills</li><li>Handwriting support</li><li>Adaptive equipment</li><li>School readiness</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Pediatric and adult OT benefits accepted. Superbills and private-pay options available.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Mon–Thu 9:00 AM–6:00 PM · Friday evaluation slots<br>Sensory-friendly clinic · Adaptive tools lab · Family consult space</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>OT intake, sensory profile, referral upload, treatment consent</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800" alt="OT Solutions gallery image one"><img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800" alt="OT Solutions gallery image two"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="OT Solutions gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 13. Nutrition Plan -->
+  <section class="template nutrition layout-m">
+    <span class="template-number">Template 13 / Nutrition Plan</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">N</span>FreshPath Nutrition</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Meal planning</span><span class="pill">Metabolic health</span><span class="pill">Family nutrition</span></div>
+          <h2>Eat with clarity, not confusion.</h2>
+          <p>A fresh nutrition website concept with meal planning, diet types, food photography areas, and practical coaching for sustainable health habits.</p>
+          <div class="statbar">
+            <div class="stat"><strong>7day</strong>Meal plans</div>
+            <div class="stat"><strong>RDN</strong>Licensed</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Nutrition Plan healthcare website hero"><div class="media-note">Diet type cards · Meal plan samples · Grocery list templates</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Food planning that fits your actual life</p><div class="credential-grid"><span class="credential">Registered Dietitian Nutritionist</span><span class="credential">State Licensed Dietitian</span><span class="credential">Certified Diabetes Educator</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Meal planning</li><li>Weight management</li><li>Diabetes nutrition</li><li>Heart health</li><li>Sports nutrition</li><li>Digestive wellness</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Nutrition counseling may be covered by select medical plans. Self-pay packages available.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Mon–Fri 8:00 AM–4:30 PM · Virtual consults available<br>Nutrition consult room · Virtual kitchen planning sessions</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>Food history, health goals, lab upload, dietary preferences</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Nutrition Plan gallery image one"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Nutrition Plan gallery image two"><img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800" alt="Nutrition Plan gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 14. Acupuncture Arts -->
+  <section class="template acu layout-n">
+    <span class="template-number">Template 14 / Acupuncture Arts</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">A</span>Acupuncture Arts Clinic</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Acupuncture</span><span class="pill">Herbal consults</span><span class="pill">Pain relief</span></div>
+          <h2>Restore balance through thoughtful treatment.</h2>
+          <p>An Eastern-inspired acupuncture website with treatment categories, TCM philosophy, calming visuals, and clear new-patient expectations.</p>
+          <div class="statbar">
+            <div class="stat"><strong>60min</strong>New visit</div>
+            <div class="stat"><strong>TCM</strong>Approach</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Acupuncture Arts healthcare website hero"><div class="media-note">TCM philosophy · Treatment types · First visit guide</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Traditional care for modern stress and pain</p><div class="credential-grid"><span class="credential">Licensed Acupuncturist</span><span class="credential">NCCAOM Certified</span><span class="credential">Traditional Chinese Medicine Training</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Pain management</li><li>Stress and sleep support</li><li>Fertility support</li><li>Digestive health</li><li>Cupping</li><li>Herbal consultations</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Some plans cover acupuncture benefits. Self-pay packages and wellness memberships available.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Tue–Sat 9:00 AM–6:00 PM · Quiet morning sessions available<br>Calming treatment rooms · Tea lounge · Easy street parking</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>TCM intake, health history, pain map, treatment consent</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Acupuncture Arts gallery image one"><img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800" alt="Acupuncture Arts gallery image two"><img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800" alt="Acupuncture Arts gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 15. Therapeutic Touch -->
+  <section class="template massage layout-o">
+    <span class="template-number">Template 15 / Therapeutic Touch</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">T</span>Therapeutic Touch Massage</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Deep tissue</span><span class="pill">Relaxation</span><span class="pill">Sports massage</span></div>
+          <h2>Release tension. Restore ease.</h2>
+          <p>A spa-like massage therapy template with relaxation imagery, modality cards, appointment booking, and clear policies for therapeutic care.</p>
+          <div class="statbar">
+            <div class="stat"><strong>60/90</strong>Minute sessions</div>
+            <div class="stat"><strong>LMT</strong>Licensed</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Therapeutic Touch healthcare website hero"><div class="media-note">Modality guide · Relaxation gallery · New client policies</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Massage therapy for relaxation, pain relief, and recovery</p><div class="credential-grid"><span class="credential">Licensed Massage Therapist</span><span class="credential">State Massage License</span><span class="credential">Prenatal Massage Certified</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Swedish massage</li><li>Deep tissue</li><li>Sports massage</li><li>Prenatal massage</li><li>Myofascial release</li><li>Hot stone add-on</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Massage is typically self-pay. HSA/FSA receipts available when eligible.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Wed–Sun 10:00 AM–7:00 PM · Online booking required<br>Quiet spa studio · Heated tables · Accessible treatment room</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>Massage intake, pain areas, contraindication checklist, consent form</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Therapeutic Touch gallery image one"><img src="https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800" alt="Therapeutic Touch gallery image two"><img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800" alt="Therapeutic Touch gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 16. Medical Specialist -->
+  <section class="template specialist layout-p">
+    <span class="template-number">Template 16 / Medical Specialist</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">M</span>Apex Specialty Medicine</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Specialty consults</span><span class="pill">Referrals</span><span class="pill">Research-backed</span></div>
+          <h2>Specialist care with academic-level rigor.</h2>
+          <p>An authoritative specialist template for cardiology, neurology, oncology, GI, or other specialties needing publications, referral process, and physician credibility.</p>
+          <div class="statbar">
+            <div class="stat"><strong>25+</strong>Publications</div>
+            <div class="stat"><strong>MD</strong>Fellowship-trained</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800" alt="Medical Specialist healthcare website hero"><div class="media-note">Publications · Referral process · Research highlights · Physician bio</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Research-backed specialty care and referral coordination</p><div class="credential-grid"><span class="credential">Board-Certified Specialist</span><span class="credential">Fellowship-Trained Physician</span><span class="credential">Hospital Privileges</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Specialist consultation</li><li>Second opinions</li><li>Diagnostic review</li><li>Care coordination</li><li>Procedure planning</li><li>Ongoing management</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Most specialty visits require insurance authorization or referral. Benefits team assists before scheduling.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Mon–Fri 8:00 AM–5:00 PM · Physician referral line available<br>Medical tower · Imaging center nearby · Hospital-connected clinic</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>Referral packet, imaging upload, medical records release, specialist intake</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800" alt="Medical Specialist gallery image one"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Medical Specialist gallery image two"><img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800" alt="Medical Specialist gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 17. Telehealth Hub -->
+  <section class="template telehealth layout-q">
+    <span class="template-number">Template 17 / Telehealth Hub</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">T</span>Telehealth Hub</div>
+        <div class="navlinks"><span>Services</span><span>Insurance</span><span>Forms</span><span>Hours</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Virtual visits</span><span class="pill">Secure forms</span><span class="pill">Online follow-up</span></div>
+          <h2>Healthcare that starts wherever you are.</h2>
+          <p>A tech-forward telehealth template with how-it-works flow, device mockup styling, online forms, secure visit links, and virtual-first appointment booking.</p>
+          <div class="statbar">
+            <div class="stat"><strong>3step</strong>Virtual flow</div>
+            <div class="stat"><strong>Same</strong>Day slots</div>
+          </div>
+          <div class="btn-row"><a class="btn" href="#appointment">Schedule Appointment</a><a class="btn secondary" href="#forms">Patient Forms</a></div>
+        </div>
+        <div class="media main"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Telehealth Hub healthcare website hero"><div class="media-note">Device mockup · How-it-works flow · Patient portal and visit link</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel"><h3>Credentials & Licenses</h3><p>Virtual-first care from screen to prescription</p><div class="credential-grid"><span class="credential">Licensed Clinicians</span><span class="credential">HIPAA-Compliant Platform</span><span class="credential">E-Prescribing Enabled</span></div></div>
+        <div class="panel"><h3>Services</h3><ul class="services"><li>Virtual primary care</li><li>Follow-up visits</li><li>Medication refills</li><li>Lab review</li><li>Care navigation</li><li>Remote monitoring</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card"><b>Insurance Info</b><p>Telehealth coverage varies by plan and state. Eligibility check completed before appointment confirmation.</p></div>
+        <div class="info-card" id="appointment"><b>Appointment Booking</b><p>Online scheduling, phone booking, and referral requests are supported for new and returning patients.</p><a class="forms-link" href="#appointment">Schedule Appointment →</a></div>
+        <div class="info-card"><b>Location & Hours</b><p>Mon–Sat 7:00 AM–8:00 PM · Same-day virtual slots available<br>Virtual-first clinic · In-state care coverage · Secure video visits</p></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="forms"><b>Patient Forms</b><p>Digital intake, insurance card upload, telehealth consent, device readiness checklist</p><a class="forms-link" href="#forms">Open Patient Forms →</a></div>
+        <div class="info-card"><b>Care Experience</b><p>Designed to help patients understand what to expect before the first visit, from paperwork to follow-up.</p></div>
+        <div class="info-card"><b>Patient Confidence</b><p>Clear credentials, service pages, accepted coverage, and accessible contact options build trust quickly.</p></div>
+      </div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800" alt="Telehealth Hub gallery image one"><img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800" alt="Telehealth Hub gallery image two"><img src="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800" alt="Telehealth Hub gallery image three"></div>
+    </div>
+  </section>
+
+</body>
+</html>

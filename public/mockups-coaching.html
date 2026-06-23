@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrameNest Templates — Coaching & Personal Development</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #111827;
+      --muted: #667085;
+      --paper: #ffffff;
+      --soft: #f6f7fb;
+      --line: rgba(17, 24, 39, .12);
+      --shadow: 0 24px 80px rgba(15, 23, 42, .14);
+      --radius: 28px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: #101828;
+    }
+
+    img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .page-title {
+      min-height: 64vh;
+      padding: 80px 6vw;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: white;
+      background:
+        radial-gradient(circle at top left, rgba(168, 85, 247, .35), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(20, 184, 166, .28), transparent 32%),
+        linear-gradient(135deg, #0b1020, #172033 58%, #111827);
+    }
+
+    .page-title .eyebrow {
+      display: inline-flex;
+      padding: 9px 15px;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 999px;
+      color: #d1d5db;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .page-title h1 {
+      max-width: 980px;
+      margin: 22px auto 16px;
+      font-size: clamp(42px, 7vw, 92px);
+      line-height: .94;
+      letter-spacing: -.07em;
+    }
+
+    .page-title p {
+      max-width: 740px;
+      margin: 0 auto;
+      color: #d1d5db;
+      font-size: clamp(18px, 2vw, 23px);
+      line-height: 1.6;
+    }
+
+    .template {
+      min-height: 760px;
+      padding: 78px 6vw;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .wrap {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    .navline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 46px;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+    }
+
+    .brand-dot {
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 900;
+      box-shadow: 0 12px 28px rgba(0,0,0,.18);
+    }
+
+    .navlinks {
+      display: flex;
+      gap: 18px;
+      color: inherit;
+      opacity: .78;
+      font-size: 14px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 44px;
+      align-items: center;
+    }
+
+    .hero-copy h2 {
+      margin: 0;
+      font-size: clamp(40px, 5vw, 76px);
+      line-height: .95;
+      letter-spacing: -.055em;
+    }
+
+    .hero-copy p {
+      margin: 22px 0 0;
+      max-width: 650px;
+      font-size: 18px;
+      line-height: 1.7;
+      color: currentColor;
+      opacity: .78;
+    }
+
+    .kickers {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 28px 0;
+    }
+
+    .kicker {
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 800;
+      font-size: 13px;
+      border: 1px solid currentColor;
+      color: currentColor;
+      opacity: .82;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 30px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 50px;
+      padding: 0 22px;
+      border-radius: 999px;
+      font-weight: 900;
+      border: 0;
+      box-shadow: 0 16px 42px rgba(15, 23, 42, .18);
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 55px rgba(15, 23, 42, .24);
+    }
+
+    .ghost {
+      background: transparent;
+      border: 1px solid currentColor;
+      box-shadow: none;
+      opacity: .84;
+    }
+
+    .hero-card {
+      border-radius: var(--radius);
+      overflow: hidden;
+      background: white;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+
+    .hero-card img {
+      height: 420px;
+    }
+
+    .floating-note {
+      position: absolute;
+      left: 24px;
+      bottom: 24px;
+      max-width: 280px;
+      padding: 18px;
+      background: rgba(255,255,255,.9);
+      backdrop-filter: blur(14px);
+      border-radius: 22px;
+      box-shadow: 0 18px 55px rgba(15, 23, 42, .18);
+      font-weight: 800;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: .9fr 1.1fr;
+      gap: 30px;
+      margin-top: 56px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(255,255,255,.86);
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: 26px;
+      padding: 28px;
+      box-shadow: 0 18px 50px rgba(15, 23, 42, .08);
+    }
+
+    .panel h3 {
+      margin: 0 0 12px;
+      font-size: 24px;
+      letter-spacing: -.03em;
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .packages {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .price-card {
+      background: white;
+      border-radius: 24px;
+      padding: 22px;
+      border: 1px solid rgba(15, 23, 42, .08);
+      min-height: 190px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, .06);
+    }
+
+    .price-card strong {
+      font-size: 18px;
+    }
+
+    .price {
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: -.05em;
+      margin: 14px 0 8px;
+    }
+
+    .price-card small {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .feature-list li {
+      padding: 13px 14px;
+      border-radius: 16px;
+      background: rgba(255,255,255,.72);
+      border: 1px solid rgba(15, 23, 42, .06);
+      font-weight: 700;
+    }
+
+    .testimonials {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    .quote {
+      padding: 22px;
+      border-radius: 24px;
+      background: rgba(255,255,255,.82);
+      border: 1px solid rgba(15, 23, 42, .08);
+      line-height: 1.6;
+    }
+
+    .quote b {
+      display: block;
+      margin-top: 14px;
+      letter-spacing: -.02em;
+    }
+
+    .credentials {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .credential {
+      padding: 10px 13px;
+      border-radius: 999px;
+      background: rgba(15,23,42,.06);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .mini-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 13px;
+      margin-top: 28px;
+    }
+
+    .mini-gallery img {
+      height: 150px;
+      border-radius: 22px;
+      box-shadow: 0 18px 42px rgba(15, 23, 42, .10);
+    }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 26px 0 0;
+    }
+
+    .metric {
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.8);
+      border: 1px solid rgba(15,23,42,.08);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 32px;
+      letter-spacing: -.05em;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 74px 1fr;
+      gap: 15px;
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.74);
+      border: 1px solid rgba(15,23,42,.07);
+    }
+
+    .timeline-item b {
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .code-window,
+    .audit-card,
+    .workshop-card {
+      border-radius: 24px;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .template-number {
+      position: absolute;
+      top: 20px;
+      right: 5vw;
+      font-size: 12px;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+      font-weight: 900;
+      opacity: .45;
+    }
+
+    /* 1. Life Coach */
+    .life {
+      background:
+        radial-gradient(circle at 16% 18%, rgba(255, 138, 101, .32), transparent 28%),
+        radial-gradient(circle at 90% 8%, rgba(251, 191, 36, .24), transparent 30%),
+        linear-gradient(135deg, #fff7ed, #fef3c7 55%, #fff1f2);
+      color: #3f2d20;
+    }
+    .life .brand-dot, .life .btn { background: #ea580c; color: white; }
+    .life .hero-copy h2 { font-family: Playfair Display, serif; }
+    .journey {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 26px;
+    }
+    .journey span {
+      padding: 16px;
+      border-radius: 20px;
+      background: rgba(255,255,255,.65);
+      font-weight: 900;
+      text-align: center;
+    }
+
+    /* 2. Career Navigator */
+    .career {
+      background: linear-gradient(135deg, #eef4ff, #ffffff 48%, #e0f2fe);
+      color: #172554;
+      font-family: Manrope, Inter, sans-serif;
+    }
+    .career .brand-dot, .career .btn { background: #2563eb; color: white; }
+    .career .hero-card { border: 1px solid rgba(37,99,235,.15); }
+    .profile-strip {
+      margin-top: 24px;
+      background: #ffffff;
+      border-radius: 24px;
+      border: 1px solid rgba(37,99,235,.14);
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+    .profile-avatar {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #38bdf8);
+    }
+
+    /* 3. Executive Edge */
+    .executive {
+      background:
+        radial-gradient(circle at 80% 15%, rgba(245, 158, 11, .18), transparent 26%),
+        linear-gradient(135deg, #07111f, #0f1e34 55%, #111827);
+      color: #f8fafc;
+    }
+    .executive .panel,
+    .executive .price-card,
+    .executive .quote,
+    .executive .metric,
+    .executive .feature-list li {
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.14);
+      color: #f8fafc;
+      backdrop-filter: blur(16px);
+    }
+    .executive .panel p,
+    .executive .price-card small { color: #cbd5e1; }
+    .executive .brand-dot, .executive .btn { background: #d6a74a; color: #07111f; }
+    .executive .credential { background: rgba(214,167,74,.18); color: #f9e8bd; }
+    .executive .hero-card { background: #111827; border: 1px solid rgba(214,167,74,.2); }
+
+    /* 4. Business Mentor */
+    .business {
+      background:
+        linear-gradient(120deg, rgba(255,255,255,.92), rgba(255,255,255,.70)),
+        radial-gradient(circle at 85% 20%, rgba(239, 68, 68, .22), transparent 28%),
+        radial-gradient(circle at 12% 76%, rgba(249, 115, 22, .22), transparent 25%),
+        #fff7ed;
+      color: #1f2937;
+    }
+    .business .brand-dot, .business .btn { background: #dc2626; color: white; }
+    .business .hero-copy h2 { font-family: Space Grotesk, Inter, sans-serif; text-transform: uppercase; }
+    .case-card {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      gap: 16px;
+      align-items: center;
+      background: #111827;
+      color: white;
+      border-radius: 26px;
+      padding: 20px;
+      margin-top: 22px;
+    }
+    .case-card strong {
+      font-size: 34px;
+      color: #fb923c;
+    }
+
+    /* 5. ADHD Coach */
+    .adhd {
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.9), rgba(255,255,255,.76)),
+        radial-gradient(circle at 14% 18%, #bef264 0 9%, transparent 10%),
+        radial-gradient(circle at 80% 12%, #67e8f9 0 8%, transparent 9%),
+        radial-gradient(circle at 84% 80%, #f9a8d4 0 9%, transparent 10%),
+        #f8fafc;
+      color: #1f2937;
+    }
+    .adhd .brand-dot, .adhd .btn { background: #7c3aed; color: white; }
+    .adhd .hero-copy h2 { font-family: Space Grotesk, Inter, sans-serif; }
+    .tool-board {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+    }
+    .tool-board span {
+      padding: 13px 14px;
+      background: white;
+      border: 2px solid #111827;
+      border-radius: 16px;
+      font-weight: 900;
+      transform: rotate(var(--tilt));
+      box-shadow: 5px 5px 0 #111827;
+    }
+
+    /* 6. Parent Guide */
+    .parent {
+      background:
+        radial-gradient(circle at top left, rgba(251, 207, 232, .65), transparent 30%),
+        linear-gradient(135deg, #fff7f7, #fef3c7 45%, #ecfeff);
+      color: #4a2f2f;
+    }
+    .parent .brand-dot, .parent .btn { background: #db2777; color: white; }
+    .parent .hero-copy h2 { font-family: Playfair Display, serif; }
+    .age-programs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .age-programs div {
+      padding: 18px;
+      border-radius: 24px;
+      background: rgba(255,255,255,.72);
+      text-align: center;
+      font-weight: 900;
+    }
+
+    /* 7. Fitness Mindset */
+    .fitness {
+      background:
+        radial-gradient(circle at 16% 22%, rgba(34, 197, 94, .25), transparent 27%),
+        linear-gradient(135deg, #07140d, #10251a 55%, #172554);
+      color: white;
+    }
+    .fitness .panel,
+    .fitness .price-card,
+    .fitness .quote,
+    .fitness .feature-list li {
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.14);
+      color: white;
+      backdrop-filter: blur(14px);
+    }
+    .fitness .panel p,
+    .fitness .price-card small { color: #d1fae5; }
+    .fitness .brand-dot, .fitness .btn { background: #22c55e; color: #052e16; }
+    .fitness .hero-copy h2 { font-family: Space Grotesk, Inter, sans-serif; text-transform: uppercase; }
+    .fitness .credential { background: rgba(34,197,94,.18); color: #bbf7d0; }
+
+    /* 8. Relationship Coach */
+    .relationship {
+      background:
+        radial-gradient(circle at 86% 18%, rgba(244, 114, 182, .24), transparent 32%),
+        linear-gradient(135deg, #fff1f2, #ffffff 52%, #ffe4e6);
+      color: #4c1d31;
+    }
+    .relationship .brand-dot, .relationship .btn { background: #be185d; color: white; }
+    .relationship .hero-copy h2 { font-family: Playfair Display, serif; }
+    .communication-tools {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .communication-tools span {
+      padding: 16px;
+      background: #fff;
+      border-radius: 20px;
+      border: 1px solid rgba(190,24,93,.14);
+      font-weight: 900;
+    }
+
+    /* 9. Leadership Lab */
+    .leadership {
+      background:
+        linear-gradient(135deg, rgba(241,245,249,.9), rgba(255,255,255,.86)),
+        repeating-linear-gradient(45deg, rgba(15,23,42,.04) 0 1px, transparent 1px 18px);
+      color: #111827;
+      font-family: Manrope, Inter, sans-serif;
+    }
+    .leadership .brand-dot, .leadership .btn { background: #0f172a; color: white; }
+    .leadership .hero-copy h2 { font-family: Manrope, Inter, sans-serif; font-weight: 900; }
+    .assessment {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 22px;
+    }
+    .assessment span {
+      padding: 15px 12px;
+      border-radius: 18px;
+      background: white;
+      border: 1px solid rgba(15,23,42,.10);
+      font-weight: 900;
+      text-align: center;
+    }
+
+    /* 10. Productivity Pro */
+    .productivity {
+      background: #fbfbf8;
+      color: #1c1917;
+      font-family: Inter, sans-serif;
+    }
+    .productivity:before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(28,25,23,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(28,25,23,.06) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
+    }
+    .productivity .brand-dot, .productivity .btn { background: #1c1917; color: white; }
+    .productivity .hero-copy h2 { font-family: Space Grotesk, Inter, sans-serif; }
+    .audit-card {
+      background: white;
+      border: 1px solid rgba(28,25,23,.10);
+      margin-top: 22px;
+      box-shadow: 10px 10px 0 rgba(28,25,23,.08);
+    }
+    .checkline {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(28,25,23,.08);
+      font-weight: 800;
+    }
+    .checkline:last-child { border-bottom: 0; }
+
+    @media (max-width: 980px) {
+      .hero-grid,
+      .section-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .packages,
+      .testimonials,
+      .mini-gallery,
+      .metric-row {
+        grid-template-columns: 1fr;
+      }
+
+      .journey,
+      .age-programs,
+      .assessment {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .hero-card img {
+        height: 330px;
+      }
+
+      .navline {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .navlinks {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .template {
+        padding: 64px 5vw;
+      }
+
+      .page-title {
+        padding: 70px 5vw;
+      }
+
+      .journey,
+      .age-programs,
+      .assessment,
+      .communication-tools {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-copy h2 {
+        font-size: 40px;
+      }
+
+      .panel,
+      .price-card,
+      .quote {
+        padding: 20px;
+      }
+
+      .floating-note {
+        position: static;
+        margin: -55px 18px 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="page-title">
+    <div>
+      <span class="eyebrow">FrameNest Mockup Collection</span>
+      <h1>Coaching & Personal Development Website Templates</h1>
+      <p>Ten full-section website concepts for coaches, mentors, consultants, and personal development brands that need credibility, client trust, and a clear path to book a free call.</p>
+    </div>
+  </header>
+
+  <!-- 1. Life Coach -->
+  <section class="template life">
+    <span class="template-number">Template 01 / Life Coach</span>
+    <div class="wrap">
+      <div class="navline">
+        <div class="brand"><span class="brand-dot">L</span> Luma Life Coaching</div>
+        <div class="navlinks"><span>Journey</span><span>Packages</span><span>Stories</span><span>Credentials</span></div>
+      </div>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="kickers"><span class="kicker">Warm coaching</span><span class="kicker">Personal growth</span><span class="kicker">Free discovery call</span></div>
+          <h2>Step into the next version of your life.</h2>
+          <p>A supportive coaching experience for people ready to stop drifting, rebuild confidence, and create a practical path toward a more meaningful daily life.</p>
+          <div class="journey">
+            <span>Clarify</span><span>Release</span><span>Build</span><span>Become</span>
+          </div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Book a Free Call</a>
+            <a class="btn ghost" href="#packages">See the Journey</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800" alt="Coaching session">
+          <div class="floating-note">“After six weeks, I finally had language for what I wanted — and a plan I could follow.”</div>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <div class="panel">
+          <h3>About the Coach</h3>
+          <p>Hi, I’m Mara — a certified life coach helping thoughtful people turn vague dissatisfaction into brave, grounded action. Sessions blend reflection, habit design, and weekly accountability.</p>
+          <div class="credentials">
+            <span class="credential">ICF Certified</span><span class="credential">Trauma-Informed</span><span class="credential">8+ Years Coaching</span>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Coaching Packages</h3>
+          <div class="packages">
+            <div class="price-card"><strong>Clarity Call</strong><div class="price">$95</div><small>One focused session to name the pattern and choose your next step.</small></div>
+            <div class="price-card"><strong>Reset Month</strong><div class="price">$420</div><small>Four weekly sessions, values work, and action planning.</small></div>
+            <div class="price-card"><strong>Transformation</strong><div class="price">$1,150</div><small>Twelve weeks of deep coaching, accountability, and life systems.</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonials">
+        <div class="quote">“Mara helped me rebuild trust in myself.” <b>— Elena R.</b></div>
+        <div class="quote">“The process felt gentle, but the results were serious.” <b>— James P.</b></div>
+        <div class="quote">“I stopped postponing my own life.” <b>— Priya S.</b></div>
+      </div>
+
+      <div class="mini-gallery">
+        <img src="https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?w=800" alt="Meditation">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800" alt="Group coaching">
+        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800" alt="Workshop">
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Career Navigator -->
+  <section class="template career">
+    <span class="template-number">Template 02 / Career Navigator</span>
+    <div class="wrap">
+      <div class="navline">
+        <div class="brand"><span class="brand-dot">C</span> Career Navigator</div>
+        <div class="navlinks"><span>Resume</span><span>Interview</span><span>LinkedIn</span><span>Offers</span></div>
+      </div>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="kickers"><span class="kicker">Resume strategy</span><span class="kicker">Interview prep</span><span class="kicker">Offer confidence</span></div>
+          <h2>Make your next career move with a sharper strategy.</h2>
+          <p>Career coaching for professionals who want a stronger resume, better interview stories, and a LinkedIn presence that clearly communicates their value.</p>
+          <div class="profile-strip">
+            <div class="profile-avatar"></div>
+            <div><b>Career Positioning Audit</b><br><span>Resume, LinkedIn, and interview narrative reviewed before your first session.</span></div>
+          </div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Book a Free Call</a>
+            <a class="btn ghost" href="#services">View Services</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800" alt="Professional woman">
+          <div class="floating-note">Resume rewrites, mock interviews, LinkedIn positioning, and salary negotiation support.</div>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <div class="panel">
+          <h3>About the Coach</h3>
+          <p>I help mid-career professionals turn experience into a compelling career story. The work is direct, practical, and built around actual roles you want.</p>
+          <ul class="feature-list">
+            <li>Resume and cover letter strategy</li>
+            <li>Behavioral interview preparation</li>
+            <li>LinkedIn profile optimization</li>
+          </ul>
+          <div class="credentials">
+            <span class="credential">Former Recruiter</span><span class="credential">SHRM Member</span><span class="credential">500+ Clients</span>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Coaching Packages</h3>
+          <div class="packages">
+            <div class="price-card"><strong>Resume Refresh</strong><div class="price">$250</div><small>Resume review, rewrite direction, and keyword alignment.</small></div>
+            <div class="price-card"><strong>Interview Sprint</strong><div class="price">$495</div><small>Two mock interviews, story bank, and follow-up strategy.</small></div>
+            <div class="price-card"><strong>Career Pivot</strong><div class="price">$1,200</div><small>Six-week search plan, positioning, applications, and negotiation support.</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonials">
+        <div class="quote">“I finally knew how to explain my career pivot.” <b>— Morgan T.</b></div>
+        <div class="quote">“The mock interview made the real one feel easy.” <b>— Daniel K.</b></div>
+        <div class="quote">“My LinkedIn started getting recruiter messages.” <b>— Sienna W.</b></div>
+      </div>
+
+      <div class="mini-gallery">
+        <img src="https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=800" alt="Business coaching">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800" alt="Group work">
+        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800" alt="Workshop">
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Executive Edge -->
+  <section class="template executive">
+    <span class="template-number">Template 03 / Executive Edge</span>
+    <div class="wrap">
+      <div class="navline">
+        <div class="brand"><span class="brand-dot">E</span> Executive Edge</div>
+        <div class="navlinks"><span>Advisory</span><span>Confidential</span><span>ROI</span><span>Board Ready</span></div>
+      </div>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="kickers"><span class="kicker">C-suite coaching</span><span class="kicker">Confidential advisory</span><span class="kicker">Leadership ROI</span></div>
+          <h2>Executive coaching for decisions that carry weight.</h2>
+          <p>Premium coaching for founders, senior leaders, and executives navigating scale, conflict, visibility, and high-stakes communication.</p>
+          <div class="metric-row">
+            <div class="metric"><strong>92%</strong>decision clarity</div>
+            <div class="metric"><strong>38%</strong>faster alignment</div>
+            <div class="metric"><strong>1:1</strong>confidential</div>
+          </div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Book a Free Call</a>
+            <a class="btn ghost" href="#confidential">Private Briefing</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=800" alt="Executive coaching">
+          <div class="floating-note">Private advisory for leaders whose choices affect teams, boards, capital, and culture.</div>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <div class="panel">
+          <h3>About the Advisor</h3>
+          <p>Former operating executive and certified coach supporting leaders through strategic decision-making, executive presence, board communication, and organizational complexity.</p>
+          <div class="credentials">
+            <span class="credential">ICF PCC</span><span class="credential">Former COO</span><span class="credential">NDA Friendly</span><span class="credential">Board Advisory</span>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Coaching Packages</h3>
+          <div class="packages">
+            <div class="price-card"><strong>Executive Brief</strong><div class="price">$650</div><small>Single confidential strategy session for one urgent leadership issue.</small></div>
+            <div class="price-card"><strong>Quarter Advisory</strong><div class="price">$4.8k</div><small>Biweekly coaching with leadership scorecard and decision support.</small></div>
+            <div class="price-card"><strong>Boardroom Partner</strong><div class="price">$12k</div><small>Six-month executive advisory with stakeholder communication planning.</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonials">
+        <div class="quote">“The coaching helped me enter board meetings calmer and sharper.” <b>— CEO, SaaS</b></div>
+        <div class="quote">“A rare mix of candor, discretion, and operator judgment.” <b>— Founder</b></div>
+        <div class="quote">“Our leadership team made cleaner decisions faster.” <b>— VP People</b></div>
+      </div>
+
+      <div class="mini-gallery">
+        <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800" alt="Executive professional">
+        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800" alt="Leadership workshop">
+        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800" alt="Coaching conversation">
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Business Mentor -->
+  <section class="template business">
+    <span class="template-number">Template 04 / Business Mentor</span>
+    <div class="wrap">
+      <div class="navline">
+        <div class="brand"><span class="brand-dot">B</span> Bold Business Mentor</div>
+        <div class="navlinks"><span>Revenue</span><span>Offers</span><span>Case Studies</span><span>Scale</span></div>
+      </div>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="kickers"><span class="kicker">Offer strategy</span><span class="kicker">Sales systems</span><span class="kicker">Growth mentoring</span></div>
+          <h2>Build a business that sells without guessing.</h2>
+          <p>Hands-on mentoring for entrepreneurs who need sharper offers, better pricing, stronger client acquisition, and a simple weekly growth rhythm.</p>
+          <div class="case-card"><strong>3.4x</strong><span>Average revenue growth reported by clients after offer repositioning and follow-up system design.</span></div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Book a Free Call</a>
+            <a class="btn ghost" href="#cases">Read Case Studies</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800" alt="Entrepreneur workshop">
+          <div class="floating-note">For consultants, creators, local business owners, and service founders ready to grow.</div>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <div class="panel">
+          <h3>About the Mentor</h3>
+          <p>I help owners make cleaner decisions: what to sell, who to sell it to, how to price it, and how to follow up without feeling pushy.</p>
+          <ul class="feature-list">
+            <li>Offer and pricing strategy</li>
+            <li>Sales pipeline and client acquisition</li>
+            <li>Simple dashboards and weekly accountability</li>
+          </ul>
+          <div class="credentials">
+            <span class="credential">Founder Mentor</span><span class="credential">$12M Client Revenue</span><span class="credential">MBA</span>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Coaching Packages</h3>
+          <div class="packages">
+            <div class="price-card"><strong>Offer Audit</strong><div class="price">$350</div><small>One session to clarify your offer, pricing, and positioning gaps.</small></div>
+            <div class="price-card"><strong>Growth Sprint</strong><div class="price">$1.5k</div><small>Four-week mentoring sprint with offer, sales, and follow-up actions.</small></div>
+            <div class="price-card"><strong>Scale Partner</strong><div class="price">$5k</div><small>Twelve-week advisory for systems, delegation, and growth planning.</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonials">
+        <div class="quote">“We stopped selling random packages and built one clear offer.” <b>— Local Agency Owner</b></div>
+        <div class="quote">“Revenue grew because our follow-up finally had structure.” <b>— Consultant</b></div>
+        <div class="quote">“Direct, practical, and immediately useful.” <b>— Studio Founder</b></div>
+      </div>
+
+      <div class="mini-gallery">
+        <img src="https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=800" alt="Business coaching meeting">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800" alt="Group coaching">
+        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800" alt="Coaching discussion">
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. ADHD Coach -->
+  <section class="template adhd">
+    <span class="template-number">Template 05 / ADHD Coach</span>
+    <div class="wrap">
+      <div class="navline">
+        <div class="brand"><span class="brand-dot">A</span> ADHD Coach Studio</div>
+        <div class="navlinks"><span>Systems</span><span>Tools</span><span>Body Doubling</span><span>Resources</span></div>
+      </div>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="kickers"><span class="kicker">Neurodivergent-friendly</span><span class="kicker">Low shame</span><span class="kicker">Real systems</span></div>
+          <h2>Your brain is not broken. Your systems need to fit.</h2>
+          <p>ADHD coaching that turns messy motivation, time blindness, overwhelm, and unfinished projects into flexible routines you can actually use.</p>
+          <div class="tool-board">
+            <span style="--tilt:-2deg;">Time maps</span>
+            <span style="--tilt:1.8deg;">Task menus</span>
+            <span style="--tilt:-1deg;">Reset rituals</span>
+            <span style="--tilt:2deg;">Dopamine plans</span>
+          </div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Book a Free Call</a>
+            <a class="btn ghost" href="#resources">Get Resources</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800" alt="Supportive coaching group">
+          <div class="floating-note">Tools for planning, emotional regulation, focus blocks, transitions, and follow-through.</div>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <div class="panel">
+          <h3>About the Coach</h3>
+          <p>Coaching for adults and students who are tired of advice that assumes their brain works like everyone else’s. We build systems through experimentation, not shame.</p>
+          <ul class="feature-list">
+            <li>Executive function support</li>
+            <li>College and workplace routines</li>
+            <li>Body doubling and accountability</li>
+          </ul>
+          <div class="credentials">
+            <span class="credential">ADHD-CCSP</span><span class="credential">Neurodiversity-Affirming</span><span class="credential">Student + Adult Support</span>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Coaching Packages</h3>
+          <div class="packages">
+            <div class="price-card"><strong>System Reset</strong><div class="price">$180</div><small>One 90-minute session to diagnose friction and design a new tool.</small></div>
+            <div class="price-card"><strong>Focus Month</strong><div class="price">$640</div><small>Weekly coaching, accountability check-ins, and custom templates.</small></div>
+            <div class="price-card"><strong>Semester Support</strong><div class="price">$1.8k</div><small>Twelve weeks for students or professionals needing consistent support.</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonials">
+        <div class="quote">“I stopped feeling lazy and started understanding my patterns.” <b>— Alex M.</b></div>
+        <div class="quote">“The tools were simple enough that I kept using them.” <b>— Jae L.</b></div>
+        <div class="quote">“My workdays finally have a landing pad.” <b>— Nina B.</b></div>
+      </div>
+
+      <div class="mini-gallery">
+        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800" alt="Workshop table">
+        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800" alt="Coaching session">
+        <img src="https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?w=800" alt="Calm focus">
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Parent Guide -->
+  <section class="template parent">
+    <span class="template-number">Template 06 / Parent Guide</span>
+    <div class="wrap">
+      <div class="navline">
+        <div class="brand"><span class="brand-dot">P</span> Parent Guide Collective</div>
+        <div class="navlinks"><span>Ages</span><span>Programs</span><span>Community</span><span>Support</span></div>
+      </div>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="kickers"><span class="kicker">Gentle structure</span><span class="kicker">Family support</span><span class="kicker">Age-based programs</span></div>
+          <h2>Calmer parenting starts with practical support.</h2>
+          <p>Parent coaching that helps families reduce power struggles, understand development, and build routines that protect connection.</p>
+          <div class="age-programs">
+            <div>Toddlers</div><div>School Age</div><div>Teens</div>
+          </div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Book a Free Call</a>
+            <a class="btn ghost" href="#community">Join Community</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?w=800" alt="Peaceful family-oriented coaching">
+          <div class="floating-note">Support for routines, behavior, emotional regulation, sibling conflict, and family meetings.</div>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <div class="panel">
+          <h3>About the Guide</h3>
+          <p>Development-informed parenting support for caregivers who want fewer battles and more repair. Sessions are warm, nonjudgmental, and tailored to your child’s stage.</p>
+          <ul class="feature-list">
+            <li>Morning and bedtime routines</li>
+            <li>Emotion coaching and repair</li>
+            <li>Parent community circles</li>
+          </ul>
+          <div class="credentials">
+            <span class="credential">Parent Educator</span><span class="credential">Child Development</span><span class="credential">Positive Discipline</span>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Coaching Packages</h3>
+          <div class="packages">
+            <div class="price-card"><strong>Family Reset</strong><div class="price">$150</div><small>One consult to identify the biggest stress point and create a plan.</small></div>
+            <div class="price-card"><strong>Calm Home</strong><div class="price">$575</div><small>Four sessions for routines, scripts, and parent support.</small></div>
+            <div class="price-card"><strong>Village Plan</strong><div class="price">$1.4k</div><small>Ten weeks of coaching plus community sessions and resources.</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonials">
+        <div class="quote">“Bedtime went from chaos to something we can handle.” <b>— Rosa M.</b></div>
+        <div class="quote">“I felt less judged and more capable.” <b>— Ben A.</b></div>
+        <div class="quote">“The scripts helped us repair faster.” <b>— Camille J.</b></div>
+      </div>
+
+      <div class="mini-gallery">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800" alt="Community group">
+        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800" alt="Parent workshop">
+        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800" alt="Coaching session">
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Fitness Mindset -->
+  <section class="template fitness">
+    <span class="template-number">Template 07 / Fitness Mindset</span>
+    <div class="wrap">
+      <div class="navline">
+        <div class="brand"><span class="brand-dot">F</span> Fitness Mindset Method</div>
+        <div class="navlinks"><span>Mindset</span><span>Habits</span><span>Stories</span><span>Coaching</span></div>
+      </div>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="kickers"><span class="kicker">Mind-body coaching</span><span class="kicker">Habit strength</span><span class="kicker">Transformation stories</span></div>
+          <h2>Train the mindset that keeps the body moving.</h2>
+          <p>Coaching for people who are tired of starting over. Build identity, habits, and confidence around movement, food, recovery, and consistency.</p>
+          <div class="metric-row">
+            <div class="metric"><strong>12wk</strong>habit rebuild</div>
+            <div class="metric"><strong>4x</strong>check-ins</div>
+            <div class="metric"><strong>360°</strong>mind-body</div>
+          </div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Book a Free Call</a>
+            <a class="btn ghost" href="#stories">View Stories</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?w=800" alt="Mind-body meditation">
+          <div class="floating-note">For clients who want discipline without self-hate and structure without burnout.</div>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <div class="panel">
+          <h3>About the Coach</h3>
+          <p>Fitness mindset coaching connects practical habit design with emotional resilience, so clients build health behaviors that survive real life.</p>
+          <ul class="feature-list">
+            <li>Identity-based habit coaching</li>
+            <li>Body image and confidence support</li>
+            <li>Movement consistency plans</li>
+          </ul>
+          <div class="credentials">
+            <span class="credential">NASM-CPT</span><span class="credential">Behavior Change</span><span class="credential">Mindset Coach</span>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Coaching Packages</h3>
+          <div class="packages">
+            <div class="price-card"><strong>Momentum Call</strong><div class="price">$120</div><small>One reset session for motivation, obstacles, and next actions.</small></div>
+            <div class="price-card"><strong>Consistency Plan</strong><div class="price">$520</div><small>Four weekly sessions with habit tracking and mindset coaching.</small></div>
+            <div class="price-card"><strong>Identity Shift</strong><div class="price">$1.6k</div><small>Twelve-week transformation support with weekly check-ins.</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonials">
+        <div class="quote">“I stopped using workouts as punishment.” <b>— Devon R.</b></div>
+        <div class="quote">“For the first time, consistency felt realistic.” <b>— Lina K.</b></div>
+        <div class="quote">“The mindset work changed everything.” <b>— Mateo C.</b></div>
+      </div>
+
+      <div class="mini-gallery">
+        <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800" alt="Coaching conversation">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800" alt="Group coaching">
+        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800" alt="Fitness workshop">
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Relationship Coach -->
+  <section class="template relationship">
+    <span class="template-number">Template 08 / Relationship Coach</span>
+    <div class="wrap">
+      <div class="navline">
+        <div class="brand"><span class="brand-dot">R</span> Rosebridge Relationships</div>
+        <div class="navlinks"><span>Couples</span><span>Communication</span><span>Workshops</span><span>Repair</span></div>
+      </div>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="kickers"><span class="kicker">Couples coaching</span><span class="kicker">Communication tools</span><span class="kicker">Repair practices</span></div>
+          <h2>Learn to talk about the hard things with more care.</h2>
+          <p>Relationship coaching for couples and individuals who want healthier conflict, clearer needs, and better emotional safety.</p>
+          <div class="communication-tools">
+            <span>Conflict maps</span><span>Repair scripts</span><span>Listening rituals</span><span>Weekly check-ins</span>
+          </div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Book a Free Call</a>
+            <a class="btn ghost" href="#workshops">Explore Workshops</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=800" alt="Relationship coaching session">
+          <div class="floating-note">Private coaching and small-group workshops for communication, trust, and reconnection.</div>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <div class="panel">
+          <h3>About the Coach</h3>
+          <p>A compassionate, skills-based approach for people who love each other but keep getting stuck in the same conversations.</p>
+          <ul class="feature-list">
+            <li>Couples communication coaching</li>
+            <li>Attachment-informed support</li>
+            <li>Repair and reconnection workshops</li>
+          </ul>
+          <div class="credentials">
+            <span class="credential">Gottman-Informed</span><span class="credential">Attachment Lens</span><span class="credential">Workshop Facilitator</span>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Coaching Packages</h3>
+          <div class="packages">
+            <div class="price-card"><strong>Clarity Session</strong><div class="price">$175</div><small>One session to identify your pattern and choose a communication tool.</small></div>
+            <div class="price-card"><strong>Communication Reset</strong><div class="price">$680</div><small>Four sessions for conflict, needs, repair, and weekly rituals.</small></div>
+            <div class="price-card"><strong>Reconnect Program</strong><div class="price">$1.9k</div><small>Twelve-week coaching path for deeper change and support.</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonials">
+        <div class="quote">“We learned how to pause instead of escalate.” <b>— Couple Client</b></div>
+        <div class="quote">“The repair scripts changed our evenings.” <b>— Hanna P.</b></div>
+        <div class="quote">“It felt safe and practical.” <b>— Marcus W.</b></div>
+      </div>
+
+      <div class="mini-gallery">
+        <img src="https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?w=800" alt="Calm connection">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800" alt="Group workshop">
+        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800" alt="Workshop">
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. Leadership Lab -->
+  <section class="template leadership">
+    <span class="template-number">Template 09 / Leadership Lab</span>
+    <div class="wrap">
+      <div class="navline">
+        <div class="brand"><span class="brand-dot">LL</span> Leadership Lab</div>
+        <div class="navlinks"><span>Teams</span><span>360 Assessment</span><span>Workshops</span><span>Keynotes</span></div>
+      </div>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="kickers"><span class="kicker">Team workshops</span><span class="kicker">360 assessment</span><span class="kicker">Keynote speaker</span></div>
+          <h2>Build leaders your team can actually follow.</h2>
+          <p>Leadership development for managers, teams, and organizations that need stronger communication, accountability, delegation, and culture habits.</p>
+          <div class="assessment">
+            <span>Assess</span><span>Align</span><span>Practice</span><span>Measure</span>
+          </div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Book a Free Call</a>
+            <a class="btn ghost" href="#workshops">See Workshops</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800" alt="Leadership workshop">
+          <div class="floating-note">Manager cohorts, team intensives, 360 debriefs, and keynote sessions for growing organizations.</div>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <div class="panel">
+          <h3>About the Facilitator</h3>
+          <p>Leadership coaching rooted in practice, feedback, and measurable behavior change. Designed for managers who need tools, not slogans.</p>
+          <ul class="feature-list">
+            <li>360 leadership assessments</li>
+            <li>Team communication workshops</li>
+            <li>Manager cohort facilitation</li>
+          </ul>
+          <div class="credentials">
+            <span class="credential">Certified Facilitator</span><span class="credential">360 Assessment</span><span class="credential">Keynote Speaker</span>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Coaching Packages</h3>
+          <div class="packages">
+            <div class="price-card"><strong>Manager Debrief</strong><div class="price">$400</div><small>One assessment review and practical leadership action plan.</small></div>
+            <div class="price-card"><strong>Team Workshop</strong><div class="price">$3.5k</div><small>Half-day workshop for feedback, trust, and communication practices.</small></div>
+            <div class="price-card"><strong>Leadership Cohort</strong><div class="price">$9k</div><small>Eight-week manager development program with team application.</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonials">
+        <div class="quote">“Our managers left with behaviors they could practice immediately.” <b>— People Ops Lead</b></div>
+        <div class="quote">“The 360 debriefs were honest without being demoralizing.” <b>— Director</b></div>
+        <div class="quote">“The team workshop reset how we give feedback.” <b>— COO</b></div>
+      </div>
+
+      <div class="mini-gallery">
+        <img src="https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=800" alt="Corporate coaching">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800" alt="Team coaching">
+        <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800" alt="Professional speaker">
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Productivity Pro -->
+  <section class="template productivity">
+    <span class="template-number">Template 10 / Productivity Pro</span>
+    <div class="wrap">
+      <div class="navline">
+        <div class="brand"><span class="brand-dot">P</span> Productivity Pro</div>
+        <div class="navlinks"><span>Systems</span><span>Tools</span><span>Audits</span><span>Time</span></div>
+      </div>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <div class="kickers"><span class="kicker">Minimal systems</span><span class="kicker">Time management</span><span class="kicker">Productivity audit</span></div>
+          <h2>Clean up your time, tools, and attention.</h2>
+          <p>Productivity coaching for professionals who need fewer scattered tools, clearer priorities, and a repeatable weekly system that does not collapse by Wednesday.</p>
+          <div class="audit-card">
+            <div class="checkline"><span>✓</span><span>Calendar friction audit</span></div>
+            <div class="checkline"><span>✓</span><span>Task system simplification</span></div>
+            <div class="checkline"><span>✓</span><span>Weekly planning rhythm</span></div>
+          </div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Book a Free Call</a>
+            <a class="btn ghost" href="#audit">Get an Audit</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <img src="https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=800" alt="Productivity coaching">
+          <div class="floating-note">A practical system for calendars, tasks, priorities, inboxes, meetings, and deep work.</div>
+        </div>
+      </div>
+
+      <div class="section-grid">
+        <div class="panel">
+          <h3>About the Coach</h3>
+          <p>I help busy people remove unnecessary complexity from their workday. The goal is not to do more — it is to build a system that protects what matters.</p>
+          <ul class="feature-list">
+            <li>Time-blocking and calendar design</li>
+            <li>Task capture and prioritization</li>
+            <li>Tool audits for Notion, Todoist, Asana, and Google Workspace</li>
+          </ul>
+          <div class="credentials">
+            <span class="credential">Productivity Consultant</span><span class="credential">Systems Design</span><span class="credential">Operations Background</span>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Coaching Packages</h3>
+          <div class="packages">
+            <div class="price-card"><strong>Time Audit</strong><div class="price">$175</div><small>One session to find leaks in your calendar, task system, and attention.</small></div>
+            <div class="price-card"><strong>System Build</strong><div class="price">$700</div><small>Four sessions to design a clean weekly operating system.</small></div>
+            <div class="price-card"><strong>Deep Work Lab</strong><div class="price">$1.8k</div><small>Twelve weeks of implementation, refinement, and accountability.</small></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonials">
+        <div class="quote">“I deleted half my tools and got more done.” <b>— Rachel D.</b></div>
+        <div class="quote">“The weekly system finally stuck.” <b>— Omar N.</b></div>
+        <div class="quote">“My calendar stopped running my life.” <b>— Theo S.</b></div>
+      </div>
+
+      <div class="mini-gallery">
+        <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800" alt="Workshop">
+        <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800" alt="Professional productivity">
+        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800" alt="Team productivity">
+      </div>
+    </div>
+  </section>
+</body>
+</html>

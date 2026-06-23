@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrameNest Templates — Creative</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=Playfair+Display:wght@600;700;800&family=Libre+Baskerville:wght@400;700&family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+:root{
+  --ink:#111827;
+  --muted:#667085;
+  --line:rgba(15,23,42,.12);
+  --shadow:0 28px 90px rgba(15,23,42,.16);
+  --radius:30px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink);
+  background:#070a12;
+}
+img{width:100%;display:block;object-fit:cover}
+a{text-decoration:none;color:inherit}
+input,select,textarea,button{font:inherit}
+.cover{
+  min-height:72vh;
+  display:grid;
+  place-items:center;
+  padding:84px 6vw;
+  text-align:center;
+  color:white;
+  background:
+    radial-gradient(circle at 15% 20%,rgba(236,72,153,.34),transparent 28%),
+    radial-gradient(circle at 82% 18%,rgba(59,130,246,.28),transparent 30%),
+    radial-gradient(circle at 52% 88%,rgba(245,158,11,.22),transparent 28%),
+    linear-gradient(135deg,#020617,#111827 55%,#312e81);
+}
+.cover .eyebrow{
+  display:inline-flex;
+  padding:10px 16px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.22);
+  font-size:12px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#e5e7eb;
+  font-weight:900;
+}
+.cover h1{
+  max-width:1120px;
+  margin:24px auto 18px;
+  font-size:clamp(42px,7vw,94px);
+  line-height:.94;
+  letter-spacing:-.07em;
+}
+.cover p{
+  max-width:820px;
+  margin:0 auto;
+  font-size:clamp(18px,2vw,23px);
+  line-height:1.65;
+  color:#d1d5db;
+}
+.template{
+  min-height:780px;
+  padding:78px 6vw;
+  position:relative;
+  overflow:hidden;
+  background:var(--bg,#fff);
+  color:var(--fg,#111827);
+}
+.template:before{
+  content:"";
+  position:absolute;
+  width:440px;
+  height:440px;
+  border-radius:999px;
+  background:var(--orb,rgba(236,72,153,.18));
+  top:-150px;
+  right:-130px;
+  filter:blur(5px);
+}
+.template:after{
+  content:"";
+  position:absolute;
+  width:330px;
+  height:330px;
+  border:1px solid var(--mark,rgba(15,23,42,.08));
+  left:-120px;
+  bottom:-130px;
+  border-radius:80px;
+  transform:rotate(24deg);
+}
+.wrap{
+  width:min(1220px,100%);
+  margin:0 auto;
+  position:relative;
+  z-index:2;
+}
+.template-number{
+  position:absolute;
+  top:22px;
+  right:5vw;
+  z-index:2;
+  font-size:12px;
+  letter-spacing:.17em;
+  text-transform:uppercase;
+  font-weight:950;
+  opacity:.42;
+}
+.nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:22px;
+  margin-bottom:46px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-weight:950;
+  letter-spacing:-.03em;
+}
+.logo{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:15px;
+  background:var(--accent,#ec4899);
+  color:var(--accentText,#fff);
+  font-weight:950;
+  box-shadow:0 14px 34px rgba(0,0,0,.18);
+}
+.navlinks{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  font-weight:850;
+  font-size:14px;
+  opacity:.72;
+}
+.hero{
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:42px;
+  align-items:center;
+}
+.hero h2{
+  margin:0;
+  color:var(--head,currentColor);
+  font-family:var(--display,Inter),sans-serif;
+  font-size:clamp(40px,5.5vw,78px);
+  line-height:.95;
+  letter-spacing:-.06em;
+}
+.hero p{
+  max-width:700px;
+  margin:22px 0 0;
+  color:var(--text,currentColor);
+  opacity:.78;
+  font-size:18px;
+  line-height:1.7;
+}
+.pills{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:24px;
+}
+.pill{
+  padding:10px 14px;
+  border-radius:999px;
+  background:var(--pill,rgba(255,255,255,.72));
+  border:1px solid var(--pillLine,rgba(15,23,42,.1));
+  font-weight:900;
+  font-size:13px;
+}
+.btn-row{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-top:30px;
+}
+.btn{
+  min-height:52px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 22px;
+  border-radius:999px;
+  background:var(--accent,#ec4899);
+  color:var(--accentText,#fff);
+  font-weight:950;
+  box-shadow:0 18px 46px rgba(15,23,42,.2);
+}
+.btn.secondary{
+  background:transparent;
+  color:var(--head,currentColor);
+  border:1px solid currentColor;
+  box-shadow:none;
+  opacity:.8;
+}
+.media{
+  position:relative;
+  overflow:hidden;
+  border-radius:var(--shape,var(--radius));
+  background:white;
+  border:1px solid var(--mediaLine,rgba(255,255,255,.5));
+  box-shadow:var(--shadow);
+}
+.media img{height:430px}
+.media-note{
+  position:absolute;
+  left:22px;
+  right:22px;
+  bottom:22px;
+  padding:18px;
+  border-radius:22px;
+  background:rgba(255,255,255,.9);
+  backdrop-filter:blur(16px);
+  color:#0f172a;
+  font-weight:850;
+  line-height:1.45;
+  box-shadow:0 16px 48px rgba(15,23,42,.18);
+}
+.portfolio-strip{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:28px;
+}
+.portfolio-card{
+  padding:16px;
+  min-height:86px;
+  border-radius:22px;
+  background:var(--card,rgba(255,255,255,.8));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  box-shadow:0 14px 34px rgba(15,23,42,.06);
+}
+.portfolio-card b{
+  display:block;
+  color:var(--accent,#ec4899);
+  margin-bottom:6px;
+}
+.main-grid{
+  display:grid;
+  grid-template-columns:.9fr 1.1fr;
+  gap:24px;
+  margin-top:52px;
+}
+.panel{
+  background:var(--card,rgba(255,255,255,.84));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  border-radius:26px;
+  padding:26px;
+  box-shadow:0 18px 50px rgba(15,23,42,.08);
+  backdrop-filter:blur(14px);
+}
+.panel h3{
+  margin:0 0 12px;
+  color:var(--head,currentColor);
+  font-size:24px;
+  letter-spacing:-.035em;
+}
+.panel p{
+  margin:0;
+  color:var(--mutedText,#64748b);
+  line-height:1.65;
+}
+.services{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+.services li{
+  min-height:54px;
+  padding:14px;
+  border-radius:18px;
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  background:var(--serviceBg,rgba(255,255,255,.72));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  font-weight:850;
+}
+.services li:before{
+  content:"✦";
+  color:var(--accent,#ec4899);
+  font-weight:950;
+}
+.pricing{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  margin-top:24px;
+}
+.price-card{
+  padding:22px;
+  border-radius:24px;
+  background:var(--serviceBg,rgba(255,255,255,.72));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  min-height:178px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.price-card strong{font-size:18px}
+.price-card .price{
+  margin:14px 0 8px;
+  color:var(--accent,#ec4899);
+  font-size:31px;
+  font-weight:950;
+  letter-spacing:-.06em;
+}
+.price-card small{
+  color:var(--mutedText,#64748b);
+  line-height:1.5;
+}
+.lower-grid{
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:24px;
+  margin-top:24px;
+}
+.form{
+  display:grid;
+  gap:12px;
+  margin-top:12px;
+}
+.form input,.form select,.form textarea{
+  width:100%;
+  border:1px solid var(--cardLine,rgba(15,23,42,.12));
+  border-radius:16px;
+  padding:13px 14px;
+  background:rgba(255,255,255,.8);
+  color:#111827;
+  outline:none;
+}
+.form textarea{min-height:96px;resize:vertical}
+.form button{
+  border:0;
+  cursor:pointer;
+}
+.testimonials{
+  display:grid;
+  gap:14px;
+}
+.quote{
+  padding:20px;
+  border-radius:24px;
+  background:var(--card,rgba(255,255,255,.84));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  box-shadow:0 16px 42px rgba(15,23,42,.07);
+}
+.quote p{
+  margin:0;
+  color:var(--text,currentColor);
+  opacity:.82;
+  line-height:1.6;
+}
+.quote b{
+  display:block;
+  margin-top:12px;
+  color:var(--head,currentColor);
+}
+.gallery{
+  display:grid;
+  grid-template-columns:1.2fr .8fr .8fr;
+  gap:14px;
+  margin-top:26px;
+}
+.gallery img{
+  height:172px;
+  border-radius:24px;
+  box-shadow:0 18px 42px rgba(15,23,42,.1);
+}
+.gallery img:first-child{height:224px}
+.link{
+  display:inline-flex;
+  margin-top:13px;
+  color:var(--accent,#ec4899);
+  font-weight:950;
+}
+
+/* Themes */
+.photographer{--bg:linear-gradient(135deg,#f8fafc,#fff 48%,#e0f2fe);--accent:#0f172a;--display:"Playfair Display";--shape:44px}
+.videographer{--bg:linear-gradient(135deg,#020617,#111827 55%,#1e1b4b);--fg:#f8fafc;--head:#fff;--text:#dbeafe;--mutedText:#cbd5e1;--accent:#ef4444;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Space Grotesk";--shape:16px}
+.graphic{--bg:radial-gradient(circle at 15% 15%,rgba(236,72,153,.3),transparent 25%),radial-gradient(circle at 80% 20%,rgba(59,130,246,.26),transparent 26%),linear-gradient(135deg,#fff,#fef3c7 55%,#fce7f3);--accent:#db2777;--display:"Space Grotesk";--shape:28px}
+.developer{--bg:linear-gradient(135deg,#f8fafc,#fff 50%,#dbeafe);--accent:#2563eb;--display:"Space Grotesk";--shape:18px}
+.ux{--bg:linear-gradient(135deg,#f9fafb,#fff 48%,#eef2ff);--accent:#7c3aed;--display:Inter;--shape:12px}
+.illustrator{--bg:radial-gradient(circle at 18% 18%,rgba(251,191,36,.32),transparent 24%),linear-gradient(135deg,#fff7ed,#fff 52%,#fef3c7);--accent:#f97316;--display:"Fraunces";--shape:40px 90px 40px 90px}
+.fineartist{--bg:linear-gradient(135deg,#fafafa,#fff 50%,#f5f5f4);--accent:#57534e;--display:"Cormorant Garamond";--shape:0}
+.writer{--bg:linear-gradient(135deg,#fff7ed,#fff 48%,#f3e8d6);--accent:#92400e;--display:"Libre Baskerville";--shape:26px}
+.editor{--bg:linear-gradient(135deg,#f8fafc,#fff 50%,#e2e8f0);--accent:#334155;--display:"Libre Baskerville";--shape:18px}
+.copywriter{--bg:linear-gradient(135deg,#fff,#fef2f2 48%,#fee2e2);--accent:#dc2626;--display:"Space Grotesk";--shape:26px}
+.voice{--bg:linear-gradient(135deg,#111827,#312e81 56%,#581c87);--fg:#f8fafc;--head:#fff;--text:#ede9fe;--mutedText:#ddd6fe;--accent:#c084fc;--accentText:#111827;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Space Grotesk";--shape:999px 999px 40px 40px}
+.musician{--bg:radial-gradient(circle at 15% 22%,rgba(245,158,11,.24),transparent 26%),linear-gradient(135deg,#09090b,#111827 52%,#431407);--fg:#f8fafc;--head:#fff7ed;--text:#fed7aa;--mutedText:#e7e5e4;--accent:#f59e0b;--accentText:#111827;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Playfair Display";--shape:44px}
+.interior{--bg:linear-gradient(135deg,#faf7ef,#fff 48%,#f3e8d6);--accent:#a16207;--display:"Playfair Display";--shape:80px 28px 80px 28px}
+.architect{--bg:linear-gradient(135deg,#e5e7eb,#fff 48%,#dbeafe);--accent:#1d4ed8;--display:"Space Grotesk";--shape:8px}
+
+/* Distinct details */
+.developer .media:before{
+  content:"</>";
+  position:absolute;top:18px;left:18px;z-index:2;
+  padding:9px 13px;border-radius:999px;background:#111827;color:#60a5fa;font-weight:950;
+}
+.ux{
+  background-image:
+    linear-gradient(rgba(15,23,42,.05) 1px, transparent 1px),
+    linear-gradient(90deg,rgba(15,23,42,.05) 1px, transparent 1px),
+    linear-gradient(135deg,#f9fafb,#fff 48%,#eef2ff);
+  background-size:38px 38px,38px 38px,auto;
+}
+.architect{
+  background-image:
+    linear-gradient(rgba(29,78,216,.08) 1px, transparent 1px),
+    linear-gradient(90deg,rgba(29,78,216,.08) 1px, transparent 1px),
+    linear-gradient(135deg,#e5e7eb,#fff 48%,#dbeafe);
+  background-size:44px 44px,44px 44px,auto;
+}
+.voice .media:before,.musician .media:before{
+  content:"▶ 00:42";
+  position:absolute;top:18px;left:18px;z-index:2;
+  padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.9);color:#111827;font-weight:950;
+}
+.fineartist .gallery img,.interior .gallery img{filter:saturate(.92)}
+.videographer .hero,.developer .hero,.illustrator .hero,.writer .hero,.voice .hero,.architect .hero{grid-template-columns:.95fr 1.05fr}
+.graphic .hero,.ux .hero,.fineartist .hero,.editor .hero,.copywriter .hero,.interior .hero{grid-template-columns:1.1fr .9fr}
+
+@media(max-width:980px){
+  .hero,.main-grid,.lower-grid{grid-template-columns:1fr!important}
+  .pricing,.portfolio-strip,.gallery{grid-template-columns:1fr}
+  .services{grid-template-columns:1fr}
+  .gallery img,.gallery img:first-child{height:220px}
+  .media img{height:340px}
+  .nav{align-items:flex-start;flex-direction:column}
+  .navlinks{justify-content:flex-start}
+}
+@media(max-width:620px){
+  .cover,.template{padding:64px 5vw}
+  .hero h2{font-size:40px}
+  .panel,.price-card,.quote{padding:20px}
+  .media-note{position:static;margin:-48px 18px 18px}
+}
+</style>
+</head>
+<body>
+  <header class="cover">
+    <div>
+      <span class="eyebrow">FrameNest Mockup Collection</span>
+      <h1>Creative Professional Website Templates</h1>
+      <p>Fourteen portfolio-driven website sections for photographers, filmmakers, designers, developers, writers, artists, performers, musicians, interior designers, and architects. Each section includes hero, portfolio/gallery, services, pricing, inquiry form, testimonials, and a Hire Me CTA.</p>
+    </div>
+  </header>
+  
+  <!-- 01. Photographer -->
+  <section class="template photographer">
+    <span class="template-number">Template 01 / Photographer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Northlight Photography</div>
+        <div class="navlinks"><span>Portfolio</span><span>Services</span><span>Pricing</span><span>Inquiry</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Portraits</span><span class="pill">Brand Shoots</span><span class="pill">Editorial</span></div>
+          <h2>Flagship photography for people, places, and brands.</h2>
+          <p>A polished flagship photography portfolio with large imagery, session packages, editorial-style galleries, and a direct inquiry flow.</p>
+          <div class="portfolio-strip"><div class="portfolio-card"><b>Portrait Series</b><span>Featured project</span></div><div class="portfolio-card"><b>Founder Campaign</b><span>Featured project</span></div><div class="portfolio-card"><b>Lifestyle Set</b><span>Featured project</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Hire Me</a>
+            <a class="btn secondary" href="#portfolio">View Portfolio</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Photographer creative professional website hero">
+          <div class="media-note">Hero image wall · Flagship portfolio · Session packages</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Portrait sessions</li><li>Brand photography</li><li>Event coverage</li><li>Image editing</li><li>Studio direction</li><li>Licensing</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <div class="pricing"><div class="price-card"><strong>Mini Session</strong><div class="price">$350</div><small>45-minute shoot, 20 edited images</small></div><div class="price-card"><strong>Brand Day</strong><div class="price">$1,800</div><small>Half-day shoot with usage-ready gallery</small></div><div class="price-card"><strong>Editorial</strong><div class="price">$4,500+</div><small>Concept, art direction, full production</small></div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Inquiry Form</h3>
+          <p>Use this visual form block to collect project type, budget range, timeline, and creative direction.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Project type</option>
+              <option>Portfolio project</option>
+              <option>Retainer</option>
+              <option>Commission</option>
+              <option>Collaboration</option>
+            </select>
+            <textarea placeholder="Tell me about your project"></textarea>
+            <button class="btn" type="button">Hire Me</button>
+          </form>
+        </div>
+        <div class="testimonials">
+          <div class="quote">
+            <p>“The images felt premium, warm, and completely on-brand.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="quote">
+            <p>“The whole shoot was calm, organized, and beautifully directed.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="panel">
+            <h3>Portfolio / Gallery</h3>
+            <p>Featured work, selected projects, process imagery, and proof of style live together in a clean visual section.</p>
+            <a class="link" href="#portfolio">Open full portfolio →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery" id="portfolio">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Photographer portfolio image one">
+        <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800" alt="Photographer portfolio image two">
+        <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800" alt="Photographer portfolio image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 02. Videographer -->
+  <section class="template videographer">
+    <span class="template-number">Template 02 / Videographer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">V</span>Framecut Films</div>
+        <div class="navlinks"><span>Portfolio</span><span>Services</span><span>Pricing</span><span>Inquiry</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Reels</span><span class="pill">Commercials</span><span class="pill">Documentary</span></div>
+          <h2>Cinematic stories built for screens that move people.</h2>
+          <p>A dark cinematic template for videographers with reel showcase, project types, equipment list, and bold booking paths.</p>
+          <div class="portfolio-strip"><div class="portfolio-card"><b>Launch Film</b><span>Featured project</span></div><div class="portfolio-card"><b>Founder Story</b><span>Featured project</span></div><div class="portfolio-card"><b>Event Recap</b><span>Featured project</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Hire Me</a>
+            <a class="btn secondary" href="#portfolio">View Portfolio</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800" alt="Videographer creative professional website hero">
+          <div class="media-note">Reel showcase · Equipment list · Cinematic project types</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Brand films</li><li>Event films</li><li>Product videos</li><li>Color grading</li><li>Drone footage</li><li>Editing packages</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <div class="pricing"><div class="price-card"><strong>Social Reel</strong><div class="price">$750</div><small>One short-form video package</small></div><div class="price-card"><strong>Campaign Film</strong><div class="price">$3,200</div><small>Production day, edit, color, sound</small></div><div class="price-card"><strong>Full Story</strong><div class="price">$8,500+</div><small>Multi-day cinematic production</small></div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Inquiry Form</h3>
+          <p>Use this visual form block to collect project type, budget range, timeline, and creative direction.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Project type</option>
+              <option>Portfolio project</option>
+              <option>Retainer</option>
+              <option>Commission</option>
+              <option>Collaboration</option>
+            </select>
+            <textarea placeholder="Tell me about your project"></textarea>
+            <button class="btn" type="button">Hire Me</button>
+          </form>
+        </div>
+        <div class="testimonials">
+          <div class="quote">
+            <p>“The final cut looked like a real commercial, not a template video.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="quote">
+            <p>“They captured the feeling of the event perfectly.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="panel">
+            <h3>Portfolio / Gallery</h3>
+            <p>Featured work, selected projects, process imagery, and proof of style live together in a clean visual section.</p>
+            <a class="link" href="#portfolio">Open full portfolio →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery" id="portfolio">
+        <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800" alt="Videographer portfolio image one">
+        <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800" alt="Videographer portfolio image two">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Videographer portfolio image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 03. Graphic Designer -->
+  <section class="template graphic">
+    <span class="template-number">Template 03 / Graphic Designer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">G</span>Colorblock Studio</div>
+        <div class="navlinks"><span>Portfolio</span><span>Services</span><span>Pricing</span><span>Inquiry</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Brand Identity</span><span class="pill">Packaging</span><span class="pill">Campaigns</span></div>
+          <h2>Bold visual identity systems that make brands easier to remember.</h2>
+          <p>A colorful graphic design template with project cards, branding packages, process timeline, and bright visual rhythm.</p>
+          <div class="portfolio-strip"><div class="portfolio-card"><b>Cafe Rebrand</b><span>Featured project</span></div><div class="portfolio-card"><b>Beauty Packaging</b><span>Featured project</span></div><div class="portfolio-card"><b>Conference Identity</b><span>Featured project</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Hire Me</a>
+            <a class="btn secondary" href="#portfolio">View Portfolio</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Graphic Designer creative professional website hero">
+          <div class="media-note">Project cards · Branding packages · Process timeline</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Logo systems</li><li>Brand guidelines</li><li>Packaging design</li><li>Social templates</li><li>Presentation design</li><li>Print collateral</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <div class="pricing"><div class="price-card"><strong>Logo Sprint</strong><div class="price">$900</div><small>Logo direction + core marks</small></div><div class="price-card"><strong>Brand Kit</strong><div class="price">$2,800</div><small>Full identity and guidelines</small></div><div class="price-card"><strong>Launch System</strong><div class="price">$6,500+</div><small>Brand, packaging, social, and print assets</small></div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Inquiry Form</h3>
+          <p>Use this visual form block to collect project type, budget range, timeline, and creative direction.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Project type</option>
+              <option>Portfolio project</option>
+              <option>Retainer</option>
+              <option>Commission</option>
+              <option>Collaboration</option>
+            </select>
+            <textarea placeholder="Tell me about your project"></textarea>
+            <button class="btn" type="button">Hire Me</button>
+          </form>
+        </div>
+        <div class="testimonials">
+          <div class="quote">
+            <p>“Our brand finally had a system instead of random graphics.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="quote">
+            <p>“The process was clear, visual, and full of smart choices.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="panel">
+            <h3>Portfolio / Gallery</h3>
+            <p>Featured work, selected projects, process imagery, and proof of style live together in a clean visual section.</p>
+            <a class="link" href="#portfolio">Open full portfolio →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery" id="portfolio">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Graphic Designer portfolio image one">
+        <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800" alt="Graphic Designer portfolio image two">
+        <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800" alt="Graphic Designer portfolio image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 04. Web Developer -->
+  <section class="template developer">
+    <span class="template-number">Template 04 / Web Developer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">W</span>Cleanstack Web</div>
+        <div class="navlinks"><span>Portfolio</span><span>Services</span><span>Pricing</span><span>Inquiry</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Frontend</span><span class="pill">Performance</span><span class="pill">GitHub</span></div>
+          <h2>Fast, clean websites with code you can grow on.</h2>
+          <p>A tech-clean developer template with project screenshots, stack badges, GitHub link, service packages, and a conversion-friendly inquiry form.</p>
+          <div class="portfolio-strip"><div class="portfolio-card"><b>SaaS Landing</b><span>Featured project</span></div><div class="portfolio-card"><b>Studio Website</b><span>Featured project</span></div><div class="portfolio-card"><b>Dashboard Build</b><span>Featured project</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Hire Me</a>
+            <a class="btn secondary" href="#portfolio">View Portfolio</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800" alt="Web Developer creative professional website hero">
+          <div class="media-note">Project screenshots · Tech stack badges · GitHub link</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Custom websites</li><li>Landing pages</li><li>Web apps</li><li>CMS builds</li><li>Performance optimization</li><li>Maintenance</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <div class="pricing"><div class="price-card"><strong>Landing Page</strong><div class="price">$1,200</div><small>One custom page built cleanly</small></div><div class="price-card"><strong>Business Site</strong><div class="price">$3,500</div><small>5-page website with CMS option</small></div><div class="price-card"><strong>Product Build</strong><div class="price">$8,000+</div><small>Interactive web app or platform prototype</small></div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Inquiry Form</h3>
+          <p>Use this visual form block to collect project type, budget range, timeline, and creative direction.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Project type</option>
+              <option>Portfolio project</option>
+              <option>Retainer</option>
+              <option>Commission</option>
+              <option>Collaboration</option>
+            </select>
+            <textarea placeholder="Tell me about your project"></textarea>
+            <button class="btn" type="button">Hire Me</button>
+          </form>
+        </div>
+        <div class="testimonials">
+          <div class="quote">
+            <p>“The site was fast, clean, and easy for our team to update.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="quote">
+            <p>“Technical, but explained everything in plain language.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="panel">
+            <h3>Portfolio / Gallery</h3>
+            <p>Featured work, selected projects, process imagery, and proof of style live together in a clean visual section.</p>
+            <a class="link" href="#portfolio">Open full portfolio →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery" id="portfolio">
+        <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800" alt="Web Developer portfolio image one">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Web Developer portfolio image two">
+        <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800" alt="Web Developer portfolio image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 05. UX Designer -->
+  <section class="template ux">
+    <span class="template-number">Template 05 / UX Designer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">U</span>Wireframe Works</div>
+        <div class="navlinks"><span>Portfolio</span><span>Services</span><span>Pricing</span><span>Inquiry</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Research</span><span class="pill">Wireframes</span><span class="pill">Case Studies</span></div>
+          <h2>Research-backed product design that reduces friction.</h2>
+          <p>A wireframe-inspired UX portfolio with case study cards, methodology, tools, and a structured inquiry path for product teams.</p>
+          <div class="portfolio-strip"><div class="portfolio-card"><b>Checkout Redesign</b><span>Featured project</span></div><div class="portfolio-card"><b>Healthcare Portal</b><span>Featured project</span></div><div class="portfolio-card"><b>Mobile Onboarding</b><span>Featured project</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Hire Me</a>
+            <a class="btn secondary" href="#portfolio">View Portfolio</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800" alt="UX Designer creative professional website hero">
+          <div class="media-note">Wireframe aesthetic · Case studies · UX tools and methodology</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>User research</li><li>UX audits</li><li>Wireframes</li><li>Prototypes</li><li>Design systems</li><li>Usability testing</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <div class="pricing"><div class="price-card"><strong>UX Audit</strong><div class="price">$1,500</div><small>Friction report and prioritized fixes</small></div><div class="price-card"><strong>Sprint Design</strong><div class="price">$4,800</div><small>Research, wireframes, prototype</small></div><div class="price-card"><strong>Product Partner</strong><div class="price">$9,500+</div><small>Multi-week design and testing engagement</small></div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Inquiry Form</h3>
+          <p>Use this visual form block to collect project type, budget range, timeline, and creative direction.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Project type</option>
+              <option>Portfolio project</option>
+              <option>Retainer</option>
+              <option>Commission</option>
+              <option>Collaboration</option>
+            </select>
+            <textarea placeholder="Tell me about your project"></textarea>
+            <button class="btn" type="button">Hire Me</button>
+          </form>
+        </div>
+        <div class="testimonials">
+          <div class="quote">
+            <p>“The case study made the product problems obvious.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="quote">
+            <p>“They brought structure to a messy product experience.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="panel">
+            <h3>Portfolio / Gallery</h3>
+            <p>Featured work, selected projects, process imagery, and proof of style live together in a clean visual section.</p>
+            <a class="link" href="#portfolio">Open full portfolio →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery" id="portfolio">
+        <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800" alt="UX Designer portfolio image one">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="UX Designer portfolio image two">
+        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800" alt="UX Designer portfolio image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 06. Illustrator -->
+  <section class="template illustrator">
+    <span class="template-number">Template 06 / Illustrator</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">I</span>Milo Makes Marks</div>
+        <div class="navlinks"><span>Portfolio</span><span>Services</span><span>Pricing</span><span>Inquiry</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Commissions</span><span class="pill">Prints</span><span class="pill">Editorial</span></div>
+          <h2>Playful illustration with personality in every line.</h2>
+          <p>A hand-drawn-feel illustrator template with style galleries, commission info, print shop cards, and whimsical visual accents.</p>
+          <div class="portfolio-strip"><div class="portfolio-card"><b>Character Set</b><span>Featured project</span></div><div class="portfolio-card"><b>Magazine Spread</b><span>Featured project</span></div><div class="portfolio-card"><b>Print Shop</b><span>Featured project</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Hire Me</a>
+            <a class="btn secondary" href="#portfolio">View Portfolio</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800" alt="Illustrator creative professional website hero">
+          <div class="media-note">Style gallery · Commission info · Prints shop</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Editorial illustration</li><li>Character design</li><li>Book covers</li><li>Custom commissions</li><li>Prints</li><li>Merch artwork</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <div class="pricing"><div class="price-card"><strong>Spot Illustration</strong><div class="price">$250</div><small>Single small illustration</small></div><div class="price-card"><strong>Editorial Set</strong><div class="price">$1,200</div><small>3–5 cohesive illustrations</small></div><div class="price-card"><strong>Licensing</strong><div class="price">$2,500+</div><small>Campaign usage and commercial rights</small></div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Inquiry Form</h3>
+          <p>Use this visual form block to collect project type, budget range, timeline, and creative direction.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Project type</option>
+              <option>Portfolio project</option>
+              <option>Retainer</option>
+              <option>Commission</option>
+              <option>Collaboration</option>
+            </select>
+            <textarea placeholder="Tell me about your project"></textarea>
+            <button class="btn" type="button">Hire Me</button>
+          </form>
+        </div>
+        <div class="testimonials">
+          <div class="quote">
+            <p>“The illustrations gave our brand a real human voice.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="quote">
+            <p>“Fun, fast, and incredibly expressive.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="panel">
+            <h3>Portfolio / Gallery</h3>
+            <p>Featured work, selected projects, process imagery, and proof of style live together in a clean visual section.</p>
+            <a class="link" href="#portfolio">Open full portfolio →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery" id="portfolio">
+        <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800" alt="Illustrator portfolio image one">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Illustrator portfolio image two">
+        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800" alt="Illustrator portfolio image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 07. Fine Artist -->
+  <section class="template fineartist">
+    <span class="template-number">Template 07 / Fine Artist</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">F</span>Avery Vale Studio</div>
+        <div class="navlinks"><span>Portfolio</span><span>Services</span><span>Pricing</span><span>Inquiry</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Original Works</span><span class="pill">Exhibitions</span><span class="pill">Collectors</span></div>
+          <h2>Quiet works for spaces that deserve attention.</h2>
+          <p>A gallery-minimal fine artist template with available works, exhibition history, artist statement, and collector inquiry form.</p>
+          <div class="portfolio-strip"><div class="portfolio-card"><b>Quiet Rooms</b><span>Featured project</span></div><div class="portfolio-card"><b>Field Studies</b><span>Featured project</span></div><div class="portfolio-card"><b>Available Works</b><span>Featured project</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Hire Me</a>
+            <a class="btn secondary" href="#portfolio">View Portfolio</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800" alt="Fine Artist creative professional website hero">
+          <div class="media-note">Gallery-minimal · Exhibition history · Available works</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Available paintings</li><li>Private commissions</li><li>Gallery inquiries</li><li>Studio visits</li><li>Collector previews</li><li>Limited editions</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <div class="pricing"><div class="price-card"><strong>Study</strong><div class="price">$600</div><small>Small original work</small></div><div class="price-card"><strong>Canvas</strong><div class="price">$2,400</div><small>Medium original painting</small></div><div class="price-card"><strong>Commission</strong><div class="price">$5,000+</div><small>Custom work for private collection</small></div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Inquiry Form</h3>
+          <p>Use this visual form block to collect project type, budget range, timeline, and creative direction.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Project type</option>
+              <option>Portfolio project</option>
+              <option>Retainer</option>
+              <option>Commission</option>
+              <option>Collaboration</option>
+            </select>
+            <textarea placeholder="Tell me about your project"></textarea>
+            <button class="btn" type="button">Hire Me</button>
+          </form>
+        </div>
+        <div class="testimonials">
+          <div class="quote">
+            <p>“The work changed the tone of the entire room.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="quote">
+            <p>“A refined studio experience from first inquiry to installation.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="panel">
+            <h3>Portfolio / Gallery</h3>
+            <p>Featured work, selected projects, process imagery, and proof of style live together in a clean visual section.</p>
+            <a class="link" href="#portfolio">Open full portfolio →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery" id="portfolio">
+        <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800" alt="Fine Artist portfolio image one">
+        <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800" alt="Fine Artist portfolio image two">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Fine Artist portfolio image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 08. Writer -->
+  <section class="template writer">
+    <span class="template-number">Template 08 / Writer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">W</span>Rowan Page Writing</div>
+        <div class="navlinks"><span>Portfolio</span><span>Services</span><span>Pricing</span><span>Inquiry</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Essays</span><span class="pill">Memoir</span><span class="pill">Features</span></div>
+          <h2>Essays, stories, and language with a lasting pulse.</h2>
+          <p>A literary writer template with serif-heavy design, published works, genres, sample excerpts, and a refined inquiry form.</p>
+          <div class="portfolio-strip"><div class="portfolio-card"><b>Published Essays</b><span>Featured project</span></div><div class="portfolio-card"><b>Cultural Criticism</b><span>Featured project</span></div><div class="portfolio-card"><b>Profile Work</b><span>Featured project</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Hire Me</a>
+            <a class="btn secondary" href="#portfolio">View Portfolio</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800" alt="Writer creative professional website hero">
+          <div class="media-note">Published works · Genres · Sample excerpts</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Feature writing</li><li>Personal essays</li><li>Memoir support</li><li>Profiles</li><li>Book proposals</li><li>Ghostwriting</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <div class="pricing"><div class="price-card"><strong>Essay</strong><div class="price">$650</div><small>One polished essay or article</small></div><div class="price-card"><strong>Feature</strong><div class="price">$1,800</div><small>Reported long-form piece</small></div><div class="price-card"><strong>Manuscript</strong><div class="price">$7,500+</div><small>Ghostwriting or book proposal support</small></div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Inquiry Form</h3>
+          <p>Use this visual form block to collect project type, budget range, timeline, and creative direction.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Project type</option>
+              <option>Portfolio project</option>
+              <option>Retainer</option>
+              <option>Commission</option>
+              <option>Collaboration</option>
+            </select>
+            <textarea placeholder="Tell me about your project"></textarea>
+            <button class="btn" type="button">Hire Me</button>
+          </form>
+        </div>
+        <div class="testimonials">
+          <div class="quote">
+            <p>“The writing sounded like us, only sharper and more alive.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="quote">
+            <p>“Thoughtful, literary, and deeply attentive.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="panel">
+            <h3>Portfolio / Gallery</h3>
+            <p>Featured work, selected projects, process imagery, and proof of style live together in a clean visual section.</p>
+            <a class="link" href="#portfolio">Open full portfolio →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery" id="portfolio">
+        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800" alt="Writer portfolio image one">
+        <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800" alt="Writer portfolio image two">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Writer portfolio image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 09. Editor -->
+  <section class="template editor">
+    <span class="template-number">Template 09 / Editor</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">E</span>Precise Page Editorial</div>
+        <div class="navlinks"><span>Portfolio</span><span>Services</span><span>Pricing</span><span>Inquiry</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Developmental</span><span class="pill">Line Editing</span><span class="pill">Manuscripts</span></div>
+          <h2>Sharper manuscripts without losing your voice.</h2>
+          <p>A clean, precise editor template with editing types, published credits, manuscript services, and a calm professional layout.</p>
+          <div class="portfolio-strip"><div class="portfolio-card"><b>Novel Credits</b><span>Featured project</span></div><div class="portfolio-card"><b>Memoir Edits</b><span>Featured project</span></div><div class="portfolio-card"><b>Proposal Wins</b><span>Featured project</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Hire Me</a>
+            <a class="btn secondary" href="#portfolio">View Portfolio</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800" alt="Editor creative professional website hero">
+          <div class="media-note">Editing types · Published credits · Manuscript services</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Developmental editing</li><li>Line editing</li><li>Copyediting</li><li>Proofreading</li><li>Query review</li><li>Book proposal editing</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <div class="pricing"><div class="price-card"><strong>Editorial Letter</strong><div class="price">$550</div><small>High-level manuscript feedback</small></div><div class="price-card"><strong>Line Edit</strong><div class="price">$0.06/word</div><small>Sentence-level refinement</small></div><div class="price-card"><strong>Full Edit</strong><div class="price">$3,500+</div><small>Developmental + line editing package</small></div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Inquiry Form</h3>
+          <p>Use this visual form block to collect project type, budget range, timeline, and creative direction.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Project type</option>
+              <option>Portfolio project</option>
+              <option>Retainer</option>
+              <option>Commission</option>
+              <option>Collaboration</option>
+            </select>
+            <textarea placeholder="Tell me about your project"></textarea>
+            <button class="btn" type="button">Hire Me</button>
+          </form>
+        </div>
+        <div class="testimonials">
+          <div class="quote">
+            <p>“The edits were direct, kind, and exactly what the book needed.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="quote">
+            <p>“They improved the structure without flattening my voice.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="panel">
+            <h3>Portfolio / Gallery</h3>
+            <p>Featured work, selected projects, process imagery, and proof of style live together in a clean visual section.</p>
+            <a class="link" href="#portfolio">Open full portfolio →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery" id="portfolio">
+        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800" alt="Editor portfolio image one">
+        <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800" alt="Editor portfolio image two">
+        <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800" alt="Editor portfolio image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Copywriter -->
+  <section class="template copywriter">
+    <span class="template-number">Template 10 / Copywriter</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">C</span>Sharp Hook Copy</div>
+        <div class="navlinks"><span>Portfolio</span><span>Services</span><span>Pricing</span><span>Inquiry</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Web Copy</span><span class="pill">Launches</span><span class="pill">ROI</span></div>
+          <h2>Words that make the offer obvious and the action easy.</h2>
+          <p>A persuasive copywriter template with ROI highlights, client logo zones, writing samples, and conversion-focused service packages.</p>
+          <div class="portfolio-strip"><div class="portfolio-card"><b>SaaS Homepage</b><span>Featured project</span></div><div class="portfolio-card"><b>Course Launch</b><span>Featured project</span></div><div class="portfolio-card"><b>Agency Reposition</b><span>Featured project</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Hire Me</a>
+            <a class="btn secondary" href="#portfolio">View Portfolio</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Copywriter creative professional website hero">
+          <div class="media-note">Results/ROI · Client logos · Writing samples</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Website copy</li><li>Sales pages</li><li>Email sequences</li><li>Launch messaging</li><li>Brand voice</li><li>Ad copy</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <div class="pricing"><div class="price-card"><strong>Homepage Fix</strong><div class="price">$950</div><small>Rewrite and messaging cleanup</small></div><div class="price-card"><strong>Sales Page</strong><div class="price">$2,400</div><small>Long-form conversion page</small></div><div class="price-card"><strong>Launch Copy</strong><div class="price">$6,000+</div><small>Emails, page copy, ads, and positioning</small></div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Inquiry Form</h3>
+          <p>Use this visual form block to collect project type, budget range, timeline, and creative direction.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Project type</option>
+              <option>Portfolio project</option>
+              <option>Retainer</option>
+              <option>Commission</option>
+              <option>Collaboration</option>
+            </select>
+            <textarea placeholder="Tell me about your project"></textarea>
+            <button class="btn" type="button">Hire Me</button>
+          </form>
+        </div>
+        <div class="testimonials">
+          <div class="quote">
+            <p>“The copy made our service easier to understand and easier to buy.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="quote">
+            <p>“We finally sounded clear instead of clever for no reason.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="panel">
+            <h3>Portfolio / Gallery</h3>
+            <p>Featured work, selected projects, process imagery, and proof of style live together in a clean visual section.</p>
+            <a class="link" href="#portfolio">Open full portfolio →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery" id="portfolio">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Copywriter portfolio image one">
+        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800" alt="Copywriter portfolio image two">
+        <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800" alt="Copywriter portfolio image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. Voice Actor -->
+  <section class="template voice">
+    <span class="template-number">Template 11 / Voice Actor</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">V</span>Studio Vox</div>
+        <div class="navlinks"><span>Portfolio</span><span>Services</span><span>Pricing</span><span>Inquiry</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Commercial</span><span class="pill">Narration</span><span class="pill">Character</span></div>
+          <h2>A voice that carries the message with character.</h2>
+          <p>An audio-forward voice actor template with demo reel player styling, voice types, studio specs, and booking inquiry flow.</p>
+          <div class="portfolio-strip"><div class="portfolio-card"><b>Commercial Demo</b><span>Featured project</span></div><div class="portfolio-card"><b>Narration Reel</b><span>Featured project</span></div><div class="portfolio-card"><b>Character Reel</b><span>Featured project</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Hire Me</a>
+            <a class="btn secondary" href="#portfolio">View Portfolio</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800" alt="Voice Actor creative professional website hero">
+          <div class="media-note">Demo reel player · Voice types · Studio specs</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Commercial voiceover</li><li>Audiobook narration</li><li>Explainer videos</li><li>Character voices</li><li>IVR prompts</li><li>Remote recording</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <div class="pricing"><div class="price-card"><strong>Short Spot</strong><div class="price">$300</div><small>Up to 60 seconds</small></div><div class="price-card"><strong>Narration</strong><div class="price">$750</div><small>Explainer or training module</small></div><div class="price-card"><strong>Campaign</strong><div class="price">$2,500+</div><small>Multi-spot usage package</small></div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Inquiry Form</h3>
+          <p>Use this visual form block to collect project type, budget range, timeline, and creative direction.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Project type</option>
+              <option>Portfolio project</option>
+              <option>Retainer</option>
+              <option>Commission</option>
+              <option>Collaboration</option>
+            </select>
+            <textarea placeholder="Tell me about your project"></textarea>
+            <button class="btn" type="button">Hire Me</button>
+          </form>
+        </div>
+        <div class="testimonials">
+          <div class="quote">
+            <p>“The read was warm, polished, and exactly on brief.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="quote">
+            <p>“Fast turnaround and broadcast-quality audio.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="panel">
+            <h3>Portfolio / Gallery</h3>
+            <p>Featured work, selected projects, process imagery, and proof of style live together in a clean visual section.</p>
+            <a class="link" href="#portfolio">Open full portfolio →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery" id="portfolio">
+        <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800" alt="Voice Actor portfolio image one">
+        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800" alt="Voice Actor portfolio image two">
+        <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800" alt="Voice Actor portfolio image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 12. Musician -->
+  <section class="template musician">
+    <span class="template-number">Template 12 / Musician</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">M</span>Nova Reed Music</div>
+        <div class="navlinks"><span>Portfolio</span><span>Services</span><span>Pricing</span><span>Inquiry</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Albums</span><span class="pill">Tour Dates</span><span class="pill">Booking</span></div>
+          <h2>Songs, shows, and soundscapes for rooms that listen.</h2>
+          <p>A musician template with album art, tour dates, streaming links, press photos, booking details, and atmospheric visuals.</p>
+          <div class="portfolio-strip"><div class="portfolio-card"><b>New Album</b><span>Featured project</span></div><div class="portfolio-card"><b>Live Session</b><span>Featured project</span></div><div class="portfolio-card"><b>Press Photos</b><span>Featured project</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Hire Me</a>
+            <a class="btn secondary" href="#portfolio">View Portfolio</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800" alt="Musician creative professional website hero">
+          <div class="media-note">Album art · Tour dates · Streaming links · Press photos</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Live performances</li><li>Session vocals</li><li>Songwriting</li><li>Private events</li><li>Licensing</li><li>Studio collaborations</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <div class="pricing"><div class="price-card"><strong>Acoustic Set</strong><div class="price">$600</div><small>45-minute private event set</small></div><div class="price-card"><strong>Full Band</strong><div class="price">$2,800</div><small>Live performance package</small></div><div class="price-card"><strong>Licensing</strong><div class="price">$1,500+</div><small>Sync and media usage</small></div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Inquiry Form</h3>
+          <p>Use this visual form block to collect project type, budget range, timeline, and creative direction.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Project type</option>
+              <option>Portfolio project</option>
+              <option>Retainer</option>
+              <option>Commission</option>
+              <option>Collaboration</option>
+            </select>
+            <textarea placeholder="Tell me about your project"></textarea>
+            <button class="btn" type="button">Hire Me</button>
+          </form>
+        </div>
+        <div class="testimonials">
+          <div class="quote">
+            <p>“The set turned the whole evening into something memorable.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="quote">
+            <p>“Professional, soulful, and easy to work with.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="panel">
+            <h3>Portfolio / Gallery</h3>
+            <p>Featured work, selected projects, process imagery, and proof of style live together in a clean visual section.</p>
+            <a class="link" href="#portfolio">Open full portfolio →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery" id="portfolio">
+        <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800" alt="Musician portfolio image one">
+        <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800" alt="Musician portfolio image two">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Musician portfolio image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 13. Interior Designer -->
+  <section class="template interior">
+    <span class="template-number">Template 13 / Interior Designer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">I</span>Maison Field Interiors</div>
+        <div class="navlinks"><span>Portfolio</span><span>Services</span><span>Pricing</span><span>Inquiry</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Rooms</span><span class="pill">Renovation</span><span class="pill">Styling</span></div>
+          <h2>Rooms that feel composed, personal, and deeply livable.</h2>
+          <p>An elegant interior design template with room portfolios, before-and-after visuals, service packages, and design process storytelling.</p>
+          <div class="portfolio-strip"><div class="portfolio-card"><b>Kitchen Refresh</b><span>Featured project</span></div><div class="portfolio-card"><b>Primary Suite</b><span>Featured project</span></div><div class="portfolio-card"><b>Modern Family Room</b><span>Featured project</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Hire Me</a>
+            <a class="btn secondary" href="#portfolio">View Portfolio</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800" alt="Interior Designer creative professional website hero">
+          <div class="media-note">Room portfolio · Design process · Before/after gallery</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Full-service design</li><li>Room refreshes</li><li>Furniture sourcing</li><li>Styling</li><li>Renovation support</li><li>Color consultations</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <div class="pricing"><div class="price-card"><strong>Design Consult</strong><div class="price">$300</div><small>90-minute room strategy</small></div><div class="price-card"><strong>Room Concept</strong><div class="price">$1,800</div><small>Layout, palette, sourcing list</small></div><div class="price-card"><strong>Full Service</strong><div class="price">$12,000+</div><small>End-to-end room or home design</small></div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Inquiry Form</h3>
+          <p>Use this visual form block to collect project type, budget range, timeline, and creative direction.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Project type</option>
+              <option>Portfolio project</option>
+              <option>Retainer</option>
+              <option>Commission</option>
+              <option>Collaboration</option>
+            </select>
+            <textarea placeholder="Tell me about your project"></textarea>
+            <button class="btn" type="button">Hire Me</button>
+          </form>
+        </div>
+        <div class="testimonials">
+          <div class="quote">
+            <p>“The room finally feels like us, just more finished.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="quote">
+            <p>“Elegant taste with a practical process.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="panel">
+            <h3>Portfolio / Gallery</h3>
+            <p>Featured work, selected projects, process imagery, and proof of style live together in a clean visual section.</p>
+            <a class="link" href="#portfolio">Open full portfolio →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery" id="portfolio">
+        <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800" alt="Interior Designer portfolio image one">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Interior Designer portfolio image two">
+        <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800" alt="Interior Designer portfolio image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 14. Architect -->
+  <section class="template architect">
+    <span class="template-number">Template 14 / Architect</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">A</span>Lineform Architecture</div>
+        <div class="navlinks"><span>Portfolio</span><span>Services</span><span>Pricing</span><span>Inquiry</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Residential</span><span class="pill">Commercial</span><span class="pill">Awards</span></div>
+          <h2>Buildings shaped by structure, context, and restraint.</h2>
+          <p>A structural architecture template with blueprint motifs, project portfolio, awards, firm philosophy, and high-end inquiry flow.</p>
+          <div class="portfolio-strip"><div class="portfolio-card"><b>Cedar House</b><span>Featured project</span></div><div class="portfolio-card"><b>Studio Addition</b><span>Featured project</span></div><div class="portfolio-card"><b>Urban Courtyard</b><span>Featured project</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#inquiry">Hire Me</a>
+            <a class="btn secondary" href="#portfolio">View Portfolio</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800" alt="Architect creative professional website hero">
+          <div class="media-note">Blueprint motifs · Project portfolio · Awards · Firm philosophy</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Services</h3>
+          <ul class="services"><li>Residential architecture</li><li>Commercial concepts</li><li>Feasibility studies</li><li>Permit drawings</li><li>Renovations</li><li>Design consultation</li></ul>
+        </div>
+        <div class="panel">
+          <h3>Pricing</h3>
+          <div class="pricing"><div class="price-card"><strong>Feasibility</strong><div class="price">$1,500</div><small>Site and concept review</small></div><div class="price-card"><strong>Concept Design</strong><div class="price">$7,500</div><small>Early plans and direction</small></div><div class="price-card"><strong>Full Scope</strong><div class="price">$35,000+</div><small>Complete architectural service</small></div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="inquiry">
+          <h3>Inquiry Form</h3>
+          <p>Use this visual form block to collect project type, budget range, timeline, and creative direction.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Project type</option>
+              <option>Portfolio project</option>
+              <option>Retainer</option>
+              <option>Commission</option>
+              <option>Collaboration</option>
+            </select>
+            <textarea placeholder="Tell me about your project"></textarea>
+            <button class="btn" type="button">Hire Me</button>
+          </form>
+        </div>
+        <div class="testimonials">
+          <div class="quote">
+            <p>“They balanced beauty, budget, and buildability.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="quote">
+            <p>“The plans were thoughtful from the first sketch.”</p>
+            <b>— Client testimonial</b>
+          </div>
+          <div class="panel">
+            <h3>Portfolio / Gallery</h3>
+            <p>Featured work, selected projects, process imagery, and proof of style live together in a clean visual section.</p>
+            <a class="link" href="#portfolio">Open full portfolio →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="gallery" id="portfolio">
+        <img src="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800" alt="Architect portfolio image one">
+        <img src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800" alt="Architect portfolio image two">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Architect portfolio image three">
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

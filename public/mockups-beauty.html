@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrameNest Templates — Beauty & Wellness</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Nunito:wght@500;600;700;800;900&family=Playfair+Display:wght@600;700;800&family=Libre+Baskerville:wght@400;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+:root{
+  --ink:#111827;
+  --muted:#6b7280;
+  --paper:#fff;
+  --line:rgba(17,24,39,.12);
+  --shadow:0 28px 90px rgba(15,23,42,.16);
+  --radius:30px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#111827;color:var(--ink)}
+img{display:block;width:100%;object-fit:cover}a{text-decoration:none;color:inherit}
+.cover{min-height:72vh;display:grid;place-items:center;text-align:center;padding:84px 6vw;color:#fff;background:radial-gradient(circle at 20% 20%,rgba(244,114,182,.32),transparent 30%),radial-gradient(circle at 82% 18%,rgba(251,191,36,.23),transparent 28%),linear-gradient(135deg,#150b16,#3b1025 55%,#111827)}
+.cover .eyebrow{display:inline-flex;padding:10px 16px;border:1px solid rgba(255,255,255,.22);border-radius:999px;font-weight:900;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#fde7f3}
+.cover h1{max-width:1100px;margin:24px auto 18px;font-size:clamp(42px,7vw,94px);line-height:.94;letter-spacing:-.07em;font-family:Playfair Display,serif}
+.cover p{max-width:830px;margin:0 auto;color:#f8ddea;font-size:clamp(18px,2vw,23px);line-height:1.65}
+.template{min-height:760px;padding:78px 6vw;position:relative;overflow:hidden;background:var(--bg,#fff);color:var(--fg,#111827)}
+.template:before{content:"";position:absolute;right:-130px;top:-150px;width:440px;height:440px;border-radius:999px;background:var(--orb,rgba(244,114,182,.18));filter:blur(5px)}
+.template:after{content:"";position:absolute;left:-120px;bottom:-130px;width:330px;height:330px;border:1px solid var(--mark,rgba(15,23,42,.08));border-radius:90px;transform:rotate(24deg)}
+.wrap{width:min(1200px,100%);margin:0 auto;position:relative;z-index:2}.template-number{position:absolute;top:22px;right:5vw;z-index:2;opacity:.43;font-size:12px;letter-spacing:.17em;text-transform:uppercase;font-weight:950}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-bottom:46px}.brand{display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.03em}.logo{width:42px;height:42px;border-radius:16px;display:grid;place-items:center;background:var(--accent,#db2777);color:var(--accentText,#fff);box-shadow:0 14px 34px rgba(0,0,0,.18);font-weight:950}.navlinks{display:flex;justify-content:flex-end;gap:18px;flex-wrap:wrap;font-size:14px;font-weight:850;opacity:.72}
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:42px;align-items:center}.hero h2{margin:0;color:var(--head,currentColor);font-family:var(--display,Inter),sans-serif;font-size:clamp(40px,5.5vw,78px);line-height:.95;letter-spacing:-.06em}.hero p{max-width:690px;margin:22px 0 0;color:var(--text,currentColor);opacity:.78;font-size:18px;line-height:1.7}.pills{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}.pill{padding:10px 14px;border-radius:999px;background:var(--pill,rgba(255,255,255,.72));border:1px solid var(--pillLine,rgba(15,23,42,.1));color:var(--pillText,currentColor);font-size:13px;font-weight:900}.btn-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:30px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 22px;border-radius:999px;background:var(--accent,#db2777);color:var(--accentText,#fff);font-weight:950;box-shadow:0 18px 46px rgba(15,23,42,.2)}.btn.secondary{background:transparent;color:var(--head,currentColor);border:1px solid currentColor;box-shadow:none;opacity:.8}
+.media{position:relative;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--mediaLine,rgba(255,255,255,.55));background:white}.media img{height:430px}.media-note{position:absolute;left:22px;right:22px;bottom:22px;padding:18px;border-radius:22px;background:rgba(255,255,255,.9);backdrop-filter:blur(16px);color:#111827;font-weight:850;line-height:1.45;box-shadow:0 16px 48px rgba(15,23,42,.18)}
+.menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:28px}.menu-item{padding:16px;border-radius:20px;background:var(--card,rgba(255,255,255,.82));border:1px solid var(--cardLine,rgba(15,23,42,.08));display:flex;justify-content:space-between;gap:16px;align-items:center;box-shadow:0 14px 34px rgba(15,23,42,.06);font-weight:900}.menu-item span:last-child{color:var(--accent,#db2777)}
+.main-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:24px;margin-top:52px}.panel{background:var(--card,rgba(255,255,255,.84));border:1px solid var(--cardLine,rgba(15,23,42,.08));border-radius:26px;padding:26px;box-shadow:0 18px 50px rgba(15,23,42,.08);backdrop-filter:blur(14px)}.panel h3{margin:0 0 12px;color:var(--head,currentColor);font-size:24px;letter-spacing:-.035em}.panel p{margin:0;color:var(--mutedText,#6b7280);line-height:1.65}.policy-list{display:grid;gap:12px;margin:0;padding:0;list-style:none}.policy-list li{padding:14px;border-radius:18px;background:var(--serviceBg,rgba(255,255,255,.72));border:1px solid var(--cardLine,rgba(15,23,42,.08));font-weight:800}.policy-list li:before{content:"• ";color:var(--accent,#db2777);font-weight:950}.before-after{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:24px}.ba-card{border-radius:24px;overflow:hidden;background:var(--card,rgba(255,255,255,.84));border:1px solid var(--cardLine,rgba(15,23,42,.08));box-shadow:0 16px 42px rgba(15,23,42,.07)}.ba-card img{height:150px}.ba-card b{display:block;padding:14px;color:var(--head,currentColor)}.info-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}.info-card{padding:22px;border-radius:24px;background:var(--card,rgba(255,255,255,.84));border:1px solid var(--cardLine,rgba(15,23,42,.08));box-shadow:0 16px 42px rgba(15,23,42,.07)}.info-card b{display:block;margin-bottom:9px;color:var(--head,currentColor)}.info-card p{margin:0;color:var(--mutedText,#6b7280);line-height:1.6}.insta{display:inline-flex;margin-top:12px;color:var(--accent,#db2777);font-weight:950}.gallery{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:14px;margin-top:26px}.gallery img{height:170px;border-radius:24px;box-shadow:0 18px 42px rgba(15,23,42,.1)}.gallery img:first-child{height:220px}
+.hair{--bg:linear-gradient(135deg,#fff7ed,#fff 45%,#fce7f3);--accent:#be185d;--orb:rgba(244,114,182,.23);--display:Playfair Display}.barber{--bg:linear-gradient(135deg,#17110c,#3b2a1d 54%,#0f0f0f);--fg:#f8fafc;--head:#fff7ed;--text:#f5e6d3;--mutedText:#e7d8c5;--accent:#b7793b;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:Libre Baskerville}.makeup{--bg:linear-gradient(135deg,#fff1f2,#fff 42%,#fdf2f8);--accent:#db2777;--orb:rgba(219,39,119,.2);--display:Playfair Display}.skin{--bg:linear-gradient(135deg,#f8fafc,#fff 52%,#e0f2fe);--accent:#0e7490;--orb:rgba(14,116,144,.16);--display:Inter}.nails{--bg:radial-gradient(circle at 12% 18%,rgba(251,113,133,.3),transparent 24%),linear-gradient(135deg,#fff,#fef3c7 46%,#dbeafe);--accent:#e11d48;--display:Nunito}.lash{--bg:linear-gradient(135deg,#fff7fb,#fff 50%,#fce7f3);--accent:#a21caf;--orb:rgba(192,38,211,.18);--display:Playfair Display}.brow{--bg:linear-gradient(135deg,#fafafa,#fff 52%,#f5f5f4);--accent:#44403c;--orb:rgba(68,64,60,.13);--display:Space Grotesk}.tattoo{--bg:linear-gradient(135deg,#030712,#111827 54%,#1f2937);--fg:#f8fafc;--head:#fff;--text:#d1d5db;--mutedText:#cbd5e1;--accent:#ef4444;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:Space Grotesk}.piercing{--bg:linear-gradient(135deg,#ecfeff,#fff 48%,#f0fdf4);--accent:#0d9488;--orb:rgba(20,184,166,.22);--display:Inter}.spa{--bg:linear-gradient(135deg,#f8f3ea,#fff 46%,#f3e8d6);--accent:#92400e;--orb:rgba(146,64,14,.17);--display:Playfair Display}.tan{--bg:linear-gradient(135deg,#fff7ed,#fed7aa 46%,#fff);--accent:#c2410c;--orb:rgba(249,115,22,.24);--display:Space Grotesk}.stylist{--bg:linear-gradient(135deg,#f5f3ff,#fff 48%,#e0e7ff);--accent:#7c3aed;--orb:rgba(124,58,237,.2);--display:Playfair Display}
+.barber .menu-item,.tattoo .menu-item{color:#fff}.barber .media,.spa .media{border-radius:70px 28px 70px 28px}.nails .media,.piercing .media{border-radius:24px 80px 24px 80px}.tattoo .media,.brow .media{border-radius:18px}.makeup .media,.lash .media{border-radius:42px}.tan .media:before{content:"Shade Guide";position:absolute;z-index:2;top:18px;left:18px;padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.92);color:#9a3412;font-weight:950}.hair .hero,.skin .hero,.lash .hero,.tattoo .hero,.spa .hero,.stylist .hero{grid-template-columns:1.12fr .88fr}.barber .hero,.makeup .hero,.nails .hero,.brow .hero,.piercing .hero,.tan .hero{grid-template-columns:.95fr 1.05fr}
+@media(max-width:980px){.hero,.main-grid{grid-template-columns:1fr!important}.info-row,.gallery,.before-after{grid-template-columns:1fr}.gallery img,.gallery img:first-child{height:220px}.media img{height:340px}.nav{align-items:flex-start;flex-direction:column}.navlinks{justify-content:flex-start}.menu-grid{grid-template-columns:1fr}}
+@media(max-width:620px){.cover,.template{padding:64px 5vw}.hero h2{font-size:40px}.panel,.info-card{padding:20px}.media-note{position:static;margin:-48px 18px 18px}}
+</style>
+</head>
+<body>
+  <header class="cover">
+    <div>
+      <span class="eyebrow">FrameNest Mockup Collection</span>
+      <h1>Beauty & Wellness Website Templates</h1>
+      <p>Twelve professional website sections for salons, barbers, makeup artists, skin specialists, nail artists, lash and brow studios, tattoo and piercing studios, spas, spray tan pros, and personal stylists.</p>
+    </div>
+  </header>
+  
+  <!-- 01. Hair Studio -->
+  <section class="template hair">
+    <span class="template-number">Template 01 / Hair Studio</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">H</span>Luxe Strand Studio</div>
+        <div class="navlinks"><span>Services</span><span>Gallery</span><span>Policies</span><span>Instagram</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Color</span><span class="pill">Cut</span><span class="pill">Styling</span></div>
+          <h2>Modern color, precision cuts, camera-ready styling.</h2>
+          <p>A chic portfolio-forward salon template for stylists who want to show cut, color, extension, and event styling work with a premium booking experience.</p>
+          <div class="menu-grid"><div class="menu-item"><span>Signature Cut</span><span>$85+</span></div><div class="menu-item"><span>Gloss + Tone</span><span>$95+</span></div><div class="menu-item"><span>Balayage</span><span>$240+</span></div><div class="menu-item"><span>Event Styling</span><span>$125+</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book Now</a>
+            <a class="btn secondary" href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" alt="Hair Studio website hero">
+          <div class="media-note">Instagram-ready portfolio grid · Color/cut/style service cards · New client consult flow</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Service Menu with Prices</h3>
+          <div class="menu-grid"><div class="menu-item"><span>Signature Cut</span><span>$85+</span></div><div class="menu-item"><span>Gloss + Tone</span><span>$95+</span></div><div class="menu-item"><span>Balayage</span><span>$240+</span></div><div class="menu-item"><span>Event Styling</span><span>$125+</span></div></div>
+        </div>
+        <div class="panel">
+          <h3>Policies</h3>
+          <ul class="policy-list">
+            <li>New color clients require a consultation. 24-hour cancellation policy. Deposits may be required for color corrections.</li>
+            <li>Arrive on time with any required prep completed. Late arrivals may shorten the service window.</li>
+            <li>Online booking confirms service, date, price range, and deposit requirements when applicable.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="booking">
+          <b>Booking</b>
+          <p>Clients can choose a service, request a preferred date, and send inspiration notes before the appointment.</p>
+          <a class="insta" href="#booking">Book Now →</a>
+        </div>
+        <div class="info-card">
+          <b>Instagram Link</b>
+          <p>Portfolio updates, recent client work, reels, and style inspiration live on Instagram.</p>
+          <a class="insta" href="https://instagram.com" target="_blank" rel="noopener">@luxestrandstudio →</a>
+        </div>
+        <div class="info-card">
+          <b>Client Experience</b>
+          <p>Each layout includes a clear service path, visual proof, policies, and a fast call-to-action for booking.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:24px;">
+        <h3>Before / After Gallery</h3>
+        <div class="before-after"><div class="ba-card"><img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" alt="Hair Studio before and after"><b>Copper color refresh</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Hair Studio before and after"><b>Textured bob reshape</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Hair Studio before and after"><b>Bridal waves</b></div></div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" alt="Hair Studio gallery one">
+        <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Hair Studio gallery two">
+        <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Hair Studio gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 02. Barber Shop -->
+  <section class="template barber">
+    <span class="template-number">Template 02 / Barber Shop</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">B</span>Iron &amp; Oak Barber Co.</div>
+        <div class="navlinks"><span>Services</span><span>Gallery</span><span>Policies</span><span>Instagram</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Cuts</span><span class="pill">Shaves</span><span class="pill">Walk-ins</span></div>
+          <h2>Classic grooming with a sharp modern edge.</h2>
+          <p>A masculine vintage-inspired barber website with clear walk-in details, grooming products, service prices, and straightforward online booking.</p>
+          <div class="menu-grid"><div class="menu-item"><span>Classic Cut</span><span>$45</span></div><div class="menu-item"><span>Skin Fade</span><span>$55</span></div><div class="menu-item"><span>Beard Trim</span><span>$25</span></div><div class="menu-item"><span>Hot Towel Shave</span><span>$60</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book Now</a>
+            <a class="btn secondary" href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Barber Shop website hero">
+          <div class="media-note">Walk-in board · Grooming product shelf · Vintage price menu</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Service Menu with Prices</h3>
+          <div class="menu-grid"><div class="menu-item"><span>Classic Cut</span><span>$45</span></div><div class="menu-item"><span>Skin Fade</span><span>$55</span></div><div class="menu-item"><span>Beard Trim</span><span>$25</span></div><div class="menu-item"><span>Hot Towel Shave</span><span>$60</span></div></div>
+        </div>
+        <div class="panel">
+          <h3>Policies</h3>
+          <ul class="policy-list">
+            <li>Walk-ins welcome when chairs are open. Appointments held for 10 minutes. No-shows may require prepayment next time.</li>
+            <li>Arrive on time with any required prep completed. Late arrivals may shorten the service window.</li>
+            <li>Online booking confirms service, date, price range, and deposit requirements when applicable.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="booking">
+          <b>Booking</b>
+          <p>Clients can choose a service, request a preferred date, and send inspiration notes before the appointment.</p>
+          <a class="insta" href="#booking">Book Now →</a>
+        </div>
+        <div class="info-card">
+          <b>Instagram Link</b>
+          <p>Portfolio updates, recent client work, reels, and style inspiration live on Instagram.</p>
+          <a class="insta" href="https://instagram.com" target="_blank" rel="noopener">@ironandoakbarber →</a>
+        </div>
+        <div class="info-card">
+          <b>Client Experience</b>
+          <p>Each layout includes a clear service path, visual proof, policies, and a fast call-to-action for booking.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:24px;">
+        <h3>Before / After Gallery</h3>
+        <div class="before-after"><div class="ba-card"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Barber Shop before and after"><b>Fresh fade</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" alt="Barber Shop before and after"><b>Beard shape-up</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Barber Shop before and after"><b>Classic side part</b></div></div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Barber Shop gallery one">
+        <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" alt="Barber Shop gallery two">
+        <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Barber Shop gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 03. Makeup Artist -->
+  <section class="template makeup">
+    <span class="template-number">Template 03 / Makeup Artist</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">M</span>Vow &amp; Velvet Makeup</div>
+        <div class="navlinks"><span>Services</span><span>Gallery</span><span>Policies</span><span>Instagram</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Bridal</span><span class="pill">Editorial</span><span class="pill">Events</span></div>
+          <h2>Glam that photographs beautifully and lasts all day.</h2>
+          <p>A glamorous makeup artist template built for bridal clients, events, before-and-after galleries, package details, and kit credibility.</p>
+          <div class="menu-grid"><div class="menu-item"><span>Bridal Trial</span><span>$175</span></div><div class="menu-item"><span>Wedding Day Makeup</span><span>$275</span></div><div class="menu-item"><span>Soft Glam</span><span>$140</span></div><div class="menu-item"><span>Editorial Look</span><span>$220</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book Now</a>
+            <a class="btn secondary" href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Makeup Artist website hero">
+          <div class="media-note">Before/after gallery · Bridal packages · Pro kit showcase</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Service Menu with Prices</h3>
+          <div class="menu-grid"><div class="menu-item"><span>Bridal Trial</span><span>$175</span></div><div class="menu-item"><span>Wedding Day Makeup</span><span>$275</span></div><div class="menu-item"><span>Soft Glam</span><span>$140</span></div><div class="menu-item"><span>Editorial Look</span><span>$220</span></div></div>
+        </div>
+        <div class="panel">
+          <h3>Policies</h3>
+          <ul class="policy-list">
+            <li>A signed agreement and retainer reserve wedding dates. Travel fees apply outside the studio area.</li>
+            <li>Arrive on time with any required prep completed. Late arrivals may shorten the service window.</li>
+            <li>Online booking confirms service, date, price range, and deposit requirements when applicable.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="booking">
+          <b>Booking</b>
+          <p>Clients can choose a service, request a preferred date, and send inspiration notes before the appointment.</p>
+          <a class="insta" href="#booking">Book Now →</a>
+        </div>
+        <div class="info-card">
+          <b>Instagram Link</b>
+          <p>Portfolio updates, recent client work, reels, and style inspiration live on Instagram.</p>
+          <a class="insta" href="https://instagram.com" target="_blank" rel="noopener">@vowandvelvet →</a>
+        </div>
+        <div class="info-card">
+          <b>Client Experience</b>
+          <p>Each layout includes a clear service path, visual proof, policies, and a fast call-to-action for booking.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:24px;">
+        <h3>Before / After Gallery</h3>
+        <div class="before-after"><div class="ba-card"><img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Makeup Artist before and after"><b>Natural bridal glow</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Makeup Artist before and after"><b>Full glam transformation</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Makeup Artist before and after"><b>Editorial color look</b></div></div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Makeup Artist gallery one">
+        <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Makeup Artist gallery two">
+        <img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Makeup Artist gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 04. Skin Specialist -->
+  <section class="template skin">
+    <span class="template-number">Template 04 / Skin Specialist</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">S</span>Clarity Skin Studio</div>
+        <div class="navlinks"><span>Services</span><span>Gallery</span><span>Policies</span><span>Instagram</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Facials</span><span class="pill">Acne Care</span><span class="pill">Results</span></div>
+          <h2>Clinical skin care with visible, thoughtful results.</h2>
+          <p>A clinical-beauty website for estheticians and skin specialists with treatment menus, skin type education, results galleries, and consultation booking.</p>
+          <div class="menu-grid"><div class="menu-item"><span>Custom Facial</span><span>$135</span></div><div class="menu-item"><span>Acne Reset</span><span>$160</span></div><div class="menu-item"><span>Chemical Peel</span><span>$145</span></div><div class="menu-item"><span>LED Therapy Add-on</span><span>$35</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book Now</a>
+            <a class="btn secondary" href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Skin Specialist website hero">
+          <div class="media-note">Skin type guide · Treatment menu · Results gallery</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Service Menu with Prices</h3>
+          <div class="menu-grid"><div class="menu-item"><span>Custom Facial</span><span>$135</span></div><div class="menu-item"><span>Acne Reset</span><span>$160</span></div><div class="menu-item"><span>Chemical Peel</span><span>$145</span></div><div class="menu-item"><span>LED Therapy Add-on</span><span>$35</span></div></div>
+        </div>
+        <div class="panel">
+          <h3>Policies</h3>
+          <ul class="policy-list">
+            <li>Avoid retinoids 5 days before advanced treatments. Patch testing may be required for peels and active ingredients.</li>
+            <li>Arrive on time with any required prep completed. Late arrivals may shorten the service window.</li>
+            <li>Online booking confirms service, date, price range, and deposit requirements when applicable.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="booking">
+          <b>Booking</b>
+          <p>Clients can choose a service, request a preferred date, and send inspiration notes before the appointment.</p>
+          <a class="insta" href="#booking">Book Now →</a>
+        </div>
+        <div class="info-card">
+          <b>Instagram Link</b>
+          <p>Portfolio updates, recent client work, reels, and style inspiration live on Instagram.</p>
+          <a class="insta" href="https://instagram.com" target="_blank" rel="noopener">@clarityskinstudio →</a>
+        </div>
+        <div class="info-card">
+          <b>Client Experience</b>
+          <p>Each layout includes a clear service path, visual proof, policies, and a fast call-to-action for booking.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:24px;">
+        <h3>Before / After Gallery</h3>
+        <div class="before-after"><div class="ba-card"><img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Skin Specialist before and after"><b>Texture refinement</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Skin Specialist before and after"><b>Calm redness plan</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" alt="Skin Specialist before and after"><b>Post-acne glow</b></div></div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Skin Specialist gallery one">
+        <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Skin Specialist gallery two">
+        <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" alt="Skin Specialist gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 05. Nail Artistry -->
+  <section class="template nails">
+    <span class="template-number">Template 05 / Nail Artistry</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">N</span>Paintbox Nail Atelier</div>
+        <div class="navlinks"><span>Services</span><span>Gallery</span><span>Policies</span><span>Instagram</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Gel</span><span class="pill">Art</span><span class="pill">Extensions</span></div>
+          <h2>Tiny canvases, bold color, flawless detail.</h2>
+          <p>A playful color-rich nail artist template with design galleries, service prices, seasonal sets, and a quick booking path.</p>
+          <div class="menu-grid"><div class="menu-item"><span>Gel Manicure</span><span>$55</span></div><div class="menu-item"><span>Builder Gel</span><span>$80</span></div><div class="menu-item"><span>Gel-X Set</span><span>$95</span></div><div class="menu-item"><span>Nail Art Add-on</span><span>$15+</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book Now</a>
+            <a class="btn secondary" href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1457972729786-0411a3b2b626?w=800" alt="Nail Artistry website hero">
+          <div class="media-note">Design gallery · Color-rich service menu · Seasonal nail sets</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Service Menu with Prices</h3>
+          <div class="menu-grid"><div class="menu-item"><span>Gel Manicure</span><span>$55</span></div><div class="menu-item"><span>Builder Gel</span><span>$80</span></div><div class="menu-item"><span>Gel-X Set</span><span>$95</span></div><div class="menu-item"><span>Nail Art Add-on</span><span>$15+</span></div></div>
+        </div>
+        <div class="panel">
+          <h3>Policies</h3>
+          <ul class="policy-list">
+            <li>Please arrive with inspiration photos. Repairs within 5 days are complimentary for service-related issues.</li>
+            <li>Arrive on time with any required prep completed. Late arrivals may shorten the service window.</li>
+            <li>Online booking confirms service, date, price range, and deposit requirements when applicable.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="booking">
+          <b>Booking</b>
+          <p>Clients can choose a service, request a preferred date, and send inspiration notes before the appointment.</p>
+          <a class="insta" href="#booking">Book Now →</a>
+        </div>
+        <div class="info-card">
+          <b>Instagram Link</b>
+          <p>Portfolio updates, recent client work, reels, and style inspiration live on Instagram.</p>
+          <a class="insta" href="https://instagram.com" target="_blank" rel="noopener">@paintboxatelier →</a>
+        </div>
+        <div class="info-card">
+          <b>Client Experience</b>
+          <p>Each layout includes a clear service path, visual proof, policies, and a fast call-to-action for booking.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:24px;">
+        <h3>Before / After Gallery</h3>
+        <div class="before-after"><div class="ba-card"><img src="https://images.unsplash.com/photo-1457972729786-0411a3b2b626?w=800" alt="Nail Artistry before and after"><b>Chrome set</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Nail Artistry before and after"><b>French remix</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Nail Artistry before and after"><b>Hand-painted florals</b></div></div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1457972729786-0411a3b2b626?w=800" alt="Nail Artistry gallery one">
+        <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Nail Artistry gallery two">
+        <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Nail Artistry gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 06. Lash Lounge -->
+  <section class="template lash">
+    <span class="template-number">Template 06 / Lash Lounge</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">L</span>Velour Lash Lounge</div>
+        <div class="navlinks"><span>Services</span><span>Gallery</span><span>Policies</span><span>Instagram</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Classic</span><span class="pill">Hybrid</span><span class="pill">Volume</span></div>
+          <h2>Soft, lifted, effortless lashes made for your face.</h2>
+          <p>A feminine elegant lash template with lash type comparisons, aftercare information, fill pricing, and trust-building policies.</p>
+          <div class="menu-grid"><div class="menu-item"><span>Classic Full Set</span><span>$150</span></div><div class="menu-item"><span>Hybrid Full Set</span><span>$185</span></div><div class="menu-item"><span>Volume Full Set</span><span>$220</span></div><div class="menu-item"><span>Two-Week Fill</span><span>$75+</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book Now</a>
+            <a class="btn secondary" href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Lash Lounge website hero">
+          <div class="media-note">Lash type comparison · Aftercare cards · Fill schedule guide</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Service Menu with Prices</h3>
+          <div class="menu-grid"><div class="menu-item"><span>Classic Full Set</span><span>$150</span></div><div class="menu-item"><span>Hybrid Full Set</span><span>$185</span></div><div class="menu-item"><span>Volume Full Set</span><span>$220</span></div><div class="menu-item"><span>Two-Week Fill</span><span>$75+</span></div></div>
+        </div>
+        <div class="panel">
+          <h3>Policies</h3>
+          <ul class="policy-list">
+            <li>Arrive with clean lashes and no eye makeup. Fills require at least 40% remaining extensions.</li>
+            <li>Arrive on time with any required prep completed. Late arrivals may shorten the service window.</li>
+            <li>Online booking confirms service, date, price range, and deposit requirements when applicable.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="booking">
+          <b>Booking</b>
+          <p>Clients can choose a service, request a preferred date, and send inspiration notes before the appointment.</p>
+          <a class="insta" href="#booking">Book Now →</a>
+        </div>
+        <div class="info-card">
+          <b>Instagram Link</b>
+          <p>Portfolio updates, recent client work, reels, and style inspiration live on Instagram.</p>
+          <a class="insta" href="https://instagram.com" target="_blank" rel="noopener">@velourlashlounge →</a>
+        </div>
+        <div class="info-card">
+          <b>Client Experience</b>
+          <p>Each layout includes a clear service path, visual proof, policies, and a fast call-to-action for booking.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:24px;">
+        <h3>Before / After Gallery</h3>
+        <div class="before-after"><div class="ba-card"><img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Lash Lounge before and after"><b>Natural classic set</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Lash Lounge before and after"><b>Hybrid cat eye</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Lash Lounge before and after"><b>Soft volume</b></div></div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Lash Lounge gallery one">
+        <img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Lash Lounge gallery two">
+        <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Lash Lounge gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 07. Brow Bar -->
+  <section class="template brow">
+    <span class="template-number">Template 07 / Brow Bar</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">B</span>Arch Theory Brow Bar</div>
+        <div class="navlinks"><span>Services</span><span>Gallery</span><span>Policies</span><span>Instagram</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Shaping</span><span class="pill">Tinting</span><span class="pill">Microblading</span></div>
+          <h2>Precise brows, balanced features, low-maintenance mornings.</h2>
+          <p>A minimal precision-focused brow bar template with brow shape guides, microblading education, service pricing, and policy clarity.</p>
+          <div class="menu-grid"><div class="menu-item"><span>Brow Shape</span><span>$38</span></div><div class="menu-item"><span>Brow Tint</span><span>$35</span></div><div class="menu-item"><span>Lamination</span><span>$95</span></div><div class="menu-item"><span>Microblading Consult</span><span>$50</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book Now</a>
+            <a class="btn secondary" href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Brow Bar website hero">
+          <div class="media-note">Brow shape guide · Microblading info · Minimal precision layout</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Service Menu with Prices</h3>
+          <div class="menu-grid"><div class="menu-item"><span>Brow Shape</span><span>$38</span></div><div class="menu-item"><span>Brow Tint</span><span>$35</span></div><div class="menu-item"><span>Lamination</span><span>$95</span></div><div class="menu-item"><span>Microblading Consult</span><span>$50</span></div></div>
+        </div>
+        <div class="panel">
+          <h3>Policies</h3>
+          <ul class="policy-list">
+            <li>Microblading clients must complete eligibility screening. Avoid retinol and waxing before appointments.</li>
+            <li>Arrive on time with any required prep completed. Late arrivals may shorten the service window.</li>
+            <li>Online booking confirms service, date, price range, and deposit requirements when applicable.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="booking">
+          <b>Booking</b>
+          <p>Clients can choose a service, request a preferred date, and send inspiration notes before the appointment.</p>
+          <a class="insta" href="#booking">Book Now →</a>
+        </div>
+        <div class="info-card">
+          <b>Instagram Link</b>
+          <p>Portfolio updates, recent client work, reels, and style inspiration live on Instagram.</p>
+          <a class="insta" href="https://instagram.com" target="_blank" rel="noopener">@archtheorybrows →</a>
+        </div>
+        <div class="info-card">
+          <b>Client Experience</b>
+          <p>Each layout includes a clear service path, visual proof, policies, and a fast call-to-action for booking.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:24px;">
+        <h3>Before / After Gallery</h3>
+        <div class="before-after"><div class="ba-card"><img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Brow Bar before and after"><b>Soft arch mapping</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Brow Bar before and after"><b>Tint refresh</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Brow Bar before and after"><b>Lamination lift</b></div></div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Brow Bar gallery one">
+        <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Brow Bar gallery two">
+        <img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Brow Bar gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 08. Tattoo Artist -->
+  <section class="template tattoo">
+    <span class="template-number">Template 08 / Tattoo Artist</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">T</span>Blackline Tattoo Studio</div>
+        <div class="navlinks"><span>Services</span><span>Gallery</span><span>Policies</span><span>Instagram</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Custom</span><span class="pill">Flash</span><span class="pill">Fine Line</span></div>
+          <h2>Custom work, clean lines, serious booking standards.</h2>
+          <p>An edgy dark tattoo artist template with flash galleries, style portfolio, consultation process, and booking policy sections.</p>
+          <div class="menu-grid"><div class="menu-item"><span>Flash Piece</span><span>$150+</span></div><div class="menu-item"><span>Fine Line Tattoo</span><span>$200+</span></div><div class="menu-item"><span>Custom Design</span><span>$300+</span></div><div class="menu-item"><span>Touch-Up</span><span>$80+</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book Now</a>
+            <a class="btn secondary" href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Tattoo Artist website hero">
+          <div class="media-note">Flash gallery · Style portfolio · Booking policies front and center</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Service Menu with Prices</h3>
+          <div class="menu-grid"><div class="menu-item"><span>Flash Piece</span><span>$150+</span></div><div class="menu-item"><span>Fine Line Tattoo</span><span>$200+</span></div><div class="menu-item"><span>Custom Design</span><span>$300+</span></div><div class="menu-item"><span>Touch-Up</span><span>$80+</span></div></div>
+        </div>
+        <div class="panel">
+          <h3>Policies</h3>
+          <ul class="policy-list">
+            <li>18+ only with valid ID. Deposits are non-refundable. Design previews are shared at the appointment unless otherwise arranged.</li>
+            <li>Arrive on time with any required prep completed. Late arrivals may shorten the service window.</li>
+            <li>Online booking confirms service, date, price range, and deposit requirements when applicable.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="booking">
+          <b>Booking</b>
+          <p>Clients can choose a service, request a preferred date, and send inspiration notes before the appointment.</p>
+          <a class="insta" href="#booking">Book Now →</a>
+        </div>
+        <div class="info-card">
+          <b>Instagram Link</b>
+          <p>Portfolio updates, recent client work, reels, and style inspiration live on Instagram.</p>
+          <a class="insta" href="https://instagram.com" target="_blank" rel="noopener">@blacklinetattoo →</a>
+        </div>
+        <div class="info-card">
+          <b>Client Experience</b>
+          <p>Each layout includes a clear service path, visual proof, policies, and a fast call-to-action for booking.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:24px;">
+        <h3>Before / After Gallery</h3>
+        <div class="before-after"><div class="ba-card"><img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Tattoo Artist before and after"><b>Fine line floral</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Tattoo Artist before and after"><b>Blackwork flash</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" alt="Tattoo Artist before and after"><b>Script piece</b></div></div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Tattoo Artist gallery one">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Tattoo Artist gallery two">
+        <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" alt="Tattoo Artist gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 09. Piercing Studio -->
+  <section class="template piercing">
+    <span class="template-number">Template 09 / Piercing Studio</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Pure Point Piercing</div>
+        <div class="navlinks"><span>Services</span><span>Gallery</span><span>Policies</span><span>Instagram</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Jewelry</span><span class="pill">Aftercare</span><span class="pill">Sterile</span></div>
+          <h2>Clean piercing, quality jewelry, body-positive care.</h2>
+          <p>A clean piercing studio website with jewelry showcase, aftercare instructions, age policy, appointment booking, and safety-forward messaging.</p>
+          <div class="menu-grid"><div class="menu-item"><span>Earlobe Pair</span><span>$65</span></div><div class="menu-item"><span>Helix</span><span>$55</span></div><div class="menu-item"><span>Nostril</span><span>$65</span></div><div class="menu-item"><span>Jewelry Change</span><span>$20+</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book Now</a>
+            <a class="btn secondary" href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Piercing Studio website hero">
+          <div class="media-note">Jewelry showcase · Aftercare guide · Age policy section</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Service Menu with Prices</h3>
+          <div class="menu-grid"><div class="menu-item"><span>Earlobe Pair</span><span>$65</span></div><div class="menu-item"><span>Helix</span><span>$55</span></div><div class="menu-item"><span>Nostril</span><span>$65</span></div><div class="menu-item"><span>Jewelry Change</span><span>$20+</span></div></div>
+        </div>
+        <div class="panel">
+          <h3>Policies</h3>
+          <ul class="policy-list">
+            <li>Valid ID required. Minors need parent/guardian documentation. Healing jewelry must meet studio safety standards.</li>
+            <li>Arrive on time with any required prep completed. Late arrivals may shorten the service window.</li>
+            <li>Online booking confirms service, date, price range, and deposit requirements when applicable.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="booking">
+          <b>Booking</b>
+          <p>Clients can choose a service, request a preferred date, and send inspiration notes before the appointment.</p>
+          <a class="insta" href="#booking">Book Now →</a>
+        </div>
+        <div class="info-card">
+          <b>Instagram Link</b>
+          <p>Portfolio updates, recent client work, reels, and style inspiration live on Instagram.</p>
+          <a class="insta" href="https://instagram.com" target="_blank" rel="noopener">@purepointpiercing →</a>
+        </div>
+        <div class="info-card">
+          <b>Client Experience</b>
+          <p>Each layout includes a clear service path, visual proof, policies, and a fast call-to-action for booking.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:24px;">
+        <h3>Before / After Gallery</h3>
+        <div class="before-after"><div class="ba-card"><img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Piercing Studio before and after"><b>Curated ear stack</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Piercing Studio before and after"><b>Gold nostril stud</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" alt="Piercing Studio before and after"><b>Fresh helix</b></div></div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Piercing Studio gallery one">
+        <img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Piercing Studio gallery two">
+        <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" alt="Piercing Studio gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Spa Retreat -->
+  <section class="template spa">
+    <span class="template-number">Template 10 / Spa Retreat</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">S</span>Stillwater Spa Retreat</div>
+        <div class="navlinks"><span>Services</span><span>Gallery</span><span>Policies</span><span>Instagram</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Massage</span><span class="pill">Facials</span><span class="pill">Memberships</span></div>
+          <h2>A slower, softer place to restore yourself.</h2>
+          <p>A luxury spa template with calming treatment packages, membership tiers, gift card CTA, relaxation imagery, and polished booking blocks.</p>
+          <div class="menu-grid"><div class="menu-item"><span>Relaxation Massage</span><span>$140</span></div><div class="menu-item"><span>Signature Facial</span><span>$155</span></div><div class="menu-item"><span>Body Ritual</span><span>$210</span></div><div class="menu-item"><span>Monthly Membership</span><span>$129/mo</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book Now</a>
+            <a class="btn secondary" href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Spa Retreat website hero">
+          <div class="media-note">Treatment packages · Membership tiers · Gift card CTA</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Service Menu with Prices</h3>
+          <div class="menu-grid"><div class="menu-item"><span>Relaxation Massage</span><span>$140</span></div><div class="menu-item"><span>Signature Facial</span><span>$155</span></div><div class="menu-item"><span>Body Ritual</span><span>$210</span></div><div class="menu-item"><span>Monthly Membership</span><span>$129/mo</span></div></div>
+        </div>
+        <div class="panel">
+          <h3>Policies</h3>
+          <ul class="policy-list">
+            <li>Please arrive 15 minutes early. Cancellations within 24 hours may be charged 50% of the service total.</li>
+            <li>Arrive on time with any required prep completed. Late arrivals may shorten the service window.</li>
+            <li>Online booking confirms service, date, price range, and deposit requirements when applicable.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="booking">
+          <b>Booking</b>
+          <p>Clients can choose a service, request a preferred date, and send inspiration notes before the appointment.</p>
+          <a class="insta" href="#booking">Book Now →</a>
+        </div>
+        <div class="info-card">
+          <b>Instagram Link</b>
+          <p>Portfolio updates, recent client work, reels, and style inspiration live on Instagram.</p>
+          <a class="insta" href="https://instagram.com" target="_blank" rel="noopener">@stillwatersparetreat →</a>
+        </div>
+        <div class="info-card">
+          <b>Client Experience</b>
+          <p>Each layout includes a clear service path, visual proof, policies, and a fast call-to-action for booking.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:24px;">
+        <h3>Before / After Gallery</h3>
+        <div class="before-after"><div class="ba-card"><img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Spa Retreat before and after"><b>Calm facial suite</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Spa Retreat before and after"><b>Massage ritual</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" alt="Spa Retreat before and after"><b>Couples retreat</b></div></div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Spa Retreat gallery one">
+        <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Spa Retreat gallery two">
+        <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" alt="Spa Retreat gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. Spray Tan Pro -->
+  <section class="template tan">
+    <span class="template-number">Template 11 / Spray Tan Pro</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">S</span>Golden Hour Spray Tan</div>
+        <div class="navlinks"><span>Services</span><span>Gallery</span><span>Policies</span><span>Instagram</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Shade Guide</span><span class="pill">Events</span><span class="pill">Prep</span></div>
+          <h2>Sunless glow for events, vacations, and everyday confidence.</h2>
+          <p>A warm bronzed spray tan website with shade guide, prep instructions, event packages, booking CTA, and aftercare policies.</p>
+          <div class="menu-grid"><div class="menu-item"><span>Classic Spray Tan</span><span>$55</span></div><div class="menu-item"><span>Rapid Rinse Tan</span><span>$70</span></div><div class="menu-item"><span>Bridal Trial Tan</span><span>$65</span></div><div class="menu-item"><span>Event Group Package</span><span>$250+</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book Now</a>
+            <a class="btn secondary" href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Spray Tan Pro website hero">
+          <div class="media-note">Shade guide · Prep instructions · Event packages</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Service Menu with Prices</h3>
+          <div class="menu-grid"><div class="menu-item"><span>Classic Spray Tan</span><span>$55</span></div><div class="menu-item"><span>Rapid Rinse Tan</span><span>$70</span></div><div class="menu-item"><span>Bridal Trial Tan</span><span>$65</span></div><div class="menu-item"><span>Event Group Package</span><span>$250+</span></div></div>
+        </div>
+        <div class="panel">
+          <h3>Policies</h3>
+          <ul class="policy-list">
+            <li>Exfoliate 24 hours before. Do not apply lotion, deodorant, or perfume before your appointment.</li>
+            <li>Arrive on time with any required prep completed. Late arrivals may shorten the service window.</li>
+            <li>Online booking confirms service, date, price range, and deposit requirements when applicable.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="booking">
+          <b>Booking</b>
+          <p>Clients can choose a service, request a preferred date, and send inspiration notes before the appointment.</p>
+          <a class="insta" href="#booking">Book Now →</a>
+        </div>
+        <div class="info-card">
+          <b>Instagram Link</b>
+          <p>Portfolio updates, recent client work, reels, and style inspiration live on Instagram.</p>
+          <a class="insta" href="https://instagram.com" target="_blank" rel="noopener">@goldenhourtans →</a>
+        </div>
+        <div class="info-card">
+          <b>Client Experience</b>
+          <p>Each layout includes a clear service path, visual proof, policies, and a fast call-to-action for booking.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:24px;">
+        <h3>Before / After Gallery</h3>
+        <div class="before-after"><div class="ba-card"><img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Spray Tan Pro before and after"><b>Soft bronze</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Spray Tan Pro before and after"><b>Vacation glow</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Spray Tan Pro before and after"><b>Bridal tan</b></div></div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Spray Tan Pro gallery one">
+        <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Spray Tan Pro gallery two">
+        <img src="https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800" alt="Spray Tan Pro gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 12. Personal Stylist -->
+  <section class="template stylist">
+    <span class="template-number">Template 12 / Personal Stylist</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Edit Mode Styling</div>
+        <div class="navlinks"><span>Services</span><span>Gallery</span><span>Policies</span><span>Instagram</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Wardrobe</span><span class="pill">Shopping</span><span class="pill">Lookbook</span></div>
+          <h2>A wardrobe that finally works as hard as you do.</h2>
+          <p>A fashion-forward personal stylist template with lookbook gallery, wardrobe service packages, shopping list support, and client transformation imagery.</p>
+          <div class="menu-grid"><div class="menu-item"><span>Closet Edit</span><span>$275</span></div><div class="menu-item"><span>Personal Shopping</span><span>$450</span></div><div class="menu-item"><span>Capsule Wardrobe</span><span>$650</span></div><div class="menu-item"><span>Event Styling</span><span>$325</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Book Now</a>
+            <a class="btn secondary" href="https://instagram.com" target="_blank" rel="noopener">Instagram</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Personal Stylist website hero">
+          <div class="media-note">Lookbook gallery · Wardrobe services · Shopping list download</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Service Menu with Prices</h3>
+          <div class="menu-grid"><div class="menu-item"><span>Closet Edit</span><span>$275</span></div><div class="menu-item"><span>Personal Shopping</span><span>$450</span></div><div class="menu-item"><span>Capsule Wardrobe</span><span>$650</span></div><div class="menu-item"><span>Event Styling</span><span>$325</span></div></div>
+        </div>
+        <div class="panel">
+          <h3>Policies</h3>
+          <ul class="policy-list">
+            <li>Shopping budgets are separate from styling fees. Rescheduling requires 48 hours notice for in-home sessions.</li>
+            <li>Arrive on time with any required prep completed. Late arrivals may shorten the service window.</li>
+            <li>Online booking confirms service, date, price range, and deposit requirements when applicable.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="booking">
+          <b>Booking</b>
+          <p>Clients can choose a service, request a preferred date, and send inspiration notes before the appointment.</p>
+          <a class="insta" href="#booking">Book Now →</a>
+        </div>
+        <div class="info-card">
+          <b>Instagram Link</b>
+          <p>Portfolio updates, recent client work, reels, and style inspiration live on Instagram.</p>
+          <a class="insta" href="https://instagram.com" target="_blank" rel="noopener">@editmodestyling →</a>
+        </div>
+        <div class="info-card">
+          <b>Client Experience</b>
+          <p>Each layout includes a clear service path, visual proof, policies, and a fast call-to-action for booking.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:24px;">
+        <h3>Before / After Gallery</h3>
+        <div class="before-after"><div class="ba-card"><img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Personal Stylist before and after"><b>Workwear capsule</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Personal Stylist before and after"><b>Date-night edit</b></div><div class="ba-card"><img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" alt="Personal Stylist before and after"><b>Travel wardrobe</b></div></div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800" alt="Personal Stylist gallery one">
+        <img src="https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800" alt="Personal Stylist gallery two">
+        <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800" alt="Personal Stylist gallery three">
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

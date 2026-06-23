@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrameNest Templates — Retail & Boutique</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=Playfair+Display:wght@600;700;800&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+:root{
+  --ink:#111827;
+  --muted:#64748b;
+  --shadow:0 28px 90px rgba(15,23,42,.16);
+  --radius:30px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink);
+  background:#10131b;
+}
+img{display:block;width:100%;object-fit:cover}
+a{text-decoration:none;color:inherit}
+.cover{
+  min-height:72vh;
+  display:grid;
+  place-items:center;
+  padding:84px 6vw;
+  text-align:center;
+  color:white;
+  background:
+    radial-gradient(circle at 16% 18%,rgba(236,72,153,.30),transparent 28%),
+    radial-gradient(circle at 84% 18%,rgba(245,158,11,.28),transparent 30%),
+    linear-gradient(135deg,#020617,#111827 58%,#3b0764);
+}
+.cover .eyebrow{
+  display:inline-flex;
+  padding:10px 16px;
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:999px;
+  color:#fce7f3;
+  font-size:12px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  font-weight:900;
+}
+.cover h1{
+  max-width:1120px;
+  margin:24px auto 18px;
+  font-size:clamp(42px,7vw,94px);
+  line-height:.94;
+  letter-spacing:-.07em;
+}
+.cover p{
+  max-width:840px;
+  margin:0 auto;
+  color:#d1d5db;
+  font-size:clamp(18px,2vw,23px);
+  line-height:1.65;
+}
+.template{
+  min-height:780px;
+  padding:78px 6vw;
+  position:relative;
+  overflow:hidden;
+  color:var(--fg,#111827);
+  background:var(--bg,#fff);
+}
+.template:before{
+  content:"";
+  position:absolute;
+  width:440px;
+  height:440px;
+  border-radius:999px;
+  background:var(--orb,rgba(236,72,153,.18));
+  top:-150px;
+  right:-130px;
+  filter:blur(5px);
+}
+.template:after{
+  content:"";
+  position:absolute;
+  width:330px;
+  height:330px;
+  border:1px solid var(--mark,rgba(15,23,42,.08));
+  left:-120px;
+  bottom:-130px;
+  border-radius:80px;
+  transform:rotate(24deg);
+}
+.wrap{
+  width:min(1220px,100%);
+  margin:0 auto;
+  position:relative;
+  z-index:2;
+}
+.template-number{
+  position:absolute;
+  top:22px;
+  right:5vw;
+  z-index:2;
+  opacity:.42;
+  font-size:12px;
+  letter-spacing:.17em;
+  text-transform:uppercase;
+  font-weight:950;
+}
+.nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:22px;
+  margin-bottom:46px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-weight:950;
+  letter-spacing:-.03em;
+}
+.logo{
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:15px;
+  background:var(--accent,#db2777);
+  color:var(--accentText,#fff);
+  font-weight:950;
+  box-shadow:0 14px 34px rgba(0,0,0,.18);
+}
+.navlinks{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  font-size:14px;
+  font-weight:850;
+  opacity:.72;
+}
+.hero{
+  display:grid;
+  grid-template-columns:1.04fr .96fr;
+  gap:42px;
+  align-items:center;
+}
+.hero h2{
+  margin:0;
+  color:var(--head,currentColor);
+  font-family:var(--display,Inter),sans-serif;
+  font-size:clamp(40px,5.5vw,78px);
+  line-height:.95;
+  letter-spacing:-.06em;
+}
+.hero p{
+  max-width:700px;
+  margin:22px 0 0;
+  color:var(--text,currentColor);
+  opacity:.78;
+  font-size:18px;
+  line-height:1.7;
+}
+.pills{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:24px;
+}
+.pill{
+  padding:10px 14px;
+  border-radius:999px;
+  background:var(--pill,rgba(255,255,255,.72));
+  border:1px solid var(--pillLine,rgba(15,23,42,.1));
+  font-size:13px;
+  font-weight:900;
+}
+.btn-row{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-top:30px;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:52px;
+  padding:0 22px;
+  border-radius:999px;
+  background:var(--accent,#db2777);
+  color:var(--accentText,#fff);
+  border:0;
+  cursor:pointer;
+  font-weight:950;
+  box-shadow:0 18px 46px rgba(15,23,42,.20);
+}
+.btn.secondary{
+  background:transparent;
+  border:1px solid currentColor;
+  color:var(--head,currentColor);
+  box-shadow:none;
+  opacity:.8;
+}
+.media{
+  position:relative;
+  overflow:hidden;
+  border-radius:var(--shape,var(--radius));
+  background:white;
+  box-shadow:var(--shadow);
+  border:1px solid var(--mediaLine,rgba(255,255,255,.5));
+}
+.media img{height:430px}
+.media-note{
+  position:absolute;
+  left:22px;
+  right:22px;
+  bottom:22px;
+  padding:18px;
+  border-radius:22px;
+  background:rgba(255,255,255,.9);
+  backdrop-filter:blur(16px);
+  color:#0f172a;
+  font-weight:850;
+  line-height:1.45;
+  box-shadow:0 16px 48px rgba(15,23,42,.18);
+}
+.product-strip{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:28px;
+}
+.product-mini{
+  padding:16px;
+  border-radius:22px;
+  background:var(--card,rgba(255,255,255,.82));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  box-shadow:0 14px 34px rgba(15,23,42,.06);
+}
+.product-mini b{
+  display:block;
+  color:var(--head,currentColor);
+  margin-bottom:6px;
+}
+.product-mini strong{
+  display:block;
+  color:var(--accent,#db2777);
+  font-size:28px;
+  line-height:1;
+  letter-spacing:-.06em;
+  margin-bottom:8px;
+}
+.product-mini span{
+  color:var(--mutedText,#64748b);
+  line-height:1.45;
+}
+.main-grid{
+  display:grid;
+  grid-template-columns:.92fr 1.08fr;
+  gap:24px;
+  margin-top:52px;
+}
+.panel{
+  background:var(--card,rgba(255,255,255,.84));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  border-radius:26px;
+  padding:26px;
+  box-shadow:0 18px 50px rgba(15,23,42,.08);
+  backdrop-filter:blur(14px);
+}
+.panel h3{
+  margin:0 0 12px;
+  color:var(--head,currentColor);
+  font-size:24px;
+  letter-spacing:-.035em;
+}
+.panel p{
+  margin:0;
+  color:var(--mutedText,#64748b);
+  line-height:1.65;
+}
+.showcase{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  margin-top:16px;
+}
+.product-card{
+  overflow:hidden;
+  border-radius:24px;
+  background:var(--serviceBg,rgba(255,255,255,.72));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+}
+.product-card img{
+  height:150px;
+}
+.product-card div{
+  padding:14px;
+}
+.product-card b{
+  display:block;
+  margin-bottom:5px;
+  color:var(--head,currentColor);
+}
+.product-card span{
+  color:var(--mutedText,#64748b);
+  line-height:1.45;
+}
+.info-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+  margin-top:24px;
+}
+.info{
+  padding:22px;
+  border-radius:24px;
+  background:var(--card,rgba(255,255,255,.84));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  box-shadow:0 16px 42px rgba(15,23,42,.07);
+}
+.info b{
+  display:block;
+  color:var(--head,currentColor);
+  margin-bottom:9px;
+}
+.info p{
+  margin:0;
+  color:var(--mutedText,#64748b);
+  line-height:1.6;
+}
+.review{
+  padding:24px;
+  border-radius:26px;
+  background:var(--accent,#db2777);
+  color:var(--accentText,#fff);
+  box-shadow:0 18px 50px rgba(15,23,42,.16);
+  margin-top:24px;
+}
+.review h3{
+  margin:0 0 12px;
+  font-size:28px;
+  letter-spacing:-.04em;
+}
+.review p{
+  margin:0;
+  line-height:1.65;
+  opacity:.92;
+}
+
+/* Themes */
+.fashion{--bg:linear-gradient(135deg,#fff,#fdf2f8 48%,#fae8ff);--accent:#be185d;--display:"Playfair Display";--shape:44px}
+.gift{--bg:radial-gradient(circle at 16% 18%,rgba(236,72,153,.25),transparent 25%),linear-gradient(135deg,#fff,#fef3c7 52%,#fce7f3);--accent:#db2777;--display:"Space Grotesk";--shape:26px 90px 26px 90px}
+.florist{--bg:linear-gradient(135deg,#f0fdf4,#fff 48%,#dcfce7);--accent:#16a34a;--accentText:#052e16;--display:"Playfair Display";--shape:80px 28px 80px 28px}
+.jeweler{--bg:linear-gradient(135deg,#07111f,#0f1e34 55%,#111827);--fg:#f8fafc;--head:#fff;--text:#dbeafe;--mutedText:#cbd5e1;--accent:#d6a74a;--accentText:#07111f;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Playfair Display";--shape:44px}
+.furniture{--bg:linear-gradient(135deg,#faf7ef,#fff 48%,#f3e8d6);--accent:#92400e;--display:"Libre Baskerville";--shape:18px}
+.toy{--bg:radial-gradient(circle at 16% 18%,rgba(34,211,238,.25),transparent 25%),radial-gradient(circle at 82% 16%,rgba(251,191,36,.25),transparent 26%),linear-gradient(135deg,#fff,#ecfeff 52%,#fef9c3);--accent:#0891b2;--accentText:#ecfeff;--display:"Space Grotesk";--shape:999px 999px 40px 40px}
+.bookstore{--bg:linear-gradient(135deg,#fff7ed,#fff 48%,#f3e8d6);--accent:#92400e;--display:"Libre Baskerville";--shape:28px}
+.foods{--bg:linear-gradient(135deg,#fffbeb,#fff 48%,#fef3c7);--accent:#b45309;--display:"Space Grotesk";--shape:26px}
+.pet{--bg:linear-gradient(135deg,#ecfeff,#fff 48%,#f0fdf4);--accent:#0f766e;--display:"Space Grotesk";--shape:34px}
+.gallery{--bg:linear-gradient(135deg,#f8fafc,#fff 48%,#e2e8f0);--accent:#334155;--display:"Playfair Display";--shape:0}
+.maker{--bg:linear-gradient(135deg,#f7fee7,#fff 48%,#ecfccb);--accent:#65a30d;--accentText:#1a2e05;--display:"Libre Baskerville";--shape:80px 28px 80px 28px}
+.vintage{--bg:radial-gradient(circle at 16% 18%,rgba(249,115,22,.26),transparent 25%),linear-gradient(135deg,#fff7ed,#fff 48%,#fed7aa);--accent:#c2410c;--display:"Space Grotesk";--shape:16px}
+
+/* Accents */
+.jeweler .media:before{
+  content:"CUSTOM DESIGN";
+  position:absolute;
+  top:18px;
+  left:18px;
+  z-index:2;
+  padding:9px 13px;
+  border-radius:999px;
+  background:rgba(255,255,255,.9);
+  color:#111827;
+  font-weight:950;
+  letter-spacing:.08em;
+  font-size:12px;
+}
+.florist .media:before{
+  content:"SAME-DAY DELIVERY";
+  position:absolute;
+  top:18px;
+  left:18px;
+  z-index:2;
+  padding:9px 13px;
+  border-radius:999px;
+  background:rgba(255,255,255,.9);
+  color:#166534;
+  font-weight:950;
+  letter-spacing:.08em;
+  font-size:12px;
+}
+.vintage .media:before,.fashion .media:before{
+  content:"NEW ARRIVALS";
+  position:absolute;
+  top:18px;
+  left:18px;
+  z-index:2;
+  padding:9px 13px;
+  border-radius:999px;
+  background:rgba(255,255,255,.9);
+  color:#111827;
+  font-weight:950;
+  letter-spacing:.08em;
+  font-size:12px;
+}
+.fashion .hero,.florist .hero,.jeweler .hero,.toy .hero,.gallery .hero,.vintage .hero{grid-template-columns:.95fr 1.05fr}
+.gift .hero,.furniture .hero,.bookstore .hero,.foods .hero,.pet .hero,.maker .hero{grid-template-columns:1.1fr .9fr}
+
+@media(max-width:980px){
+  .hero,.main-grid{grid-template-columns:1fr!important}
+  .product-strip,.showcase,.info-grid{grid-template-columns:1fr}
+  .media img{height:340px}
+  .product-card img{height:220px}
+  .nav{align-items:flex-start;flex-direction:column}
+  .navlinks{justify-content:flex-start}
+}
+@media(max-width:620px){
+  .cover,.template{padding:64px 5vw}
+  .hero h2{font-size:40px}
+  .panel,.review,.info{padding:20px}
+  .media-note{position:static;margin:-48px 18px 18px}
+}
+</style>
+</head>
+<body>
+  <header class="cover">
+    <div>
+      <span class="eyebrow">FrameNest Mockup Collection</span>
+      <h1>Retail & Boutique Website Templates</h1>
+      <p>Twelve professional website sections for boutiques, gift shops, florists, jewelers, furniture stores, toy shops, bookstores, specialty food retailers, pet stores, galleries, local makers, and vintage shops.</p>
+    </div>
+  </header>
+  
+  <!-- 01. Fashion Boutique -->
+  <section class="template fashion">
+    <span class="template-number">Template 01 / Fashion Boutique</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">F</span>Maison Rue Boutique</div>
+        <div class="navlinks"><span>Products</span><span>Hours</span><span>Promotions</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Lookbook</span><span class="pill">New Arrivals</span><span class="pill">Online Shop</span></div>
+          <h2>Curated looks for everyday polish and weekend drama.</h2>
+          <p>A chic boutique template with lookbook gallery, new arrivals, editorial product blocks, and a strong shop-online pathway.</p>
+          <div class="product-strip"><div class="product-mini"><b>Linen Blazer</b><strong>$148</strong><span>Tailored neutral staple</span></div><div class="product-mini"><b>Silk Midi Dress</b><strong>$220</strong><span>Soft evening movement</span></div><div class="product-mini"><b>Weekend Tote</b><strong>$96</strong><span>Structured everyday carry</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#products">View Products</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800" alt="Fashion Boutique retail website hero">
+          <div class="media-note">Lookbook gallery · New arrivals · Shop online CTA</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="products">
+          <h3>Product Showcase</h3>
+          <p>Feature new arrivals, best sellers, custom pieces, seasonal drops, or service add-ons with strong product photography.</p>
+          <div class="showcase"><div class="product-card"><img src="https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800" alt="Fashion Boutique product"><div><b>Linen Blazer</b><span>Tailored neutral staple · $148</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" alt="Fashion Boutique product"><div><b>Silk Midi Dress</b><span>Soft evening movement · $220</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Fashion Boutique product"><div><b>Weekend Tote</b><span>Structured everyday carry · $96</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Online Store Link</h3>
+          <p>Connect this section to Shopify, Square, Etsy, Faire, custom checkout, appointment booking, or curbside pickup.</p>
+          <div class="btn-row">
+            <a class="btn" id="shop" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#visit">Visit Store</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid" id="visit">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Mon–Sat 10:00 AM–7:00 PM · Sun 11:00 AM–5:00 PM<br>214 Market Lane · Downtown Style District</p>
+        </div>
+        <div class="info">
+          <b>Promotion</b>
+          <p>New arrivals every Friday · 15% off first online order</p>
+        </div>
+        <div class="info">
+          <b>Shopping Experience</b>
+          <p>Use this card for pickup, shipping, delivery, appointments, gift wrapping, registry, or custom order policies.</p>
+        </div>
+      </div>
+
+      <div class="review">
+        <h3>Customer Review</h3>
+        <p>“The styling feels personal, current, and never pushy.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02. Gift Shop -->
+  <section class="template gift">
+    <span class="template-number">Template 02 / Gift Shop</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">G</span>Little Lantern Gifts</div>
+        <div class="navlinks"><span>Products</span><span>Hours</span><span>Promotions</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Gifts</span><span class="pill">Seasonal</span><span class="pill">Gift Wrap</span></div>
+          <h2>Small surprises, thoughtful finds, beautifully wrapped.</h2>
+          <p>A whimsical gift-shop template with category grids, seasonal collections, wrapping services, and warm product storytelling.</p>
+          <div class="product-strip"><div class="product-mini"><b>Birthday Box</b><strong>$42</strong><span>Curated cheerful bundle</span></div><div class="product-mini"><b>Host Gift Set</b><strong>$36</strong><span>Candles, tea, and card</span></div><div class="product-mini"><b>Holiday Ornament</b><strong>$18</strong><span>Limited seasonal design</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#products">View Products</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" alt="Gift Shop retail website hero">
+          <div class="media-note">Category grid · Seasonal collections · Gift wrapping</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="products">
+          <h3>Product Showcase</h3>
+          <p>Feature new arrivals, best sellers, custom pieces, seasonal drops, or service add-ons with strong product photography.</p>
+          <div class="showcase"><div class="product-card"><img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" alt="Gift Shop product"><div><b>Birthday Box</b><span>Curated cheerful bundle · $42</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Gift Shop product"><div><b>Host Gift Set</b><span>Candles, tea, and card · $36</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=800" alt="Gift Shop product"><div><b>Holiday Ornament</b><span>Limited seasonal design · $18</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Online Store Link</h3>
+          <p>Connect this section to Shopify, Square, Etsy, Faire, custom checkout, appointment booking, or curbside pickup.</p>
+          <div class="btn-row">
+            <a class="btn" id="shop" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#visit">Visit Store</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid" id="visit">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Tue–Sat 10:00 AM–6:00 PM · Sun 12:00 PM–4:00 PM<br>88 Main Street · Corner of Maple</p>
+        </div>
+        <div class="info">
+          <b>Promotion</b>
+          <p>Free gift wrapping on purchases over $40</p>
+        </div>
+        <div class="info">
+          <b>Shopping Experience</b>
+          <p>Use this card for pickup, shipping, delivery, appointments, gift wrapping, registry, or custom order policies.</p>
+        </div>
+      </div>
+
+      <div class="review">
+        <h3>Customer Review</h3>
+        <p>“The easiest place to find a gift that feels intentional.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03. Florist -->
+  <section class="template florist">
+    <span class="template-number">Template 03 / Florist</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">F</span>Wildstem Florals</div>
+        <div class="navlinks"><span>Products</span><span>Hours</span><span>Promotions</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Delivery</span><span class="pill">Weddings</span><span class="pill">Custom Orders</span></div>
+          <h2>Seasonal flowers for everyday gestures and once-in-a-lifetime rooms.</h2>
+          <p>A botanical florist template with arrangement galleries, delivery areas, custom order intake, and event floral services.</p>
+          <div class="product-strip"><div class="product-mini"><b>Market Bouquet</b><strong>$55</strong><span>Seasonal stems wrapped</span></div><div class="product-mini"><b>Designer Arrangement</b><strong>$95</strong><span>Vase arrangement</span></div><div class="product-mini"><b>Event Florals</b><strong>Custom</strong><span>Weddings and installs</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#products">View Products</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=800" alt="Florist retail website hero">
+          <div class="media-note">Arrangement gallery · Delivery area · Custom orders · Event florals</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="products">
+          <h3>Product Showcase</h3>
+          <p>Feature new arrivals, best sellers, custom pieces, seasonal drops, or service add-ons with strong product photography.</p>
+          <div class="showcase"><div class="product-card"><img src="https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=800" alt="Florist product"><div><b>Market Bouquet</b><span>Seasonal stems wrapped · $55</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" alt="Florist product"><div><b>Designer Arrangement</b><span>Vase arrangement · $95</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800" alt="Florist product"><div><b>Event Florals</b><span>Weddings and installs · Custom</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Online Store Link</h3>
+          <p>Connect this section to Shopify, Square, Etsy, Faire, custom checkout, appointment booking, or curbside pickup.</p>
+          <div class="btn-row">
+            <a class="btn" id="shop" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#visit">Visit Store</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid" id="visit">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Mon–Sat 9:00 AM–5:00 PM · Event installs by appointment<br>34 Garden Row · Same-day local delivery zone</p>
+        </div>
+        <div class="info">
+          <b>Promotion</b>
+          <p>Same-day delivery available before 12 PM</p>
+        </div>
+        <div class="info">
+          <b>Shopping Experience</b>
+          <p>Use this card for pickup, shipping, delivery, appointments, gift wrapping, registry, or custom order policies.</p>
+        </div>
+      </div>
+
+      <div class="review">
+        <h3>Customer Review</h3>
+        <p>“The arrangement was lush, fresh, and exactly the mood we wanted.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04. Jeweler -->
+  <section class="template jeweler">
+    <span class="template-number">Template 04 / Jeweler</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">J</span>Aster &amp; Gold</div>
+        <div class="navlinks"><span>Products</span><span>Hours</span><span>Promotions</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Fine Jewelry</span><span class="pill">Custom Design</span><span class="pill">Repairs</span></div>
+          <h2>Fine jewelry with meaning, craft, and quiet luxury.</h2>
+          <p>A luxury jewelry-store template with product spotlight, custom design, repair services, appointment booking, and refined visuals.</p>
+          <div class="product-strip"><div class="product-mini"><b>Oval Signet</b><strong>$680</strong><span>Hand-finished gold</span></div><div class="product-mini"><b>Pearl Drop Earrings</b><strong>$420</strong><span>Freshwater pearl</span></div><div class="product-mini"><b>Custom Ring</b><strong>From $1,800</strong><span>Consultation required</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#products">View Products</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Jeweler retail website hero">
+          <div class="media-note">Product spotlight · Custom design · Repair services</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="products">
+          <h3>Product Showcase</h3>
+          <p>Feature new arrivals, best sellers, custom pieces, seasonal drops, or service add-ons with strong product photography.</p>
+          <div class="showcase"><div class="product-card"><img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Jeweler product"><div><b>Oval Signet</b><span>Hand-finished gold · $680</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Jeweler product"><div><b>Pearl Drop Earrings</b><span>Freshwater pearl · $420</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" alt="Jeweler product"><div><b>Custom Ring</b><span>Consultation required · From $1,800</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Online Store Link</h3>
+          <p>Connect this section to Shopify, Square, Etsy, Faire, custom checkout, appointment booking, or curbside pickup.</p>
+          <div class="btn-row">
+            <a class="btn" id="shop" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#visit">Visit Store</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid" id="visit">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Tue–Sat 11:00 AM–6:00 PM · Private appointments available<br>6 Gallery Arcade · Suite 2</p>
+        </div>
+        <div class="info">
+          <b>Promotion</b>
+          <p>Complimentary cleaning with every repair consultation</p>
+        </div>
+        <div class="info">
+          <b>Shopping Experience</b>
+          <p>Use this card for pickup, shipping, delivery, appointments, gift wrapping, registry, or custom order policies.</p>
+        </div>
+      </div>
+
+      <div class="review">
+        <h3>Customer Review</h3>
+        <p>“The custom design process felt thoughtful, precise, and special.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05. Furniture Store -->
+  <section class="template furniture">
+    <span class="template-number">Template 05 / Furniture Store</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">F</span>Room &amp; Timber</div>
+        <div class="navlinks"><span>Products</span><span>Hours</span><span>Promotions</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Showroom</span><span class="pill">Delivery</span><span class="pill">Financing</span></div>
+          <h2>Furniture that makes rooms feel finished, open, and lived in.</h2>
+          <p>A spacious furniture-store template with room settings, delivery information, financing options, and showroom-first product displays.</p>
+          <div class="product-strip"><div class="product-mini"><b>Oak Dining Table</b><strong>$1,450</strong><span>Seats six comfortably</span></div><div class="product-mini"><b>Modular Sofa</b><strong>$2,200</strong><span>Performance fabric</span></div><div class="product-mini"><b>Reading Chair</b><strong>$780</strong><span>Solid wood frame</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#products">View Products</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800" alt="Furniture Store retail website hero">
+          <div class="media-note">Room settings · Delivery info · Financing options</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="products">
+          <h3>Product Showcase</h3>
+          <p>Feature new arrivals, best sellers, custom pieces, seasonal drops, or service add-ons with strong product photography.</p>
+          <div class="showcase"><div class="product-card"><img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800" alt="Furniture Store product"><div><b>Oak Dining Table</b><span>Seats six comfortably · $1,450</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" alt="Furniture Store product"><div><b>Modular Sofa</b><span>Performance fabric · $2,200</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Furniture Store product"><div><b>Reading Chair</b><span>Solid wood frame · $780</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Online Store Link</h3>
+          <p>Connect this section to Shopify, Square, Etsy, Faire, custom checkout, appointment booking, or curbside pickup.</p>
+          <div class="btn-row">
+            <a class="btn" id="shop" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#visit">Visit Store</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid" id="visit">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Mon–Sat 10:00 AM–7:00 PM · Sun 11:00 AM–5:00 PM<br>900 Design Center Drive · Warehouse showroom</p>
+        </div>
+        <div class="info">
+          <b>Promotion</b>
+          <p>0% financing for 12 months on qualifying purchases</p>
+        </div>
+        <div class="info">
+          <b>Shopping Experience</b>
+          <p>Use this card for pickup, shipping, delivery, appointments, gift wrapping, registry, or custom order policies.</p>
+        </div>
+      </div>
+
+      <div class="review">
+        <h3>Customer Review</h3>
+        <p>“The showroom helped us imagine the entire room, not just one piece.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06. Toy Store -->
+  <section class="template toy">
+    <span class="template-number">Template 06 / Toy Store</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">T</span>Tiny Rocket Toys</div>
+        <div class="navlinks"><span>Products</span><span>Hours</span><span>Promotions</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Age Ranges</span><span class="pill">Birthday Registry</span><span class="pill">Events</span></div>
+          <h2>Playful finds for curious kids and nostalgic grownups.</h2>
+          <p>A playful toy-store template with age-range categories, birthday registry, event space, and bright product cards.</p>
+          <div class="product-strip"><div class="product-mini"><b>Build Kit</b><strong>$28</strong><span>Ages 5–8</span></div><div class="product-mini"><b>Plush Friend</b><strong>$24</strong><span>Soft and giftable</span></div><div class="product-mini"><b>Science Box</b><strong>$38</strong><span>Ages 8–12</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#products">View Products</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Toy Store retail website hero">
+          <div class="media-note">Age categories · Birthday registry · Event space</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="products">
+          <h3>Product Showcase</h3>
+          <p>Feature new arrivals, best sellers, custom pieces, seasonal drops, or service add-ons with strong product photography.</p>
+          <div class="showcase"><div class="product-card"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Toy Store product"><div><b>Build Kit</b><span>Ages 5–8 · $28</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800" alt="Toy Store product"><div><b>Plush Friend</b><span>Soft and giftable · $24</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" alt="Toy Store product"><div><b>Science Box</b><span>Ages 8–12 · $38</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Online Store Link</h3>
+          <p>Connect this section to Shopify, Square, Etsy, Faire, custom checkout, appointment booking, or curbside pickup.</p>
+          <div class="btn-row">
+            <a class="btn" id="shop" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#visit">Visit Store</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid" id="visit">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Daily 10:00 AM–6:00 PM · Story hour Saturday at 10:30 AM<br>17 Carousel Court · Kids event room upstairs</p>
+        </div>
+        <div class="info">
+          <b>Promotion</b>
+          <p>Create a birthday registry and get a free party favor kit</p>
+        </div>
+        <div class="info">
+          <b>Shopping Experience</b>
+          <p>Use this card for pickup, shipping, delivery, appointments, gift wrapping, registry, or custom order policies.</p>
+        </div>
+      </div>
+
+      <div class="review">
+        <h3>Customer Review</h3>
+        <p>“The staff always knows what will delight each age group.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07. Bookstore -->
+  <section class="template bookstore">
+    <span class="template-number">Template 07 / Bookstore</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">B</span>Chapter &amp; Hearth</div>
+        <div class="navlinks"><span>Products</span><span>Hours</span><span>Promotions</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Staff Picks</span><span class="pill">Events</span><span class="pill">Book Club</span></div>
+          <h2>A neighborhood bookstore for readers who still browse slowly.</h2>
+          <p>A literary bookstore template with staff picks, reading events, book clubs, online ordering, and warm community cues.</p>
+          <div class="product-strip"><div class="product-mini"><b>Staff Pick Novel</b><strong>$18</strong><span>Literary favorite</span></div><div class="product-mini"><b>Local Author Shelf</b><strong>Varies</strong><span>Regional voices</span></div><div class="product-mini"><b>Book Club Bundle</b><strong>$32</strong><span>Monthly pick + notes</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#products">View Products</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" alt="Bookstore retail website hero">
+          <div class="media-note">Staff picks · Reading events · Book club · Online ordering</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="products">
+          <h3>Product Showcase</h3>
+          <p>Feature new arrivals, best sellers, custom pieces, seasonal drops, or service add-ons with strong product photography.</p>
+          <div class="showcase"><div class="product-card"><img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" alt="Bookstore product"><div><b>Staff Pick Novel</b><span>Literary favorite · $18</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Bookstore product"><div><b>Local Author Shelf</b><span>Regional voices · Varies</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800" alt="Bookstore product"><div><b>Book Club Bundle</b><span>Monthly pick + notes · $32</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Online Store Link</h3>
+          <p>Connect this section to Shopify, Square, Etsy, Faire, custom checkout, appointment booking, or curbside pickup.</p>
+          <div class="btn-row">
+            <a class="btn" id="shop" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#visit">Visit Store</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid" id="visit">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Mon–Sat 9:00 AM–8:00 PM · Sun 10:00 AM–5:00 PM<br>301 Elm Street · Reading nook and event table</p>
+        </div>
+        <div class="info">
+          <b>Promotion</b>
+          <p>Monthly book club members save 10% on featured titles</p>
+        </div>
+        <div class="info">
+          <b>Shopping Experience</b>
+          <p>Use this card for pickup, shipping, delivery, appointments, gift wrapping, registry, or custom order policies.</p>
+        </div>
+      </div>
+
+      <div class="review">
+        <h3>Customer Review</h3>
+        <p>“It feels like the bookstore knows what I want to read next.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08. Specialty Foods -->
+  <section class="template foods">
+    <span class="template-number">Template 08 / Specialty Foods</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">S</span>Provision Pantry</div>
+        <div class="navlinks"><span>Products</span><span>Hours</span><span>Promotions</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Artisanal</span><span class="pill">Tastings</span><span class="pill">Gift Baskets</span></div>
+          <h2>Small-batch foods with origin, story, and serious flavor.</h2>
+          <p>An artisanal specialty-food template with product origins, tasting events, gift baskets, and gourmet shop styling.</p>
+          <div class="product-strip"><div class="product-mini"><b>Olive Oil Flight</b><strong>$46</strong><span>Three regional bottles</span></div><div class="product-mini"><b>Cheese Board Kit</b><strong>$68</strong><span>Curated for four</span></div><div class="product-mini"><b>Market Basket</b><strong>$95</strong><span>Gourmet gift set</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#products">View Products</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Specialty Foods retail website hero">
+          <div class="media-note">Product origins · Tasting events · Gift baskets</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="products">
+          <h3>Product Showcase</h3>
+          <p>Feature new arrivals, best sellers, custom pieces, seasonal drops, or service add-ons with strong product photography.</p>
+          <div class="showcase"><div class="product-card"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Specialty Foods product"><div><b>Olive Oil Flight</b><span>Three regional bottles · $46</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" alt="Specialty Foods product"><div><b>Cheese Board Kit</b><span>Curated for four · $68</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=800" alt="Specialty Foods product"><div><b>Market Basket</b><span>Gourmet gift set · $95</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Online Store Link</h3>
+          <p>Connect this section to Shopify, Square, Etsy, Faire, custom checkout, appointment booking, or curbside pickup.</p>
+          <div class="btn-row">
+            <a class="btn" id="shop" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#visit">Visit Store</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid" id="visit">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Tue–Sun 10:00 AM–6:00 PM · Tastings Friday evenings<br>56 Market Hall · Local pickup and shipping</p>
+        </div>
+        <div class="info">
+          <b>Promotion</b>
+          <p>Free tasting with any gift basket order this month</p>
+        </div>
+        <div class="info">
+          <b>Shopping Experience</b>
+          <p>Use this card for pickup, shipping, delivery, appointments, gift wrapping, registry, or custom order policies.</p>
+        </div>
+      </div>
+
+      <div class="review">
+        <h3>Customer Review</h3>
+        <p>“Every product has a story, and the baskets make perfect gifts.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09. Pet Store -->
+  <section class="template pet">
+    <span class="template-number">Template 09 / Pet Store</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Happy Tails Market</div>
+        <div class="navlinks"><span>Products</span><span>Hours</span><span>Promotions</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Pet Supplies</span><span class="pill">Grooming</span><span class="pill">Adoption Events</span></div>
+          <h2>Better supplies, grooming, and community for pets and their people.</h2>
+          <p>A friendly pet-store template with product categories, grooming services, adoption events, and local-community energy.</p>
+          <div class="product-strip"><div class="product-mini"><b>Natural Treats</b><strong>$12</strong><span>Small-batch training bites</span></div><div class="product-mini"><b>Cozy Pet Bed</b><strong>$58</strong><span>Washable cover</span></div><div class="product-mini"><b>Grooming Bath</b><strong>$45+</strong><span>By appointment</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#products">View Products</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800" alt="Pet Store retail website hero">
+          <div class="media-note">Product categories · Grooming services · Adoption events</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="products">
+          <h3>Product Showcase</h3>
+          <p>Feature new arrivals, best sellers, custom pieces, seasonal drops, or service add-ons with strong product photography.</p>
+          <div class="showcase"><div class="product-card"><img src="https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800" alt="Pet Store product"><div><b>Natural Treats</b><span>Small-batch training bites · $12</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Pet Store product"><div><b>Cozy Pet Bed</b><span>Washable cover · $58</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" alt="Pet Store product"><div><b>Grooming Bath</b><span>By appointment · $45+</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Online Store Link</h3>
+          <p>Connect this section to Shopify, Square, Etsy, Faire, custom checkout, appointment booking, or curbside pickup.</p>
+          <div class="btn-row">
+            <a class="btn" id="shop" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#visit">Visit Store</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid" id="visit">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Mon–Sat 9:00 AM–7:00 PM · Sun 10:00 AM–4:00 PM<br>440 Barkley Avenue · Grooming studio in back</p>
+        </div>
+        <div class="info">
+          <b>Promotion</b>
+          <p>Adoption event every second Saturday</p>
+        </div>
+        <div class="info">
+          <b>Shopping Experience</b>
+          <p>Use this card for pickup, shipping, delivery, appointments, gift wrapping, registry, or custom order policies.</p>
+        </div>
+      </div>
+
+      <div class="review">
+        <h3>Customer Review</h3>
+        <p>“They remember our dog by name and always suggest the right food.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Art Gallery -->
+  <section class="template gallery">
+    <span class="template-number">Template 10 / Art Gallery</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">A</span>White Room Gallery</div>
+        <div class="navlinks"><span>Products</span><span>Hours</span><span>Promotions</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Exhibitions</span><span class="pill">Artists</span><span class="pill">Available Works</span></div>
+          <h2>Quiet walls, strong work, and artists worth following.</h2>
+          <p>A minimal art-gallery template with exhibition calendar, available works, artist roster, and collector inquiry flow.</p>
+          <div class="product-strip"><div class="product-mini"><b>Framed Work</b><strong>$850</strong><span>Available from current show</span></div><div class="product-mini"><b>Limited Print</b><strong>$180</strong><span>Signed edition</span></div><div class="product-mini"><b>Private Viewing</b><strong>By appt</strong><span>Collector consultation</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#products">View Products</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Art Gallery retail website hero">
+          <div class="media-note">Exhibition calendar · Available works · Artist roster</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="products">
+          <h3>Product Showcase</h3>
+          <p>Feature new arrivals, best sellers, custom pieces, seasonal drops, or service add-ons with strong product photography.</p>
+          <div class="showcase"><div class="product-card"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Art Gallery product"><div><b>Framed Work</b><span>Available from current show · $850</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800" alt="Art Gallery product"><div><b>Limited Print</b><span>Signed edition · $180</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" alt="Art Gallery product"><div><b>Private Viewing</b><span>Collector consultation · By appt</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Online Store Link</h3>
+          <p>Connect this section to Shopify, Square, Etsy, Faire, custom checkout, appointment booking, or curbside pickup.</p>
+          <div class="btn-row">
+            <a class="btn" id="shop" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#visit">Visit Store</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid" id="visit">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Wed–Sat 11:00 AM–6:00 PM · Private viewings by appointment<br>12 Gallery Lane · Arts Quarter</p>
+        </div>
+        <div class="info">
+          <b>Promotion</b>
+          <p>Opening reception first Friday of each exhibition</p>
+        </div>
+        <div class="info">
+          <b>Shopping Experience</b>
+          <p>Use this card for pickup, shipping, delivery, appointments, gift wrapping, registry, or custom order policies.</p>
+        </div>
+      </div>
+
+      <div class="review">
+        <h3>Customer Review</h3>
+        <p>“The gallery is calm, thoughtful, and beautifully curated.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. Local Maker -->
+  <section class="template maker">
+    <span class="template-number">Template 11 / Local Maker</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">L</span>Hand &amp; Kiln Studio</div>
+        <div class="navlinks"><span>Products</span><span>Hours</span><span>Promotions</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Handmade</span><span class="pill">Custom Orders</span><span class="pill">Workshops</span></div>
+          <h2>Handmade goods shaped slowly and made to be used.</h2>
+          <p>A handmade-maker template with craft process photos, custom orders, workshop schedule, and small-batch product drops.</p>
+          <div class="product-strip"><div class="product-mini"><b>Ceramic Mug</b><strong>$42</strong><span>Wheel-thrown stoneware</span></div><div class="product-mini"><b>Serving Bowl</b><strong>$88</strong><span>Small-batch glaze</span></div><div class="product-mini"><b>Workshop Seat</b><strong>$75</strong><span>Two-hour beginner class</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#products">View Products</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Local Maker retail website hero">
+          <div class="media-note">Craft process · Custom orders · Workshop schedule</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="products">
+          <h3>Product Showcase</h3>
+          <p>Feature new arrivals, best sellers, custom pieces, seasonal drops, or service add-ons with strong product photography.</p>
+          <div class="showcase"><div class="product-card"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Local Maker product"><div><b>Ceramic Mug</b><span>Wheel-thrown stoneware · $42</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800" alt="Local Maker product"><div><b>Serving Bowl</b><span>Small-batch glaze · $88</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=800" alt="Local Maker product"><div><b>Workshop Seat</b><span>Two-hour beginner class · $75</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Online Store Link</h3>
+          <p>Connect this section to Shopify, Square, Etsy, Faire, custom checkout, appointment booking, or curbside pickup.</p>
+          <div class="btn-row">
+            <a class="btn" id="shop" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#visit">Visit Store</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid" id="visit">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Studio shop Fri–Sun 11:00 AM–4:00 PM · Workshops monthly<br>205 Maker Alley · Studio entrance on courtyard</p>
+        </div>
+        <div class="info">
+          <b>Promotion</b>
+          <p>Join the workshop list for early access to new dates</p>
+        </div>
+        <div class="info">
+          <b>Shopping Experience</b>
+          <p>Use this card for pickup, shipping, delivery, appointments, gift wrapping, registry, or custom order policies.</p>
+        </div>
+      </div>
+
+      <div class="review">
+        <h3>Customer Review</h3>
+        <p>“Every piece feels personal, useful, and beautifully imperfect.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12. Vintage Shop -->
+  <section class="template vintage">
+    <span class="template-number">Template 12 / Vintage Shop</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">V</span>Retro Relic Vintage</div>
+        <div class="navlinks"><span>Products</span><span>Hours</span><span>Promotions</span><span>Reviews</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Vintage</span><span class="pill">Consignment</span><span class="pill">New Arrivals</span></div>
+          <h2>Curated vintage with character, color, and a little attitude.</h2>
+          <p>A retro vintage-shop template with curated collections, consignment info, new arrivals, and bold throwback styling.</p>
+          <div class="product-strip"><div class="product-mini"><b>70s Denim Jacket</b><strong>$86</strong><span>One-of-one find</span></div><div class="product-mini"><b>Mid-Century Lamp</b><strong>$140</strong><span>Working condition</span></div><div class="product-mini"><b>Vinyl Crate</b><strong>$12+</strong><span>Rotating arrivals</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#products">View Products</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" alt="Vintage Shop retail website hero">
+          <div class="media-note">Retro collections · Consignment info · New arrivals</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="products">
+          <h3>Product Showcase</h3>
+          <p>Feature new arrivals, best sellers, custom pieces, seasonal drops, or service add-ons with strong product photography.</p>
+          <div class="showcase"><div class="product-card"><img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800" alt="Vintage Shop product"><div><b>70s Denim Jacket</b><span>One-of-one find · $86</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800" alt="Vintage Shop product"><div><b>Mid-Century Lamp</b><span>Working condition · $140</span></div></div><div class="product-card"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800" alt="Vintage Shop product"><div><b>Vinyl Crate</b><span>Rotating arrivals · $12+</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Online Store Link</h3>
+          <p>Connect this section to Shopify, Square, Etsy, Faire, custom checkout, appointment booking, or curbside pickup.</p>
+          <div class="btn-row">
+            <a class="btn" id="shop" href="#shop">Shop Now</a>
+            <a class="btn secondary" href="#visit">Visit Store</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-grid" id="visit">
+        <div class="info">
+          <b>Hours & Location</b>
+          <p>Thu–Mon 11:00 AM–6:00 PM · New drops every Thursday<br>77 Neon Street · Retro district storefront</p>
+        </div>
+        <div class="info">
+          <b>Promotion</b>
+          <p>Consignment intake by appointment every Monday</p>
+        </div>
+        <div class="info">
+          <b>Shopping Experience</b>
+          <p>Use this card for pickup, shipping, delivery, appointments, gift wrapping, registry, or custom order policies.</p>
+        </div>
+      </div>
+
+      <div class="review">
+        <h3>Customer Review</h3>
+        <p>“The shop feels like a treasure hunt that is actually curated.”</p>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

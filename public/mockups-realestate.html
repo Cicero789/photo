@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrameNest Templates — Real Estate</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=Playfair+Display:wght@600;700;800&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+:root{
+  --ink:#111827;
+  --muted:#64748b;
+  --shadow:0 28px 90px rgba(15,23,42,.16);
+  --radius:30px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink);
+  background:#0f172a;
+}
+img{display:block;width:100%;object-fit:cover}
+a{text-decoration:none;color:inherit}
+input,select,textarea,button{font:inherit}
+.cover{
+  min-height:72vh;
+  display:grid;
+  place-items:center;
+  padding:84px 6vw;
+  text-align:center;
+  color:white;
+  background:
+    radial-gradient(circle at 16% 18%,rgba(34,197,94,.30),transparent 28%),
+    radial-gradient(circle at 84% 18%,rgba(59,130,246,.28),transparent 30%),
+    linear-gradient(135deg,#020617,#0f172a 58%,#064e3b);
+}
+.cover .eyebrow{
+  display:inline-flex;
+  padding:10px 16px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.22);
+  font-size:12px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#d1fae5;
+  font-weight:900;
+}
+.cover h1{
+  max-width:1080px;
+  margin:24px auto 18px;
+  font-size:clamp(42px,7vw,94px);
+  line-height:.94;
+  letter-spacing:-.07em;
+}
+.cover p{
+  max-width:820px;
+  margin:0 auto;
+  color:#d1d5db;
+  font-size:clamp(18px,2vw,23px);
+  line-height:1.65;
+}
+.template{
+  min-height:780px;
+  padding:78px 6vw;
+  position:relative;
+  overflow:hidden;
+  color:var(--fg,#111827);
+  background:var(--bg,#fff);
+}
+.template:before{
+  content:"";
+  position:absolute;
+  width:440px;
+  height:440px;
+  border-radius:999px;
+  background:var(--orb,rgba(34,197,94,.18));
+  top:-150px;
+  right:-130px;
+  filter:blur(5px);
+}
+.template:after{
+  content:"";
+  position:absolute;
+  width:330px;
+  height:330px;
+  border:1px solid var(--mark,rgba(15,23,42,.08));
+  left:-120px;
+  bottom:-130px;
+  border-radius:80px;
+  transform:rotate(24deg);
+}
+.wrap{
+  width:min(1220px,100%);
+  margin:0 auto;
+  position:relative;
+  z-index:2;
+}
+.template-number{
+  position:absolute;
+  top:22px;
+  right:5vw;
+  z-index:2;
+  opacity:.42;
+  font-size:12px;
+  letter-spacing:.17em;
+  text-transform:uppercase;
+  font-weight:950;
+}
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:22px;
+  margin-bottom:46px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-weight:950;
+  letter-spacing:-.03em;
+}
+.logo{
+  width:42px;
+  height:42px;
+  border-radius:15px;
+  display:grid;
+  place-items:center;
+  background:var(--accent,#16a34a);
+  color:var(--accentText,#fff);
+  font-weight:950;
+  box-shadow:0 14px 34px rgba(0,0,0,.18);
+}
+.navlinks{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  font-size:14px;
+  font-weight:850;
+  opacity:.72;
+}
+.hero{
+  display:grid;
+  grid-template-columns:1.04fr .96fr;
+  gap:42px;
+  align-items:center;
+}
+.hero h2{
+  margin:0;
+  color:var(--head,currentColor);
+  font-family:var(--display,Inter),sans-serif;
+  font-size:clamp(40px,5.5vw,78px);
+  line-height:.95;
+  letter-spacing:-.06em;
+}
+.hero p{
+  max-width:700px;
+  margin:22px 0 0;
+  color:var(--text,currentColor);
+  opacity:.78;
+  font-size:18px;
+  line-height:1.7;
+}
+.pills{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:24px;
+}
+.pill{
+  padding:10px 14px;
+  border-radius:999px;
+  background:var(--pill,rgba(255,255,255,.72));
+  border:1px solid var(--pillLine,rgba(15,23,42,.1));
+  font-size:13px;
+  font-weight:900;
+}
+.btn-row{
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+  margin-top:30px;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:52px;
+  padding:0 22px;
+  border-radius:999px;
+  background:var(--accent,#16a34a);
+  color:var(--accentText,#fff);
+  border:0;
+  cursor:pointer;
+  font-weight:950;
+  box-shadow:0 18px 46px rgba(15,23,42,.20);
+}
+.btn.secondary{
+  background:transparent;
+  border:1px solid currentColor;
+  color:var(--head,currentColor);
+  box-shadow:none;
+  opacity:.8;
+}
+.media{
+  position:relative;
+  overflow:hidden;
+  border-radius:var(--shape,var(--radius));
+  background:white;
+  box-shadow:var(--shadow);
+  border:1px solid var(--mediaLine,rgba(255,255,255,.5));
+}
+.media img{height:430px}
+.media-note{
+  position:absolute;
+  left:22px;
+  right:22px;
+  bottom:22px;
+  padding:18px;
+  border-radius:22px;
+  background:rgba(255,255,255,.9);
+  backdrop-filter:blur(16px);
+  color:#0f172a;
+  font-weight:850;
+  line-height:1.45;
+  box-shadow:0 16px 48px rgba(15,23,42,.18);
+}
+.listing-strip{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:28px;
+}
+.listing-mini{
+  padding:16px;
+  border-radius:22px;
+  background:var(--card,rgba(255,255,255,.82));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  box-shadow:0 14px 34px rgba(15,23,42,.06);
+}
+.listing-mini b{
+  display:block;
+  color:var(--accent,#16a34a);
+  font-size:18px;
+  margin-bottom:7px;
+}
+.listing-mini strong{
+  display:block;
+  color:var(--head,currentColor);
+  font-size:25px;
+  letter-spacing:-.05em;
+  margin-bottom:5px;
+}
+.main-grid{
+  display:grid;
+  grid-template-columns:.92fr 1.08fr;
+  gap:24px;
+  margin-top:52px;
+}
+.panel{
+  background:var(--card,rgba(255,255,255,.84));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  border-radius:26px;
+  padding:26px;
+  box-shadow:0 18px 50px rgba(15,23,42,.08);
+  backdrop-filter:blur(14px);
+}
+.panel h3{
+  margin:0 0 12px;
+  color:var(--head,currentColor);
+  font-size:24px;
+  letter-spacing:-.035em;
+}
+.panel p{
+  margin:0;
+  color:var(--mutedText,#64748b);
+  line-height:1.65;
+}
+.credentials{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:18px;
+}
+.credential{
+  padding:10px 13px;
+  border-radius:999px;
+  background:var(--serviceBg,rgba(255,255,255,.72));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  font-weight:900;
+  font-size:13px;
+}
+.area-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-top:14px;
+}
+.area{
+  min-height:54px;
+  padding:14px;
+  border-radius:18px;
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  background:var(--serviceBg,rgba(255,255,255,.72));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  font-weight:850;
+}
+.area:before{
+  content:"⌂";
+  color:var(--accent,#16a34a);
+  font-weight:950;
+}
+.lower-grid{
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:24px;
+  margin-top:24px;
+}
+.form{
+  display:grid;
+  gap:12px;
+  margin-top:12px;
+}
+.form input,.form select,.form textarea{
+  width:100%;
+  border:1px solid var(--cardLine,rgba(15,23,42,.12));
+  border-radius:16px;
+  padding:13px 14px;
+  background:rgba(255,255,255,.84);
+  color:#111827;
+  outline:none;
+}
+.form textarea{
+  min-height:96px;
+  resize:vertical;
+}
+.quote{
+  padding:24px;
+  border-radius:26px;
+  background:var(--accent,#16a34a);
+  color:var(--accentText,#fff);
+  box-shadow:0 18px 50px rgba(15,23,42,.16);
+}
+.quote h3{
+  margin:0 0 12px;
+  font-size:28px;
+  letter-spacing:-.04em;
+}
+.quote p{
+  margin:0;
+  line-height:1.65;
+  opacity:.92;
+}
+.gallery{
+  display:grid;
+  grid-template-columns:1.2fr .8fr .8fr;
+  gap:14px;
+  margin-top:26px;
+}
+.gallery img{
+  height:172px;
+  border-radius:24px;
+  box-shadow:0 18px 42px rgba(15,23,42,.10);
+}
+.gallery img:first-child{height:224px}
+
+/* Themes */
+.residential{--bg:linear-gradient(135deg,#f0fdf4,#fff 48%,#dcfce7);--accent:#16a34a;--accentText:#052e16;--display:"Space Grotesk";--shape:34px}
+.luxurybroker{--bg:linear-gradient(135deg,#07111f,#0f1e34 55%,#111827);--fg:#f8fafc;--head:#fff;--text:#dbeafe;--mutedText:#cbd5e1;--accent:#d6a74a;--accentText:#07111f;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Playfair Display";--shape:44px}
+.propertymanager{--bg:linear-gradient(135deg,#f8fafc,#fff 48%,#dbeafe);--accent:#2563eb;--display:Inter;--shape:18px}
+.mortgage{--bg:linear-gradient(135deg,#ecfeff,#fff 48%,#f0fdfa);--accent:#0891b2;--accentText:#ecfeff;--display:"Space Grotesk";--shape:26px 90px 26px 90px}
+.inspector{--bg:linear-gradient(135deg,#fff7ed,#fff 48%,#fef3c7);--accent:#ea580c;--display:"Libre Baskerville";--shape:80px 28px 80px 28px}
+.appraiser{--bg:linear-gradient(135deg,#f8fafc,#fff 50%,#e2e8f0);--accent:#334155;--display:"Space Grotesk";--shape:12px}
+.investor{--bg:linear-gradient(135deg,#020617,#111827 55%,#064e3b);--fg:#f8fafc;--head:#fff;--text:#d1fae5;--mutedText:#cbd5e1;--accent:#22c55e;--accentText:#052e16;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Space Grotesk";--shape:18px}
+.leasing{--bg:radial-gradient(circle at 16% 18%,rgba(168,85,247,.22),transparent 25%),linear-gradient(135deg,#f5f3ff,#fff 48%,#e0f2fe);--accent:#7c3aed;--display:"Space Grotesk";--shape:999px 999px 40px 40px}
+
+/* Theme accents */
+.mortgage .media:before{
+  content:"RATE WATCH";
+  position:absolute;
+  top:18px;
+  left:18px;
+  z-index:2;
+  padding:9px 13px;
+  border-radius:999px;
+  background:rgba(255,255,255,.92);
+  color:#0f766e;
+  font-weight:950;
+  font-size:12px;
+  letter-spacing:.08em;
+}
+.leasing .media:before{
+  content:"TOUR NOW";
+  position:absolute;
+  top:18px;
+  left:18px;
+  z-index:2;
+  padding:9px 13px;
+  border-radius:999px;
+  background:rgba(255,255,255,.92);
+  color:#6d28d9;
+  font-weight:950;
+  font-size:12px;
+  letter-spacing:.08em;
+}
+.propertymanager .media:before{
+  content:"PORTAL";
+  position:absolute;
+  top:18px;
+  left:18px;
+  z-index:2;
+  padding:9px 13px;
+  border-radius:999px;
+  background:#111827;
+  color:#93c5fd;
+  font-weight:950;
+  font-size:12px;
+  letter-spacing:.08em;
+}
+.luxurybroker .hero,.propertymanager .hero,.appraiser .hero,.investor .hero{grid-template-columns:.95fr 1.05fr}
+.residential .hero,.mortgage .hero,.inspector .hero,.leasing .hero{grid-template-columns:1.1fr .9fr}
+
+@media(max-width:980px){
+  .hero,.main-grid,.lower-grid{grid-template-columns:1fr!important}
+  .listing-strip,.area-grid,.gallery{grid-template-columns:1fr}
+  .gallery img,.gallery img:first-child{height:220px}
+  .media img{height:340px}
+  .nav{align-items:flex-start;flex-direction:column}
+  .navlinks{justify-content:flex-start}
+}
+@media(max-width:620px){
+  .cover,.template{padding:64px 5vw}
+  .hero h2{font-size:40px}
+  .panel,.quote{padding:20px}
+  .media-note{position:static;margin:-48px 18px 18px}
+}
+</style>
+</head>
+<body>
+  <header class="cover">
+    <div>
+      <span class="eyebrow">FrameNest Mockup Collection</span>
+      <h1>Real Estate Website Templates</h1>
+      <p>Eight professional website sections for residential agents, luxury brokers, property managers, mortgage advisors, home inspectors, appraisers, real estate investors, and leasing agents. Each section includes hero, featured listings, service area, contact form, testimonials, and credentials.</p>
+    </div>
+  </header>
+  
+  <!-- 01. Residential Agent -->
+  <section class="template residential">
+    <span class="template-number">Template 01 / Residential Agent</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">R</span>Harbor Home Realty</div>
+        <div class="navlinks"><span>Listings</span><span>Service Area</span><span>Credentials</span><span>Contact</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Buyers</span><span class="pill">Sellers</span><span class="pill">Neighborhoods</span></div>
+          <h2>Find the right home with a local guide beside you.</h2>
+          <p>A friendly residential agent template with featured listings, neighborhood guides, buyer and seller resources, and an easy contact flow.</p>
+          <div class="listing-strip"><div class="listing-mini"><b>3BR Craftsman</b><strong>$749K</strong><span>North Park · Open Sunday</span></div><div class="listing-mini"><b>Modern Townhome</b><strong>$625K</strong><span>Harbor District · New listing</span></div><div class="listing-mini"><b>Family Ranch</b><strong>$815K</strong><span>Willow Glen · Large yard</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Get in Touch</a>
+            <a class="btn secondary" href="#listings">View Listings</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800" alt="Residential Agent real estate website hero">
+          <div class="media-note">Featured listings · Neighborhood guides · Buyer/seller resources</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Credentials</h3>
+          <p>Build trust quickly with license details, professional memberships, market experience, and compliance-friendly language.</p>
+          <div class="credentials"><span class="credential">Licensed Real Estate Agent</span><span class="credential">MLS Member</span><span class="credential">First-Time Buyer Specialist</span></div>
+        </div>
+        <div class="panel">
+          <h3>Service Area</h3>
+          <p>Show visitors exactly where this professional works and what local markets, neighborhoods, or property types they know best.</p>
+          <div class="area-grid"><div class="area">North Park</div><div class="area">Harbor District</div><div class="area">Willow Glen</div><div class="area">Old Town</div><div class="area">East Hills</div><div class="area">Lakeside</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="contact">
+          <h3>Contact Form</h3>
+          <p>Capture buyer, seller, renter, owner, investor, or referral inquiries with a direct form.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>What can we help with?</option>
+              <option>Buying</option>
+              <option>Selling</option>
+              <option>Leasing</option>
+              <option>Valuation</option>
+              <option>Property management</option>
+            </select>
+            <textarea placeholder="Tell us about the property, timeline, or neighborhood"></textarea>
+            <button class="btn" type="button">Get in Touch</button>
+          </form>
+        </div>
+        <div class="quote">
+          <h3>Client Testimonial</h3>
+          <p>“They helped us understand neighborhoods, not just houses.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="listings">
+        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800" alt="Residential Agent listing image one">
+        <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800" alt="Residential Agent listing image two">
+        <img src="https://images.unsplash.com/photo-1560184897-ae75f418493e?w=800" alt="Residential Agent listing image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 02. Luxury Broker -->
+  <section class="template luxurybroker">
+    <span class="template-number">Template 02 / Luxury Broker</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">L</span>Aurelia Estates</div>
+        <div class="navlinks"><span>Listings</span><span>Service Area</span><span>Credentials</span><span>Contact</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Luxury Homes</span><span class="pill">Private Listings</span><span class="pill">Discreet Search</span></div>
+          <h2>Private representation for exceptional properties.</h2>
+          <p>A premium dark luxury broker template designed for high-end listings, confidential buyer representation, exclusive homes, and polished trust signals.</p>
+          <div class="listing-strip"><div class="listing-mini"><b>Oceanview Estate</b><strong>$6.8M</strong><span>Private gated address</span></div><div class="listing-mini"><b>Architectural Villa</b><strong>$4.2M</strong><span>Cedar Ridge</span></div><div class="listing-mini"><b>Penthouse Residence</b><strong>$3.9M</strong><span>Skyline District</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Get in Touch</a>
+            <a class="btn secondary" href="#listings">View Listings</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800" alt="Luxury Broker real estate website hero">
+          <div class="media-note">High-end showcase · Exclusive listings · Private buyer intake</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Credentials</h3>
+          <p>Build trust quickly with license details, professional memberships, market experience, and compliance-friendly language.</p>
+          <div class="credentials"><span class="credential">Luxury Property Specialist</span><span class="credential">Broker License</span><span class="credential">Top 1% Regional Producer</span></div>
+        </div>
+        <div class="panel">
+          <h3>Service Area</h3>
+          <p>Show visitors exactly where this professional works and what local markets, neighborhoods, or property types they know best.</p>
+          <div class="area-grid"><div class="area">The Bluffs</div><div class="area">Cedar Ridge</div><div class="area">Oceanview</div><div class="area">Summit Estates</div><div class="area">Gold Coast</div><div class="area">Private Market</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="contact">
+          <h3>Contact Form</h3>
+          <p>Capture buyer, seller, renter, owner, investor, or referral inquiries with a direct form.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>What can we help with?</option>
+              <option>Buying</option>
+              <option>Selling</option>
+              <option>Leasing</option>
+              <option>Valuation</option>
+              <option>Property management</option>
+            </select>
+            <textarea placeholder="Tell us about the property, timeline, or neighborhood"></textarea>
+            <button class="btn" type="button">Get in Touch</button>
+          </form>
+        </div>
+        <div class="quote">
+          <h3>Client Testimonial</h3>
+          <p>“The process felt discreet, strategic, and very high-touch.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="listings">
+        <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800" alt="Luxury Broker listing image one">
+        <img src="https://images.unsplash.com/photo-1448630360428-65456885c650?w=800" alt="Luxury Broker listing image two">
+        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800" alt="Luxury Broker listing image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 03. Property Manager -->
+  <section class="template propertymanager">
+    <span class="template-number">Template 03 / Property Manager</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>KeyNest Property Management</div>
+        <div class="navlinks"><span>Listings</span><span>Service Area</span><span>Credentials</span><span>Contact</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Tenant Portal</span><span class="pill">Maintenance</span><span class="pill">Owner Reports</span></div>
+          <h2>Better systems for owners, tenants, and every door managed.</h2>
+          <p>An organized property management template with tenant portal links, maintenance requests, property list cards, and owner-focused service proof.</p>
+          <div class="listing-strip"><div class="listing-mini"><b>12-Unit Apartment</b><strong>98% Occupied</strong><span>Downtown management</span></div><div class="listing-mini"><b>Condo Portfolio</b><strong>22 Doors</strong><span>Owner reporting</span></div><div class="listing-mini"><b>Single-Family Rentals</b><strong>36 Homes</strong><span>Maintenance coordination</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Get in Touch</a>
+            <a class="btn secondary" href="#listings">View Listings</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1448630360428-65456885c650?w=800" alt="Property Manager real estate website hero">
+          <div class="media-note">Tenant portal · Maintenance request · Managed property list</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Credentials</h3>
+          <p>Build trust quickly with license details, professional memberships, market experience, and compliance-friendly language.</p>
+          <div class="credentials"><span class="credential">Licensed Property Manager</span><span class="credential">Fair Housing Trained</span><span class="credential">Local Landlord-Tenant Compliance</span></div>
+        </div>
+        <div class="panel">
+          <h3>Service Area</h3>
+          <p>Show visitors exactly where this professional works and what local markets, neighborhoods, or property types they know best.</p>
+          <div class="area-grid"><div class="area">Downtown</div><div class="area">Midtown</div><div class="area">University District</div><div class="area">West End</div><div class="area">Riverside</div><div class="area">Metro Rentals</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="contact">
+          <h3>Contact Form</h3>
+          <p>Capture buyer, seller, renter, owner, investor, or referral inquiries with a direct form.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>What can we help with?</option>
+              <option>Buying</option>
+              <option>Selling</option>
+              <option>Leasing</option>
+              <option>Valuation</option>
+              <option>Property management</option>
+            </select>
+            <textarea placeholder="Tell us about the property, timeline, or neighborhood"></textarea>
+            <button class="btn" type="button">Get in Touch</button>
+          </form>
+        </div>
+        <div class="quote">
+          <h3>Client Testimonial</h3>
+          <p>“They made rent collection, maintenance, and reporting feel predictable.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="listings">
+        <img src="https://images.unsplash.com/photo-1448630360428-65456885c650?w=800" alt="Property Manager listing image one">
+        <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800" alt="Property Manager listing image two">
+        <img src="https://images.unsplash.com/photo-1560184897-ae75f418493e?w=800" alt="Property Manager listing image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 04. Mortgage Advisor -->
+  <section class="template mortgage">
+    <span class="template-number">Template 04 / Mortgage Advisor</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">M</span>ClearPath Mortgage</div>
+        <div class="navlinks"><span>Listings</span><span>Service Area</span><span>Credentials</span><span>Contact</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Pre-Approval</span><span class="pill">Rate Options</span><span class="pill">NMLS</span></div>
+          <h2>Know your numbers before you make an offer.</h2>
+          <p>A rate-focused mortgage advisor template with calculator CTA, pre-approval pathway, NMLS display, and buyer confidence blocks.</p>
+          <div class="listing-strip"><div class="listing-mini"><b>30-Year Fixed</b><strong>Rate Watch</strong><span>Updated weekly</span></div><div class="listing-mini"><b>Pre-Approval</b><strong>24hr Review</strong><span>Document checklist</span></div><div class="listing-mini"><b>Payment Estimate</b><strong>Calculator</strong><span>Principal + taxes + insurance</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Get in Touch</a>
+            <a class="btn secondary" href="#listings">View Listings</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1560184897-ae75f418493e?w=800" alt="Mortgage Advisor real estate website hero">
+          <div class="media-note">Rate display · Mortgage calculator · Pre-approval CTA</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Credentials</h3>
+          <p>Build trust quickly with license details, professional memberships, market experience, and compliance-friendly language.</p>
+          <div class="credentials"><span class="credential">Licensed Mortgage Advisor</span><span class="credential">NMLS #2481930</span><span class="credential">Equal Housing Lender Partner</span></div>
+        </div>
+        <div class="panel">
+          <h3>Service Area</h3>
+          <p>Show visitors exactly where this professional works and what local markets, neighborhoods, or property types they know best.</p>
+          <div class="area-grid"><div class="area">First-time buyers</div><div class="area">Refinance clients</div><div class="area">Jumbo borrowers</div><div class="area">FHA/VA buyers</div><div class="area">Investment properties</div><div class="area">Self-employed borrowers</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="contact">
+          <h3>Contact Form</h3>
+          <p>Capture buyer, seller, renter, owner, investor, or referral inquiries with a direct form.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>What can we help with?</option>
+              <option>Buying</option>
+              <option>Selling</option>
+              <option>Leasing</option>
+              <option>Valuation</option>
+              <option>Property management</option>
+            </select>
+            <textarea placeholder="Tell us about the property, timeline, or neighborhood"></textarea>
+            <button class="btn" type="button">Get in Touch</button>
+          </form>
+        </div>
+        <div class="quote">
+          <h3>Client Testimonial</h3>
+          <p>“We understood the payment before we toured homes.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="listings">
+        <img src="https://images.unsplash.com/photo-1560184897-ae75f418493e?w=800" alt="Mortgage Advisor listing image one">
+        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800" alt="Mortgage Advisor listing image two">
+        <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800" alt="Mortgage Advisor listing image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 05. Home Inspector -->
+  <section class="template inspector">
+    <span class="template-number">Template 05 / Home Inspector</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">H</span>TrueFrame Home Inspections</div>
+        <div class="navlinks"><span>Listings</span><span>Service Area</span><span>Credentials</span><span>Contact</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Inspections</span><span class="pill">Reports</span><span class="pill">Buyer Confidence</span></div>
+          <h2>See the home clearly before you commit.</h2>
+          <p>A trustworthy home inspection template with checklist previews, sample report areas, booking, service area, and confidence-building credentials.</p>
+          <div class="listing-strip"><div class="listing-mini"><b>Buyer Inspection</b><strong>$450+</strong><span>Full structural and systems review</span></div><div class="listing-mini"><b>Pre-Listing Inspection</b><strong>$425+</strong><span>Seller preparation report</span></div><div class="listing-mini"><b>Add-On Testing</b><strong>$150+</strong><span>Radon, sewer, mold screen</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Get in Touch</a>
+            <a class="btn secondary" href="#listings">View Listings</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800" alt="Home Inspector real estate website hero">
+          <div class="media-note">Checklist preview · Sample report · Online booking</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Credentials</h3>
+          <p>Build trust quickly with license details, professional memberships, market experience, and compliance-friendly language.</p>
+          <div class="credentials"><span class="credential">Certified Home Inspector</span><span class="credential">InterNACHI Member</span><span class="credential">Radon Testing Certified</span></div>
+        </div>
+        <div class="panel">
+          <h3>Service Area</h3>
+          <p>Show visitors exactly where this professional works and what local markets, neighborhoods, or property types they know best.</p>
+          <div class="area-grid"><div class="area">Metro Area</div><div class="area">North County</div><div class="area">East Valley</div><div class="area">South Bay</div><div class="area">Historic Homes</div><div class="area">New Construction</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="contact">
+          <h3>Contact Form</h3>
+          <p>Capture buyer, seller, renter, owner, investor, or referral inquiries with a direct form.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>What can we help with?</option>
+              <option>Buying</option>
+              <option>Selling</option>
+              <option>Leasing</option>
+              <option>Valuation</option>
+              <option>Property management</option>
+            </select>
+            <textarea placeholder="Tell us about the property, timeline, or neighborhood"></textarea>
+            <button class="btn" type="button">Get in Touch</button>
+          </form>
+        </div>
+        <div class="quote">
+          <h3>Client Testimonial</h3>
+          <p>“The sample report was clear, photo-heavy, and easy to understand.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="listings">
+        <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800" alt="Home Inspector listing image one">
+        <img src="https://images.unsplash.com/photo-1560184897-ae75f418493e?w=800" alt="Home Inspector listing image two">
+        <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800" alt="Home Inspector listing image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 06. Appraiser -->
+  <section class="template appraiser">
+    <span class="template-number">Template 06 / Appraiser</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">A</span>ValuPoint Appraisals</div>
+        <div class="navlinks"><span>Listings</span><span>Service Area</span><span>Credentials</span><span>Contact</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Valuation</span><span class="pill">Reports</span><span class="pill">Service Area</span></div>
+          <h2>Precise property valuation with defensible reporting.</h2>
+          <p>A credential-focused appraiser template with service area map styling, turnaround times, valuation services, and professional trust blocks.</p>
+          <div class="listing-strip"><div class="listing-mini"><b>Residential Appraisal</b><strong>5–7 Days</strong><span>Standard report</span></div><div class="listing-mini"><b>Estate Valuation</b><strong>7–10 Days</strong><span>Date-of-death value</span></div><div class="listing-mini"><b>Review Appraisal</b><strong>Custom</strong><span>Report analysis</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Get in Touch</a>
+            <a class="btn secondary" href="#listings">View Listings</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800" alt="Appraiser real estate website hero">
+          <div class="media-note">Credential-first · Service area map · Turnaround times</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Credentials</h3>
+          <p>Build trust quickly with license details, professional memberships, market experience, and compliance-friendly language.</p>
+          <div class="credentials"><span class="credential">Certified Residential Appraiser</span><span class="credential">State Licensed</span><span class="credential">USPAP Compliant</span></div>
+        </div>
+        <div class="panel">
+          <h3>Service Area</h3>
+          <p>Show visitors exactly where this professional works and what local markets, neighborhoods, or property types they know best.</p>
+          <div class="area-grid"><div class="area">Countywide</div><div class="area">Urban Core</div><div class="area">Suburban Homes</div><div class="area">Estate Valuations</div><div class="area">Divorce Valuations</div><div class="area">Lender Assignments</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="contact">
+          <h3>Contact Form</h3>
+          <p>Capture buyer, seller, renter, owner, investor, or referral inquiries with a direct form.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>What can we help with?</option>
+              <option>Buying</option>
+              <option>Selling</option>
+              <option>Leasing</option>
+              <option>Valuation</option>
+              <option>Property management</option>
+            </select>
+            <textarea placeholder="Tell us about the property, timeline, or neighborhood"></textarea>
+            <button class="btn" type="button">Get in Touch</button>
+          </form>
+        </div>
+        <div class="quote">
+          <h3>Client Testimonial</h3>
+          <p>“The valuation was thorough, precise, and delivered on time.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="listings">
+        <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800" alt="Appraiser listing image one">
+        <img src="https://images.unsplash.com/photo-1448630360428-65456885c650?w=800" alt="Appraiser listing image two">
+        <img src="https://images.unsplash.com/photo-1560184897-ae75f418493e?w=800" alt="Appraiser listing image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 07. Real Estate Investor -->
+  <section class="template investor">
+    <span class="template-number">Template 07 / Real Estate Investor</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">R</span>MetroEdge Investments</div>
+        <div class="navlinks"><span>Listings</span><span>Service Area</span><span>Credentials</span><span>Contact</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Buy Box</span><span class="pill">Partnerships</span><span class="pill">Portfolio</span></div>
+          <h2>We buy, improve, and partner on real estate opportunities.</h2>
+          <p>A deal-oriented real estate investor template with portfolio display, deal types, partnership inquiry, and track-record metrics.</p>
+          <div class="listing-strip"><div class="listing-mini"><b>32-Unit Reposition</b><strong>Completed</strong><span>Downtown corridor</span></div><div class="listing-mini"><b>SFR Flip Portfolio</b><strong>18 Homes</strong><span>North County</span></div><div class="listing-mini"><b>Mixed-Use Purchase</b><strong>In Review</strong><span>Main Street</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Get in Touch</a>
+            <a class="btn secondary" href="#listings">View Listings</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1448630360428-65456885c650?w=800" alt="Real Estate Investor real estate website hero">
+          <div class="media-note">Portfolio display · Deal types · Partnership inquiry</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Credentials</h3>
+          <p>Build trust quickly with license details, professional memberships, market experience, and compliance-friendly language.</p>
+          <div class="credentials"><span class="credential">Local Investment Team</span><span class="credential">Licensed Acquisition Partner</span><span class="credential">Private Capital Network</span></div>
+        </div>
+        <div class="panel">
+          <h3>Service Area</h3>
+          <p>Show visitors exactly where this professional works and what local markets, neighborhoods, or property types they know best.</p>
+          <div class="area-grid"><div class="area">Value-add multifamily</div><div class="area">Single-family flips</div><div class="area">Infill lots</div><div class="area">Small commercial</div><div class="area">Off-market deals</div><div class="area">Joint ventures</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="contact">
+          <h3>Contact Form</h3>
+          <p>Capture buyer, seller, renter, owner, investor, or referral inquiries with a direct form.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>What can we help with?</option>
+              <option>Buying</option>
+              <option>Selling</option>
+              <option>Leasing</option>
+              <option>Valuation</option>
+              <option>Property management</option>
+            </select>
+            <textarea placeholder="Tell us about the property, timeline, or neighborhood"></textarea>
+            <button class="btn" type="button">Get in Touch</button>
+          </form>
+        </div>
+        <div class="quote">
+          <h3>Client Testimonial</h3>
+          <p>“They moved quickly, underwrote clearly, and communicated like professionals.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="listings">
+        <img src="https://images.unsplash.com/photo-1448630360428-65456885c650?w=800" alt="Real Estate Investor listing image one">
+        <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800" alt="Real Estate Investor listing image two">
+        <img src="https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800" alt="Real Estate Investor listing image three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 08. Leasing Agent -->
+  <section class="template leasing">
+    <span class="template-number">Template 08 / Leasing Agent</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">L</span>UrbanLease Apartments</div>
+        <div class="navlinks"><span>Listings</span><span>Service Area</span><span>Credentials</span><span>Contact</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Apartments</span><span class="pill">Virtual Tours</span><span class="pill">Apply Online</span></div>
+          <h2>Apartments, availability, and tours in one simple place.</h2>
+          <p>An apartment-focused leasing template with availability lists, virtual tours, applications, floor plans, and renter-friendly contact options.</p>
+          <div class="listing-strip"><div class="listing-mini"><b>Studio Loft</b><strong>$1,850/mo</strong><span>Available now</span></div><div class="listing-mini"><b>1BR Balcony</b><strong>$2,250/mo</strong><span>Virtual tour ready</span></div><div class="listing-mini"><b>2BR Corner Unit</b><strong>$3,050/mo</strong><span>Pet-friendly</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#contact">Get in Touch</a>
+            <a class="btn secondary" href="#listings">View Listings</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800" alt="Leasing Agent real estate website hero">
+          <div class="media-note">Availability list · Virtual tours · Online application</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Credentials</h3>
+          <p>Build trust quickly with license details, professional memberships, market experience, and compliance-friendly language.</p>
+          <div class="credentials"><span class="credential">Licensed Leasing Agent</span><span class="credential">Fair Housing Trained</span><span class="credential">Apartment Association Member</span></div>
+        </div>
+        <div class="panel">
+          <h3>Service Area</h3>
+          <p>Show visitors exactly where this professional works and what local markets, neighborhoods, or property types they know best.</p>
+          <div class="area-grid"><div class="area">Downtown Rentals</div><div class="area">Student Housing</div><div class="area">Luxury Apartments</div><div class="area">Pet-Friendly Units</div><div class="area">Short-Term Leases</div><div class="area">Transit-Oriented Homes</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel" id="contact">
+          <h3>Contact Form</h3>
+          <p>Capture buyer, seller, renter, owner, investor, or referral inquiries with a direct form.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>What can we help with?</option>
+              <option>Buying</option>
+              <option>Selling</option>
+              <option>Leasing</option>
+              <option>Valuation</option>
+              <option>Property management</option>
+            </select>
+            <textarea placeholder="Tell us about the property, timeline, or neighborhood"></textarea>
+            <button class="btn" type="button">Get in Touch</button>
+          </form>
+        </div>
+        <div class="quote">
+          <h3>Client Testimonial</h3>
+          <p>“The virtual tour and application process saved us so much time.”</p>
+        </div>
+      </div>
+
+      <div class="gallery" id="listings">
+        <img src="https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800" alt="Leasing Agent listing image one">
+        <img src="https://images.unsplash.com/photo-1448630360428-65456885c650?w=800" alt="Leasing Agent listing image two">
+        <img src="https://images.unsplash.com/photo-1560184897-ae75f418493e?w=800" alt="Leasing Agent listing image three">
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

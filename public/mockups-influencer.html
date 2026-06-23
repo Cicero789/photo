@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrameNest Templates — Influencer & Personal Brand</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=Playfair+Display:wght@600;700;800&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+:root{
+  --ink:#111827;
+  --muted:#64748b;
+  --shadow:0 28px 90px rgba(15,23,42,.16);
+  --radius:30px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink);
+  background:#070a12;
+}
+img{display:block;width:100%;object-fit:cover}
+a{text-decoration:none;color:inherit}
+input,select,textarea,button{font:inherit}
+.cover{
+  min-height:72vh;
+  display:grid;
+  place-items:center;
+  padding:84px 6vw;
+  text-align:center;
+  color:white;
+  background:
+    radial-gradient(circle at 15% 20%,rgba(236,72,153,.34),transparent 28%),
+    radial-gradient(circle at 84% 18%,rgba(59,130,246,.28),transparent 30%),
+    radial-gradient(circle at 50% 88%,rgba(245,158,11,.22),transparent 28%),
+    linear-gradient(135deg,#020617,#111827 55%,#312e81);
+}
+.cover .eyebrow{
+  display:inline-flex;
+  padding:10px 16px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.22);
+  color:#e5e7eb;
+  font-size:12px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  font-weight:900;
+}
+.cover h1{
+  max-width:1140px;
+  margin:24px auto 18px;
+  font-size:clamp(42px,7vw,94px);
+  line-height:.94;
+  letter-spacing:-.07em;
+}
+.cover p{
+  max-width:840px;
+  margin:0 auto;
+  color:#d1d5db;
+  font-size:clamp(18px,2vw,23px);
+  line-height:1.65;
+}
+.template{
+  min-height:780px;
+  padding:78px 6vw;
+  position:relative;
+  overflow:hidden;
+  color:var(--fg,#111827);
+  background:var(--bg,#fff);
+}
+.template:before{
+  content:"";
+  position:absolute;
+  width:440px;
+  height:440px;
+  border-radius:999px;
+  background:var(--orb,rgba(236,72,153,.20));
+  top:-150px;
+  right:-130px;
+  filter:blur(5px);
+}
+.template:after{
+  content:"";
+  position:absolute;
+  width:330px;
+  height:330px;
+  border:1px solid var(--mark,rgba(15,23,42,.08));
+  left:-120px;
+  bottom:-130px;
+  border-radius:80px;
+  transform:rotate(24deg);
+}
+.wrap{
+  width:min(1220px,100%);
+  margin:0 auto;
+  position:relative;
+  z-index:2;
+}
+.template-number{
+  position:absolute;
+  top:22px;
+  right:5vw;
+  z-index:2;
+  opacity:.42;
+  font-size:12px;
+  letter-spacing:.17em;
+  text-transform:uppercase;
+  font-weight:950;
+}
+.nav{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:22px;
+  margin-bottom:46px;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-weight:950;
+  letter-spacing:-.03em;
+}
+.logo{
+  width:42px;
+  height:42px;
+  border-radius:15px;
+  display:grid;
+  place-items:center;
+  background:var(--accent,#ec4899);
+  color:var(--accentText,#fff);
+  box-shadow:0 14px 34px rgba(0,0,0,.18);
+  font-weight:950;
+}
+.navlinks{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  font-weight:850;
+  font-size:14px;
+  opacity:.72;
+}
+.hero{
+  display:grid;
+  grid-template-columns:1.04fr .96fr;
+  gap:42px;
+  align-items:center;
+}
+.hero h2{
+  margin:0;
+  color:var(--head,currentColor);
+  font-family:var(--display,Inter),sans-serif;
+  font-size:clamp(40px,5.5vw,78px);
+  line-height:.95;
+  letter-spacing:-.06em;
+}
+.hero p{
+  max-width:700px;
+  margin:22px 0 0;
+  color:var(--text,currentColor);
+  opacity:.78;
+  font-size:18px;
+  line-height:1.7;
+}
+.pills{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-bottom:24px;
+}
+.pill{
+  padding:10px 14px;
+  border-radius:999px;
+  background:var(--pill,rgba(255,255,255,.72));
+  border:1px solid var(--pillLine,rgba(15,23,42,.1));
+  font-size:13px;
+  font-weight:900;
+}
+.btn-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  margin-top:30px;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:52px;
+  padding:0 22px;
+  border-radius:999px;
+  background:var(--accent,#ec4899);
+  color:var(--accentText,#fff);
+  font-weight:950;
+  border:0;
+  box-shadow:0 18px 46px rgba(15,23,42,.20);
+  cursor:pointer;
+}
+.btn.secondary{
+  background:transparent;
+  border:1px solid currentColor;
+  color:var(--head,currentColor);
+  box-shadow:none;
+  opacity:.8;
+}
+.media{
+  position:relative;
+  overflow:hidden;
+  border-radius:var(--shape,var(--radius));
+  background:white;
+  box-shadow:var(--shadow);
+  border:1px solid var(--mediaLine,rgba(255,255,255,.5));
+}
+.media img{height:430px}
+.media-note{
+  position:absolute;
+  left:22px;
+  right:22px;
+  bottom:22px;
+  padding:18px;
+  border-radius:22px;
+  background:rgba(255,255,255,.9);
+  backdrop-filter:blur(16px);
+  color:#0f172a;
+  font-weight:850;
+  line-height:1.45;
+  box-shadow:0 16px 48px rgba(15,23,42,.18);
+}
+.stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-top:28px;
+}
+.stat{
+  padding:16px;
+  border-radius:22px;
+  background:var(--card,rgba(255,255,255,.82));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  box-shadow:0 14px 34px rgba(15,23,42,.06);
+}
+.stat strong{
+  display:block;
+  color:var(--accent,#ec4899);
+  font-size:31px;
+  line-height:1;
+  letter-spacing:-.06em;
+}
+.main-grid{
+  display:grid;
+  grid-template-columns:.92fr 1.08fr;
+  gap:24px;
+  margin-top:52px;
+}
+.panel{
+  background:var(--card,rgba(255,255,255,.84));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  border-radius:26px;
+  padding:26px;
+  box-shadow:0 18px 50px rgba(15,23,42,.08);
+  backdrop-filter:blur(14px);
+}
+.panel h3{
+  margin:0 0 12px;
+  color:var(--head,currentColor);
+  font-size:24px;
+  letter-spacing:-.035em;
+}
+.panel p{
+  margin:0;
+  color:var(--mutedText,#64748b);
+  line-height:1.65;
+}
+.link-grid,.partner-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-top:14px;
+}
+.content-link,.partner{
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:14px;
+  border-radius:18px;
+  background:var(--serviceBg,rgba(255,255,255,.72));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  font-weight:850;
+}
+.content-link:before{content:"▶";color:var(--accent,#ec4899);font-weight:950}
+.partner:before{content:"✦";color:var(--accent,#ec4899);font-weight:950}
+.lower-grid{
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:24px;
+  margin-top:24px;
+}
+.media-kit{
+  padding:24px;
+  border-radius:26px;
+  background:var(--accent,#ec4899);
+  color:var(--accentText,#fff);
+  box-shadow:0 18px 50px rgba(15,23,42,.16);
+}
+.media-kit h3{
+  margin:0 0 10px;
+  font-size:28px;
+  letter-spacing:-.04em;
+}
+.media-kit p{
+  margin:0;
+  line-height:1.6;
+  opacity:.92;
+}
+.media-kit .btn{
+  margin-top:18px;
+  background:white;
+  color:#111827;
+}
+.form{
+  display:grid;
+  gap:12px;
+  margin-top:12px;
+}
+.form input,.form select,.form textarea{
+  width:100%;
+  border:1px solid var(--cardLine,rgba(15,23,42,.12));
+  border-radius:16px;
+  padding:13px 14px;
+  background:rgba(255,255,255,.84);
+  color:#111827;
+  outline:none;
+}
+.form textarea{
+  min-height:96px;
+  resize:vertical;
+}
+.email-list{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px;
+  margin-top:14px;
+}
+.email-list input{
+  border:1px solid var(--cardLine,rgba(15,23,42,.12));
+  border-radius:999px;
+  padding:0 16px;
+  min-height:50px;
+  background:rgba(255,255,255,.84);
+}
+.quote{
+  padding:20px;
+  border-radius:24px;
+  background:var(--card,rgba(255,255,255,.84));
+  border:1px solid var(--cardLine,rgba(15,23,42,.08));
+  box-shadow:0 16px 42px rgba(15,23,42,.07);
+}
+.quote p{
+  margin:0;
+  color:var(--text,currentColor);
+  opacity:.82;
+  line-height:1.6;
+}
+.quote b{
+  display:block;
+  margin-top:12px;
+  color:var(--head,currentColor);
+}
+.gallery{
+  display:grid;
+  grid-template-columns:1.2fr .8fr .8fr;
+  gap:14px;
+  margin-top:26px;
+}
+.gallery img{
+  height:172px;
+  border-radius:24px;
+  box-shadow:0 18px 42px rgba(15,23,42,.10);
+}
+.gallery img:first-child{height:224px}
+
+/* Themes */
+.creator{--bg:radial-gradient(circle at 16% 18%,rgba(236,72,153,.30),transparent 25%),radial-gradient(circle at 80% 16%,rgba(59,130,246,.25),transparent 25%),linear-gradient(135deg,#fff,#fdf2f8 55%,#dbeafe);--accent:#db2777;--display:"Space Grotesk";--shape:26px 90px 26px 90px}
+.mom{--bg:linear-gradient(135deg,#fff7ed,#fff 48%,#fce7f3);--accent:#be185d;--display:"Playfair Display";--shape:80px 28px 80px 28px}
+.blogger{--bg:linear-gradient(135deg,#faf7ef,#fff 48%,#f3e8d6);--accent:#92400e;--display:"Libre Baskerville";--shape:28px}
+.youtube{--bg:linear-gradient(135deg,#fff,#fef2f2 48%,#fee2e2);--accent:#dc2626;--display:"Space Grotesk";--shape:18px}
+.tiktok{--bg:radial-gradient(circle at 14% 20%,rgba(34,211,238,.28),transparent 25%),radial-gradient(circle at 88% 18%,rgba(244,63,94,.24),transparent 25%),linear-gradient(135deg,#111827,#020617 54%,#18181b);--fg:#f8fafc;--head:#fff;--text:#cffafe;--mutedText:#e5e7eb;--accent:#22d3ee;--accentText:#062f3a;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Space Grotesk";--shape:14px}
+.podcaster{--bg:linear-gradient(135deg,#111827,#312e81 56%,#581c87);--fg:#f8fafc;--head:#fff;--text:#ede9fe;--mutedText:#ddd6fe;--accent:#c084fc;--accentText:#111827;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Space Grotesk";--shape:999px 999px 40px 40px}
+.streamer{--bg:linear-gradient(135deg,#020617,#111827 52%,#0f172a);--fg:#f8fafc;--head:#fff;--text:#dbeafe;--mutedText:#cbd5e1;--accent:#39ff88;--accentText:#04130a;--card:rgba(255,255,255,.08);--cardLine:rgba(57,255,136,.22);--serviceBg:rgba(255,255,255,.08);--pill:rgba(57,255,136,.10);--pillLine:rgba(57,255,136,.30);--display:"Space Grotesk";--shape:18px}
+.newsletter{--bg:linear-gradient(135deg,#f8fafc,#fff 48%,#e2e8f0);--accent:#334155;--display:"Libre Baskerville";--shape:24px}
+.speaker{--bg:linear-gradient(135deg,#eff6ff,#fff 48%,#dbeafe);--accent:#2563eb;--display:"Space Grotesk";--shape:34px}
+.author{--bg:linear-gradient(135deg,#fff7ed,#fff 48%,#fef3c7);--accent:#b45309;--display:"Playfair Display";--shape:44px}
+.thought{--bg:linear-gradient(135deg,#07111f,#0f1e34 55%,#111827);--fg:#f8fafc;--head:#fff;--text:#dbeafe;--mutedText:#cbd5e1;--accent:#d6a74a;--accentText:#07111f;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Playfair Display";--shape:44px}
+.personal{--bg:linear-gradient(135deg,#ecfeff,#fff 48%,#f0fdf4);--accent:#0f766e;--display:"Space Grotesk";--shape:28px}
+
+/* visual accents */
+.youtube .media:before,.tiktok .media:before{
+  content:"9:16";
+  position:absolute;
+  top:18px;
+  left:18px;
+  z-index:2;
+  padding:9px 13px;
+  border-radius:999px;
+  background:rgba(255,255,255,.9);
+  color:#111827;
+  font-weight:950;
+  font-size:12px;
+  letter-spacing:.08em;
+}
+.podcaster .media:before,.newsletter .media:before{
+  content:"▶ 24:18";
+  position:absolute;
+  top:18px;
+  left:18px;
+  z-index:2;
+  padding:9px 13px;
+  border-radius:999px;
+  background:rgba(255,255,255,.9);
+  color:#111827;
+  font-weight:950;
+}
+.streamer .media:before{
+  content:"LIVE";
+  position:absolute;
+  top:18px;
+  left:18px;
+  z-index:2;
+  padding:9px 13px;
+  border-radius:999px;
+  background:#39ff88;
+  color:#04130a;
+  font-weight:950;
+  letter-spacing:.1em;
+}
+.author .media:before{
+  content:"NEW BOOK";
+  position:absolute;
+  top:18px;
+  left:18px;
+  z-index:2;
+  padding:9px 13px;
+  border-radius:999px;
+  background:rgba(255,255,255,.9);
+  color:#92400e;
+  font-weight:950;
+  letter-spacing:.08em;
+  font-size:12px;
+}
+.creator .hero,.youtube .hero,.podcaster .hero,.streamer .hero,.speaker .hero,.thought .hero{grid-template-columns:.95fr 1.05fr}
+.mom .hero,.blogger .hero,.tiktok .hero,.newsletter .hero,.author .hero,.personal .hero{grid-template-columns:1.1fr .9fr}
+
+@media(max-width:980px){
+  .hero,.main-grid,.lower-grid{grid-template-columns:1fr!important}
+  .stats,.gallery,.link-grid,.partner-grid{grid-template-columns:1fr}
+  .gallery img,.gallery img:first-child{height:220px}
+  .media img{height:340px}
+  .nav{align-items:flex-start;flex-direction:column}
+  .navlinks{justify-content:flex-start}
+  .email-list{grid-template-columns:1fr}
+}
+@media(max-width:620px){
+  .cover,.template{padding:64px 5vw}
+  .hero h2{font-size:40px}
+  .panel,.media-kit,.quote{padding:20px}
+  .media-note{position:static;margin:-48px 18px 18px}
+}
+</style>
+</head>
+<body>
+  <header class="cover">
+    <div>
+      <span class="eyebrow">FrameNest Mockup Collection</span>
+      <h1>Influencer & Personal Brand Website Templates</h1>
+      <p>Twelve professional website sections for creators, influencers, podcasters, streamers, newsletter writers, authors, speakers, thought leaders, and flexible personal brands. Each section includes hero, media kit, partnerships, content links, email list, booking form, and a Let’s Collaborate CTA.</p>
+    </div>
+  </header>
+  
+  <!-- 01. Content Creator -->
+  <section class="template creator">
+    <span class="template-number">Template 01 / Content Creator</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">C</span>Nova Creates</div>
+        <div class="navlinks"><span>Media Kit</span><span>Partnerships</span><span>Content</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Instagram</span><span class="pill">TikTok</span><span class="pill">YouTube</span></div>
+          <h2>Vibrant content built for brands people actually follow.</h2>
+          <p>A colorful creator website for multi-platform creators who need content feeds, partnership inquiries, social proof, and a clean media kit pathway.</p>
+          <div class="stats"><div class="stat"><strong>840K</strong>total reach</div><div class="stat"><strong>7.8%</strong>engagement</div><div class="stat"><strong>42</strong>brand campaigns</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Let's Collaborate</a>
+            <a class="btn secondary" href="#media-kit">View Media Kit</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800" alt="Content Creator personal brand website hero">
+          <div class="media-note">Platform links · Brand collab inquiry · Content feed preview</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="content">
+          <h3>Content Links</h3>
+          <p>Feature the strongest content destinations, latest work, platform links, and high-performing posts.</p>
+          <div class="link-grid"><a class="content-link" href="#content">Latest Reel</a><a class="content-link" href="#content">Creator Feed</a><a class="content-link" href="#content">Behind the Scenes</a></div>
+          <div class="email-list">
+            <input type="email" placeholder="Join the email list">
+            <a class="btn" href="#subscribe">Subscribe</a>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Brand Partnerships</h3>
+          <p>Partnership options are organized so brands can quickly understand fit, format, and campaign possibilities.</p>
+          <div class="partner-grid"><div class="partner">Sponsored content</div><div class="partner">UGC packages</div><div class="partner">Product launches</div><div class="partner">Affiliate campaigns</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="media-kit" id="media-kit">
+          <h3>Media Kit</h3>
+          <p>Audience demographics, rate card, platform stats, campaign examples, and brand-safe usage notes.</p>
+          <a class="btn" href="#media-kit">Download Media Kit</a>
+        </div>
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect brand, budget, timeline, campaign goals, and preferred collaboration format.</p>
+          <form class="form">
+            <input type="text" placeholder="Brand or contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Collaboration type</option>
+              <option>Sponsored content</option>
+              <option>Speaking / guest appearance</option>
+              <option>Affiliate or licensing</option>
+              <option>Long-term partnership</option>
+            </select>
+            <textarea placeholder="Tell me about the campaign"></textarea>
+            <button class="btn" type="button">Let's Collaborate</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="quote">
+        <p>“The content felt organic, but the campaign performance was very measurable.”</p>
+        <b>— Partnership testimonial</b>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800" alt="Content Creator content preview one">
+        <img src="https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?w=800" alt="Content Creator content preview two">
+        <img src="https://images.unsplash.com/photo-1543269664-56d93c1b41a6?w=800" alt="Content Creator content preview three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 02. Mom Influencer -->
+  <section class="template mom">
+    <span class="template-number">Template 02 / Mom Influencer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">M</span>Everyday Mama Notes</div>
+        <div class="navlinks"><span>Media Kit</span><span>Partnerships</span><span>Content</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Parenting</span><span class="pill">Home</span><span class="pill">Family Brands</span></div>
+          <h2>Relatable family content with real trust behind it.</h2>
+          <p>A warm, family-friendly template for mom influencers, parenting creators, and home-life storytellers who work with brands while keeping trust first.</p>
+          <div class="stats"><div class="stat"><strong>230K</strong>parents reached</div><div class="stat"><strong>63%</strong>mom audience</div><div class="stat"><strong>4.9★</strong>brand feedback</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Let's Collaborate</a>
+            <a class="btn secondary" href="#media-kit">View Media Kit</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1543269664-56d93c1b41a6?w=800" alt="Mom Influencer personal brand website hero">
+          <div class="media-note">Warm partnerships · Relatable aesthetic · Family-safe media kit</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="content">
+          <h3>Content Links</h3>
+          <p>Feature the strongest content destinations, latest work, platform links, and high-performing posts.</p>
+          <div class="link-grid"><a class="content-link" href="#content">Morning Routine</a><a class="content-link" href="#content">Family Favorites</a><a class="content-link" href="#content">Home Finds</a></div>
+          <div class="email-list">
+            <input type="email" placeholder="Join the email list">
+            <a class="btn" href="#subscribe">Subscribe</a>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Brand Partnerships</h3>
+          <p>Partnership options are organized so brands can quickly understand fit, format, and campaign possibilities.</p>
+          <div class="partner-grid"><div class="partner">Family products</div><div class="partner">Home goods</div><div class="partner">Meal planning</div><div class="partner">Kid-friendly brands</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="media-kit" id="media-kit">
+          <h3>Media Kit</h3>
+          <p>Family-safe partnership guidelines, audience insights, content examples, usage rights, and seasonal campaign ideas.</p>
+          <a class="btn" href="#media-kit">Download Media Kit</a>
+        </div>
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect brand, budget, timeline, campaign goals, and preferred collaboration format.</p>
+          <form class="form">
+            <input type="text" placeholder="Brand or contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Collaboration type</option>
+              <option>Sponsored content</option>
+              <option>Speaking / guest appearance</option>
+              <option>Affiliate or licensing</option>
+              <option>Long-term partnership</option>
+            </select>
+            <textarea placeholder="Tell me about the campaign"></textarea>
+            <button class="btn" type="button">Let's Collaborate</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="quote">
+        <p>“She made our product feel like a natural part of real family life.”</p>
+        <b>— Partnership testimonial</b>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1543269664-56d93c1b41a6?w=800" alt="Mom Influencer content preview one">
+        <img src="https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?w=800" alt="Mom Influencer content preview two">
+        <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800" alt="Mom Influencer content preview three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 03. Lifestyle Blogger -->
+  <section class="template blogger">
+    <span class="template-number">Template 03 / Lifestyle Blogger</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">L</span>The Modern Edit</div>
+        <div class="navlinks"><span>Media Kit</span><span>Partnerships</span><span>Content</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Style</span><span class="pill">Travel</span><span class="pill">Home</span></div>
+          <h2>Editorial lifestyle content for curious, stylish readers.</h2>
+          <p>An editorial blog template with category grids, newsletter signup, article previews, and brand collaboration options.</p>
+          <div class="stats"><div class="stat"><strong>86K</strong>monthly readers</div><div class="stat"><strong>38%</strong>newsletter open</div><div class="stat"><strong>12</strong>content categories</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Let's Collaborate</a>
+            <a class="btn secondary" href="#media-kit">View Media Kit</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1543269664-56d93c1b41a6?w=800" alt="Lifestyle Blogger personal brand website hero">
+          <div class="media-note">Blog previews · Newsletter signup · Category grid</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="content">
+          <h3>Content Links</h3>
+          <p>Feature the strongest content destinations, latest work, platform links, and high-performing posts.</p>
+          <div class="link-grid"><a class="content-link" href="#content">Recent Essays</a><a class="content-link" href="#content">Travel Notes</a><a class="content-link" href="#content">Style Guides</a></div>
+          <div class="email-list">
+            <input type="email" placeholder="Join the email list">
+            <a class="btn" href="#subscribe">Subscribe</a>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Brand Partnerships</h3>
+          <p>Partnership options are organized so brands can quickly understand fit, format, and campaign possibilities.</p>
+          <div class="partner-grid"><div class="partner">Sponsored posts</div><div class="partner">Gift guides</div><div class="partner">Newsletter features</div><div class="partner">Editorial campaigns</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="media-kit" id="media-kit">
+          <h3>Media Kit</h3>
+          <p>Reader profile, blog traffic, newsletter performance, sponsored editorial packages, and category fit guide.</p>
+          <a class="btn" href="#media-kit">Download Media Kit</a>
+        </div>
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect brand, budget, timeline, campaign goals, and preferred collaboration format.</p>
+          <form class="form">
+            <input type="text" placeholder="Brand or contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Collaboration type</option>
+              <option>Sponsored content</option>
+              <option>Speaking / guest appearance</option>
+              <option>Affiliate or licensing</option>
+              <option>Long-term partnership</option>
+            </select>
+            <textarea placeholder="Tell me about the campaign"></textarea>
+            <button class="btn" type="button">Let's Collaborate</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="quote">
+        <p>“The feature felt editorial, polished, and still converted.”</p>
+        <b>— Partnership testimonial</b>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1543269664-56d93c1b41a6?w=800" alt="Lifestyle Blogger content preview one">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Lifestyle Blogger content preview two">
+        <img src="https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?w=800" alt="Lifestyle Blogger content preview three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 04. YouTuber -->
+  <section class="template youtube">
+    <span class="template-number">Template 04 / YouTuber</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">Y</span>Kai On Camera</div>
+        <div class="navlinks"><span>Media Kit</span><span>Partnerships</span><span>Content</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Long-form</span><span class="pill">Reviews</span><span class="pill">Collabs</span></div>
+          <h2>Video-first storytelling for subscribers who show up.</h2>
+          <p>A video-forward YouTuber template with latest uploads, subscriber statistics, sponsor inquiry flow, and collaboration form.</p>
+          <div class="stats"><div class="stat"><strong>1.2M</strong>subscribers</div><div class="stat"><strong>410K</strong>avg views</div><div class="stat"><strong>18min</strong>watch time</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Let's Collaborate</a>
+            <a class="btn secondary" href="#media-kit">View Media Kit</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800" alt="YouTuber personal brand website hero">
+          <div class="media-note">Latest uploads embed · Subscriber stats · Collab form</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="content">
+          <h3>Content Links</h3>
+          <p>Feature the strongest content destinations, latest work, platform links, and high-performing posts.</p>
+          <div class="link-grid"><a class="content-link" href="#content">Latest Upload</a><a class="content-link" href="#content">Popular Reviews</a><a class="content-link" href="#content">Creator Collabs</a></div>
+          <div class="email-list">
+            <input type="email" placeholder="Join the email list">
+            <a class="btn" href="#subscribe">Subscribe</a>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Brand Partnerships</h3>
+          <p>Partnership options are organized so brands can quickly understand fit, format, and campaign possibilities.</p>
+          <div class="partner-grid"><div class="partner">Dedicated videos</div><div class="partner">Integrated sponsors</div><div class="partner">Product reviews</div><div class="partner">Series sponsorships</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="media-kit" id="media-kit">
+          <h3>Media Kit</h3>
+          <p>Channel analytics, viewer retention, sponsor packages, upload cadence, audience demographics, and usage terms.</p>
+          <a class="btn" href="#media-kit">Download Media Kit</a>
+        </div>
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect brand, budget, timeline, campaign goals, and preferred collaboration format.</p>
+          <form class="form">
+            <input type="text" placeholder="Brand or contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Collaboration type</option>
+              <option>Sponsored content</option>
+              <option>Speaking / guest appearance</option>
+              <option>Affiliate or licensing</option>
+              <option>Long-term partnership</option>
+            </select>
+            <textarea placeholder="Tell me about the campaign"></textarea>
+            <button class="btn" type="button">Let's Collaborate</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="quote">
+        <p>“The integration felt natural and drove serious traffic.”</p>
+        <b>— Partnership testimonial</b>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800" alt="YouTuber content preview one">
+        <img src="https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=800" alt="YouTuber content preview two">
+        <img src="https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?w=800" alt="YouTuber content preview three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 05. TikTok Creator -->
+  <section class="template tiktok">
+    <span class="template-number">Template 05 / TikTok Creator</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">T</span>Mika Makes It Trend</div>
+        <div class="navlinks"><span>Media Kit</span><span>Partnerships</span><span>Content</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Vertical Video</span><span class="pill">UGC</span><span class="pill">Trends</span></div>
+          <h2>Short-form content with trend speed and brand discipline.</h2>
+          <p>A trendy vertical-video template with rate card, audience stats, fast campaign packages, and mobile-first visuals.</p>
+          <div class="stats"><div class="stat"><strong>5.4M</strong>monthly views</div><div class="stat"><strong>72%</strong>Gen Z + millennial</div><div class="stat"><strong>48hr</strong>trend turnaround</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Let's Collaborate</a>
+            <a class="btn secondary" href="#media-kit">View Media Kit</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?w=800" alt="TikTok Creator personal brand website hero">
+          <div class="media-note">Vertical previews · Brand rate card · Audience stats</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="content">
+          <h3>Content Links</h3>
+          <p>Feature the strongest content destinations, latest work, platform links, and high-performing posts.</p>
+          <div class="link-grid"><a class="content-link" href="#content">Viral Clips</a><a class="content-link" href="#content">UGC Samples</a><a class="content-link" href="#content">Trend Watch</a></div>
+          <div class="email-list">
+            <input type="email" placeholder="Join the email list">
+            <a class="btn" href="#subscribe">Subscribe</a>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Brand Partnerships</h3>
+          <p>Partnership options are organized so brands can quickly understand fit, format, and campaign possibilities.</p>
+          <div class="partner-grid"><div class="partner">TikTok sponsorships</div><div class="partner">UGC bundles</div><div class="partner">Trend activation</div><div class="partner">Product demos</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="media-kit" id="media-kit">
+          <h3>Media Kit</h3>
+          <p>Rate card, vertical video examples, audience stats, posting options, and whitelisting details.</p>
+          <a class="btn" href="#media-kit">Download Media Kit</a>
+        </div>
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect brand, budget, timeline, campaign goals, and preferred collaboration format.</p>
+          <form class="form">
+            <input type="text" placeholder="Brand or contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Collaboration type</option>
+              <option>Sponsored content</option>
+              <option>Speaking / guest appearance</option>
+              <option>Affiliate or licensing</option>
+              <option>Long-term partnership</option>
+            </select>
+            <textarea placeholder="Tell me about the campaign"></textarea>
+            <button class="btn" type="button">Let's Collaborate</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="quote">
+        <p>“She understood the trend without making the brand feel awkward.”</p>
+        <b>— Partnership testimonial</b>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?w=800" alt="TikTok Creator content preview one">
+        <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800" alt="TikTok Creator content preview two">
+        <img src="https://images.unsplash.com/photo-1543269664-56d93c1b41a6?w=800" alt="TikTok Creator content preview three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 06. Podcaster -->
+  <section class="template podcaster">
+    <span class="template-number">Template 06 / Podcaster</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Signal Room Podcast</div>
+        <div class="navlinks"><span>Media Kit</span><span>Partnerships</span><span>Content</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Episodes</span><span class="pill">Guests</span><span class="pill">Sponsors</span></div>
+          <h2>Conversations people finish — and sponsors remember.</h2>
+          <p>An audio-forward podcast template with episode player styling, guest booking, sponsor inquiry, and audience trust signals.</p>
+          <div class="stats"><div class="stat"><strong>95K</strong>monthly downloads</div><div class="stat"><strong>4.8★</strong>listener rating</div><div class="stat"><strong>62%</strong>completion rate</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Let's Collaborate</a>
+            <a class="btn secondary" href="#media-kit">View Media Kit</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?w=800" alt="Podcaster personal brand website hero">
+          <div class="media-note">Episode player · Guest booking · Sponsor inquiry</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="content">
+          <h3>Content Links</h3>
+          <p>Feature the strongest content destinations, latest work, platform links, and high-performing posts.</p>
+          <div class="link-grid"><a class="content-link" href="#content">Latest Episode</a><a class="content-link" href="#content">Guest Archive</a><a class="content-link" href="#content">Sponsor Reads</a></div>
+          <div class="email-list">
+            <input type="email" placeholder="Join the email list">
+            <a class="btn" href="#subscribe">Subscribe</a>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Brand Partnerships</h3>
+          <p>Partnership options are organized so brands can quickly understand fit, format, and campaign possibilities.</p>
+          <div class="partner-grid"><div class="partner">Host-read ads</div><div class="partner">Episode sponsorships</div><div class="partner">Guest features</div><div class="partner">Newsletter add-ons</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="media-kit" id="media-kit">
+          <h3>Media Kit</h3>
+          <p>Download stats, listener profile, sponsor inventory, host-read sample, and guest booking guidelines.</p>
+          <a class="btn" href="#media-kit">Download Media Kit</a>
+        </div>
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect brand, budget, timeline, campaign goals, and preferred collaboration format.</p>
+          <form class="form">
+            <input type="text" placeholder="Brand or contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Collaboration type</option>
+              <option>Sponsored content</option>
+              <option>Speaking / guest appearance</option>
+              <option>Affiliate or licensing</option>
+              <option>Long-term partnership</option>
+            </select>
+            <textarea placeholder="Tell me about the campaign"></textarea>
+            <button class="btn" type="button">Let's Collaborate</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="quote">
+        <p>“The host-read ad sounded trustworthy and performed better than expected.”</p>
+        <b>— Partnership testimonial</b>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?w=800" alt="Podcaster content preview one">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Podcaster content preview two">
+        <img src="https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=800" alt="Podcaster content preview three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 07. Streamer -->
+  <section class="template streamer">
+    <span class="template-number">Template 07 / Streamer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">S</span>NeonQuest Live</div>
+        <div class="navlinks"><span>Media Kit</span><span>Partnerships</span><span>Content</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Twitch</span><span class="pill">Gaming</span><span class="pill">Live Chat</span></div>
+          <h2>Live community, high-energy streams, and loyal subscribers.</h2>
+          <p>A gaming and tech streamer template with dark neon style, stream schedule, platform links, donation/subscription blocks, and sponsor areas.</p>
+          <div class="stats"><div class="stat"><strong>410K</strong>followers</div><div class="stat"><strong>18K</strong>avg live viewers</div><div class="stat"><strong>5x/wk</strong>stream schedule</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Let's Collaborate</a>
+            <a class="btn secondary" href="#media-kit">View Media Kit</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=800" alt="Streamer personal brand website hero">
+          <div class="media-note">Dark neon · Stream schedule · Donation/sub links</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="content">
+          <h3>Content Links</h3>
+          <p>Feature the strongest content destinations, latest work, platform links, and high-performing posts.</p>
+          <div class="link-grid"><a class="content-link" href="#content">Twitch</a><a class="content-link" href="#content">YouTube Clips</a><a class="content-link" href="#content">Discord</a></div>
+          <div class="email-list">
+            <input type="email" placeholder="Join the email list">
+            <a class="btn" href="#subscribe">Subscribe</a>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Brand Partnerships</h3>
+          <p>Partnership options are organized so brands can quickly understand fit, format, and campaign possibilities.</p>
+          <div class="partner-grid"><div class="partner">Live integrations</div><div class="partner">Gear sponsorships</div><div class="partner">Game launches</div><div class="partner">Community giveaways</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="media-kit" id="media-kit">
+          <h3>Media Kit</h3>
+          <p>Viewer stats, stream schedule, sponsor placements, community rules, and donation/subscription links.</p>
+          <a class="btn" href="#media-kit">Download Media Kit</a>
+        </div>
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect brand, budget, timeline, campaign goals, and preferred collaboration format.</p>
+          <form class="form">
+            <input type="text" placeholder="Brand or contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Collaboration type</option>
+              <option>Sponsored content</option>
+              <option>Speaking / guest appearance</option>
+              <option>Affiliate or licensing</option>
+              <option>Long-term partnership</option>
+            </select>
+            <textarea placeholder="Tell me about the campaign"></textarea>
+            <button class="btn" type="button">Let's Collaborate</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="quote">
+        <p>“The community response was immediate and genuinely excited.”</p>
+        <b>— Partnership testimonial</b>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=800" alt="Streamer content preview one">
+        <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800" alt="Streamer content preview two">
+        <img src="https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?w=800" alt="Streamer content preview three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 08. Newsletter Writer -->
+  <section class="template newsletter">
+    <span class="template-number">Template 08 / Newsletter Writer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">N</span>The Sunday Signal</div>
+        <div class="navlinks"><span>Media Kit</span><span>Partnerships</span><span>Content</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Essays</span><span class="pill">Archives</span><span class="pill">Sponsors</span></div>
+          <h2>Thoughtful writing delivered to inboxes that pay attention.</h2>
+          <p>A literary newsletter template with strong subscribe CTA, archive previews, audience testimonials, and sponsorship information.</p>
+          <div class="stats"><div class="stat"><strong>52K</strong>subscribers</div><div class="stat"><strong>47%</strong>open rate</div><div class="stat"><strong>11K</strong>paid readers</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Let's Collaborate</a>
+            <a class="btn secondary" href="#media-kit">View Media Kit</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Newsletter Writer personal brand website hero">
+          <div class="media-note">Subscribe CTA · Archive previews · Reader testimonials</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="content">
+          <h3>Content Links</h3>
+          <p>Feature the strongest content destinations, latest work, platform links, and high-performing posts.</p>
+          <div class="link-grid"><a class="content-link" href="#content">Latest Letter</a><a class="content-link" href="#content">Best Essays</a><a class="content-link" href="#content">Archive</a></div>
+          <div class="email-list">
+            <input type="email" placeholder="Join the email list">
+            <a class="btn" href="#subscribe">Subscribe</a>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Brand Partnerships</h3>
+          <p>Partnership options are organized so brands can quickly understand fit, format, and campaign possibilities.</p>
+          <div class="partner-grid"><div class="partner">Newsletter sponsorships</div><div class="partner">Classified ads</div><div class="partner">Reader surveys</div><div class="partner">Editorial partnerships</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="media-kit" id="media-kit">
+          <h3>Media Kit</h3>
+          <p>Subscriber profile, open rates, sponsorship inventory, archive samples, and editorial standards.</p>
+          <a class="btn" href="#media-kit">Download Media Kit</a>
+        </div>
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect brand, budget, timeline, campaign goals, and preferred collaboration format.</p>
+          <form class="form">
+            <input type="text" placeholder="Brand or contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Collaboration type</option>
+              <option>Sponsored content</option>
+              <option>Speaking / guest appearance</option>
+              <option>Affiliate or licensing</option>
+              <option>Long-term partnership</option>
+            </select>
+            <textarea placeholder="Tell me about the campaign"></textarea>
+            <button class="btn" type="button">Let's Collaborate</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="quote">
+        <p>“The sponsorship reached exactly the kind of reader we wanted.”</p>
+        <b>— Partnership testimonial</b>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Newsletter Writer content preview one">
+        <img src="https://images.unsplash.com/photo-1543269664-56d93c1b41a6?w=800" alt="Newsletter Writer content preview two">
+        <img src="https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?w=800" alt="Newsletter Writer content preview three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 09. Public Speaker -->
+  <section class="template speaker">
+    <span class="template-number">Template 09 / Public Speaker</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Jordan Vale Speaking</div>
+        <div class="navlinks"><span>Media Kit</span><span>Partnerships</span><span>Content</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Keynotes</span><span class="pill">Workshops</span><span class="pill">Events</span></div>
+          <h2>Keynotes that make the room think, act, and remember.</h2>
+          <p>A professional speaker website with keynote topics, event booking, speaking reel, client logos, and media kit download.</p>
+          <div class="stats"><div class="stat"><strong>120+</strong>events</div><div class="stat"><strong>32</strong>industries</div><div class="stat"><strong>98%</strong>rebook rate</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Let's Collaborate</a>
+            <a class="btn secondary" href="#media-kit">View Media Kit</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Public Speaker personal brand website hero">
+          <div class="media-note">Keynote topics · Event booking · Speaking reel</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="content">
+          <h3>Content Links</h3>
+          <p>Feature the strongest content destinations, latest work, platform links, and high-performing posts.</p>
+          <div class="link-grid"><a class="content-link" href="#content">Speaking Reel</a><a class="content-link" href="#content">Keynote Topics</a><a class="content-link" href="#content">Event Photos</a></div>
+          <div class="email-list">
+            <input type="email" placeholder="Join the email list">
+            <a class="btn" href="#subscribe">Subscribe</a>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Brand Partnerships</h3>
+          <p>Partnership options are organized so brands can quickly understand fit, format, and campaign possibilities.</p>
+          <div class="partner-grid"><div class="partner">Corporate keynotes</div><div class="partner">Conference talks</div><div class="partner">Workshops</div><div class="partner">Panel moderation</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="media-kit" id="media-kit">
+          <h3>Media Kit</h3>
+          <p>Speaker bio, talk descriptions, stage photos, AV requirements, fees, and event planning notes.</p>
+          <a class="btn" href="#media-kit">Download Media Kit</a>
+        </div>
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect brand, budget, timeline, campaign goals, and preferred collaboration format.</p>
+          <form class="form">
+            <input type="text" placeholder="Brand or contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Collaboration type</option>
+              <option>Sponsored content</option>
+              <option>Speaking / guest appearance</option>
+              <option>Affiliate or licensing</option>
+              <option>Long-term partnership</option>
+            </select>
+            <textarea placeholder="Tell me about the campaign"></textarea>
+            <button class="btn" type="button">Let's Collaborate</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="quote">
+        <p>“The talk was polished, practical, and the audience kept quoting it.”</p>
+        <b>— Partnership testimonial</b>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Public Speaker content preview one">
+        <img src="https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?w=800" alt="Public Speaker content preview two">
+        <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800" alt="Public Speaker content preview three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Author -->
+  <section class="template author">
+    <span class="template-number">Template 10 / Author</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">A</span>Elena Hart Books</div>
+        <div class="navlinks"><span>Media Kit</span><span>Partnerships</span><span>Content</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Books</span><span class="pill">Readings</span><span class="pill">Press</span></div>
+          <h2>Books, readings, and stories readers carry with them.</h2>
+          <p>An author template with book cover display, buy links, reading events, press/review excerpts, and newsletter signup.</p>
+          <div class="stats"><div class="stat"><strong>3</strong>published books</div><div class="stat"><strong>18</strong>reading events</div><div class="stat"><strong>4.7★</strong>reader reviews</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Let's Collaborate</a>
+            <a class="btn secondary" href="#media-kit">View Media Kit</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1543269664-56d93c1b41a6?w=800" alt="Author personal brand website hero">
+          <div class="media-note">Book cover display · Buy links · Reading events · Reviews</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="content">
+          <h3>Content Links</h3>
+          <p>Feature the strongest content destinations, latest work, platform links, and high-performing posts.</p>
+          <div class="link-grid"><a class="content-link" href="#content">Buy the Book</a><a class="content-link" href="#content">Reading Events</a><a class="content-link" href="#content">Press Kit</a></div>
+          <div class="email-list">
+            <input type="email" placeholder="Join the email list">
+            <a class="btn" href="#subscribe">Subscribe</a>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Brand Partnerships</h3>
+          <p>Partnership options are organized so brands can quickly understand fit, format, and campaign possibilities.</p>
+          <div class="partner-grid"><div class="partner">Book clubs</div><div class="partner">Speaking events</div><div class="partner">Podcast interviews</div><div class="partner">Library visits</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="media-kit" id="media-kit">
+          <h3>Media Kit</h3>
+          <p>Author bio, book descriptions, cover images, press photos, reviews, and interview topics.</p>
+          <a class="btn" href="#media-kit">Download Media Kit</a>
+        </div>
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect brand, budget, timeline, campaign goals, and preferred collaboration format.</p>
+          <form class="form">
+            <input type="text" placeholder="Brand or contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Collaboration type</option>
+              <option>Sponsored content</option>
+              <option>Speaking / guest appearance</option>
+              <option>Affiliate or licensing</option>
+              <option>Long-term partnership</option>
+            </select>
+            <textarea placeholder="Tell me about the campaign"></textarea>
+            <button class="btn" type="button">Let's Collaborate</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="quote">
+        <p>“A beautiful reading and a generous conversation with our audience.”</p>
+        <b>— Partnership testimonial</b>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1543269664-56d93c1b41a6?w=800" alt="Author content preview one">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Author content preview two">
+        <img src="https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?w=800" alt="Author content preview three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. Thought Leader -->
+  <section class="template thought">
+    <span class="template-number">Template 11 / Thought Leader</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">T</span>The Atlas Brief</div>
+        <div class="navlinks"><span>Media Kit</span><span>Partnerships</span><span>Content</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Insights</span><span class="pill">Media</span><span class="pill">Consulting</span></div>
+          <h2>Clear ideas for leaders navigating noisy markets.</h2>
+          <p>An authoritative thought-leader template with publications, media appearances, consulting invitations, and high-trust positioning.</p>
+          <div class="stats"><div class="stat"><strong>2.1M</strong>annual reads</div><div class="stat"><strong>44</strong>media mentions</div><div class="stat"><strong>16</strong>advisory clients</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Let's Collaborate</a>
+            <a class="btn secondary" href="#media-kit">View Media Kit</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Thought Leader personal brand website hero">
+          <div class="media-note">Publications · Media appearances · Consulting CTA</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="content">
+          <h3>Content Links</h3>
+          <p>Feature the strongest content destinations, latest work, platform links, and high-performing posts.</p>
+          <div class="link-grid"><a class="content-link" href="#content">Publications</a><a class="content-link" href="#content">Media Appearances</a><a class="content-link" href="#content">Briefings</a></div>
+          <div class="email-list">
+            <input type="email" placeholder="Join the email list">
+            <a class="btn" href="#subscribe">Subscribe</a>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Brand Partnerships</h3>
+          <p>Partnership options are organized so brands can quickly understand fit, format, and campaign possibilities.</p>
+          <div class="partner-grid"><div class="partner">Executive briefings</div><div class="partner">Media commentary</div><div class="partner">Research partnerships</div><div class="partner">Advisory sessions</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="media-kit" id="media-kit">
+          <h3>Media Kit</h3>
+          <p>Expert bio, publication links, media clips, consulting topics, and booking requirements.</p>
+          <a class="btn" href="#media-kit">Download Media Kit</a>
+        </div>
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect brand, budget, timeline, campaign goals, and preferred collaboration format.</p>
+          <form class="form">
+            <input type="text" placeholder="Brand or contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Collaboration type</option>
+              <option>Sponsored content</option>
+              <option>Speaking / guest appearance</option>
+              <option>Affiliate or licensing</option>
+              <option>Long-term partnership</option>
+            </select>
+            <textarea placeholder="Tell me about the campaign"></textarea>
+            <button class="btn" type="button">Let's Collaborate</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="quote">
+        <p>“The briefing gave our leadership team language for what we were seeing.”</p>
+        <b>— Partnership testimonial</b>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Thought Leader content preview one">
+        <img src="https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?w=800" alt="Thought Leader content preview two">
+        <img src="https://images.unsplash.com/photo-1543269664-56d93c1b41a6?w=800" alt="Thought Leader content preview three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 12. Personal Brand -->
+  <section class="template personal">
+    <span class="template-number">Template 12 / Personal Brand</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Kenzo Lane Studio</div>
+        <div class="navlinks"><span>Media Kit</span><span>Partnerships</span><span>Content</span><span>Booking</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Media Kit</span><span class="pill">Partnerships</span><span class="pill">Multi-Platform</span></div>
+          <h2>One clear home for every platform, offer, and partnership.</h2>
+          <p>A flexible personal-brand website for creators, experts, speakers, coaches, and founders who need media kit downloads, partnership forms, and multi-platform links.</p>
+          <div class="stats"><div class="stat"><strong>12</strong>platform links</div><div class="stat"><strong>6</strong>offer types</div><div class="stat"><strong>1</strong>brand home</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#booking">Let's Collaborate</a>
+            <a class="btn secondary" href="#media-kit">View Media Kit</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800" alt="Personal Brand personal brand website hero">
+          <div class="media-note">Media kit download · Partnership form · Flexible personal brand hub</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="content">
+          <h3>Content Links</h3>
+          <p>Feature the strongest content destinations, latest work, platform links, and high-performing posts.</p>
+          <div class="link-grid"><a class="content-link" href="#content">Media Kit</a><a class="content-link" href="#content">Latest Work</a><a class="content-link" href="#content">Book a Call</a></div>
+          <div class="email-list">
+            <input type="email" placeholder="Join the email list">
+            <a class="btn" href="#subscribe">Subscribe</a>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Brand Partnerships</h3>
+          <p>Partnership options are organized so brands can quickly understand fit, format, and campaign possibilities.</p>
+          <div class="partner-grid"><div class="partner">Brand partnerships</div><div class="partner">Speaking</div><div class="partner">Consulting</div><div class="partner">Digital products</div></div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="media-kit" id="media-kit">
+          <h3>Media Kit</h3>
+          <p>Unified bio, platform stats, offer menu, partnership form, downloadable assets, and contact information.</p>
+          <a class="btn" href="#media-kit">Download Media Kit</a>
+        </div>
+        <div class="panel" id="booking">
+          <h3>Booking Form</h3>
+          <p>Collect brand, budget, timeline, campaign goals, and preferred collaboration format.</p>
+          <form class="form">
+            <input type="text" placeholder="Brand or contact name">
+            <input type="email" placeholder="Email address">
+            <select>
+              <option>Collaboration type</option>
+              <option>Sponsored content</option>
+              <option>Speaking / guest appearance</option>
+              <option>Affiliate or licensing</option>
+              <option>Long-term partnership</option>
+            </select>
+            <textarea placeholder="Tell me about the campaign"></textarea>
+            <button class="btn" type="button">Let's Collaborate</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="quote">
+        <p>“The site made the whole brand easier to understand in under a minute.”</p>
+        <b>— Partnership testimonial</b>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800" alt="Personal Brand content preview one">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800" alt="Personal Brand content preview two">
+        <img src="https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?w=800" alt="Personal Brand content preview three">
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

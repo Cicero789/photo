@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrameNest Templates — Legal & Financial</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Nunito:wght@500;600;700;800;900&family=Playfair+Display:wght@600;700;800&family=Libre+Baskerville:wght@400;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+:root{--ink:#111827;--muted:#64748b;--paper:#fff;--line:rgba(15,23,42,.12);--shadow:0 26px 90px rgba(15,23,42,.16);--radius:28px}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:#0f172a}img{display:block;width:100%;object-fit:cover}a{text-decoration:none;color:inherit}.cover{min-height:72vh;display:grid;place-items:center;padding:84px 6vw;text-align:center;color:white;background:radial-gradient(circle at 18% 18%,rgba(212,175,55,.26),transparent 30%),radial-gradient(circle at 82% 18%,rgba(59,130,246,.28),transparent 28%),linear-gradient(135deg,#080b12,#111827 58%,#1e293b)}.cover .eyebrow{display:inline-flex;padding:10px 16px;border-radius:999px;border:1px solid rgba(255,255,255,.22);font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:900;color:#e5e7eb}.cover h1{max-width:1120px;margin:24px auto 18px;font-size:clamp(42px,7vw,94px);line-height:.94;letter-spacing:-.07em}.cover p{max-width:820px;margin:0 auto;font-size:clamp(18px,2vw,23px);line-height:1.65;color:#d1d5db}.template{min-height:760px;padding:78px 6vw;position:relative;overflow:hidden;background:var(--bg,#fff);color:var(--fg,#111827)}.template:before{content:"";position:absolute;width:430px;height:430px;border-radius:999px;background:var(--orb,rgba(37,99,235,.16));top:-150px;right:-120px;filter:blur(4px)}.template:after{content:"";position:absolute;width:330px;height:330px;border:1px solid var(--mark,rgba(15,23,42,.08));left:-120px;bottom:-130px;transform:rotate(24deg);border-radius:80px}.wrap{width:min(1200px,100%);margin:0 auto;position:relative;z-index:2}.template-number{position:absolute;top:22px;right:5vw;z-index:2;opacity:.44;font-size:12px;letter-spacing:.17em;text-transform:uppercase;font-weight:950}.nav{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-bottom:46px}.brand{display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.03em}.logo{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:var(--accent,#1d4ed8);color:var(--accentText,#fff);box-shadow:0 14px 34px rgba(0,0,0,.18);font-weight:950}.navlinks{display:flex;justify-content:flex-end;gap:18px;flex-wrap:wrap;font-size:14px;font-weight:850;opacity:.72}.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:42px;align-items:center}.hero h2{margin:0;color:var(--head,currentColor);font-family:var(--display,Inter),sans-serif;font-size:clamp(40px,5.5vw,78px);line-height:.95;letter-spacing:-.06em}.hero p{max-width:690px;margin:22px 0 0;color:var(--text,currentColor);opacity:.78;font-size:18px;line-height:1.7}.pills{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}.pill{padding:10px 14px;border-radius:999px;background:var(--pill,rgba(255,255,255,.72));border:1px solid var(--pillLine,rgba(15,23,42,.1));color:var(--pillText,currentColor);font-size:13px;font-weight:900}.btn-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:30px}.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 22px;border-radius:999px;background:var(--accent,#1d4ed8);color:var(--accentText,#fff);font-weight:950;box-shadow:0 18px 46px rgba(15,23,42,.2)}.btn.secondary{background:transparent;color:var(--head,currentColor);border:1px solid currentColor;box-shadow:none;opacity:.8}.media{position:relative;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--mediaLine,rgba(255,255,255,.5));background:white}.media img{height:430px}.media-note{position:absolute;left:22px;right:22px;bottom:22px;padding:18px;border-radius:22px;background:rgba(255,255,255,.9);backdrop-filter:blur(16px);color:#0f172a;font-weight:850;line-height:1.45;box-shadow:0 16px 48px rgba(15,23,42,.18)}.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:28px}.stat{padding:18px;border-radius:22px;background:var(--card,rgba(255,255,255,.8));border:1px solid var(--cardLine,rgba(15,23,42,.08));box-shadow:0 14px 34px rgba(15,23,42,.06)}.stat strong{display:block;color:var(--accent,#1d4ed8);font-size:32px;line-height:1;letter-spacing:-.06em}.main-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:24px;margin-top:52px}.panel{background:var(--card,rgba(255,255,255,.84));border:1px solid var(--cardLine,rgba(15,23,42,.08));border-radius:26px;padding:26px;box-shadow:0 18px 50px rgba(15,23,42,.08);backdrop-filter:blur(14px)}.panel h3{margin:0 0 12px;font-size:24px;color:var(--head,currentColor);letter-spacing:-.035em}.panel p{margin:0;color:var(--mutedText,#64748b);line-height:1.65}.credentials{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.credential{padding:10px 13px;border-radius:999px;background:var(--credential,rgba(15,23,42,.06));color:var(--credText,currentColor);font-size:13px;font-weight:900}.areas{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:0;padding:0;list-style:none}.areas li{min-height:54px;padding:14px;border-radius:18px;display:flex;gap:10px;align-items:flex-start;background:var(--serviceBg,rgba(255,255,255,.72));border:1px solid var(--cardLine,rgba(15,23,42,.08));font-weight:850}.areas li:before{content:"§";color:var(--accent,#1d4ed8);font-weight:950}.info-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}.info-card,.quote{padding:22px;border-radius:24px;background:var(--card,rgba(255,255,255,.84));border:1px solid var(--cardLine,rgba(15,23,42,.08));box-shadow:0 16px 42px rgba(15,23,42,.07)}.info-card b,.quote b{display:block;color:var(--head,currentColor);margin-bottom:9px}.info-card p,.quote p{margin:0;color:var(--mutedText,#64748b);line-height:1.6}.testimonials{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}.quote p{font-size:17px;color:var(--text,currentColor);opacity:.82}.gallery{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:14px;margin-top:26px}.gallery img{height:170px;border-radius:24px;box-shadow:0 18px 42px rgba(15,23,42,.1)}.gallery img:first-child{height:220px}.link{display:inline-flex;color:var(--accent,#1d4ed8);font-weight:950;margin-top:12px}.trial{--bg:linear-gradient(135deg,#21130c,#3b2416 52%,#0f0b08);--fg:#f8fafc;--head:#fff7ed;--text:#f5e6d3;--mutedText:#e7d8c5;--accent:#b7793b;--accentText:#fff7ed;--orb:rgba(180,83,9,.22);--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Libre Baskerville"}.cpa{--bg:linear-gradient(135deg,#f8fafc,#ffffff 50%,#e0f2fe);--accent:#0369a1;--orb:rgba(14,165,233,.18);--display:Inter}.tax{--bg:linear-gradient(135deg,#fff7ed,#ffffff 48%,#fef3c7);--accent:#ea580c;--orb:rgba(249,115,22,.22);--display:"Space Grotesk"}.wealth{--bg:linear-gradient(135deg,#07111f,#0f1e34 56%,#111827);--fg:#f8fafc;--head:#fff;--text:#dbeafe;--mutedText:#cbd5e1;--accent:#d6a74a;--accentText:#07111f;--orb:rgba(214,167,74,.2);--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.14);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.16);--display:"Playfair Display"}.insurance{--bg:linear-gradient(135deg,#ecfeff,#ffffff 46%,#dbeafe);--accent:#0891b2;--accentText:#ecfeff;--orb:rgba(6,182,212,.23);--display:Nunito}.mortgage{--bg:linear-gradient(135deg,#f0fdf4,#ffffff 48%,#dcfce7);--accent:#16a34a;--accentText:#052e16;--orb:rgba(34,197,94,.22);--display:"Space Grotesk"}.estate{--bg:linear-gradient(135deg,#faf7ef,#ffffff 48%,#f3e8d6);--accent:#92400e;--orb:rgba(146,64,14,.18);--display:"Libre Baskerville"}.notary{--bg:linear-gradient(135deg,#ffffff,#f1f5f9 55%,#e2e8f0);--accent:#475569;--orb:rgba(100,116,139,.16);--display:Inter}.bookkeeper{--bg:linear-gradient(135deg,#f0fdfa,#ffffff 52%,#ccfbf1);--accent:#0f766e;--orb:rgba(20,184,166,.2);--display:Nunito}.strategy{--bg:linear-gradient(135deg,#111827,#1f2937 54%,#312e81);--fg:#f8fafc;--head:#fff;--text:#e0e7ff;--mutedText:#cbd5e1;--accent:#a78bfa;--accentText:#111827;--orb:rgba(167,139,250,.22);--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.16);--display:"Space Grotesk"}.hr{--bg:linear-gradient(135deg,#eff6ff,#ffffff 48%,#fdf2f8);--accent:#2563eb;--orb:rgba(37,99,235,.18);--display:Inter}.mediator{--bg:linear-gradient(135deg,#f8fafc,#ffffff 50%,#f5f3ff);--accent:#7c3aed;--orb:rgba(124,58,237,.18);--display:"Libre Baskerville"}.immigration{--bg:linear-gradient(135deg,#ecfeff,#ffffff 45%,#f0fdf4);--accent:#0d9488;--orb:rgba(20,184,166,.22);--display:"Playfair Display"}.broker{--bg:linear-gradient(135deg,#fff7ed,#ffffff 48%,#ffedd5);--accent:#c2410c;--orb:rgba(249,115,22,.22);--display:"Space Grotesk"}.cpa .media,.bookkeeper .media,.notary .media{border-radius:18px}.wealth .media,.strategy .media{border-radius:42px}.estate .media,.mediator .media{border-radius:80px 26px 80px 26px}.insurance .media,.immigration .media{border-radius:26px 80px 26px 80px}.mortgage .media:before{content:"Rate Watch";position:absolute;top:18px;left:18px;z-index:2;padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.9);color:#14532d;font-weight:950}.tax .hero,.wealth .hero,.notary .hero,.strategy .hero,.mediator .hero,.broker .hero{grid-template-columns:.95fr 1.05fr}.cpa .hero,.insurance .hero,.estate .hero,.bookkeeper .hero,.hr .hero,.immigration .hero{grid-template-columns:1.1fr .9fr}@media(max-width:980px){.hero,.main-grid{grid-template-columns:1fr!important}.info-row,.gallery,.testimonials{grid-template-columns:1fr}.gallery img,.gallery img:first-child{height:220px}.areas{grid-template-columns:1fr}.media img{height:340px}.nav{align-items:flex-start;flex-direction:column}.navlinks{justify-content:flex-start}}@media(max-width:620px){.cover,.template{padding:64px 5vw}.hero h2{font-size:40px}.panel,.info-card,.quote{padding:20px}.media-note{position:static;margin:-48px 18px 18px}.stats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <header class="cover"><div><span class="eyebrow">FrameNest Mockup Collection</span><h1>Legal & Financial Website Templates</h1><p>Fourteen professional website sections for attorneys, accountants, advisors, consultants, brokers, and other trust-heavy service providers. Each section includes credentials, practice areas, consultation booking, testimonials, and location details.</p></div></header>
+  
+  <!-- 01. Trial Attorney -->
+  <section class="template trial">
+    <span class="template-number">Template 01 / Trial Attorney</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">T</span>Hawthorne Trial Law</div>
+        <div class="navlinks"><span>Credentials</span><span>Practice Areas</span><span>Consultation</span><span>Location</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Civil Litigation</span><span class="pill">Trial Strategy</span><span class="pill">Case Results</span></div>
+          <h2>Serious litigation for serious stakes.</h2>
+          <p>An authoritative legal website for trial attorneys who need credibility, practice-area depth, case results, and direct consultation pathways.</p>
+          <div class="stats"><div class="stat"><strong>$18M+</strong>Recovered for clients</div><div class="stat"><strong>22 yrs</strong>Trial experience</div></div>
+          <div class="btn-row"><a class="btn" href="#consultation">Request Consultation</a><a class="btn secondary" href="#credentials">View Credentials</a></div>
+        </div>
+        <div class="media"><img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800" alt="Trial Attorney professional website hero"><div class="media-note">Case results module · Bar admission info · Evidence-driven strategy</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel" id="credentials"><h3>Credentials & Licenses</h3><p>Professional credibility, registration details, and compliance-friendly trust signals are placed near the top for fast visitor confidence.</p><div class="credentials"><span class="credential">State Bar Member</span><span class="credential">Federal Court Admissions</span><span class="credential">Trial Lawyers Association</span></div></div>
+        <div class="panel"><h3>Practice Areas & Services</h3><ul class="areas"><li>Business disputes</li><li>Personal injury</li><li>Employment claims</li><li>Contract litigation</li><li>Insurance bad faith</li><li>Appeals support</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="consultation"><b>Consultation Booking</b><p>Prospects can request a consultation, upload preliminary details, and select phone, video, or in-office appointment preferences.</p><a class="link" href="#consultation">Request Consultation →</a></div>
+        <div class="info-card"><b>Location</b><p>Downtown legal district · 40 Court Street · Suite 1200<br>Available by appointment for private consultations.</p></div>
+        <div class="info-card"><b>Client Intake</b><p>Built-in intake prompts help qualify matters, gather documents, and route each inquiry to the right professional.</p></div>
+      </div>
+      <div class="testimonials"><div class="quote"><b>Client testimonial</b><p>“They prepared every detail before we entered the courtroom.”</p></div><div class="quote"><b>Client testimonial</b><p>“Clear advice, strong presence, and real strategy.”</p></div></div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800" alt="Trial Attorney gallery image one"><img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800" alt="Trial Attorney gallery image two"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800" alt="Trial Attorney gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 02. CPA Firm -->
+  <section class="template cpa">
+    <span class="template-number">Template 02 / CPA Firm</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">C</span>Ledger &amp; Lane CPAs</div>
+        <div class="navlinks"><span>Credentials</span><span>Practice Areas</span><span>Consultation</span><span>Location</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Tax Filing</span><span class="pill">Advisory</span><span class="pill">Client Portal</span></div>
+          <h2>Clean books, clear taxes, better decisions.</h2>
+          <p>A trustworthy accounting website for CPA firms offering tax preparation, advisory services, client portals, and year-round financial support.</p>
+          <div class="stats"><div class="stat"><strong>Apr 15</strong>Tax deadline ready</div><div class="stat"><strong>24/7</strong>Portal access</div></div>
+          <div class="btn-row"><a class="btn" href="#consultation">Request Consultation</a><a class="btn secondary" href="#credentials">View Credentials</a></div>
+        </div>
+        <div class="media"><img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800" alt="CPA Firm professional website hero"><div class="media-note">Tax deadline banner · Secure client portal · Services grid</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel" id="credentials"><h3>Credentials & Licenses</h3><p>Professional credibility, registration details, and compliance-friendly trust signals are placed near the top for fast visitor confidence.</p><div class="credentials"><span class="credential">Licensed CPA Firm</span><span class="credential">AICPA Member</span><span class="credential">IRS E-file Provider</span></div></div>
+        <div class="panel"><h3>Practice Areas & Services</h3><ul class="areas"><li>Tax preparation</li><li>Business advisory</li><li>Payroll support</li><li>Financial statements</li><li>Entity planning</li><li>Quarterly estimates</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="consultation"><b>Consultation Booking</b><p>Prospects can request a consultation, upload preliminary details, and select phone, video, or in-office appointment preferences.</p><a class="link" href="#consultation">Request Consultation →</a></div>
+        <div class="info-card"><b>Location</b><p>Financial Center · 280 Market Avenue · Suite 410<br>Available by appointment for private consultations.</p></div>
+        <div class="info-card"><b>Client Intake</b><p>Built-in intake prompts help qualify matters, gather documents, and route each inquiry to the right professional.</p></div>
+      </div>
+      <div class="testimonials"><div class="quote"><b>Client testimonial</b><p>“They turned our messy financial year into a clean filing process.”</p></div><div class="quote"><b>Client testimonial</b><p>“Responsive, organized, and reliable every quarter.”</p></div></div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800" alt="CPA Firm gallery image one"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800" alt="CPA Firm gallery image two"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800" alt="CPA Firm gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 03. Tax Expert -->
+  <section class="template tax">
+    <span class="template-number">Template 03 / Tax Expert</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">T</span>Summit Tax Expert</div>
+        <div class="navlinks"><span>Credentials</span><span>Practice Areas</span><span>Consultation</span><span>Location</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">1040</span><span class="pill">Small Business</span><span class="pill">Deadline Help</span></div>
+          <h2>Tax season feels easier when the checklist is clear.</h2>
+          <p>A seasonal but professional template for tax experts with service packages, document checklists, filing reminders, and simple upload instructions.</p>
+          <div class="stats"><div class="stat"><strong>3-step</strong>Filing process</div><div class="stat"><strong>48hr</strong>Checklist review</div></div>
+          <div class="btn-row"><a class="btn" href="#consultation">Request Consultation</a><a class="btn secondary" href="#credentials">View Credentials</a></div>
+        </div>
+        <div class="media"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800" alt="Tax Expert professional website hero"><div class="media-note">Document checklist · Filing deadlines · Organized tax packages</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel" id="credentials"><h3>Credentials & Licenses</h3><p>Professional credibility, registration details, and compliance-friendly trust signals are placed near the top for fast visitor confidence.</p><div class="credentials"><span class="credential">Enrolled Agent</span><span class="credential">IRS Authorized E-file</span><span class="credential">Continuing Tax Education</span></div></div>
+        <div class="panel"><h3>Practice Areas & Services</h3><ul class="areas"><li>Individual tax returns</li><li>S-corp filings</li><li>1099 contractor returns</li><li>Back taxes</li><li>Amended returns</li><li>Tax planning</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="consultation"><b>Consultation Booking</b><p>Prospects can request a consultation, upload preliminary details, and select phone, video, or in-office appointment preferences.</p><a class="link" href="#consultation">Request Consultation →</a></div>
+        <div class="info-card"><b>Location</b><p>Northside Office Park · 1020 Ledger Road · Unit B<br>Available by appointment for private consultations.</p></div>
+        <div class="info-card"><b>Client Intake</b><p>Built-in intake prompts help qualify matters, gather documents, and route each inquiry to the right professional.</p></div>
+      </div>
+      <div class="testimonials"><div class="quote"><b>Client testimonial</b><p>“The checklist saved me from forgetting important documents.”</p></div><div class="quote"><b>Client testimonial</b><p>“Fast, careful, and very organized.”</p></div></div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800" alt="Tax Expert gallery image one"><img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800" alt="Tax Expert gallery image two"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800" alt="Tax Expert gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 04. Wealth Advisor -->
+  <section class="template wealth">
+    <span class="template-number">Template 04 / Wealth Advisor</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">W</span>Northstar Wealth Partners</div>
+        <div class="navlinks"><span>Credentials</span><span>Practice Areas</span><span>Consultation</span><span>Location</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Fiduciary</span><span class="pill">Portfolio Strategy</span><span class="pill">Retirement</span></div>
+          <h2>A disciplined wealth plan for the life you are building.</h2>
+          <p>A premium wealth management design with fiduciary language, portfolio philosophy, AUM milestones, and high-trust advisor positioning.</p>
+          <div class="stats"><div class="stat"><strong>$250M</strong>Assets advised</div><div class="stat"><strong>100%</strong>Fiduciary advice</div></div>
+          <div class="btn-row"><a class="btn" href="#consultation">Request Consultation</a><a class="btn secondary" href="#credentials">View Credentials</a></div>
+        </div>
+        <div class="media"><img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800" alt="Wealth Advisor professional website hero"><div class="media-note">Fiduciary badge · AUM milestones · Portfolio approach</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel" id="credentials"><h3>Credentials & Licenses</h3><p>Professional credibility, registration details, and compliance-friendly trust signals are placed near the top for fast visitor confidence.</p><div class="credentials"><span class="credential">CFP® Professional</span><span class="credential">Registered Investment Adviser</span><span class="credential">Fiduciary Standard</span></div></div>
+        <div class="panel"><h3>Practice Areas & Services</h3><ul class="areas"><li>Investment management</li><li>Retirement planning</li><li>Tax-aware portfolios</li><li>Estate coordination</li><li>Equity compensation</li><li>Cash flow planning</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="consultation"><b>Consultation Booking</b><p>Prospects can request a consultation, upload preliminary details, and select phone, video, or in-office appointment preferences.</p><a class="link" href="#consultation">Request Consultation →</a></div>
+        <div class="info-card"><b>Location</b><p>Private advisory suite · 800 Harbor Plaza · 18th Floor<br>Available by appointment for private consultations.</p></div>
+        <div class="info-card"><b>Client Intake</b><p>Built-in intake prompts help qualify matters, gather documents, and route each inquiry to the right professional.</p></div>
+      </div>
+      <div class="testimonials"><div class="quote"><b>Client testimonial</b><p>“They connected our investments to actual life decisions.”</p></div><div class="quote"><b>Client testimonial</b><p>“Sophisticated without making us feel lost.”</p></div></div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800" alt="Wealth Advisor gallery image one"><img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800" alt="Wealth Advisor gallery image two"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800" alt="Wealth Advisor gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 05. Insurance Pro -->
+  <section class="template insurance">
+    <span class="template-number">Template 05 / Insurance Pro</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">I</span>Shieldwise Insurance</div>
+        <div class="navlinks"><span>Credentials</span><span>Practice Areas</span><span>Consultation</span><span>Location</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Auto</span><span class="pill">Home</span><span class="pill">Life</span></div>
+          <h2>Coverage explained clearly before you need it.</h2>
+          <p>A friendly insurance professional template with policy categories, quote calculator CTA, carrier logo zones, and approachable service messaging.</p>
+          <div class="stats"><div class="stat"><strong>12+</strong>Carrier options</div><div class="stat"><strong>15min</strong>Quote review</div></div>
+          <div class="btn-row"><a class="btn" href="#consultation">Request Consultation</a><a class="btn secondary" href="#credentials">View Credentials</a></div>
+        </div>
+        <div class="media"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800" alt="Insurance Pro professional website hero"><div class="media-note">Quote calculator CTA · Carrier logos · Policy comparison cards</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel" id="credentials"><h3>Credentials & Licenses</h3><p>Professional credibility, registration details, and compliance-friendly trust signals are placed near the top for fast visitor confidence.</p><div class="credentials"><span class="credential">Licensed Insurance Agent</span><span class="credential">State DOI Registered</span><span class="credential">Independent Carrier Network</span></div></div>
+        <div class="panel"><h3>Practice Areas & Services</h3><ul class="areas"><li>Auto insurance</li><li>Home insurance</li><li>Life insurance</li><li>Business policies</li><li>Umbrella coverage</li><li>Annual policy reviews</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="consultation"><b>Consultation Booking</b><p>Prospects can request a consultation, upload preliminary details, and select phone, video, or in-office appointment preferences.</p><a class="link" href="#consultation">Request Consultation →</a></div>
+        <div class="info-card"><b>Location</b><p>Community business plaza · 515 Oak Street · Suite 3<br>Available by appointment for private consultations.</p></div>
+        <div class="info-card"><b>Client Intake</b><p>Built-in intake prompts help qualify matters, gather documents, and route each inquiry to the right professional.</p></div>
+      </div>
+      <div class="testimonials"><div class="quote"><b>Client testimonial</b><p>“They found coverage gaps I did not know I had.”</p></div><div class="quote"><b>Client testimonial</b><p>“Friendly, fast, and easy to understand.”</p></div></div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800" alt="Insurance Pro gallery image one"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800" alt="Insurance Pro gallery image two"><img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800" alt="Insurance Pro gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 06. Mortgage Guide -->
+  <section class="template mortgage">
+    <span class="template-number">Template 06 / Mortgage Guide</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">M</span>HomePath Mortgage Guide</div>
+        <div class="navlinks"><span>Credentials</span><span>Practice Areas</span><span>Consultation</span><span>Location</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Pre-Approval</span><span class="pill">Rate Options</span><span class="pill">NMLS</span></div>
+          <h2>Know your numbers before you shop for the home.</h2>
+          <p>A home-focused mortgage website with rate display, pre-approval CTA, calculator block, and compliance-friendly NMLS details.</p>
+          <div class="stats"><div class="stat"><strong>24hr</strong>Pre-approval review</div><div class="stat"><strong>NMLS</strong>#2481930</div></div>
+          <div class="btn-row"><a class="btn" href="#consultation">Request Consultation</a><a class="btn secondary" href="#credentials">View Credentials</a></div>
+        </div>
+        <div class="media"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800" alt="Mortgage Guide professional website hero"><div class="media-note">Rate display · Mortgage calculator · Pre-approval CTA</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel" id="credentials"><h3>Credentials & Licenses</h3><p>Professional credibility, registration details, and compliance-friendly trust signals are placed near the top for fast visitor confidence.</p><div class="credentials"><span class="credential">Licensed Mortgage Loan Officer</span><span class="credential">NMLS #2481930</span><span class="credential">Equal Housing Lender Partner</span></div></div>
+        <div class="panel"><h3>Practice Areas & Services</h3><ul class="areas"><li>First-time buyers</li><li>Refinancing</li><li>Jumbo loans</li><li>FHA loans</li><li>VA loans</li><li>Investment property loans</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="consultation"><b>Consultation Booking</b><p>Prospects can request a consultation, upload preliminary details, and select phone, video, or in-office appointment preferences.</p><a class="link" href="#consultation">Request Consultation →</a></div>
+        <div class="info-card"><b>Location</b><p>Home finance office · 2200 Willow Avenue · Suite 8<br>Available by appointment for private consultations.</p></div>
+        <div class="info-card"><b>Client Intake</b><p>Built-in intake prompts help qualify matters, gather documents, and route each inquiry to the right professional.</p></div>
+      </div>
+      <div class="testimonials"><div class="quote"><b>Client testimonial</b><p>“We understood every number before making an offer.”</p></div><div class="quote"><b>Client testimonial</b><p>“The pre-approval process was smooth and quick.”</p></div></div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800" alt="Mortgage Guide gallery image one"><img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800" alt="Mortgage Guide gallery image two"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800" alt="Mortgage Guide gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 07. Estate Planner -->
+  <section class="template estate">
+    <span class="template-number">Template 07 / Estate Planner</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">E</span>Evergreen Estate Law</div>
+        <div class="navlinks"><span>Credentials</span><span>Practice Areas</span><span>Consultation</span><span>Location</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Wills</span><span class="pill">Trusts</span><span class="pill">Legacy Planning</span></div>
+          <h2>Protect the people and wishes that matter most.</h2>
+          <p>An elegant estate planning template for wills, trusts, probate guidance, family protection, and legacy-focused client education.</p>
+          <div class="stats"><div class="stat"><strong>4-part</strong>Estate plan</div><div class="stat"><strong>Flat</strong>Fee options</div></div>
+          <div class="btn-row"><a class="btn" href="#consultation">Request Consultation</a><a class="btn secondary" href="#credentials">View Credentials</a></div>
+        </div>
+        <div class="media"><img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800" alt="Estate Planner professional website hero"><div class="media-note">Family protection messaging · Trust types · Legacy planning guide</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel" id="credentials"><h3>Credentials & Licenses</h3><p>Professional credibility, registration details, and compliance-friendly trust signals are placed near the top for fast visitor confidence.</p><div class="credentials"><span class="credential">Estate Planning Attorney</span><span class="credential">State Bar Member</span><span class="credential">Trust &amp; Probate Section</span></div></div>
+        <div class="panel"><h3>Practice Areas & Services</h3><ul class="areas"><li>Wills</li><li>Revocable trusts</li><li>Powers of attorney</li><li>Healthcare directives</li><li>Probate guidance</li><li>Family asset protection</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="consultation"><b>Consultation Booking</b><p>Prospects can request a consultation, upload preliminary details, and select phone, video, or in-office appointment preferences.</p><a class="link" href="#consultation">Request Consultation →</a></div>
+        <div class="info-card"><b>Location</b><p>Heritage Building · 16 Elm Court · Suite 500<br>Available by appointment for private consultations.</p></div>
+        <div class="info-card"><b>Client Intake</b><p>Built-in intake prompts help qualify matters, gather documents, and route each inquiry to the right professional.</p></div>
+      </div>
+      <div class="testimonials"><div class="quote"><b>Client testimonial</b><p>“They made a difficult topic feel manageable and human.”</p></div><div class="quote"><b>Client testimonial</b><p>“Our family finally has documents in place.”</p></div></div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800" alt="Estate Planner gallery image one"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800" alt="Estate Planner gallery image two"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800" alt="Estate Planner gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 08. Notary Express -->
+  <section class="template notary">
+    <span class="template-number">Template 08 / Notary Express</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">N</span>Notary Express Mobile</div>
+        <div class="navlinks"><span>Credentials</span><span>Practice Areas</span><span>Consultation</span><span>Location</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Mobile Notary</span><span class="pill">Same-Day</span><span class="pill">Clear Pricing</span></div>
+          <h2>Fast notarization wherever the paperwork is.</h2>
+          <p>A simple practical notary website with mobile service, pricing, availability calendar, appointment booking, and document preparation instructions.</p>
+          <div class="stats"><div class="stat"><strong>$15+</strong>Per notarization</div><div class="stat"><strong>7 days</strong>Availability</div></div>
+          <div class="btn-row"><a class="btn" href="#consultation">Request Consultation</a><a class="btn secondary" href="#credentials">View Credentials</a></div>
+        </div>
+        <div class="media"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800" alt="Notary Express professional website hero"><div class="media-note">Mobile availability · Pricing table · Calendar booking</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel" id="credentials"><h3>Credentials & Licenses</h3><p>Professional credibility, registration details, and compliance-friendly trust signals are placed near the top for fast visitor confidence.</p><div class="credentials"><span class="credential">Commissioned Notary Public</span><span class="credential">Bonded &amp; Insured</span><span class="credential">Background Screened</span></div></div>
+        <div class="panel"><h3>Practice Areas & Services</h3><ul class="areas"><li>Acknowledgments</li><li>Jurats</li><li>Loan signings</li><li>Power of attorney</li><li>Travel consent forms</li><li>Mobile notarization</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="consultation"><b>Consultation Booking</b><p>Prospects can request a consultation, upload preliminary details, and select phone, video, or in-office appointment preferences.</p><a class="link" href="#consultation">Request Consultation →</a></div>
+        <div class="info-card"><b>Location</b><p>Mobile service area · Downtown, suburbs, hospitals, and offices<br>Available by appointment for private consultations.</p></div>
+        <div class="info-card"><b>Client Intake</b><p>Built-in intake prompts help qualify matters, gather documents, and route each inquiry to the right professional.</p></div>
+      </div>
+      <div class="testimonials"><div class="quote"><b>Client testimonial</b><p>“They came to our office the same afternoon.”</p></div><div class="quote"><b>Client testimonial</b><p>“Simple pricing and no confusion.”</p></div></div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800" alt="Notary Express gallery image one"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800" alt="Notary Express gallery image two"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800" alt="Notary Express gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 09. Bookkeeper -->
+  <section class="template bookkeeper">
+    <span class="template-number">Template 09 / Bookkeeper</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">B</span>Balanced Books Co.</div>
+        <div class="navlinks"><span>Credentials</span><span>Practice Areas</span><span>Consultation</span><span>Location</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Monthly Books</span><span class="pill">QuickBooks</span><span class="pill">Xero</span></div>
+          <h2>Monthly books that stay clean without you chasing them.</h2>
+          <p>A clean bookkeeping website for monthly plans, QuickBooks and Xero integration, financial reports, and small business support.</p>
+          <div class="stats"><div class="stat"><strong>10th</strong>Monthly reports</div><div class="stat"><strong>3 tiers</strong>Bookkeeping plans</div></div>
+          <div class="btn-row"><a class="btn" href="#consultation">Request Consultation</a><a class="btn secondary" href="#credentials">View Credentials</a></div>
+        </div>
+        <div class="media"><img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800" alt="Bookkeeper professional website hero"><div class="media-note">QuickBooks/Xero badges · Monthly plans · Clean report dashboard</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel" id="credentials"><h3>Credentials & Licenses</h3><p>Professional credibility, registration details, and compliance-friendly trust signals are placed near the top for fast visitor confidence.</p><div class="credentials"><span class="credential">Certified QuickBooks ProAdvisor</span><span class="credential">Xero Advisor Certified</span><span class="credential">Bookkeeping Ethics Training</span></div></div>
+        <div class="panel"><h3>Practice Areas & Services</h3><ul class="areas"><li>Monthly categorization</li><li>Bank reconciliation</li><li>Accounts payable</li><li>Accounts receivable</li><li>Monthly reports</li><li>Cleanup projects</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="consultation"><b>Consultation Booking</b><p>Prospects can request a consultation, upload preliminary details, and select phone, video, or in-office appointment preferences.</p><a class="link" href="#consultation">Request Consultation →</a></div>
+        <div class="info-card"><b>Location</b><p>Remote-first bookkeeping studio · Local consultations by appointment<br>Available by appointment for private consultations.</p></div>
+        <div class="info-card"><b>Client Intake</b><p>Built-in intake prompts help qualify matters, gather documents, and route each inquiry to the right professional.</p></div>
+      </div>
+      <div class="testimonials"><div class="quote"><b>Client testimonial</b><p>“Our books are finally ready before tax season.”</p></div><div class="quote"><b>Client testimonial</b><p>“Clear reports, clean processes, and less stress.”</p></div></div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800" alt="Bookkeeper gallery image one"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800" alt="Bookkeeper gallery image two"><img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800" alt="Bookkeeper gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 10. Strategy Consultant -->
+  <section class="template strategy">
+    <span class="template-number">Template 10 / Strategy Consultant</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">S</span>Crescent Strategy Group</div>
+        <div class="navlinks"><span>Credentials</span><span>Practice Areas</span><span>Consultation</span><span>Location</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Growth Strategy</span><span class="pill">Operations</span><span class="pill">Case Studies</span></div>
+          <h2>Sharper strategy, cleaner execution, measurable growth.</h2>
+          <p>A premium consulting template that leads with case studies, methodology, engagement models, and high-value client outcomes.</p>
+          <div class="stats"><div class="stat"><strong>6wk</strong>Strategy sprint</div><div class="stat"><strong>3x</strong>Execution cadence</div></div>
+          <div class="btn-row"><a class="btn" href="#consultation">Request Consultation</a><a class="btn secondary" href="#credentials">View Credentials</a></div>
+        </div>
+        <div class="media"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800" alt="Strategy Consultant professional website hero"><div class="media-note">Case-study forward · Methodology timeline · Engagement model</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel" id="credentials"><h3>Credentials & Licenses</h3><p>Professional credibility, registration details, and compliance-friendly trust signals are placed near the top for fast visitor confidence.</p><div class="credentials"><span class="credential">MBA-Led Advisory</span><span class="credential">Fortune 500 Experience</span><span class="credential">Certified Strategy Facilitator</span></div></div>
+        <div class="panel"><h3>Practice Areas & Services</h3><ul class="areas"><li>Growth strategy</li><li>Market analysis</li><li>Operating model design</li><li>Pricing strategy</li><li>Executive workshops</li><li>Implementation planning</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="consultation"><b>Consultation Booking</b><p>Prospects can request a consultation, upload preliminary details, and select phone, video, or in-office appointment preferences.</p><a class="link" href="#consultation">Request Consultation →</a></div>
+        <div class="info-card"><b>Location</b><p>Consulting studio · 900 Commerce Square · 11th Floor<br>Available by appointment for private consultations.</p></div>
+        <div class="info-card"><b>Client Intake</b><p>Built-in intake prompts help qualify matters, gather documents, and route each inquiry to the right professional.</p></div>
+      </div>
+      <div class="testimonials"><div class="quote"><b>Client testimonial</b><p>“They turned a vague growth goal into a real operating plan.”</p></div><div class="quote"><b>Client testimonial</b><p>“Direct, structured, and executive-ready.”</p></div></div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800" alt="Strategy Consultant gallery image one"><img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800" alt="Strategy Consultant gallery image two"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800" alt="Strategy Consultant gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 11. HR Advisor -->
+  <section class="template hr">
+    <span class="template-number">Template 11 / HR Advisor</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">H</span>PeopleFirst HR Advisors</div>
+        <div class="navlinks"><span>Credentials</span><span>Practice Areas</span><span>Consultation</span><span>Location</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Compliance</span><span class="pill">Training</span><span class="pill">Employee Relations</span></div>
+          <h2>HR support that protects the business and respects the people.</h2>
+          <p>A corporate people-focused HR advisor template with compliance services, training programs, employee relations support, and leadership resources.</p>
+          <div class="stats"><div class="stat"><strong>50+</strong>Policies built</div><div class="stat"><strong>SHRM</strong>Certified</div></div>
+          <div class="btn-row"><a class="btn" href="#consultation">Request Consultation</a><a class="btn secondary" href="#credentials">View Credentials</a></div>
+        </div>
+        <div class="media"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800" alt="HR Advisor professional website hero"><div class="media-note">Compliance services · Training programs · People-first advisory</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel" id="credentials"><h3>Credentials & Licenses</h3><p>Professional credibility, registration details, and compliance-friendly trust signals are placed near the top for fast visitor confidence.</p><div class="credentials"><span class="credential">SHRM-SCP</span><span class="credential">PHR Certified</span><span class="credential">Workplace Investigations Training</span></div></div>
+        <div class="panel"><h3>Practice Areas & Services</h3><ul class="areas"><li>HR compliance</li><li>Employee handbooks</li><li>Manager training</li><li>Investigations</li><li>Performance systems</li><li>Policy development</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="consultation"><b>Consultation Booking</b><p>Prospects can request a consultation, upload preliminary details, and select phone, video, or in-office appointment preferences.</p><a class="link" href="#consultation">Request Consultation →</a></div>
+        <div class="info-card"><b>Location</b><p>People operations office · 430 Union Boulevard · Suite 205<br>Available by appointment for private consultations.</p></div>
+        <div class="info-card"><b>Client Intake</b><p>Built-in intake prompts help qualify matters, gather documents, and route each inquiry to the right professional.</p></div>
+      </div>
+      <div class="testimonials"><div class="quote"><b>Client testimonial</b><p>“They gave our managers the structure they were missing.”</p></div><div class="quote"><b>Client testimonial</b><p>“Professional, practical, and careful with risk.”</p></div></div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800" alt="HR Advisor gallery image one"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800" alt="HR Advisor gallery image two"><img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800" alt="HR Advisor gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 12. Mediator -->
+  <section class="template mediator">
+    <span class="template-number">Template 12 / Mediator</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">M</span>Common Ground Mediation</div>
+        <div class="navlinks"><span>Credentials</span><span>Practice Areas</span><span>Consultation</span><span>Location</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Neutral</span><span class="pill">Confidential</span><span class="pill">Resolution</span></div>
+          <h2>A neutral path through difficult conflict.</h2>
+          <p>A calm mediation template emphasizing neutrality, resolution process, confidentiality, and conflict types for families, workplaces, and businesses.</p>
+          <div class="stats"><div class="stat"><strong>4-step</strong>Resolution process</div><div class="stat"><strong>Private</strong>Sessions</div></div>
+          <div class="btn-row"><a class="btn" href="#consultation">Request Consultation</a><a class="btn secondary" href="#credentials">View Credentials</a></div>
+        </div>
+        <div class="media"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800" alt="Mediator professional website hero"><div class="media-note">Resolution process · Neutrality emphasis · Conflict-type cards</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel" id="credentials"><h3>Credentials & Licenses</h3><p>Professional credibility, registration details, and compliance-friendly trust signals are placed near the top for fast visitor confidence.</p><div class="credentials"><span class="credential">Certified Mediator</span><span class="credential">Court-Approved Panelist</span><span class="credential">Conflict Resolution Training</span></div></div>
+        <div class="panel"><h3>Practice Areas & Services</h3><ul class="areas"><li>Business disputes</li><li>Family mediation</li><li>Workplace conflict</li><li>Contract disagreements</li><li>Neighbor disputes</li><li>Pre-litigation mediation</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="consultation"><b>Consultation Booking</b><p>Prospects can request a consultation, upload preliminary details, and select phone, video, or in-office appointment preferences.</p><a class="link" href="#consultation">Request Consultation →</a></div>
+        <div class="info-card"><b>Location</b><p>Neutral meeting rooms · 118 Center Avenue · Suite 600<br>Available by appointment for private consultations.</p></div>
+        <div class="info-card"><b>Client Intake</b><p>Built-in intake prompts help qualify matters, gather documents, and route each inquiry to the right professional.</p></div>
+      </div>
+      <div class="testimonials"><div class="quote"><b>Client testimonial</b><p>“The process helped both sides feel heard.”</p></div><div class="quote"><b>Client testimonial</b><p>“Calm, balanced, and focused on resolution.”</p></div></div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800" alt="Mediator gallery image one"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800" alt="Mediator gallery image two"><img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800" alt="Mediator gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 13. Immigration Counsel -->
+  <section class="template immigration">
+    <span class="template-number">Template 13 / Immigration Counsel</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">I</span>Bridgeway Immigration Counsel</div>
+        <div class="navlinks"><span>Credentials</span><span>Practice Areas</span><span>Consultation</span><span>Location</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Visas</span><span class="pill">Green Cards</span><span class="pill">Multilingual</span></div>
+          <h2>Immigration guidance with clarity, care, and persistence.</h2>
+          <p>A welcoming immigration law template with visa categories, multilingual hints, success stories, and a reassuring consultation path.</p>
+          <div class="stats"><div class="stat"><strong>EN/ES</strong>Consultations</div><div class="stat"><strong>AILA</strong>Member</div></div>
+          <div class="btn-row"><a class="btn" href="#consultation">Request Consultation</a><a class="btn secondary" href="#credentials">View Credentials</a></div>
+        </div>
+        <div class="media"><img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800" alt="Immigration Counsel professional website hero"><div class="media-note">Visa-type guide · Multilingual hints · Success stories</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel" id="credentials"><h3>Credentials & Licenses</h3><p>Professional credibility, registration details, and compliance-friendly trust signals are placed near the top for fast visitor confidence.</p><div class="credentials"><span class="credential">Immigration Attorney</span><span class="credential">State Bar Member</span><span class="credential">AILA Member</span></div></div>
+        <div class="panel"><h3>Practice Areas & Services</h3><ul class="areas"><li>Family petitions</li><li>Employment visas</li><li>Green cards</li><li>Naturalization</li><li>Waivers</li><li>Removal defense referrals</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="consultation"><b>Consultation Booking</b><p>Prospects can request a consultation, upload preliminary details, and select phone, video, or in-office appointment preferences.</p><a class="link" href="#consultation">Request Consultation →</a></div>
+        <div class="info-card"><b>Location</b><p>Bridgeway Legal Center · 725 Hope Street · Suite 310<br>Available by appointment for private consultations.</p></div>
+        <div class="info-card"><b>Client Intake</b><p>Built-in intake prompts help qualify matters, gather documents, and route each inquiry to the right professional.</p></div>
+      </div>
+      <div class="testimonials"><div class="quote"><b>Client testimonial</b><p>“They explained every step in a way our family understood.”</p></div><div class="quote"><b>Client testimonial</b><p>“Careful, honest, and prepared.”</p></div></div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800" alt="Immigration Counsel gallery image one"><img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800" alt="Immigration Counsel gallery image two"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800" alt="Immigration Counsel gallery image three"></div>
+    </div>
+  </section>
+
+  <!-- 14. Business Broker -->
+  <section class="template broker">
+    <span class="template-number">Template 14 / Business Broker</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">B</span>DealBridge Business Brokers</div>
+        <div class="navlinks"><span>Credentials</span><span>Practice Areas</span><span>Consultation</span><span>Location</span></div>
+      </nav>
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Valuation</span><span class="pill">Listings</span><span class="pill">Transactions</span></div>
+          <h2>Buy, sell, and value businesses with deal discipline.</h2>
+          <p>A deal-oriented business broker template with listing-style cards, transaction track record, valuation CTA, and buyer/seller consultation paths.</p>
+          <div class="stats"><div class="stat"><strong>$42M</strong>Closed transactions</div><div class="stat"><strong>Free</strong>Valuation review</div></div>
+          <div class="btn-row"><a class="btn" href="#consultation">Request Consultation</a><a class="btn secondary" href="#credentials">View Credentials</a></div>
+        </div>
+        <div class="media"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800" alt="Business Broker professional website hero"><div class="media-note">Listing-style layout · Transaction record · Free valuation offer</div></div>
+      </div>
+      <div class="main-grid">
+        <div class="panel" id="credentials"><h3>Credentials & Licenses</h3><p>Professional credibility, registration details, and compliance-friendly trust signals are placed near the top for fast visitor confidence.</p><div class="credentials"><span class="credential">Certified Business Intermediary</span><span class="credential">Licensed Business Broker</span><span class="credential">M&amp;A Advisory Experience</span></div></div>
+        <div class="panel"><h3>Practice Areas & Services</h3><ul class="areas"><li>Business valuation</li><li>Sell-side advisory</li><li>Buyer representation</li><li>Confidential listings</li><li>Due diligence support</li><li>Deal negotiation</li></ul></div>
+      </div>
+      <div class="info-row">
+        <div class="info-card" id="consultation"><b>Consultation Booking</b><p>Prospects can request a consultation, upload preliminary details, and select phone, video, or in-office appointment preferences.</p><a class="link" href="#consultation">Request Consultation →</a></div>
+        <div class="info-card"><b>Location</b><p>Deal advisory office · 300 Capital Way · Suite 900<br>Available by appointment for private consultations.</p></div>
+        <div class="info-card"><b>Client Intake</b><p>Built-in intake prompts help qualify matters, gather documents, and route each inquiry to the right professional.</p></div>
+      </div>
+      <div class="testimonials"><div class="quote"><b>Client testimonial</b><p>“They protected confidentiality and found serious buyers.”</p></div><div class="quote"><b>Client testimonial</b><p>“The valuation gave us a realistic path forward.”</p></div></div>
+      <div class="gallery"><img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800" alt="Business Broker gallery image one"><img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800" alt="Business Broker gallery image two"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800" alt="Business Broker gallery image three"></div>
+    </div>
+  </section>
+
+</body>
+</html>

@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrameNest Templates — Teaching &amp; Tutoring</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=Inter:wght@400;500;600;700;800;900&family=Merriweather:wght@400;700;900&family=Playfair+Display:wght@600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ink:#172033;
+      --muted:#667085;
+      --paper:#ffffff;
+      --line:rgba(20,30,50,.12);
+      --shadow:0 24px 70px rgba(15,23,42,.12);
+      --soft-shadow:0 14px 36px rgba(15,23,42,.10);
+      --radius:28px;
+      --radius-sm:18px;
+      --img-classroom:url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800');
+      --img-tutoring:url('https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800');
+      --img-students:url('https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=800');
+      --img-books:url('https://images.unsplash.com/photo-1523050854058-8df90110c8f1?w=800');
+      --img-online:url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800');
+      --img-music:url('https://images.unsplash.com/photo-1460518451285-97b6aa326961?w=800');
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--ink);
+      background:#f4f6fb;
+    }
+    a{color:inherit;text-decoration:none}
+    img{display:block;max-width:100%}
+    .page-intro{
+      min-height:72vh;
+      padding:72px clamp(22px,5vw,86px);
+      display:grid;
+      place-items:center;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(79,70,229,.18), transparent 32%),
+        radial-gradient(circle at 85% 20%, rgba(14,165,233,.18), transparent 28%),
+        linear-gradient(135deg,#0f172a,#1e293b 46%,#312e81);
+      color:#fff;
+      overflow:hidden;
+      position:relative;
+    }
+    .page-intro:after{
+      content:"";
+      position:absolute;
+      inset:8%;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:44px;
+      pointer-events:none;
+    }
+    .intro-card{
+      width:min(1120px,100%);
+      position:relative;
+      z-index:1;
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:36px;
+      align-items:center;
+    }
+    .intro-card h1{
+      font-size:clamp(44px,7vw,94px);
+      line-height:.94;
+      letter-spacing:-.07em;
+      margin:0 0 24px;
+    }
+    .intro-card p{
+      max-width:760px;
+      font-size:clamp(17px,2vw,24px);
+      color:rgba(255,255,255,.78);
+      margin:0;
+      line-height:1.55;
+    }
+    .intro-meta{
+      background:rgba(255,255,255,.1);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:32px;
+      padding:28px;
+      backdrop-filter:blur(18px);
+      box-shadow:0 28px 80px rgba(0,0,0,.2);
+    }
+    .intro-meta strong{display:block;font-size:52px;line-height:1;margin-bottom:8px}
+    .intro-meta span{display:block;color:rgba(255,255,255,.74);font-size:15px;line-height:1.6}
+    .template{
+      min-height:600px;
+      padding:clamp(46px,6vw,86px) clamp(20px,5vw,78px);
+      position:relative;
+      overflow:hidden;
+    }
+    .template-shell{max-width:1200px;margin:0 auto;position:relative;z-index:1}
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:9px;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.17em;
+      font-weight:800;
+      margin-bottom:16px;
+    }
+    .eyebrow:before{
+      content:"";
+      width:34px;
+      height:2px;
+      background:currentColor;
+      border-radius:999px;
+    }
+    .hero-grid{
+      display:grid;
+      grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);
+      gap:clamp(24px,4vw,54px);
+      align-items:center;
+    }
+    .hero h2{
+      font-size:clamp(34px,5vw,66px);
+      line-height:.98;
+      letter-spacing:-.055em;
+      margin:0 0 18px;
+    }
+    .hero p{
+      font-size:clamp(16px,1.7vw,20px);
+      line-height:1.65;
+      margin:0 0 26px;
+      color:var(--muted);
+      max-width:670px;
+    }
+    .btn-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:22px 0 0}
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:48px;
+      padding:13px 22px;
+      border-radius:999px;
+      font-weight:800;
+      border:1px solid transparent;
+      box-shadow:var(--soft-shadow);
+      transition:transform .2s ease, box-shadow .2s ease;
+      cursor:pointer;
+    }
+    .btn:hover{transform:translateY(-2px);box-shadow:0 22px 48px rgba(15,23,42,.18)}
+    .btn-secondary{background:rgba(255,255,255,.72);border-color:rgba(15,23,42,.14);box-shadow:none}
+    .photo-card{
+      border-radius:var(--radius);
+      overflow:hidden;
+      box-shadow:var(--shadow);
+      min-height:360px;
+      background-size:cover;
+      background-position:center;
+      position:relative;
+      isolation:isolate;
+    }
+    .photo-card:after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(to top,rgba(0,0,0,.54),transparent 55%);
+      z-index:-1;
+    }
+    .photo-label{
+      position:absolute;
+      left:22px;
+      right:22px;
+      bottom:22px;
+      padding:16px 18px;
+      color:#fff;
+      background:rgba(0,0,0,.28);
+      border:1px solid rgba(255,255,255,.18);
+      backdrop-filter:blur(12px);
+      border-radius:20px;
+      font-weight:800;
+    }
+    .content-band{
+      margin-top:36px;
+      display:grid;
+      grid-template-columns:1.04fr .96fr;
+      gap:24px;
+      align-items:stretch;
+    }
+    .panel{
+      background:rgba(255,255,255,.86);
+      border:1px solid var(--line);
+      border-radius:var(--radius-sm);
+      padding:24px;
+      box-shadow:0 14px 42px rgba(15,23,42,.07);
+    }
+    .panel h3,.panel h4{margin:0 0 14px;font-size:22px;letter-spacing:-.03em}
+    .panel p{margin:0;color:var(--muted);line-height:1.65}
+    .card-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:14px;
+      margin-top:18px;
+    }
+    .mini-card{
+      padding:16px;
+      border-radius:16px;
+      background:#fff;
+      border:1px solid var(--line);
+      min-height:92px;
+    }
+    .mini-card strong{display:block;margin-bottom:6px;font-size:15px}
+    .mini-card span{display:block;font-size:13px;color:var(--muted);line-height:1.45}
+    .price-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}
+    .price{
+      padding:18px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.86);
+    }
+    .price b{font-size:25px;display:block;margin:7px 0 3px}
+    .price span{font-size:13px;color:var(--muted)}
+    .testimonial{
+      padding:22px;
+      border-radius:22px;
+      background:rgba(15,23,42,.05);
+      border:1px solid rgba(15,23,42,.08);
+      font-weight:600;
+      line-height:1.6;
+    }
+    .testimonial cite{display:block;margin-top:12px;color:var(--muted);font-style:normal;font-size:14px;font-weight:700}
+    .gallery{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:10px;
+      margin-top:18px;
+    }
+    .gallery div{
+      min-height:126px;
+      border-radius:16px;
+      background-size:cover;
+      background-position:center;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.2);
+    }
+    .stat-row{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0}
+    .stat{padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.84);border:1px solid var(--line)}
+    .stat strong{display:block;font-size:26px;letter-spacing:-.04em}.stat span{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+    .timeline{display:grid;gap:12px;margin-top:18px}.timeline div{padding:15px 16px;border-left:4px solid currentColor;background:rgba(255,255,255,.8);border-radius:0 16px 16px 0}.timeline b{display:block;margin-bottom:3px}.timeline span{color:var(--muted);font-size:13px}
+    .video-frame{min-height:230px;border-radius:24px;background:linear-gradient(135deg,rgba(0,0,0,.86),rgba(0,0,0,.45)),var(--img-students);background-size:cover;background-position:center;display:grid;place-items:center;color:#fff;box-shadow:var(--shadow);position:relative}.video-frame:before{content:"▶";width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(12px);font-size:30px;text-indent:5px}.terminal{font-family:"Space Grotesk",monospace;background:#020617;color:#d1fae5;border-radius:22px;padding:22px;border:1px solid rgba(16,185,129,.35);box-shadow:0 20px 60px rgba(0,0,0,.26)}.terminal code{display:block;white-space:pre-line;line-height:1.7;color:#a7f3d0}.pill-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.pill{padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.72);border:1px solid var(--line);font-weight:800;font-size:13px}
+
+    /* 1. Academic Tutor */
+    .academic{background:linear-gradient(180deg,#ffffff,#edf4ff);font-family:Inter,sans-serif}.academic .btn{background:#2563eb;color:#fff}.academic .photo-card{background-image:var(--img-tutoring)}.academic .eyebrow{color:#2563eb}.academic:before{content:"A+";position:absolute;right:-30px;top:40px;font-weight:900;font-size:220px;color:rgba(37,99,235,.06);letter-spacing:-.08em}
+    .academic .subjects-table{width:100%;border-collapse:separate;border-spacing:0 10px;margin-top:16px}.academic .subjects-table td{padding:13px 14px;background:#fff;border-top:1px solid #dbeafe;border-bottom:1px solid #dbeafe}.academic .subjects-table td:first-child{border-left:1px solid #dbeafe;border-radius:14px 0 0 14px;font-weight:800}.academic .subjects-table td:last-child{border-right:1px solid #dbeafe;border-radius:0 14px 14px 0;color:#64748b}
+
+    /* 2. Test Prep Pro */
+    .testprep{background:#0f172a;color:#f8fafc}.testprep .hero p,.testprep .panel p,.testprep .mini-card span,.testprep .price span,.testprep .testimonial cite,.testprep .stat span{color:#cbd5e1}.testprep .panel,.testprep .mini-card,.testprep .price{background:rgba(15,23,42,.72);border-color:rgba(148,163,184,.22);box-shadow:none}.testprep .btn{background:#f97316;color:#111827}.testprep .btn-secondary{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#fff}.testprep .eyebrow{color:#fb923c}.testprep .photo-card{background-image:var(--img-students)}.testprep:before{content:"730 → 1510";position:absolute;left:4%;top:7%;font-size:100px;font-weight:900;letter-spacing:-.08em;color:rgba(255,255,255,.035)}.testprep .testimonial{background:rgba(249,115,22,.11);border-color:rgba(249,115,22,.28)}
+
+    /* 3. College Admissions */
+    .college{background:linear-gradient(135deg,#071a35,#0a2a53);color:#fff;font-family:"Playfair Display",serif}.college .hero p,.college .panel p,.college .mini-card span,.college .price span,.college .testimonial cite{color:rgba(255,255,255,.72);font-family:Inter,sans-serif}.college .panel,.college .mini-card,.college .price{background:rgba(255,255,255,.08);border-color:rgba(245,208,122,.24);backdrop-filter:blur(12px);box-shadow:none}.college .btn{background:#d4af37;color:#071a35}.college .btn-secondary{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.18);color:#fff}.college .eyebrow{color:#d4af37;font-family:Inter,sans-serif}.college .photo-card{background-image:var(--img-books)}.college:after{content:"";position:absolute;inset:auto -120px -180px auto;width:480px;height:480px;background:radial-gradient(circle,rgba(212,175,55,.22),transparent 68%);border-radius:50%}.college .timeline{font-family:Inter,sans-serif;color:#d4af37}.college .content-band{font-family:Inter,sans-serif}.college .testimonial{background:rgba(212,175,55,.12);border-color:rgba(212,175,55,.25)}
+
+    /* 4. Homeschool Hub */
+    .homeschool{background:linear-gradient(135deg,#fff7ed,#ecfccb);font-family:Inter,sans-serif}.homeschool .btn{background:#16a34a;color:#fff}.homeschool .btn-secondary{background:#fff7ed}.homeschool .eyebrow{color:#ea580c}.homeschool .photo-card{background-image:var(--img-classroom);border-radius:42px 12px 42px 12px}.homeschool:before{content:"✿";position:absolute;right:8%;top:8%;font-size:140px;color:rgba(22,163,74,.1)}.schedule-list{display:grid;gap:10px;margin-top:16px}.schedule-list div{display:grid;grid-template-columns:90px 1fr;gap:12px;align-items:center;padding:13px;border-radius:16px;background:#fff;border:1px solid rgba(22,163,74,.13)}.schedule-list b{color:#15803d}.schedule-list span{color:#64748b;font-size:14px}
+
+    /* 5. Language Mentor */
+    .language{background:linear-gradient(120deg,#eff6ff 0%,#fff 35%,#fff1f2 100%)}.language .btn{background:#dc2626;color:#fff}.language .btn-secondary{background:#1d4ed8;color:#fff}.language .eyebrow{color:#1d4ed8}.language .photo-card{background-image:var(--img-online)}.language .level-ladder{display:grid;gap:9px;margin-top:16px}.language .level-ladder div{padding:12px 14px;border-radius:999px;background:linear-gradient(90deg,#1d4ed8,#dc2626);color:#fff;font-weight:800}.language .level-ladder div:nth-child(2){width:88%}.language .level-ladder div:nth-child(3){width:76%}.language .level-ladder div:nth-child(4){width:64%}.language:before{content:"Hola • Bonjour • 你好 • Ciao";position:absolute;left:2%;top:3%;font-size:52px;font-weight:900;color:rgba(29,78,216,.07);white-space:nowrap}
+
+    /* 6. Music Studio */
+    .music{background:#1c1917;color:#fff}.music .hero p,.music .panel p,.music .mini-card span,.music .price span,.music .testimonial cite{color:#d6d3d1}.music .panel,.music .mini-card,.music .price{background:rgba(255,255,255,.07);border-color:rgba(251,191,36,.18);box-shadow:none}.music .btn{background:#fbbf24;color:#1c1917}.music .btn-secondary{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.17);color:#fff}.music .eyebrow{color:#fbbf24}.music .photo-card{background-image:var(--img-music);border-radius:100px 28px 28px 100px}.music:before{content:"♪ ♫";position:absolute;right:6%;top:8%;font-size:160px;color:rgba(251,191,36,.1)}.music .gallery div{border-radius:50% 24px 50% 24px}.music .testimonial{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.22)}
+
+    /* 7. Art Atelier */
+    .art{background:#fffaf0}.art .hero-grid{grid-template-columns:.85fr 1.15fr}.art .hero h2{font-family:"Playfair Display",serif}.art .btn{background:#7c3aed;color:#fff}.art .btn-secondary{background:#fef3c7}.art .eyebrow{color:#f97316}.art .photo-card{background-image:var(--img-students);min-height:420px;border-radius:20px;transform:rotate(1.2deg)}.art:before{content:"";position:absolute;left:-110px;top:90px;width:330px;height:330px;background:conic-gradient(from 20deg,#ef4444,#f59e0b,#22c55e,#3b82f6,#a855f7,#ef4444);border-radius:50%;opacity:.18;filter:blur(1px)}.art .gallery{grid-template-columns:1.2fr .8fr 1fr}.art .gallery div:nth-child(1){min-height:170px}.art .mini-card{background:#fff;border:2px solid rgba(124,58,237,.12)}
+
+    /* 8. Acting Coach */
+    .acting{background:radial-gradient(circle at 50% 0%,#7f1d1d,#111827 46%,#030712);color:#fff}.acting .hero h2{font-family:"Playfair Display",serif;text-transform:uppercase;letter-spacing:-.02em}.acting .hero p,.acting .panel p,.acting .mini-card span,.acting .price span,.acting .testimonial cite{color:#e5e7eb}.acting .panel,.acting .mini-card,.acting .price{background:rgba(3,7,18,.64);border-color:rgba(248,113,113,.24);box-shadow:none}.acting .btn{background:#ef4444;color:#fff}.acting .btn-secondary{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2);color:#fff}.acting .eyebrow{color:#fca5a5}.acting .photo-card{background-image:var(--img-classroom);box-shadow:0 0 80px rgba(248,113,113,.28)}.acting .photo-card:before{content:"";position:absolute;inset:-60px;background:radial-gradient(circle at 45% 20%,rgba(255,255,255,.36),transparent 28%);z-index:-1}.acting .headshots{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}.acting .headshots div{aspect-ratio:1;border-radius:18px;background-size:cover;background-position:center;border:1px solid rgba(255,255,255,.18)}
+
+    /* 9. Debate & Speech */
+    .debate{background:#f8f5ef;font-family:"Merriweather",serif}.debate .hero h2{font-family:"Merriweather",serif}.debate .hero p,.debate .panel p,.debate .mini-card span,.debate .price span,.debate .testimonial cite{font-family:Inter,sans-serif}.debate .btn{background:#111827;color:#fff}.debate .btn-secondary{background:#fff}.debate .eyebrow{color:#9a3412;font-family:Inter,sans-serif}.debate .photo-card{background-image:var(--img-students);filter:sepia(.08)}.debate:before{content:"Resolved:";position:absolute;left:5%;top:7%;font-size:96px;font-weight:900;color:rgba(154,52,18,.08)}.debate .method-list{counter-reset:item;display:grid;gap:12px;margin-top:16px}.debate .method-list div{counter-increment:item;padding:16px 16px 16px 56px;position:relative;background:#fff;border:1px solid rgba(17,24,39,.12);border-radius:16px;font-family:Inter,sans-serif}.debate .method-list div:before{content:counter(item);position:absolute;left:15px;top:14px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#111827;color:#fff;font-weight:800}
+
+    /* 10. Writing Workshop */
+    .writing{background:linear-gradient(90deg,#fcfbf7,#ffffff);font-family:"Crimson Text",serif}.writing .hero h2{font-family:"Crimson Text",serif;font-size:clamp(42px,5.8vw,76px)}.writing .hero p,.writing .panel p,.writing .mini-card span,.writing .price span,.writing .testimonial cite{font-family:Inter,sans-serif}.writing .btn{background:#7f1d1d;color:#fff;font-family:Inter,sans-serif}.writing .btn-secondary{background:#fff;font-family:Inter,sans-serif}.writing .eyebrow{color:#7f1d1d;font-family:Inter,sans-serif}.writing .photo-card{background-image:var(--img-books);border-radius:6px;box-shadow:12px 12px 0 rgba(127,29,29,.14),var(--shadow)}.writing:before{content:"Chapter 01";position:absolute;right:5%;top:8%;font-family:"Crimson Text",serif;font-size:120px;color:rgba(127,29,29,.07)}.writing .manuscript{background:#fff;border:1px solid rgba(127,29,29,.16);padding:24px;border-radius:6px;line-height:1.9;font-family:"Crimson Text",serif;font-size:20px;color:#3f2a25}.writing .manuscript span{display:block;border-bottom:1px solid rgba(127,29,29,.1)}
+
+    /* 11. Driving School */
+    .driving{background:linear-gradient(135deg,#f8fafc,#e0f2fe)}.driving .btn{background:#facc15;color:#111827}.driving .btn-secondary{background:#111827;color:#fff}.driving .eyebrow{color:#0369a1}.driving .photo-card{background-image:var(--img-classroom);border-radius:28px}.driving:before{content:"PASS";position:absolute;right:2%;top:5%;font-size:170px;font-weight:900;color:rgba(3,105,161,.06)}.driving .road-map{position:relative;min-height:230px;border-radius:24px;background:#111827;overflow:hidden;margin-top:18px}.driving .road-map:before{content:"";position:absolute;left:50%;top:-20px;bottom:-20px;width:12px;background:repeating-linear-gradient(to bottom,#facc15 0 28px,transparent 28px 46px);transform:translateX(-50%)}.driving .road-map span{position:absolute;padding:10px 13px;border-radius:999px;background:#fff;font-weight:800}.driving .road-map span:nth-child(1){left:8%;top:18%}.driving .road-map span:nth-child(2){right:8%;top:44%}.driving .road-map span:nth-child(3){left:12%;bottom:12%}
+
+    /* 12. Code Academy */
+    .code{background:#020617;color:#e2e8f0;font-family:"Space Grotesk",Inter,sans-serif}.code .hero h2{font-family:"Space Grotesk",Inter,sans-serif}.code .hero p,.code .panel p,.code .mini-card span,.code .price span,.code .testimonial cite{color:#94a3b8}.code .panel,.code .mini-card,.code .price{background:rgba(15,23,42,.78);border-color:rgba(34,197,94,.24);box-shadow:none}.code .btn{background:#22c55e;color:#020617}.code .btn-secondary{background:rgba(15,23,42,.9);border-color:rgba(34,197,94,.24);color:#e2e8f0}.code .eyebrow{color:#22c55e}.code .photo-card{background-image:var(--img-online);border:1px solid rgba(34,197,94,.3)}.code:before{content:"{ }";position:absolute;right:7%;top:5%;font-size:170px;font-weight:900;color:rgba(34,197,94,.08)}.code .gallery div{border:1px solid rgba(34,197,94,.2)}.code .testimonial{background:rgba(34,197,94,.08);border-color:rgba(34,197,94,.2)}
+
+    /* 13. Course Creator */
+    .course{background:linear-gradient(135deg,#eef2ff,#fff 46%,#ecfeff)}.course .hero h2{font-family:"Space Grotesk",Inter,sans-serif}.course .btn{background:#4f46e5;color:#fff}.course .btn-secondary{background:#06b6d4;color:#fff}.course .eyebrow{color:#4f46e5}.course .photo-card{background-image:var(--img-online);border-radius:36px}.course:before{content:"ENROLL";position:absolute;left:3%;bottom:4%;font-size:150px;font-weight:900;color:rgba(79,70,229,.055)}.course-catalog{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}.course-card{background:#fff;border:1px solid rgba(79,70,229,.14);border-radius:20px;overflow:hidden;box-shadow:0 16px 36px rgba(79,70,229,.08)}.course-thumb{height:105px;background-size:cover;background-position:center}.course-card div:last-child{padding:15px}.course-card b{display:block;margin-bottom:5px}.course-card span{font-size:13px;color:#64748b}.platforms{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.platforms span{padding:10px 14px;border-radius:999px;background:#fff;border:1px solid rgba(79,70,229,.16);font-weight:800;font-size:13px}
+
+    @media (max-width:920px){
+      .intro-card,.hero-grid,.content-band{grid-template-columns:1fr}
+      .card-grid,.price-row,.course-catalog{grid-template-columns:1fr 1fr}
+      .intro-meta strong{font-size:42px}
+    }
+    @media (max-width:620px){
+      .template{padding:42px 16px}
+      .card-grid,.price-row,.gallery,.course-catalog{grid-template-columns:1fr}
+      .photo-card{min-height:280px}
+      .hero h2{font-size:36px}
+      .content-band{gap:16px}
+      .intro-card h1{font-size:42px}
+    }
+  </style>
+</head>
+<body>
+  <header class="page-intro">
+    <div class="intro-card">
+      <div>
+        <div class="eyebrow">FrameNest Template Library</div>
+        <h1>Teaching &amp; Tutoring Website Mockups</h1>
+        <p>Thirteen distinct, conversion-ready website directions for educators, coaches, studios, academies, and independent teaching professionals.</p>
+      </div>
+      <aside class="intro-meta">
+        <strong>13</strong>
+        <span>Unique professional website templates with hero sections, bios, services, pricing, booking buttons, testimonials, and photo galleries.</span>
+      </aside>
+    </div>
+  </header>
+
+  <section class="template academic" id="academic-tutor">
+    <div class="template-shell">
+      <div class="hero-grid">
+        <div class="hero">
+          <div class="eyebrow">Academic Tutor</div>
+          <h2>Clear, confident support for every core subject.</h2>
+          <p>One-on-one tutoring for students who need better grades, stronger study habits, and a teacher who can explain hard ideas simply.</p>
+          <div class="btn-row"><a class="btn" href="#contact">Book a Lesson</a><a class="btn btn-secondary" href="#subjects">View Subjects</a></div>
+          <div class="stat-row"><div class="stat"><strong>4.9★</strong><span>Parent rating</span></div><div class="stat"><strong>12+</strong><span>Subjects</span></div><div class="stat"><strong>24hr</strong><span>Homework help</span></div></div>
+        </div>
+        <div class="photo-card"><div class="photo-label">Private tutoring, homework help, and academic confidence.</div></div>
+      </div>
+      <div class="content-band">
+        <div class="panel"><h3>About the tutor</h3><p>Hi, I’m Maya — a patient academic tutor who helps middle school and high school students build systems, not just finish assignments.</p><table class="subjects-table"><tr><td>Math</td><td>Algebra, Geometry, Calculus</td></tr><tr><td>Science</td><td>Biology, Chemistry, Physics</td></tr><tr><td>English</td><td>Reading, essays, grammar</td></tr></table></div>
+        <div class="panel"><h3>Pricing</h3><div class="price-row"><div class="price"><span>Starter</span><b>$55</b><span>single lesson</span></div><div class="price"><span>Weekly</span><b>$200</b><span>4 lessons</span></div><div class="price"><span>Intensive</span><b>$380</b><span>8 lessons</span></div></div><div class="testimonial">“Our son finally understands algebra and his confidence came back.”<cite>— Parent of 9th grader</cite></div><div class="gallery"><div style="background-image:var(--img-tutoring)"></div><div style="background-image:var(--img-books)"></div><div style="background-image:var(--img-classroom)"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="template testprep" id="test-prep-pro">
+    <div class="template-shell">
+      <div class="hero-grid">
+        <div class="hero">
+          <div class="eyebrow">Test Prep Pro</div>
+          <h2>Higher scores. Smarter strategy. Less panic.</h2>
+          <p>Elite SAT, ACT, GRE, and AP coaching built around diagnostics, practice plans, timing drills, and measurable score growth.</p>
+          <div class="btn-row"><a class="btn" href="#book">Book a Lesson</a><a class="btn btn-secondary" href="#results">See Results</a></div>
+          <div class="stat-row"><div class="stat"><strong>+180</strong><span>Avg SAT gain</span></div><div class="stat"><strong>93%</strong><span>Goal score hit</span></div><div class="stat"><strong>6wk</strong><span>Crash plans</span></div></div>
+        </div>
+        <div class="photo-card"><div class="photo-label">Diagnostics, drills, score tracking, and calm test-day execution.</div></div>
+      </div>
+      <div class="content-band">
+        <div class="panel"><h3>Services</h3><div class="card-grid"><div class="mini-card"><strong>SAT / ACT</strong><span>Reading, math, pacing, and practice tests.</span></div><div class="mini-card"><strong>GRE</strong><span>Quant, verbal, writing, and adaptive strategy.</span></div><div class="mini-card"><strong>AP Exams</strong><span>Subject-specific review and timed response work.</span></div></div><h3 style="margin-top:22px">About</h3><p>A results-focused coach who translates test anxiety into a repeatable process students can trust.</p></div>
+        <div class="panel"><h3>Prep Packages</h3><div class="price-row"><div class="price"><span>Diagnostic</span><b>$95</b><span>test + roadmap</span></div><div class="price"><span>Target Plan</span><b>$720</b><span>8 sessions</span></div><div class="price"><span>Elite Plan</span><b>$1,350</b><span>16 sessions</span></div></div><div class="testimonial">“The weekly score dashboard made progress obvious. We knew exactly what to fix.”<cite>— SAT parent</cite></div><div class="gallery"><div style="background-image:var(--img-students)"></div><div style="background-image:var(--img-online)"></div><div style="background-image:var(--img-books)"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="template college" id="college-admissions-guide">
+    <div class="template-shell">
+      <div class="hero-grid">
+        <div class="hero">
+          <div class="eyebrow">College Admissions Guide</div>
+          <h2>Shape a stronger application story.</h2>
+          <p>Premium college admissions consulting for essays, school lists, activities strategy, interviews, and application timelines.</p>
+          <div class="btn-row"><a class="btn" href="#consultation">Book a Lesson</a><a class="btn btn-secondary" href="#timeline">View Timeline</a></div>
+          <div class="stat-row"><div class="stat"><strong>87%</strong><span>Top 3 admits</span></div><div class="stat"><strong>140+</strong><span>Essays edited</span></div><div class="stat"><strong>$2.1M</strong><span>Scholarships</span></div></div>
+        </div>
+        <div class="photo-card"><div class="photo-label">Application strategy with polish, purpose, and calm deadlines.</div></div>
+      </div>
+      <div class="content-band">
+        <div class="panel"><h3>Consultant bio</h3><p>Former admissions reader helping students find a memorable theme, clear positioning, and essays that sound like themselves.</p><div class="timeline"><div><b>Junior Spring</b><span>School list, testing, activity positioning.</span></div><div><b>Summer</b><span>Personal statement and supplemental essays.</span></div><div><b>Fall</b><span>Applications, interviews, final review.</span></div></div></div>
+        <div class="panel"><h3>Admissions Packages</h3><div class="price-row"><div class="price"><span>Essay Review</span><b>$350</b><span>two rounds</span></div><div class="price"><span>Application</span><b>$1,900</b><span>5 schools</span></div><div class="price"><span>Complete</span><b>$4,800</b><span>full cycle</span></div></div><div class="testimonial">“Our daughter’s essays finally felt honest, focused, and memorable.”<cite>— Senior parent</cite></div><div class="gallery"><div style="background-image:var(--img-books)"></div><div style="background-image:var(--img-students)"></div><div style="background-image:var(--img-classroom)"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="template homeschool" id="homeschool-hub">
+    <div class="template-shell">
+      <div class="hero-grid">
+        <div class="hero">
+          <div class="eyebrow">Homeschool Hub</div>
+          <h2>Warm, structured learning for homeschool families.</h2>
+          <p>Flexible homeschool teaching, enrichment lessons, and curriculum support for families who want a thoughtful learning rhythm.</p>
+          <div class="btn-row"><a class="btn" href="#enroll">Book a Lesson</a><a class="btn btn-secondary" href="#curriculum">Curriculum Overview</a></div>
+        </div>
+        <div class="photo-card"><div class="photo-label">Family-centered education with clear weekly structure.</div></div>
+      </div>
+      <div class="content-band">
+        <div class="panel"><h3>About the teacher</h3><p>A certified homeschool educator creating gentle but rigorous learning plans for elementary and middle school learners.</p><div class="card-grid"><div class="mini-card"><strong>Core Skills</strong><span>Math, reading, writing, science.</span></div><div class="mini-card"><strong>Enrichment</strong><span>Nature study, projects, art, music.</span></div><div class="mini-card"><strong>Parent Support</strong><span>Planning, records, portfolio reviews.</span></div></div></div>
+        <div class="panel"><h3>Weekly Schedule</h3><div class="schedule-list"><div><b>Mon</b><span>Core academics and project launch</span></div><div><b>Wed</b><span>Reading circle and science lab</span></div><div><b>Fri</b><span>Portfolio review and family conference</span></div></div><div class="price-row"><div class="price"><span>Drop-in</span><b>$45</b><span>per class</span></div><div class="price"><span>Pod</span><b>$320</b><span>monthly</span></div><div class="price"><span>Family Plan</span><b>$580</b><span>monthly</span></div></div><div class="testimonial">“The week finally has rhythm without feeling like traditional school.”<cite>— Homeschool parent</cite></div><div class="gallery"><div style="background-image:var(--img-classroom)"></div><div style="background-image:var(--img-books)"></div><div style="background-image:var(--img-students)"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="template language" id="language-mentor">
+    <div class="template-shell">
+      <div class="hero-grid">
+        <div class="hero">
+          <div class="eyebrow">Language Mentor</div>
+          <h2>Speak with confidence, not just flashcards.</h2>
+          <p>Conversation-first language lessons for travel, school, work, exams, and real-world fluency.</p>
+          <div class="btn-row"><a class="btn" href="#trial">Book a Lesson</a><a class="btn btn-secondary" href="#levels">Check Your Level</a></div>
+          <div class="pill-row"><span class="pill">Spanish</span><span class="pill">French</span><span class="pill">Mandarin</span><span class="pill">English</span><span class="pill">Italian</span></div>
+        </div>
+        <div class="photo-card"><div class="photo-label">Live speaking practice, grammar clarity, and cultural context.</div></div>
+      </div>
+      <div class="content-band">
+        <div class="panel"><h3>About your mentor</h3><p>A multilingual teacher helping learners move from hesitant phrases to natural conversation.</p><div class="level-ladder"><div>A1 Beginner</div><div>A2 Everyday Basics</div><div>B1 Conversation</div><div>B2 Fluency Builder</div></div></div>
+        <div class="panel"><h3>Conversation Options</h3><div class="card-grid"><div class="mini-card"><strong>Travel Talk</strong><span>Airport, restaurants, directions, emergencies.</span></div><div class="mini-card"><strong>Work Fluency</strong><span>Meetings, email, presentations, interviews.</span></div><div class="mini-card"><strong>Exam Prep</strong><span>DELE, DELF, HSK, TOEFL practice.</span></div></div><div class="price-row"><div class="price"><span>Trial</span><b>$30</b><span>30 minutes</span></div><div class="price"><span>Private</span><b>$60</b><span>60 minutes</span></div><div class="price"><span>Group</span><b>$25</b><span>per class</span></div></div><div class="testimonial">“I stopped translating in my head and started responding naturally.”<cite>— Adult learner</cite></div><div class="gallery"><div style="background-image:var(--img-online)"></div><div style="background-image:var(--img-students)"></div><div style="background-image:var(--img-books)"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="template music" id="music-studio">
+    <div class="template-shell">
+      <div class="hero-grid">
+        <div class="hero">
+          <div class="eyebrow">Music Studio</div>
+          <h2>Private music lessons with rhythm, joy, and discipline.</h2>
+          <p>Piano, guitar, voice, and beginner theory lessons for kids, teens, and adults preparing for recitals or personal growth.</p>
+          <div class="btn-row"><a class="btn" href="#studio">Book a Lesson</a><a class="btn btn-secondary" href="#recitals">View Recitals</a></div>
+        </div>
+        <div class="photo-card"><div class="photo-label">Instrument lessons, audition prep, and recital-ready confidence.</div></div>
+      </div>
+      <div class="content-band">
+        <div class="panel"><h3>Studio bio</h3><p>A welcoming home studio where students learn technique, ear training, expression, and performance habits.</p><div class="card-grid"><div class="mini-card"><strong>Piano</strong><span>Foundations, classical, pop chords.</span></div><div class="mini-card"><strong>Guitar</strong><span>Acoustic, rhythm, songwriting.</span></div><div class="mini-card"><strong>Voice</strong><span>Breath, pitch, stage presence.</span></div></div></div>
+        <div class="panel"><h3>Lesson Pricing</h3><div class="price-row"><div class="price"><span>30 Min</span><b>$38</b><span>young beginners</span></div><div class="price"><span>45 Min</span><b>$55</b><span>weekly private</span></div><div class="price"><span>60 Min</span><b>$72</b><span>advanced</span></div></div><div class="testimonial">“The spring recital was the first time my child wanted to perform.”<cite>— Music parent</cite></div><div class="gallery"><div style="background-image:var(--img-music)"></div><div style="background-image:var(--img-classroom)"></div><div style="background-image:var(--img-students)"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="template art" id="art-atelier">
+    <div class="template-shell">
+      <div class="hero-grid">
+        <div class="hero">
+          <div class="eyebrow">Art Atelier</div>
+          <h2>A studio for brave lines, bold color, and original student work.</h2>
+          <p>Small-group and private art lessons in drawing, painting, sculpture, digital art, and portfolio development.</p>
+          <div class="btn-row"><a class="btn" href="#atelier">Book a Lesson</a><a class="btn btn-secondary" href="#gallery">View Student Gallery</a></div>
+        </div>
+        <div class="photo-card"><div class="photo-label">Hands-on studio learning for artists at every level.</div></div>
+      </div>
+      <div class="content-band">
+        <div class="panel"><h3>Artist-teacher bio</h3><p>A working artist and teacher guiding students through process, critique, experimentation, and finished portfolio pieces.</p><div class="card-grid"><div class="mini-card"><strong>Painting</strong><span>Acrylic, watercolor, oil basics.</span></div><div class="mini-card"><strong>Sculpture</strong><span>Clay, mixed media, form studies.</span></div><div class="mini-card"><strong>Digital</strong><span>Illustration, Procreate, concept art.</span></div></div></div>
+        <div class="panel"><h3>Studio Pricing</h3><div class="price-row"><div class="price"><span>Drop-in</span><b>$40</b><span>materials included</span></div><div class="price"><span>Monthly</span><b>$155</b><span>4 classes</span></div><div class="price"><span>Portfolio</span><b>$420</b><span>6-week intensive</span></div></div><div class="testimonial">“Her portfolio finally looked intentional, not random.”<cite>— High school parent</cite></div><div class="gallery"><div style="background-image:var(--img-students)"></div><div style="background-image:var(--img-books)"></div><div style="background-image:var(--img-classroom)"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="template acting" id="acting-coach">
+    <div class="template-shell">
+      <div class="hero-grid">
+        <div class="hero">
+          <div class="eyebrow">Acting Coach</div>
+          <h2>Own the room before the first line.</h2>
+          <p>Private coaching and small classes for auditions, monologues, scene study, camera work, and confident stage presence.</p>
+          <div class="btn-row"><a class="btn" href="#audition">Book a Lesson</a><a class="btn btn-secondary" href="#reel">Watch Reel</a></div>
+        </div>
+        <div class="photo-card"><div class="photo-label">Audition prep, scene study, and performance confidence.</div></div>
+      </div>
+      <div class="content-band">
+        <div class="panel"><h3>Coach bio</h3><p>Stage and screen acting coach helping performers discover truthful choices, stronger beats, and a reliable audition process.</p><div class="card-grid"><div class="mini-card"><strong>Monologues</strong><span>Choice, pace, stakes, clarity.</span></div><div class="mini-card"><strong>Camera</strong><span>Self-tapes, marks, eye-line, subtlety.</span></div><div class="mini-card"><strong>Scenes</strong><span>Listening, objectives, chemistry.</span></div></div><div class="headshots"><div style="background-image:var(--img-students)"></div><div style="background-image:var(--img-classroom)"></div><div style="background-image:var(--img-tutoring)"></div><div style="background-image:var(--img-online)"></div></div></div>
+        <div class="panel"><h3>Reel Preview</h3><div class="video-frame"></div><div class="price-row"><div class="price"><span>Audition</span><b>$80</b><span>single prep</span></div><div class="price"><span>Weekly</span><b>$280</b><span>4 sessions</span></div><div class="price"><span>Workshop</span><b>$190</b><span>group class</span></div></div><div class="testimonial">“I stopped performing at the scene and started living inside it.”<cite>— Acting student</cite></div><div class="gallery"><div style="background-image:var(--img-classroom)"></div><div style="background-image:var(--img-students)"></div><div style="background-image:var(--img-online)"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="template debate" id="debate-speech">
+    <div class="template-shell">
+      <div class="hero-grid">
+        <div class="hero">
+          <div class="eyebrow">Debate &amp; Speech</div>
+          <h2>Sharper arguments. Stronger speeches. Better presence.</h2>
+          <p>Debate, public speaking, argument writing, and competition coaching for students who want intellectual confidence.</p>
+          <div class="btn-row"><a class="btn" href="#debate">Book a Lesson</a><a class="btn btn-secondary" href="#method">See Methodology</a></div>
+          <div class="stat-row"><div class="stat"><strong>31</strong><span>Finalists</span></div><div class="stat"><strong>12</strong><span>State qualifiers</span></div><div class="stat"><strong>5</strong><span>National bids</span></div></div>
+        </div>
+        <div class="photo-card"><div class="photo-label">Competition coaching from case writing to cross-examination.</div></div>
+      </div>
+      <div class="content-band">
+        <div class="panel"><h3>Coach bio</h3><p>Former tournament competitor and writing coach teaching students how to structure claims, weigh impacts, and speak with authority.</p><div class="method-list"><div><b>Research</b> Build evidence banks and source credibility.</div><div><b>Structure</b> Create cases, rebuttals, and weighing.</div><div><b>Delivery</b> Practice flow, presence, and persuasion.</div></div></div>
+        <div class="panel"><h3>Programs</h3><div class="card-grid"><div class="mini-card"><strong>LD / PF</strong><span>Cases, blocks, drills, tournament prep.</span></div><div class="mini-card"><strong>Speech</strong><span>Original oratory, extemp, interp.</span></div><div class="mini-card"><strong>Writing</strong><span>Argument essays and persuasive writing.</span></div></div><div class="price-row"><div class="price"><span>Private</span><b>$75</b><span>per session</span></div><div class="price"><span>Team</span><b>$240</b><span>monthly</span></div><div class="price"><span>Tournament</span><b>$500</b><span>prep sprint</span></div></div><div class="testimonial">“The methodology turned rambling into actual argumentation.”<cite>— Debate parent</cite></div><div class="gallery"><div style="background-image:var(--img-students)"></div><div style="background-image:var(--img-classroom)"></div><div style="background-image:var(--img-books)"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="template writing" id="writing-workshop">
+    <div class="template-shell">
+      <div class="hero-grid">
+        <div class="hero">
+          <div class="eyebrow">Writing Workshop</div>
+          <h2>Turn rough drafts into writing with a pulse.</h2>
+          <p>Essay, creative writing, manuscript, and publication coaching for students and adults who want clearer, stronger pages.</p>
+          <div class="btn-row"><a class="btn" href="#workshop">Book a Lesson</a><a class="btn btn-secondary" href="#student-work">Read Student Work</a></div>
+        </div>
+        <div class="photo-card"><div class="photo-label">Literary coaching for essays, stories, memoirs, and manuscripts.</div></div>
+      </div>
+      <div class="content-band">
+        <div class="panel"><h3>Instructor bio</h3><p>Editor and writing coach helping writers find structure, voice, audience, and revision discipline.</p><div class="card-grid"><div class="mini-card"><strong>Academic</strong><span>Essays, thesis, college writing.</span></div><div class="mini-card"><strong>Creative</strong><span>Fiction, poetry, memoir.</span></div><div class="mini-card"><strong>Published Work</strong><span>Submissions, portfolios, literary mags.</span></div></div><div class="manuscript"><span>The sentence must earn its place.</span><span>Every paragraph should move the reader.</span><span>Revision is where the voice becomes clear.</span></div></div>
+        <div class="panel"><h3>Workshop Pricing</h3><div class="price-row"><div class="price"><span>Draft Review</span><b>$95</b><span>comments + notes</span></div><div class="price"><span>Private</span><b>$70</b><span>per lesson</span></div><div class="price"><span>Manuscript</span><b>$650</b><span>deep edit</span></div></div><div class="testimonial">“I finally understood why my essays felt flat — and how to fix them.”<cite>— Writing student</cite></div><div class="gallery"><div style="background-image:var(--img-books)"></div><div style="background-image:var(--img-tutoring)"></div><div style="background-image:var(--img-online)"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="template driving" id="driving-school">
+    <div class="template-shell">
+      <div class="hero-grid">
+        <div class="hero">
+          <div class="eyebrow">Driving School</div>
+          <h2>Calm, practical driving lessons that build safe habits.</h2>
+          <p>Behind-the-wheel instruction, road test prep, parking practice, freeway confidence, and parent-friendly progress updates.</p>
+          <div class="btn-row"><a class="btn" href="#drive">Book a Lesson</a><a class="btn btn-secondary" href="#service-area">Area Served</a></div>
+          <div class="stat-row"><div class="stat"><strong>96%</strong><span>Pass rate</span></div><div class="stat"><strong>Dual</strong><span>Brake car</span></div><div class="stat"><strong>7</strong><span>Cities served</span></div></div>
+        </div>
+        <div class="photo-card"><div class="photo-label">Safe instructors, clear feedback, and road-test readiness.</div></div>
+      </div>
+      <div class="content-band">
+        <div class="panel"><h3>Instructor bio</h3><p>A patient driving instructor focused on defensive driving, calm decision-making, and repeatable road test skills.</p><div class="road-map"><span>Parking</span><span>Freeway</span><span>Road Test</span></div></div>
+        <div class="panel"><h3>Lesson Types</h3><div class="card-grid"><div class="mini-card"><strong>Beginner</strong><span>Controls, turns, lane position.</span></div><div class="mini-card"><strong>Road Test</strong><span>Route practice and checklist.</span></div><div class="mini-card"><strong>Refresher</strong><span>Adults returning to driving.</span></div></div><div class="price-row"><div class="price"><span>90 Min</span><b>$110</b><span>single lesson</span></div><div class="price"><span>6 Hours</span><b>$399</b><span>starter package</span></div><div class="price"><span>Test Day</span><b>$180</b><span>car + warmup</span></div></div><div class="testimonial">“The instructor was calm, specific, and honest about what needed work.”<cite>— New driver</cite></div><div class="gallery"><div style="background-image:var(--img-classroom)"></div><div style="background-image:var(--img-tutoring)"></div><div style="background-image:var(--img-students)"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="template code" id="code-academy">
+    <div class="template-shell">
+      <div class="hero-grid">
+        <div class="hero">
+          <div class="eyebrow">Code Academy</div>
+          <h2>Learn to build real projects, not just watch tutorials.</h2>
+          <p>Private and small-group coding lessons for kids, teens, and adults learning Python, JavaScript, web development, and AI tools.</p>
+          <div class="btn-row"><a class="btn" href="#code">Book a Lesson</a><a class="btn btn-secondary" href="#projects">View Projects</a></div>
+          <div class="pill-row"><span class="pill">Python</span><span class="pill">JavaScript</span><span class="pill">HTML/CSS</span><span class="pill">React</span><span class="pill">AI</span></div>
+        </div>
+        <div class="photo-card"><div class="photo-label">Project-based coding with terminal confidence.</div></div>
+      </div>
+      <div class="content-band">
+        <div class="panel"><h3>Teacher bio</h3><p>Software educator helping students build working apps, debug patiently, and understand the logic behind the code.</p><div class="terminal"><code>$ student build portfolio
+&gt; weather_app.py complete
+&gt; quiz_game.js complete
+&gt; personal_site.html live
+&gt; confidence: compiling...</code></div></div>
+        <div class="panel"><h3>Programs</h3><div class="card-grid"><div class="mini-card"><strong>Kids Code</strong><span>Games, Scratch, robotics logic.</span></div><div class="mini-card"><strong>Teen Dev</strong><span>Websites, apps, AP CS prep.</span></div><div class="mini-card"><strong>Adult Skills</strong><span>Automation, data, practical tools.</span></div></div><div class="price-row"><div class="price"><span>Intro</span><b>$65</b><span>per lesson</span></div><div class="price"><span>Bootcamp</span><b>$480</b><span>8 lessons</span></div><div class="price"><span>Project</span><b>$900</b><span>build sprint</span></div></div><div class="testimonial">“My daughter built a real website and could explain every line.”<cite>— Coding parent</cite></div><div class="gallery"><div style="background-image:var(--img-online)"></div><div style="background-image:var(--img-tutoring)"></div><div style="background-image:var(--img-books)"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="template course" id="course-creator">
+    <div class="template-shell">
+      <div class="hero-grid">
+        <div class="hero">
+          <div class="eyebrow">Course Creator</div>
+          <h2>Sell knowledge through courses, cohorts, and community.</h2>
+          <p>A modern course creator website for educators packaging expertise into self-paced lessons, live cohorts, and digital resources.</p>
+          <div class="btn-row"><a class="btn" href="#enroll-now">Book a Lesson</a><a class="btn btn-secondary" href="#catalog">Browse Courses</a></div>
+          <div class="platforms"><span>Teachable</span><span>Kajabi</span><span>Thinkific</span><span>Gumroad</span><span>YouTube</span></div>
+        </div>
+        <div class="photo-card"><div class="photo-label">Course catalog, video previews, enrollment CTAs, and creator authority.</div></div>
+      </div>
+      <div class="content-band">
+        <div class="panel"><h3>Creator bio</h3><p>An online educator turning deep expertise into clean course pathways, templates, coaching calls, and scalable learning products.</p><div class="course-catalog"><div class="course-card"><div class="course-thumb" style="background-image:var(--img-online)"></div><div><b>Launch Your First Course</b><span>6 lessons + workbook</span></div></div><div class="course-card"><div class="course-thumb" style="background-image:var(--img-books)"></div><div><b>Teach Better Online</b><span>Video lessons + scripts</span></div></div><div class="course-card"><div class="course-thumb" style="background-image:var(--img-students)"></div><div><b>Cohort Builder</b><span>Live group program</span></div></div></div></div>
+        <div class="panel"><h3>Enrollment Options</h3><div class="card-grid"><div class="mini-card"><strong>Self-Paced</strong><span>Recorded videos and downloads.</span></div><div class="mini-card"><strong>Live Cohort</strong><span>Weekly calls and accountability.</span></div><div class="mini-card"><strong>VIP Coaching</strong><span>Private strategy and reviews.</span></div></div><div class="price-row"><div class="price"><span>Mini Course</span><b>$49</b><span>starter offer</span></div><div class="price"><span>Signature</span><b>$349</b><span>full course</span></div><div class="price"><span>Cohort</span><b>$950</b><span>live program</span></div></div><div class="testimonial">“The catalog made it easy to choose the right course without a sales call.”<cite>— Online student</cite></div><div class="gallery"><div style="background-image:var(--img-online)"></div><div style="background-image:var(--img-classroom)"></div><div style="background-image:var(--img-books)"></div></div></div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

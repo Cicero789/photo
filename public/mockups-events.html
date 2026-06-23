@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrameNest Templates — Event & Wedding Services</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=Playfair+Display:wght@600;700;800&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+:root{--ink:#111827;--muted:#64748b;--shadow:0 28px 90px rgba(15,23,42,.16);--radius:30px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:#120b12}
+img{display:block;width:100%;object-fit:cover}
+a{text-decoration:none;color:inherit}
+input,select,textarea,button{font:inherit}
+.cover{min-height:72vh;display:grid;place-items:center;padding:84px 6vw;text-align:center;color:white;background:radial-gradient(circle at 16% 18%,rgba(244,114,182,.34),transparent 28%),radial-gradient(circle at 84% 18%,rgba(245,158,11,.25),transparent 30%),linear-gradient(135deg,#09090b,#1f1320 58%,#4a044e)}
+.cover .eyebrow{display:inline-flex;padding:10px 16px;border:1px solid rgba(255,255,255,.22);border-radius:999px;color:#fce7f3;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:900}
+.cover h1{max-width:1140px;margin:24px auto 18px;font-size:clamp(42px,7vw,94px);line-height:.94;letter-spacing:-.07em}
+.cover p{max-width:850px;margin:0 auto;color:#d1d5db;font-size:clamp(18px,2vw,23px);line-height:1.65}
+.template{min-height:780px;padding:78px 6vw;position:relative;overflow:hidden;color:var(--fg,#111827);background:var(--bg,#fff)}
+.template:before{content:"";position:absolute;width:440px;height:440px;border-radius:999px;background:var(--orb,rgba(244,114,182,.18));top:-150px;right:-130px;filter:blur(5px)}
+.template:after{content:"";position:absolute;width:330px;height:330px;border:1px solid var(--mark,rgba(15,23,42,.08));left:-120px;bottom:-130px;border-radius:80px;transform:rotate(24deg)}
+.wrap{width:min(1220px,100%);margin:0 auto;position:relative;z-index:2}
+.template-number{position:absolute;top:22px;right:5vw;z-index:2;opacity:.42;font-size:12px;letter-spacing:.17em;text-transform:uppercase;font-weight:950}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-bottom:46px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.03em}
+.logo{width:42px;height:42px;display:grid;place-items:center;border-radius:15px;background:var(--accent,#db2777);color:var(--accentText,#fff);font-weight:950;box-shadow:0 14px 34px rgba(0,0,0,.18)}
+.navlinks{display:flex;gap:18px;flex-wrap:wrap;justify-content:flex-end;font-size:14px;font-weight:850;opacity:.72}
+.hero{display:grid;grid-template-columns:1.04fr .96fr;gap:42px;align-items:center}
+.hero h2{margin:0;color:var(--head,currentColor);font-family:var(--display,Inter),sans-serif;font-size:clamp(40px,5.5vw,78px);line-height:.95;letter-spacing:-.06em}
+.hero p{max-width:700px;margin:22px 0 0;color:var(--text,currentColor);opacity:.78;font-size:18px;line-height:1.7}
+.pills{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.pill{padding:10px 14px;border-radius:999px;background:var(--pill,rgba(255,255,255,.72));border:1px solid var(--pillLine,rgba(15,23,42,.1));font-size:13px;font-weight:900}
+.btn-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 22px;border-radius:999px;background:var(--accent,#db2777);color:var(--accentText,#fff);border:0;cursor:pointer;font-weight:950;box-shadow:0 18px 46px rgba(15,23,42,.20)}
+.btn.secondary{background:transparent;border:1px solid currentColor;color:var(--head,currentColor);box-shadow:none;opacity:.8}
+.media{position:relative;overflow:hidden;border-radius:var(--shape,var(--radius));background:white;box-shadow:var(--shadow);border:1px solid var(--mediaLine,rgba(255,255,255,.5))}
+.media img{height:430px}
+.media-note{position:absolute;left:22px;right:22px;bottom:22px;padding:18px;border-radius:22px;background:rgba(255,255,255,.9);backdrop-filter:blur(16px);color:#0f172a;font-weight:850;line-height:1.45;box-shadow:0 16px 48px rgba(15,23,42,.18)}
+.package-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px}
+.pkg-mini{padding:16px;border-radius:22px;background:var(--card,rgba(255,255,255,.82));border:1px solid var(--cardLine,rgba(15,23,42,.08));box-shadow:0 14px 34px rgba(15,23,42,.06)}
+.pkg-mini b{display:block;color:var(--head,currentColor);margin-bottom:6px}
+.pkg-mini strong{display:block;color:var(--accent,#db2777);font-size:28px;line-height:1;letter-spacing:-.06em;margin-bottom:8px}
+.pkg-mini span{color:var(--mutedText,#64748b);line-height:1.45}
+.main-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:24px;margin-top:52px}
+.panel{background:var(--card,rgba(255,255,255,.84));border:1px solid var(--cardLine,rgba(15,23,42,.08));border-radius:26px;padding:26px;box-shadow:0 18px 50px rgba(15,23,42,.08);backdrop-filter:blur(14px)}
+.panel h3{margin:0 0 12px;color:var(--head,currentColor);font-size:24px;letter-spacing:-.035em}
+.panel p{margin:0;color:var(--mutedText,#64748b);line-height:1.65}
+.gallery-list{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+.gallery-card{overflow:hidden;border-radius:24px;background:var(--serviceBg,rgba(255,255,255,.72));border:1px solid var(--cardLine,rgba(15,23,42,.08))}
+.gallery-card img{height:152px}
+.gallery-card div{padding:14px}
+.gallery-card b{display:block;color:var(--head,currentColor);margin-bottom:5px}
+.price-guide{display:grid;gap:12px;margin-top:14px}
+.price-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:14px;border-radius:18px;background:var(--serviceBg,rgba(255,255,255,.72));border:1px solid var(--cardLine,rgba(15,23,42,.08))}
+.price-row b{color:var(--head,currentColor)}
+.price-row span{color:var(--mutedText,#64748b);line-height:1.45}
+.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+.info{padding:22px;border-radius:24px;background:var(--card,rgba(255,255,255,.84));border:1px solid var(--cardLine,rgba(15,23,42,.08));box-shadow:0 16px 42px rgba(15,23,42,.07)}
+.info b{display:block;color:var(--head,currentColor);margin-bottom:9px}
+.info p{margin:0;color:var(--mutedText,#64748b);line-height:1.6}
+.lower-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:24px;margin-top:24px}
+.form{display:grid;gap:12px;margin-top:12px}
+.form input,.form select,.form textarea{width:100%;border:1px solid var(--cardLine,rgba(15,23,42,.12));border-radius:16px;padding:13px 14px;background:rgba(255,255,255,.84);color:#111827;outline:none}
+.form textarea{min-height:96px;resize:vertical}
+.review{padding:24px;border-radius:26px;background:var(--accent,#db2777);color:var(--accentText,#fff);box-shadow:0 18px 50px rgba(15,23,42,.16)}
+.review h3{margin:0 0 12px;font-size:28px;letter-spacing:-.04em}
+.review p{margin:0;line-height:1.65;opacity:.92}
+
+/* Themes */
+.weddingplanner{--bg:linear-gradient(135deg,#fff,#fdf2f8 48%,#fae8ff);--accent:#be185d;--display:"Playfair Display";--shape:80px 28px 80px 28px}
+.eventplanner{--bg:linear-gradient(135deg,#f8fafc,#fff 48%,#e2e8f0);--accent:#334155;--display:"Space Grotesk";--shape:26px}
+.dj{--bg:linear-gradient(135deg,#020617,#111827 52%,#581c87);--fg:#f8fafc;--head:#fff;--text:#ede9fe;--mutedText:#ddd6fe;--accent:#c084fc;--accentText:#111827;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Space Grotesk";--shape:18px}
+.photographer{--bg:linear-gradient(135deg,#faf7ef,#fff 48%,#f3e8d6);--accent:#92400e;--display:"Playfair Display";--shape:44px}
+.videographer{--bg:linear-gradient(135deg,#09090b,#1f2937 52%,#111827);--fg:#f8fafc;--head:#fff;--text:#dbeafe;--mutedText:#cbd5e1;--accent:#ef4444;--accentText:#fff;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Space Grotesk";--shape:14px}
+.caterer{--bg:linear-gradient(135deg,#fff7ed,#fff 48%,#fef3c7);--accent:#ea580c;--display:"Libre Baskerville";--shape:34px}
+.florist{--bg:linear-gradient(135deg,#f0fdf4,#fff 48%,#dcfce7);--accent:#16a34a;--accentText:#052e16;--display:"Playfair Display";--shape:80px 28px 80px 28px}
+.makeup{--bg:radial-gradient(circle at 16% 18%,rgba(244,114,182,.28),transparent 25%),linear-gradient(135deg,#fff,#fdf2f8 52%,#fae8ff);--accent:#db2777;--display:"Playfair Display";--shape:26px 90px 26px 90px}
+.officiant{--bg:linear-gradient(135deg,#fff7ed,#fff 48%,#fce7f3);--accent:#be185d;--display:"Libre Baskerville";--shape:44px}
+.rentals{--bg:linear-gradient(135deg,#ecfeff,#fff 48%,#f0fdfa);--accent:#0891b2;--accentText:#ecfeff;--display:"Space Grotesk";--shape:18px}
+.balloon{--bg:radial-gradient(circle at 16% 18%,rgba(34,211,238,.25),transparent 25%),radial-gradient(circle at 82% 16%,rgba(251,191,36,.25),transparent 26%),linear-gradient(135deg,#fff,#ecfeff 52%,#fef9c3);--accent:#0891b2;--accentText:#ecfeff;--display:"Space Grotesk";--shape:999px 999px 40px 40px}
+.venue{--bg:linear-gradient(135deg,#07111f,#0f1e34 55%,#111827);--fg:#f8fafc;--head:#fff;--text:#dbeafe;--mutedText:#cbd5e1;--accent:#d6a74a;--accentText:#07111f;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Playfair Display";--shape:44px}
+
+/* Accents */
+.dj .media:before{content:"LIVE MIX";position:absolute;top:18px;left:18px;z-index:2;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.9);color:#111827;font-weight:950;letter-spacing:.08em;font-size:12px}
+.videographer .media:before{content:"HIGHLIGHT REEL";position:absolute;top:18px;left:18px;z-index:2;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.9);color:#991b1b;font-weight:950;letter-spacing:.08em;font-size:12px}
+.venue .media:before{content:"VIRTUAL TOUR";position:absolute;top:18px;left:18px;z-index:2;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.9);color:#111827;font-weight:950;letter-spacing:.08em;font-size:12px}
+.weddingplanner .hero,.dj .hero,.videographer .hero,.florist .hero,.makeup .hero,.venue .hero{grid-template-columns:.95fr 1.05fr}
+.eventplanner .hero,.photographer .hero,.caterer .hero,.officiant .hero,.rentals .hero,.balloon .hero{grid-template-columns:1.1fr .9fr}
+
+@media(max-width:980px){
+  .hero,.main-grid,.lower-grid{grid-template-columns:1fr!important}
+  .package-strip,.gallery-list,.info-grid{grid-template-columns:1fr}
+  .media img{height:340px}
+  .gallery-card img{height:220px}
+  .nav{align-items:flex-start;flex-direction:column}
+  .navlinks{justify-content:flex-start}
+  .price-row{flex-direction:column}
+}
+@media(max-width:620px){
+  .cover,.template{padding:64px 5vw}
+  .hero h2{font-size:40px}
+  .panel,.review,.info{padding:20px}
+  .media-note{position:static;margin:-48px 18px 18px}
+}
+</style>
+</head>
+<body>
+  <header class="cover">
+    <div>
+      <span class="eyebrow">FrameNest Mockup Collection</span>
+      <h1>Event & Wedding Service Website Templates</h1>
+      <p>Twelve professional website sections for wedding planners, event planners, DJs, event photographers, videographers, caterers, florists, bridal makeup artists, officiants, rental companies, balloon artists, and venue owners.</p>
+    </div>
+  </header>
+  
+  <!-- 01. Wedding Planner -->
+  <section class="template weddingplanner">
+    <span class="template-number">Template 01 / Wedding Planner</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">W</span>Ever After Planning</div>
+        <div class="navlinks"><span>Gallery</span><span>Packages</span><span>Availability</span><span>Pricing</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Full Planning</span><span class="pill">Timeline</span><span class="pill">Real Weddings</span></div>
+          <h2>A wedding day that feels effortless, intentional, and fully yours.</h2>
+          <p>A romantic wedding planner template with timeline previews, planning packages, real wedding galleries, and an elegant availability flow.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Coordination</b><strong>$1,800</strong><span>Final 8-week planning and day-of management</span></div><div class="pkg-mini"><b>Partial Planning</b><strong>$4,800</strong><span>Vendor guidance, timeline, design support</span></div><div class="pkg-mini"><b>Full Service</b><strong>$9,500+</strong><span>End-to-end planning and production</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#availability">Check Availability</a>
+            <a class="btn secondary" href="#gallery">View Gallery</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding Planner event service website hero">
+          <div class="media-note">Wedding timeline · Packages · Real wedding gallery</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="gallery">
+          <h3>Event Gallery</h3>
+          <p>Feature real weddings, parties, venues, installations, performances, food service, or behind-the-scenes production moments.</p>
+          <div class="gallery-list"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding Planner gallery"><div><b>Garden Ceremony</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1478146059778-acee2e5b0bec?w=800" alt="Wedding Planner gallery"><div><b>Candlelit Reception</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800" alt="Wedding Planner gallery"><div><b>Coastal Elopement</b><span>Featured event gallery</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Pricing Guide</h3>
+          <p>Custom planning guide includes timeline, vendor scope, guest count, and design complexity.</p>
+          <div class="price-guide"><div class="price-row"><b>Coordination</b><span>$1,800 · Final 8-week planning and day-of management</span></div><div class="price-row"><b>Partial Planning</b><span>$4,800 · Vendor guidance, timeline, design support</span></div><div class="price-row"><b>Full Service</b><span>$9,500+ · End-to-end planning and production</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Packages</b>
+          <p>Clear package tiers help clients compare scope, inclusions, timing, and add-on needs before sending an inquiry.</p>
+        </div>
+        <div class="info" id="availability">
+          <b>Availability Inquiry</b>
+          <p>Popular Saturdays book 9–14 months ahead. Weekday and micro-wedding dates available sooner.</p>
+        </div>
+        <div class="info">
+          <b>Event Fit</b>
+          <p>Use this card for travel radius, guest count, setup needs, event style, venue requirements, or production notes.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Check Availability</h3>
+          <p>Collect date, venue, guest count, event type, budget range, and package interest.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <input type="date">
+            <select>
+              <option>Event type</option>
+              <option>Wedding</option>
+              <option>Corporate event</option>
+              <option>Private party</option>
+              <option>Venue tour</option>
+              <option>Other event</option>
+            </select>
+            <textarea placeholder="Tell us about your event"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Client Testimonial</h3>
+          <p>“They held every detail so we could actually enjoy the day.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02. Event Planner -->
+  <section class="template eventplanner">
+    <span class="template-number">Template 02 / Event Planner</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">E</span>Polished Event Co.</div>
+        <div class="navlinks"><span>Gallery</span><span>Packages</span><span>Availability</span><span>Pricing</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Corporate</span><span class="pill">Social Events</span><span class="pill">Venues</span></div>
+          <h2>Corporate and social events that run with calm precision.</h2>
+          <p>A polished event planner template for corporate gatherings, milestone parties, launches, galas, and venue-partnered events.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Event Blueprint</b><strong>$1,200</strong><span>Strategy, run-of-show, and vendor map</span></div><div class="pkg-mini"><b>Production Partner</b><strong>$5,500</strong><span>Planning, sourcing, and event-day lead</span></div><div class="pkg-mini"><b>Signature Event</b><strong>$12,000+</strong><span>Full planning, design, and production</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#availability">Check Availability</a>
+            <a class="btn secondary" href="#gallery">View Gallery</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800" alt="Event Planner event service website hero">
+          <div class="media-note">Corporate + social events · Venue partnerships · Production plans</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="gallery">
+          <h3>Event Gallery</h3>
+          <p>Feature real weddings, parties, venues, installations, performances, food service, or behind-the-scenes production moments.</p>
+          <div class="gallery-list"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800" alt="Event Planner gallery"><div><b>Product Launch</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800" alt="Event Planner gallery"><div><b>Annual Gala</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=800" alt="Event Planner gallery"><div><b>Milestone Dinner</b><span>Featured event gallery</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Pricing Guide</h3>
+          <p>Pricing depends on guest count, venue needs, vendor complexity, and production scope.</p>
+          <div class="price-guide"><div class="price-row"><b>Event Blueprint</b><span>$1,200 · Strategy, run-of-show, and vendor map</span></div><div class="price-row"><b>Production Partner</b><span>$5,500 · Planning, sourcing, and event-day lead</span></div><div class="price-row"><b>Signature Event</b><span>$12,000+ · Full planning, design, and production</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Packages</b>
+          <p>Clear package tiers help clients compare scope, inclusions, timing, and add-on needs before sending an inquiry.</p>
+        </div>
+        <div class="info" id="availability">
+          <b>Availability Inquiry</b>
+          <p>Corporate events accepted year-round. Peak holiday dates require early inquiry.</p>
+        </div>
+        <div class="info">
+          <b>Event Fit</b>
+          <p>Use this card for travel radius, guest count, setup needs, event style, venue requirements, or production notes.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Check Availability</h3>
+          <p>Collect date, venue, guest count, event type, budget range, and package interest.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <input type="date">
+            <select>
+              <option>Event type</option>
+              <option>Wedding</option>
+              <option>Corporate event</option>
+              <option>Private party</option>
+              <option>Venue tour</option>
+              <option>Other event</option>
+            </select>
+            <textarea placeholder="Tell us about your event"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Client Testimonial</h3>
+          <p>“They made a high-stakes event look smooth from every angle.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03. DJ Entertainment -->
+  <section class="template dj">
+    <span class="template-number">Template 03 / DJ Entertainment</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">D</span>PulseWave DJ Entertainment</div>
+        <div class="navlinks"><span>Gallery</span><span>Packages</span><span>Availability</span><span>Pricing</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Weddings</span><span class="pill">Corporate</span><span class="pill">Song Requests</span></div>
+          <h2>The right music, the right energy, the right moment.</h2>
+          <p>An energetic DJ template with music genres, equipment list, event types, song request flow, and strong party visuals.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Essential Set</b><strong>$950</strong><span>4 hours, pro sound, wireless mic</span></div><div class="pkg-mini"><b>Signature Party</b><strong>$1,600</strong><span>6 hours, dance lighting, planning call</span></div><div class="pkg-mini"><b>Full Production</b><strong>$2,800+</strong><span>MC, uplighting, ceremony, reception</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#availability">Check Availability</a>
+            <a class="btn secondary" href="#gallery">View Gallery</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1530023367847-a683933f4172?w=800" alt="DJ Entertainment event service website hero">
+          <div class="media-note">Music genres · Equipment list · Event types · Song request</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="gallery">
+          <h3>Event Gallery</h3>
+          <p>Feature real weddings, parties, venues, installations, performances, food service, or behind-the-scenes production moments.</p>
+          <div class="gallery-list"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1530023367847-a683933f4172?w=800" alt="DJ Entertainment gallery"><div><b>Packed Dance Floor</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800" alt="DJ Entertainment gallery"><div><b>Corporate Mixer</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800" alt="DJ Entertainment gallery"><div><b>Wedding Reception</b><span>Featured event gallery</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Pricing Guide</h3>
+          <p>Pricing guide covers event length, travel, ceremony audio, lighting, and MC support.</p>
+          <div class="price-guide"><div class="price-row"><b>Essential Set</b><span>$950 · 4 hours, pro sound, wireless mic</span></div><div class="price-row"><b>Signature Party</b><span>$1,600 · 6 hours, dance lighting, planning call</span></div><div class="price-row"><b>Full Production</b><span>$2,800+ · MC, uplighting, ceremony, reception</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Packages</b>
+          <p>Clear package tiers help clients compare scope, inclusions, timing, and add-on needs before sending an inquiry.</p>
+        </div>
+        <div class="info" id="availability">
+          <b>Availability Inquiry</b>
+          <p>Weekend nights book fast. Song request portal opens after deposit.</p>
+        </div>
+        <div class="info">
+          <b>Event Fit</b>
+          <p>Use this card for travel radius, guest count, setup needs, event style, venue requirements, or production notes.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Check Availability</h3>
+          <p>Collect date, venue, guest count, event type, budget range, and package interest.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <input type="date">
+            <select>
+              <option>Event type</option>
+              <option>Wedding</option>
+              <option>Corporate event</option>
+              <option>Private party</option>
+              <option>Venue tour</option>
+              <option>Other event</option>
+            </select>
+            <textarea placeholder="Tell us about your event"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Client Testimonial</h3>
+          <p>“The dance floor never emptied, and the transitions were perfect.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04. Event Photographer -->
+  <section class="template photographer">
+    <span class="template-number">Template 04 / Event Photographer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">E</span>Gatherlight Photography</div>
+        <div class="navlinks"><span>Gallery</span><span>Packages</span><span>Availability</span><span>Pricing</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Weddings</span><span class="pill">Conferences</span><span class="pill">Parties</span></div>
+          <h2>Event photography that captures the room and the feeling.</h2>
+          <p>A gallery-focused event photographer template with event type cards, package pricing, booking calendar, and proof-forward imagery.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Two-Hour Coverage</b><strong>$750</strong><span>Small events and quick galleries</span></div><div class="pkg-mini"><b>Half-Day</b><strong>$1,800</strong><span>4 hours, edited online gallery</span></div><div class="pkg-mini"><b>Full Event</b><strong>$3,600+</strong><span>8 hours, second shooter option</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#availability">Check Availability</a>
+            <a class="btn secondary" href="#gallery">View Gallery</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800" alt="Event Photographer event service website hero">
+          <div class="media-note">Gallery-focused · Event types · Packages · Booking calendar</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="gallery">
+          <h3>Event Gallery</h3>
+          <p>Feature real weddings, parties, venues, installations, performances, food service, or behind-the-scenes production moments.</p>
+          <div class="gallery-list"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800" alt="Event Photographer gallery"><div><b>Gala Highlights</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Event Photographer gallery"><div><b>Conference Candids</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800" alt="Event Photographer gallery"><div><b>Wedding Toasts</b><span>Featured event gallery</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Pricing Guide</h3>
+          <p>Pricing varies by hours, delivery speed, second shooter, and licensing needs.</p>
+          <div class="price-guide"><div class="price-row"><b>Two-Hour Coverage</b><span>$750 · Small events and quick galleries</span></div><div class="price-row"><b>Half-Day</b><span>$1,800 · 4 hours, edited online gallery</span></div><div class="price-row"><b>Full Event</b><span>$3,600+ · 8 hours, second shooter option</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Packages</b>
+          <p>Clear package tiers help clients compare scope, inclusions, timing, and add-on needs before sending an inquiry.</p>
+        </div>
+        <div class="info" id="availability">
+          <b>Availability Inquiry</b>
+          <p>Live event galleries and rush delivery available for select dates.</p>
+        </div>
+        <div class="info">
+          <b>Event Fit</b>
+          <p>Use this card for travel radius, guest count, setup needs, event style, venue requirements, or production notes.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Check Availability</h3>
+          <p>Collect date, venue, guest count, event type, budget range, and package interest.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <input type="date">
+            <select>
+              <option>Event type</option>
+              <option>Wedding</option>
+              <option>Corporate event</option>
+              <option>Private party</option>
+              <option>Venue tour</option>
+              <option>Other event</option>
+            </select>
+            <textarea placeholder="Tell us about your event"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Client Testimonial</h3>
+          <p>“They caught moments we did not even realize were happening.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05. Event Videographer -->
+  <section class="template videographer">
+    <span class="template-number">Template 05 / Event Videographer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">E</span>Vow &amp; Frame Films</div>
+        <div class="navlinks"><span>Gallery</span><span>Packages</span><span>Availability</span><span>Pricing</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Highlight Reels</span><span class="pill">Cinematic</span><span class="pill">Fast Turnaround</span></div>
+          <h2>Cinematic event films that preserve the atmosphere.</h2>
+          <p>A cinematic videography template with highlight reels, package options, turnaround timelines, and polished video-forward design.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Highlight Film</b><strong>$2,400</strong><span>4 hours, 3–5 minute edited film</span></div><div class="pkg-mini"><b>Documentary Package</b><strong>$4,800</strong><span>Full-day coverage and speeches</span></div><div class="pkg-mini"><b>Brand/Event Film</b><strong>$6,500+</strong><span>Multi-camera production and edits</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#availability">Check Availability</a>
+            <a class="btn secondary" href="#gallery">View Gallery</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Event Videographer event service website hero">
+          <div class="media-note">Highlight reels · Packages · Turnaround times</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="gallery">
+          <h3>Event Gallery</h3>
+          <p>Feature real weddings, parties, venues, installations, performances, food service, or behind-the-scenes production moments.</p>
+          <div class="gallery-list"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Event Videographer gallery"><div><b>Wedding Highlight</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1530023367847-a683933f4172?w=800" alt="Event Videographer gallery"><div><b>Launch Recap</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800" alt="Event Videographer gallery"><div><b>Speaker Reel</b><span>Featured event gallery</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Pricing Guide</h3>
+          <p>Guide includes hours, cameras, audio capture, drone add-ons, and edit deliverables.</p>
+          <div class="price-guide"><div class="price-row"><b>Highlight Film</b><span>$2,400 · 4 hours, 3–5 minute edited film</span></div><div class="price-row"><b>Documentary Package</b><span>$4,800 · Full-day coverage and speeches</span></div><div class="price-row"><b>Brand/Event Film</b><span>$6,500+ · Multi-camera production and edits</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Packages</b>
+          <p>Clear package tiers help clients compare scope, inclusions, timing, and add-on needs before sending an inquiry.</p>
+        </div>
+        <div class="info" id="availability">
+          <b>Availability Inquiry</b>
+          <p>Standard turnaround is 6–8 weeks. Rush highlight edits may be available.</p>
+        </div>
+        <div class="info">
+          <b>Event Fit</b>
+          <p>Use this card for travel radius, guest count, setup needs, event style, venue requirements, or production notes.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Check Availability</h3>
+          <p>Collect date, venue, guest count, event type, budget range, and package interest.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <input type="date">
+            <select>
+              <option>Event type</option>
+              <option>Wedding</option>
+              <option>Corporate event</option>
+              <option>Private party</option>
+              <option>Venue tour</option>
+              <option>Other event</option>
+            </select>
+            <textarea placeholder="Tell us about your event"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Client Testimonial</h3>
+          <p>“The film brought the entire day back in a way photos alone could not.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 06. Event Caterer -->
+  <section class="template caterer">
+    <span class="template-number">Template 06 / Event Caterer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">E</span>Table &amp; Thyme Catering</div>
+        <div class="navlinks"><span>Gallery</span><span>Packages</span><span>Availability</span><span>Pricing</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Menus</span><span class="pill">Tastings</span><span class="pill">Dietary Options</span></div>
+          <h2>Event menus designed around flavor, flow, and hospitality.</h2>
+          <p>A menu-focused catering template with tasting events, dietary options, plating gallery, and flexible event packages.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Cocktail Bites</b><strong>$42/guest</strong><span>Passed apps and grazing table</span></div><div class="pkg-mini"><b>Dinner Service</b><strong>$85/guest</strong><span>Buffet, family-style, or plated</span></div><div class="pkg-mini"><b>Full Catering</b><strong>Custom</strong><span>Staffing, rentals, bar, timeline</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#availability">Check Availability</a>
+            <a class="btn secondary" href="#gallery">View Gallery</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800" alt="Event Caterer event service website hero">
+          <div class="media-note">Menu packages · Tasting events · Dietary options · Plating gallery</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="gallery">
+          <h3>Event Gallery</h3>
+          <p>Feature real weddings, parties, venues, installations, performances, food service, or behind-the-scenes production moments.</p>
+          <div class="gallery-list"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800" alt="Event Caterer gallery"><div><b>Plated Dinner</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800" alt="Event Caterer gallery"><div><b>Grazing Table</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1478146059778-acee2e5b0bec?w=800" alt="Event Caterer gallery"><div><b>Cocktail Hour</b><span>Featured event gallery</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Pricing Guide</h3>
+          <p>Pricing guide reflects menu style, guest count, service staff, rentals, and travel.</p>
+          <div class="price-guide"><div class="price-row"><b>Cocktail Bites</b><span>$42/guest · Passed apps and grazing table</span></div><div class="price-row"><b>Dinner Service</b><span>$85/guest · Buffet, family-style, or plated</span></div><div class="price-row"><b>Full Catering</b><span>Custom · Staffing, rentals, bar, timeline</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Packages</b>
+          <p>Clear package tiers help clients compare scope, inclusions, timing, and add-on needs before sending an inquiry.</p>
+        </div>
+        <div class="info" id="availability">
+          <b>Availability Inquiry</b>
+          <p>Tasting dates open monthly. Final menu selections due 30 days before event.</p>
+        </div>
+        <div class="info">
+          <b>Event Fit</b>
+          <p>Use this card for travel radius, guest count, setup needs, event style, venue requirements, or production notes.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Check Availability</h3>
+          <p>Collect date, venue, guest count, event type, budget range, and package interest.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <input type="date">
+            <select>
+              <option>Event type</option>
+              <option>Wedding</option>
+              <option>Corporate event</option>
+              <option>Private party</option>
+              <option>Venue tour</option>
+              <option>Other event</option>
+            </select>
+            <textarea placeholder="Tell us about your event"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Client Testimonial</h3>
+          <p>“The food was beautiful, timely, and genuinely delicious.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 07. Event Florist -->
+  <section class="template florist">
+    <span class="template-number">Template 07 / Event Florist</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">E</span>Bloom Ritual Florals</div>
+        <div class="navlinks"><span>Gallery</span><span>Packages</span><span>Availability</span><span>Pricing</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Installations</span><span class="pill">Bouquets</span><span class="pill">Seasonal</span></div>
+          <h2>Floral installations with season, movement, and meaning.</h2>
+          <p>A botanical event florist template with arrangement styles, seasonal availability, consultation prompts, and lush gallery blocks.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Personal Flowers</b><strong>$850+</strong><span>Bouquets, bouts, and small accents</span></div><div class="pkg-mini"><b>Ceremony + Tables</b><strong>$3,500+</strong><span>Arch, aisle, centerpieces</span></div><div class="pkg-mini"><b>Full Floral Design</b><strong>$8,500+</strong><span>Installations and full event styling</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#availability">Check Availability</a>
+            <a class="btn secondary" href="#gallery">View Gallery</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1478146059778-acee2e5b0bec?w=800" alt="Event Florist event service website hero">
+          <div class="media-note">Arrangement styles · Seasonal availability · Consultation</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="gallery">
+          <h3>Event Gallery</h3>
+          <p>Feature real weddings, parties, venues, installations, performances, food service, or behind-the-scenes production moments.</p>
+          <div class="gallery-list"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1478146059778-acee2e5b0bec?w=800" alt="Event Florist gallery"><div><b>Garden Arch</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Event Florist gallery"><div><b>Reception Tables</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=800" alt="Event Florist gallery"><div><b>Statement Install</b><span>Featured event gallery</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Pricing Guide</h3>
+          <p>Pricing guide considers seasonality, stem selection, installations, delivery, and strike.</p>
+          <div class="price-guide"><div class="price-row"><b>Personal Flowers</b><span>$850+ · Bouquets, bouts, and small accents</span></div><div class="price-row"><b>Ceremony + Tables</b><span>$3,500+ · Arch, aisle, centerpieces</span></div><div class="price-row"><b>Full Floral Design</b><span>$8,500+ · Installations and full event styling</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Packages</b>
+          <p>Clear package tiers help clients compare scope, inclusions, timing, and add-on needs before sending an inquiry.</p>
+        </div>
+        <div class="info" id="availability">
+          <b>Availability Inquiry</b>
+          <p>Seasonal blooms vary. Consultations recommended before final palette approval.</p>
+        </div>
+        <div class="info">
+          <b>Event Fit</b>
+          <p>Use this card for travel radius, guest count, setup needs, event style, venue requirements, or production notes.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Check Availability</h3>
+          <p>Collect date, venue, guest count, event type, budget range, and package interest.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <input type="date">
+            <select>
+              <option>Event type</option>
+              <option>Wedding</option>
+              <option>Corporate event</option>
+              <option>Private party</option>
+              <option>Venue tour</option>
+              <option>Other event</option>
+            </select>
+            <textarea placeholder="Tell us about your event"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Client Testimonial</h3>
+          <p>“The flowers changed the entire feeling of the room.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 08. Bridal Makeup -->
+  <section class="template makeup">
+    <span class="template-number">Template 08 / Bridal Makeup</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">B</span>Luxe Veil Beauty</div>
+        <div class="navlinks"><span>Gallery</span><span>Packages</span><span>Availability</span><span>Pricing</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Bridal</span><span class="pill">Trials</span><span class="pill">Travel Team</span></div>
+          <h2>Camera-ready bridal beauty that still feels like you.</h2>
+          <p>A glamorous bridal makeup template with bridal gallery, trial information, travel radius, package cards, and beauty-first visuals.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Bride Only</b><strong>$450</strong><span>Wedding-day makeup and lashes</span></div><div class="pkg-mini"><b>Trial + Wedding</b><strong>$650</strong><span>Trial session plus day-of look</span></div><div class="pkg-mini"><b>Bridal Party</b><strong>$1,200+</strong><span>Bride plus attendants</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#availability">Check Availability</a>
+            <a class="btn secondary" href="#gallery">View Gallery</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Bridal Makeup event service website hero">
+          <div class="media-note">Bridal gallery · Trial info · Travel radius</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="gallery">
+          <h3>Event Gallery</h3>
+          <p>Feature real weddings, parties, venues, installations, performances, food service, or behind-the-scenes production moments.</p>
+          <div class="gallery-list"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Bridal Makeup gallery"><div><b>Soft Glam</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=800" alt="Bridal Makeup gallery"><div><b>Editorial Bride</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1478146059778-acee2e5b0bec?w=800" alt="Bridal Makeup gallery"><div><b>Natural Radiance</b><span>Featured event gallery</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Pricing Guide</h3>
+          <p>Guide includes trial, day-of services, travel, assistants, and early start fees.</p>
+          <div class="price-guide"><div class="price-row"><b>Bride Only</b><span>$450 · Wedding-day makeup and lashes</span></div><div class="price-row"><b>Trial + Wedding</b><span>$650 · Trial session plus day-of look</span></div><div class="price-row"><b>Bridal Party</b><span>$1,200+ · Bride plus attendants</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Packages</b>
+          <p>Clear package tiers help clients compare scope, inclusions, timing, and add-on needs before sending an inquiry.</p>
+        </div>
+        <div class="info" id="availability">
+          <b>Availability Inquiry</b>
+          <p>Travel available within 60 miles. Early morning start times accepted by request.</p>
+        </div>
+        <div class="info">
+          <b>Event Fit</b>
+          <p>Use this card for travel radius, guest count, setup needs, event style, venue requirements, or production notes.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Check Availability</h3>
+          <p>Collect date, venue, guest count, event type, budget range, and package interest.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <input type="date">
+            <select>
+              <option>Event type</option>
+              <option>Wedding</option>
+              <option>Corporate event</option>
+              <option>Private party</option>
+              <option>Venue tour</option>
+              <option>Other event</option>
+            </select>
+            <textarea placeholder="Tell us about your event"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Client Testimonial</h3>
+          <p>“My makeup lasted all day and still felt like my face.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 09. Wedding Officiant -->
+  <section class="template officiant">
+    <span class="template-number">Template 09 / Wedding Officiant</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">W</span>Heartline Ceremonies</div>
+        <div class="navlinks"><span>Gallery</span><span>Packages</span><span>Availability</span><span>Pricing</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Ceremonies</span><span class="pill">Vows</span><span class="pill">Elopements</span></div>
+          <h2>Personal ceremonies written with care, humor, and meaning.</h2>
+          <p>A personal wedding officiant template with ceremony types, vow writing help, couples testimonials, and easy availability inquiry.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Simple Ceremony</b><strong>$350</strong><span>Short civil ceremony</span></div><div class="pkg-mini"><b>Personal Ceremony</b><strong>$750</strong><span>Custom script and planning call</span></div><div class="pkg-mini"><b>Story Ceremony</b><strong>$1,200</strong><span>Deep interview and vow support</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#availability">Check Availability</a>
+            <a class="btn secondary" href="#gallery">View Gallery</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding Officiant event service website hero">
+          <div class="media-note">Ceremony types · Vow writing · Couples testimonials</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="gallery">
+          <h3>Event Gallery</h3>
+          <p>Feature real weddings, parties, venues, installations, performances, food service, or behind-the-scenes production moments.</p>
+          <div class="gallery-list"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Wedding Officiant gallery"><div><b>Garden Vows</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800" alt="Wedding Officiant gallery"><div><b>City Elopement</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1478146059778-acee2e5b0bec?w=800" alt="Wedding Officiant gallery"><div><b>Family Ceremony</b><span>Featured event gallery</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Pricing Guide</h3>
+          <p>Pricing depends on ceremony length, personalization, rehearsal attendance, and travel.</p>
+          <div class="price-guide"><div class="price-row"><b>Simple Ceremony</b><span>$350 · Short civil ceremony</span></div><div class="price-row"><b>Personal Ceremony</b><span>$750 · Custom script and planning call</span></div><div class="price-row"><b>Story Ceremony</b><span>$1,200 · Deep interview and vow support</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Packages</b>
+          <p>Clear package tiers help clients compare scope, inclusions, timing, and add-on needs before sending an inquiry.</p>
+        </div>
+        <div class="info" id="availability">
+          <b>Availability Inquiry</b>
+          <p>Legal signing and rehearsal support available for select packages.</p>
+        </div>
+        <div class="info">
+          <b>Event Fit</b>
+          <p>Use this card for travel radius, guest count, setup needs, event style, venue requirements, or production notes.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Check Availability</h3>
+          <p>Collect date, venue, guest count, event type, budget range, and package interest.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <input type="date">
+            <select>
+              <option>Event type</option>
+              <option>Wedding</option>
+              <option>Corporate event</option>
+              <option>Private party</option>
+              <option>Venue tour</option>
+              <option>Other event</option>
+            </select>
+            <textarea placeholder="Tell us about your event"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Client Testimonial</h3>
+          <p>“The ceremony sounded exactly like us — warm, personal, and never generic.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Party Rentals -->
+  <section class="template rentals">
+    <span class="template-number">Template 10 / Party Rentals</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>SceneSet Rentals</div>
+        <div class="navlinks"><span>Gallery</span><span>Packages</span><span>Availability</span><span>Pricing</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Furniture</span><span class="pill">Tabletop</span><span class="pill">Delivery</span></div>
+          <h2>Tables, lounges, linens, and details delivered right.</h2>
+          <p>A catalog-style rental template with inventory preview, delivery areas, setup/breakdown notes, and package pricing.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Essentials</b><strong>$600+</strong><span>Tables, chairs, linens</span></div><div class="pkg-mini"><b>Lounge Set</b><strong>$1,200+</strong><span>Soft seating and accents</span></div><div class="pkg-mini"><b>Full Rental Plan</b><strong>Custom</strong><span>Inventory, delivery, setup, strike</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#availability">Check Availability</a>
+            <a class="btn secondary" href="#gallery">View Gallery</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=800" alt="Party Rentals event service website hero">
+          <div class="media-note">Inventory preview · Delivery area · Setup/breakdown</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="gallery">
+          <h3>Event Gallery</h3>
+          <p>Feature real weddings, parties, venues, installations, performances, food service, or behind-the-scenes production moments.</p>
+          <div class="gallery-list"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=800" alt="Party Rentals gallery"><div><b>Lounge Setup</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800" alt="Party Rentals gallery"><div><b>Tabletop Design</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800" alt="Party Rentals gallery"><div><b>Outdoor Party</b><span>Featured event gallery</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Pricing Guide</h3>
+          <p>Guide includes rental items, delivery zone, labor, setup, pickup, and damage waiver.</p>
+          <div class="price-guide"><div class="price-row"><b>Essentials</b><span>$600+ · Tables, chairs, linens</span></div><div class="price-row"><b>Lounge Set</b><span>$1,200+ · Soft seating and accents</span></div><div class="price-row"><b>Full Rental Plan</b><span>Custom · Inventory, delivery, setup, strike</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Packages</b>
+          <p>Clear package tiers help clients compare scope, inclusions, timing, and add-on needs before sending an inquiry.</p>
+        </div>
+        <div class="info" id="availability">
+          <b>Availability Inquiry</b>
+          <p>Inventory holds require deposit. Weekend delivery windows fill quickly.</p>
+        </div>
+        <div class="info">
+          <b>Event Fit</b>
+          <p>Use this card for travel radius, guest count, setup needs, event style, venue requirements, or production notes.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Check Availability</h3>
+          <p>Collect date, venue, guest count, event type, budget range, and package interest.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <input type="date">
+            <select>
+              <option>Event type</option>
+              <option>Wedding</option>
+              <option>Corporate event</option>
+              <option>Private party</option>
+              <option>Venue tour</option>
+              <option>Other event</option>
+            </select>
+            <textarea placeholder="Tell us about your event"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Client Testimonial</h3>
+          <p>“Everything arrived on time, looked great, and was picked up without stress.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. Balloon Artist -->
+  <section class="template balloon">
+    <span class="template-number">Template 11 / Balloon Artist</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">B</span>Pop &amp; Wonder Balloons</div>
+        <div class="navlinks"><span>Gallery</span><span>Packages</span><span>Availability</span><span>Pricing</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Installations</span><span class="pill">Birthdays</span><span class="pill">Brand Events</span></div>
+          <h2>Playful installations that make the whole party smile.</h2>
+          <p>A fun balloon artist template with installation galleries, event types, design consultation, and colorful pricing blocks.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Mini Garland</b><strong>$280</strong><span>Pickup or small install</span></div><div class="pkg-mini"><b>Statement Wall</b><strong>$750+</strong><span>Custom colors and install</span></div><div class="pkg-mini"><b>Full Event Design</b><strong>$1,800+</strong><span>Balloons, backdrops, props</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#availability">Check Availability</a>
+            <a class="btn secondary" href="#gallery">View Gallery</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=800" alt="Balloon Artist event service website hero">
+          <div class="media-note">Installation gallery · Event types · Design consultation</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="gallery">
+          <h3>Event Gallery</h3>
+          <p>Feature real weddings, parties, venues, installations, performances, food service, or behind-the-scenes production moments.</p>
+          <div class="gallery-list"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=800" alt="Balloon Artist gallery"><div><b>Birthday Wall</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800" alt="Balloon Artist gallery"><div><b>Brand Pop-Up</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1478146059778-acee2e5b0bec?w=800" alt="Balloon Artist gallery"><div><b>Organic Garland</b><span>Featured event gallery</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Pricing Guide</h3>
+          <p>Pricing guide reflects size, colors, structure, delivery, installation, and takedown.</p>
+          <div class="price-guide"><div class="price-row"><b>Mini Garland</b><span>$280 · Pickup or small install</span></div><div class="price-row"><b>Statement Wall</b><span>$750+ · Custom colors and install</span></div><div class="price-row"><b>Full Event Design</b><span>$1,800+ · Balloons, backdrops, props</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Packages</b>
+          <p>Clear package tiers help clients compare scope, inclusions, timing, and add-on needs before sending an inquiry.</p>
+        </div>
+        <div class="info" id="availability">
+          <b>Availability Inquiry</b>
+          <p>Custom colors need advance notice. Rush orders accepted when inventory allows.</p>
+        </div>
+        <div class="info">
+          <b>Event Fit</b>
+          <p>Use this card for travel radius, guest count, setup needs, event style, venue requirements, or production notes.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Check Availability</h3>
+          <p>Collect date, venue, guest count, event type, budget range, and package interest.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <input type="date">
+            <select>
+              <option>Event type</option>
+              <option>Wedding</option>
+              <option>Corporate event</option>
+              <option>Private party</option>
+              <option>Venue tour</option>
+              <option>Other event</option>
+            </select>
+            <textarea placeholder="Tell us about your event"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Client Testimonial</h3>
+          <p>“The installation became the photo spot everyone used all night.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12. Venue Owner -->
+  <section class="template venue">
+    <span class="template-number">Template 12 / Venue Owner</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">V</span>The Glasshouse Venue</div>
+        <div class="navlinks"><span>Gallery</span><span>Packages</span><span>Availability</span><span>Pricing</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Venue</span><span class="pill">Virtual Tour</span><span class="pill">Capacity</span></div>
+          <h2>A bright, flexible space for ceremonies, dinners, and celebrations.</h2>
+          <p>A space-showcase venue template with capacity info, rental packages, virtual tour CTA, availability inquiry, and event photos.</p>
+          <div class="package-strip"><div class="pkg-mini"><b>Half-Day Rental</b><strong>$2,800</strong><span>6-hour access, tables included</span></div><div class="pkg-mini"><b>Full-Day Rental</b><strong>$5,500</strong><span>12-hour access and prep suite</span></div><div class="pkg-mini"><b>Weekend Buyout</b><strong>$12,000+</strong><span>Rehearsal, event, farewell brunch</span></div></div>
+          <div class="btn-row">
+            <a class="btn" href="#availability">Check Availability</a>
+            <a class="btn secondary" href="#gallery">View Gallery</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800" alt="Venue Owner event service website hero">
+          <div class="media-note">Space showcase · Capacity info · Rental packages · Virtual tour</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel" id="gallery">
+          <h3>Event Gallery</h3>
+          <p>Feature real weddings, parties, venues, installations, performances, food service, or behind-the-scenes production moments.</p>
+          <div class="gallery-list"><div class="gallery-card"><img src="https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800" alt="Venue Owner gallery"><div><b>Ceremony Hall</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800" alt="Venue Owner gallery"><div><b>Reception Layout</b><span>Featured event gallery</span></div></div><div class="gallery-card"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?w=800" alt="Venue Owner gallery"><div><b>Outdoor Terrace</b><span>Featured event gallery</span></div></div></div>
+        </div>
+        <div class="panel">
+          <h3>Pricing Guide</h3>
+          <p>Pricing guide covers season, guest count, access hours, staffing, rentals, and cleanup.</p>
+          <div class="price-guide"><div class="price-row"><b>Half-Day Rental</b><span>$2,800 · 6-hour access, tables included</span></div><div class="price-row"><b>Full-Day Rental</b><span>$5,500 · 12-hour access and prep suite</span></div><div class="price-row"><b>Weekend Buyout</b><span>$12,000+ · Rehearsal, event, farewell brunch</span></div></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info">
+          <b>Packages</b>
+          <p>Clear package tiers help clients compare scope, inclusions, timing, and add-on needs before sending an inquiry.</p>
+        </div>
+        <div class="info" id="availability">
+          <b>Availability Inquiry</b>
+          <p>Virtual tours available weekly. Holds are available for seven days after tour.</p>
+        </div>
+        <div class="info">
+          <b>Event Fit</b>
+          <p>Use this card for travel radius, guest count, setup needs, event style, venue requirements, or production notes.</p>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <h3>Check Availability</h3>
+          <p>Collect date, venue, guest count, event type, budget range, and package interest.</p>
+          <form class="form">
+            <input type="text" placeholder="Your name">
+            <input type="email" placeholder="Email address">
+            <input type="date">
+            <select>
+              <option>Event type</option>
+              <option>Wedding</option>
+              <option>Corporate event</option>
+              <option>Private party</option>
+              <option>Venue tour</option>
+              <option>Other event</option>
+            </select>
+            <textarea placeholder="Tell us about your event"></textarea>
+            <button class="btn" type="button">Check Availability</button>
+          </form>
+        </div>
+        <div class="review">
+          <h3>Client Testimonial</h3>
+          <p>“The space was beautiful, flexible, and easy for vendors to work in.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>

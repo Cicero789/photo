@@ -1,0 +1,698 @@
+=========================================================================
+FRAMENEST — 229 PROFESSIONAL TEMPLATE PROMPTS FOR GPT-5.5 / CODEX
+=========================================================================
+
+INSTRUCTIONS FOR CODEX:
+- Run each prompt separately (one per industry batch)
+- Each prompt generates templates for all professional types in that industry
+- Save output as: mockups-{industry-slug}.html
+- Copy all files to C:\Users\shant\photo\public\
+
+Each prompt generates a self-contained HTML file with multiple template
+sections. Use the same format as the photographer templates.
+
+=========================================================================
+INDUSTRY 1: TEACHING & TUTORING (13 templates)
+=========================================================================
+PROMPT — paste this into Codex:
+
+Create a single self-contained HTML file with 13 professional website template sections for TEACHING & TUTORING professionals. Each section should be a distinct, visually unique template at least 600px tall.
+
+Sample photos (use for ALL templates, mix and match):
+- https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800 (classroom)
+- https://images.unsplash.com/photo-1509062522246-3755977927d7?w=800 (tutoring)
+- https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?w=800 (students)
+- https://images.unsplash.com/photo-1523050854058-8df90110c8f1?w=800 (books)
+- https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800 (online learning)
+- https://images.unsplash.com/photo-1460518451285-97b6aa326961?w=800 (music)
+
+The 13 templates:
+1. "Academic Tutor" — for general tutors. Clean white, academic feel, subjects grid, pricing table, booking button. Font: Inter.
+2. "Test Prep Pro" — for SAT/ACT/GRE coaches. Bold, results-focused, score improvement stats, testimonials, dark accent.
+3. "College Admissions Guide" — for admissions consultants. Prestigious feel, navy/gold, acceptance stats, timeline.
+4. "Homeschool Hub" — for homeschool teachers. Warm, friendly, curriculum overview, schedule, family-oriented.
+5. "Language Mentor" — for language teachers. International feel, flag colors, proficiency levels, conversation practice options.
+6. "Music Studio" — for music teachers. Creative, instrument imagery, lesson types (piano/guitar/voice), recital gallery.
+7. "Art Atelier" — for art teachers. Gallery-forward, creative layout, medium types (painting/sculpture/digital), student work showcase.
+8. "Acting Coach" — for acting/drama coaches. Dramatic, spotlight imagery, headshot gallery, reel embed, class types.
+9. "Debate & Speech" — for debate/writing coaches. Intellectual, serif typography, competition results, methodology.
+10. "Writing Workshop" — for writing coaches. Literary, clean, manuscript style, genres taught, published student work.
+11. "Driving School" — for driving instructors. Practical, trust-focused, pass rates, vehicle photos, area served.
+12. "Code Academy" — for coding teachers. Tech-forward, dark theme, languages taught, project showcase, terminal aesthetic.
+13. "Course Creator" — for online course creators. Modern, course catalog cards, enrollment CTA, video previews, platform links.
+
+Each template must include: hero section, about/bio, services/subjects, pricing, booking/contact button, testimonials area, photo gallery.
+All CSS in a <style> tag. Load Google Fonts. Include [Book a Lesson] button.
+Title: "FrameNest Templates — Teaching & Tutoring"
+Save as: mockups-teaching.html
+
+
+=========================================================================
+INDUSTRY 2: COACHING & PERSONAL DEVELOPMENT (10 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 10 professional website template sections for COACHING & PERSONAL DEVELOPMENT professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1552664730-d307ca884978?w=800 (coaching session)
+- https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800 (group coaching)
+- https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?w=800 (meditation)
+- https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=800 (business coaching)
+- https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800 (professional woman)
+- https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800 (workshop)
+
+Templates:
+1. "Life Coach" — warm, empowering, transformation journey, free discovery call CTA.
+2. "Career Navigator" — professional, corporate-adjacent, resume/interview services, LinkedIn-style.
+3. "Executive Edge" — premium, dark navy, C-suite language, ROI focused, confidential.
+4. "Business Mentor" — entrepreneurial, bold, revenue growth stats, case studies.
+5. "ADHD Coach" — welcoming, organized-chaos aesthetic, neurodivergent-friendly, tools/resources.
+6. "Parent Guide" — family-warm, gentle colors, age-based programs, community support.
+7. "Fitness Mindset" — energetic, strong typography, mind-body connection, transformation stories.
+8. "Relationship Coach" — warm rose/blush, couples imagery, communication tools, workshops.
+9. "Leadership Lab" — corporate, structured, team workshops, 360-assessment, keynote speaker.
+10. "Productivity Pro" — clean, minimalist, systems/tools, time management, audit offer.
+
+Include: hero, about, coaching packages (3-tier), free call booking, testimonials, credentials.
+All CSS in <style>. Google Fonts. [Book a Free Call] button.
+Save as: mockups-coaching.html
+
+
+=========================================================================
+INDUSTRY 3: MEDICAL / HEALTH CLINIC (17 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 17 professional website template sections for MEDICAL & HEALTH professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=800 (hospital)
+- https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800 (dentist)
+- https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800 (doctor)
+- https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800 (therapy)
+- https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800 (physical therapy)
+- https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?w=800 (wellness)
+
+Templates:
+1. "Family Doctor" — trustworthy, blue/white, insurance accepted list, patient portal link.
+2. "Dental Smile" — bright, friendly, smile gallery, treatments list, before/after.
+3. "Ortho Perfect" — modern, teen/young-adult friendly, treatment timeline, payment plans.
+4. "Derma Glow" — luxury skin care, clean, procedure gallery, before/after photos.
+5. "Clear Vision" — optometry, eye-chart motif, exam types, frame gallery.
+6. "Move Well PT" — athletic, dynamic, rehabilitation programs, exercise video library.
+7. "Align Chiro" — spine/wellness imagery, holistic feel, treatment types, first visit info.
+8. "Mind Matters" — psychology/therapy, calming, safe-space messaging, specialty areas.
+9. "Talk Therapy" — counseling, warm minimal, sliding scale info, crisis resources.
+10. "Psychiatry Center" — clinical yet approachable, medication management, telehealth option.
+11. "Speech Path" — pediatric-friendly, developmental milestones, parent resources.
+12. "OT Solutions" — occupational therapy, adaptive tools, sensory-friendly design.
+13. "Nutrition Plan" — fresh/clean, meal planning, food photography, diet types.
+14. "Acupuncture Arts" — Eastern aesthetic, calming, treatment types, TCM philosophy.
+15. "Therapeutic Touch" — massage therapy, spa-like, relaxation imagery, modalities.
+16. "Medical Specialist" — authoritative, research-backed, publications, referral process.
+17. "Telehealth Hub" — tech-forward, virtual-first, device mockup, how-it-works flow.
+
+Include: hero, credentials/licenses, services, insurance info, appointment booking, location/hours, patient forms link.
+All CSS in <style>. Google Fonts. [Schedule Appointment] button.
+Save as: mockups-medical.html
+
+
+=========================================================================
+INDUSTRY 4: LEGAL / FINANCIAL / PROFESSIONAL (14 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 14 professional website template sections for LEGAL & FINANCIAL professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800 (law office)
+- https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800 (business meeting)
+- https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800 (finance)
+- https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800 (professional)
+- https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800 (handshake)
+- https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800 (desk work)
+
+Templates:
+1. "Trial Attorney" — authoritative, dark wood tones, practice areas, case results, bar info.
+2. "CPA Firm" — clean, trustworthy, services grid, tax deadline banner, client portal.
+3. "Tax Expert" — seasonal, organized, service packages, document checklist, filing deadlines.
+4. "Wealth Advisor" — premium, navy/gold, portfolio approach, AUM milestones, fiduciary badge.
+5. "Insurance Pro" — friendly, policy types, quote calculator CTA, carrier logos.
+6. "Mortgage Guide" — home-focused, rate display, pre-approval CTA, calculator, NMLS#.
+7. "Estate Planner" — mature/elegant, will/trust types, family protection messaging.
+8. "Notary Express" — simple, practical, mobile service, availability calendar, pricing.
+9. "Bookkeeper" — organized, clean, QuickBooks/Xero integration mention, monthly plans.
+10. "Strategy Consultant" — premium, case study forward, methodology, engagement model.
+11. "HR Advisor" — corporate, people-focused, compliance services, training programs.
+12. "Mediator" — calm, balanced, resolution process, neutrality emphasis, conflict types.
+13. "Immigration Counsel" — welcoming, multilingual hints, visa types, success stories.
+14. "Business Broker" — deal-oriented, listing-style, transaction track record, valuation offer.
+
+Include: hero, credentials/licenses, practice areas, consultation booking, testimonials, location.
+All CSS in <style>. Google Fonts. [Request Consultation] button.
+Save as: mockups-legal-financial.html
+
+
+=========================================================================
+INDUSTRY 5: BEAUTY / WELLNESS (12 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 12 professional website template sections for BEAUTY & WELLNESS professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800 (salon)
+- https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800 (makeup)
+- https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?w=800 (spa)
+- https://images.unsplash.com/photo-1457972729786-0411a3b2b626?w=800 (nails)
+- https://images.unsplash.com/photo-1487412947147-5cebf100ffc2?w=800 (beauty)
+- https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800 (barber)
+
+Templates:
+1. "Hair Studio" — chic, portfolio-forward, color/cut/style services, Instagram grid.
+2. "Barber Shop" — masculine, vintage, services + prices, walk-in info, grooming products.
+3. "Makeup Artist" — glamorous, before/after gallery, bridal packages, kit showcase.
+4. "Skin Specialist" — clinical-beauty, treatment menu, skin types, results gallery.
+5. "Nail Artistry" — playful, color-rich, design gallery, service menu with prices.
+6. "Lash Lounge" — feminine, elegant, lash types comparison, aftercare info.
+7. "Brow Bar" — precise, minimal, brow shapes guide, microblading info.
+8. "Tattoo Artist" — edgy, dark theme, flash gallery, booking policies, style portfolio.
+9. "Piercing Studio" — clean, body-positive, jewelry showcase, aftercare, age policy.
+10. "Spa Retreat" — luxury, calming, treatment packages, membership tiers, gift cards.
+11. "Spray Tan Pro" — bronzed/warm, shade guide, prep instructions, event packages.
+12. "Personal Stylist" — fashion-forward, lookbook gallery, wardrobe services, shopping list.
+
+Include: hero, service menu with prices, before/after gallery, booking button, policies, Instagram link.
+All CSS in <style>. Google Fonts. [Book Now] button.
+Save as: mockups-beauty.html
+
+
+=========================================================================
+INDUSTRY 6: FITNESS / MOVEMENT (8 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 8 professional website template sections for FITNESS & MOVEMENT professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800 (gym)
+- https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800 (yoga)
+- https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800 (pilates)
+- https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800 (martial arts)
+- https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=800 (dance)
+- https://images.unsplash.com/photo-1571019614242-c5c5dee9f50a?w=800 (trainer)
+
+Templates:
+1. "Personal Trainer" — high-energy, transformation photos, program packages, free consultation.
+2. "Yoga Flow" — serene, natural, class schedule, retreat announcements, philosophy section.
+3. "Pilates Studio" — elegant, precise, reformer/mat classes, instructor team, membership.
+4. "Martial Arts Dojo" — disciplined, bold, belt levels, class schedule, philosophy.
+5. "Dance Academy" — expressive, movement-inspired, class types, recital gallery, age groups.
+6. "Sports Coach" — competitive, results-focused, athlete testimonials, training programs.
+7. "Meditation Guide" — minimal, peaceful, session types, retreat calendar, guided audio samples.
+8. "Wellness Instructor" — holistic, mind-body, workshop calendar, online/in-person options.
+
+Include: hero, class schedule, membership/packages, instructor bio, location, online class option.
+All CSS in <style>. Google Fonts. [Join a Class] button.
+Save as: mockups-fitness.html
+
+
+=========================================================================
+INDUSTRY 7: CREATIVE PORTFOLIO (14 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 14 professional website template sections for CREATIVE professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800 (design)
+- https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800 (writing)
+- https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=800 (art)
+- https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800 (web design)
+- https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800 (music studio)
+- https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=800 (architecture)
+
+Templates:
+1. "Photographer" — (already have 34 of these — include one flagship version for completeness)
+2. "Videographer" — cinematic, dark, reel showcase, equipment list, project types.
+3. "Graphic Designer" — bold, colorful, project cards, branding packages, process timeline.
+4. "Web Developer" — tech-clean, project screenshots, tech stack badges, GitHub link.
+5. "UX Designer" — wireframe aesthetic, case study cards, process methodology, tools.
+6. "Illustrator" — playful, hand-drawn feel, style gallery, commission info, prints shop.
+7. "Fine Artist" — gallery-minimal, exhibition history, available works, artist statement.
+8. "Writer" — literary, serif-heavy, published works, genres, sample excerpts.
+9. "Editor" — clean, precise, editing types, published credits, manuscript services.
+10. "Copywriter" — persuasive layout, results/ROI, client logos, writing samples.
+11. "Voice Actor" — audio-forward, demo reel player, voice types, studio specs.
+12. "Musician" — album art, tour dates, streaming links, press photos, booking.
+13. "Interior Designer" — elegant, room portfolio, design process, before/after.
+14. "Architect" — structural, blueprint motifs, project portfolio, awards, firm philosophy.
+
+Include: hero, portfolio/gallery, services, pricing, inquiry form, testimonials.
+All CSS in <style>. Google Fonts. [Hire Me] button.
+Save as: mockups-creative.html
+
+
+=========================================================================
+INDUSTRY 8: MARKETING / DIGITAL SERVICES (11 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 11 professional website template sections for MARKETING & DIGITAL SERVICE professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800 (analytics)
+- https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?w=800 (social media)
+- https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800 (data)
+- https://images.unsplash.com/photo-1533750349088-cd871a92f312?w=800 (marketing)
+- https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800 (creative work)
+- https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800 (screens)
+
+Templates:
+1. "Social Media Manager" — vibrant, platform icons, content calendar preview, growth stats.
+2. "SEO Specialist" — data-driven, ranking charts, audit offer, before/after rankings.
+3. "Digital Marketer" — comprehensive, funnel diagram, service tiers, ROI case studies.
+4. "Brand Consultant" — premium, identity showcase, brand guidelines preview, process.
+5. "PR Specialist" — media-focused, press placement logos, crisis management, media kit.
+6. "Ad Manager" — performance-focused, ROAS stats, platform expertise, ad creative samples.
+7. "Email Marketer" — conversion-focused, open rate stats, template previews, automation flow.
+8. "Website Builder" — portfolio of sites built, tech stack, timeline, maintenance plans.
+9. "E-commerce Consultant" — store-focused, revenue growth, platform expertise, store audits.
+10. "Content Strategist" — editorial, content calendar view, topic clusters, blog samples.
+11. "Funnel Builder" — conversion-optimized, funnel diagrams, landing page samples, A/B testing.
+
+Include: hero, case studies, services, free audit offer, client logos, results metrics.
+All CSS in <style>. Google Fonts. [Get a Free Audit] button.
+Save as: mockups-marketing.html
+
+
+=========================================================================
+INDUSTRY 9: INFLUENCER / PERSONAL BRAND (12 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 12 professional website template sections for INFLUENCER & PERSONAL BRAND professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=800 (content creator)
+- https://images.unsplash.com/photo-1533488765986-dfa2a9939acd?w=800 (podcast)
+- https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=800 (streaming)
+- https://images.unsplash.com/photo-1543269664-56d93c1b41a6?w=800 (lifestyle)
+- https://images.unsplash.com/photo-1588702547923-7093a6c3ba33?w=800 (phone content)
+- https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800 (portrait)
+
+Templates:
+1. "Content Creator" — vibrant, platform links, brand collab inquiry, content feed preview.
+2. "Mom Influencer" — warm, family-friendly, brand partnerships, relatable aesthetic.
+3. "Lifestyle Blogger" — editorial, blog post previews, newsletter signup, category grid.
+4. "YouTuber" — video-forward, latest uploads embed, subscriber stats, collab form.
+5. "TikTok Creator" — trendy, vertical video previews, brand rate card, audience stats.
+6. "Podcaster" — audio-forward, episode player, guest booking, sponsor inquiry.
+7. "Streamer" — gaming/tech, dark neon, schedule, platform links, donation/sub.
+8. "Newsletter Writer" — literary, subscribe CTA, archive previews, testimonials.
+9. "Public Speaker" — professional, keynote topics, event booking, speaking reel.
+10. "Author" — book cover display, buy links, reading events, press/reviews.
+11. "Thought Leader" — authoritative, publications, media appearances, consulting.
+12. "Personal Brand" — flexible, multi-platform, media kit download, partnership form.
+
+Include: hero, media kit, brand partnerships, content links, email list, booking form.
+All CSS in <style>. Google Fonts. [Let's Collaborate] button.
+Save as: mockups-influencer.html
+
+
+=========================================================================
+INDUSTRY 10: REAL ESTATE (8 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 8 professional website template sections for REAL ESTATE professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800 (house)
+- https://images.unsplash.com/photo-1582407947304-fd86f028f716?w=800 (condo)
+- https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800 (home)
+- https://images.unsplash.com/photo-1560184897-ae75f418493e?w=800 (keys)
+- https://images.unsplash.com/photo-1448630360428-65456885c650?w=800 (building)
+- https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800 (luxury home)
+
+Templates:
+1. "Residential Agent" — friendly, featured listings, neighborhoods, buyer/seller resources.
+2. "Luxury Broker" — premium, dark, high-end property showcase, exclusive listings.
+3. "Property Manager" — organized, tenant portal, maintenance request, property list.
+4. "Mortgage Advisor" — rate-focused, calculator CTA, pre-approval, NMLS display.
+5. "Home Inspector" — trustworthy, checklist preview, sample report, booking.
+6. "Appraiser" — precise, credential-focused, service area map, turnaround times.
+7. "Real Estate Investor" — portfolio display, deal types, partnership inquiry.
+8. "Leasing Agent" — apartment-focused, availability list, virtual tours, application.
+
+Include: hero, featured listings, service area, contact form, testimonials, credentials.
+All CSS in <style>. Google Fonts. [Get in Touch] button.
+Save as: mockups-realestate.html
+
+
+=========================================================================
+INDUSTRY 11: HOME & LOCAL SERVICES (15 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 15 professional website template sections for HOME & LOCAL SERVICE professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800 (contractor)
+- https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800 (tools)
+- https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=800 (home)
+- https://images.unsplash.com/photo-1558036117-15d82a90b9b1?w=800 (house exterior)
+- https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800 (interior)
+- https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800 (garden)
+
+Templates:
+1. "General Contractor" — rugged, project gallery, license/insurance, before/after.
+2. "Plumber Pro" — practical, emergency CTA (red), services, service area.
+3. "Electrician" — safety-focused, license display, residential/commercial, 24/7 availability.
+4. "Handyman" — friendly, wide service list, hourly rates, project photos.
+5. "Landscape Designer" — green/natural, seasonal services, design gallery, maintenance plans.
+6. "Cleaning Service" — fresh/clean, packages, frequency options, move-in/out specials.
+7. "Painter" — color-forward, before/after, interior/exterior, free estimate.
+8. "Roofing Expert" — trustworthy, storm damage, materials, warranty info, inspection offer.
+9. "HVAC Tech" — seasonal promotions, maintenance plans, emergency service, brand certifications.
+10. "Pest Control" — reassuring, pest types, prevention tips, service guarantee.
+11. "Pool Service" — blue/aqua, maintenance plans, repair services, seasonal opening/closing.
+12. "Moving Company" — organized, truck sizes, local/long-distance, packing services, quote form.
+13. "Junk Removal" — before/after, pricing transparency, eco-friendly disposal, same-day.
+14. "Security Installer" — tech-focused, system packages, monitoring plans, smart home integration.
+15. "Solar Consultant" — green/sustainable, savings calculator, system types, financing options.
+
+Include: hero, services, service area, before/after photos, free quote button, reviews, phone number.
+All CSS in <style>. Google Fonts. [Get a Free Quote] button.
+Save as: mockups-home-services.html
+
+
+=========================================================================
+INDUSTRY 12: RESTAURANT / FOOD BUSINESS (13 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 13 professional website template sections for RESTAURANT & FOOD BUSINESS professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800 (restaurant)
+- https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800 (fine dining)
+- https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800 (food)
+- https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800 (bakery)
+- https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800 (coffee)
+- https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800 (pizza)
+
+Templates:
+1. "Fine Dining" — elegant, dark, tasting menu display, wine list, reservation.
+2. "Casual Restaurant" — warm, family-friendly, full menu, daily specials, hours.
+3. "Cafe Culture" — cozy, rustic, drink menu, pastry showcase, WiFi/ambiance.
+4. "Artisan Bakery" — flour-dusted aesthetic, daily bread list, custom orders, wholesale.
+5. "Food Truck" — bold, location schedule, menu with prices, event booking.
+6. "Catering Company" — event-focused, menu packages, event gallery, inquiry form.
+7. "Private Chef" — premium, tasting menu, in-home dining experience, dietary accommodations.
+8. "Meal Prep Service" — healthy, weekly menu, subscription plans, delivery area.
+9. "Juice Bar" — fresh/vibrant, ingredient lists, cleanse programs, wellness focus.
+10. "Dessert Shop" — sweet, playful, showcase gallery, custom orders, event treats.
+11. "Coffee Roaster" — artisanal, bean origins, brewing guides, subscription, wholesale.
+12. "Bar & Lounge" — moody, cocktail menu, events calendar, happy hour, private events.
+13. "Pop-Up Vendor" — trendy, upcoming events, menu preview, social links, booking.
+
+Include: hero, menu, hours/location, photos, online ordering link, reservations, reviews.
+All CSS in <style>. Google Fonts. [Reserve a Table] / [Order Now] button.
+Save as: mockups-restaurant.html
+
+
+=========================================================================
+INDUSTRY 13: RETAIL / BOUTIQUE (12 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 12 professional website template sections for RETAIL & BOUTIQUE businesses.
+
+Sample photos:
+- https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800 (store)
+- https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800 (shopping)
+- https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800 (products)
+- https://images.unsplash.com/photo-1490750967868-88aa4f44baee?w=800 (flowers)
+- https://images.unsplash.com/photo-1524758631624-e2822e304c36?w=800 (furniture)
+- https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800 (jewelry)
+
+Templates:
+1. "Fashion Boutique" — chic, lookbook gallery, new arrivals, shop online CTA.
+2. "Gift Shop" — whimsical, category grid, seasonal collections, gift wrapping.
+3. "Florist" — botanical, arrangement gallery, delivery area, custom orders, event florals.
+4. "Jeweler" — luxury, product spotlight, custom design, repair services.
+5. "Furniture Store" — spacious, room settings, delivery info, financing options.
+6. "Toy Store" — playful, age-range categories, birthday registry, event space.
+7. "Bookstore" — literary, staff picks, reading events, book club, online ordering.
+8. "Specialty Foods" — artisanal, product origins, tasting events, gift baskets.
+9. "Pet Store" — friendly, product categories, grooming services, adoption events.
+10. "Art Gallery" — minimal, exhibition calendar, available works, artist roster.
+11. "Local Maker" — handmade, craft process photos, custom orders, workshop schedule.
+12. "Vintage Shop" — retro aesthetic, curated collections, consignment info, new arrivals.
+
+Include: hero, product showcase, hours/location, online store link, promotions, reviews.
+All CSS in <style>. Google Fonts. [Shop Now] button.
+Save as: mockups-retail.html
+
+
+=========================================================================
+INDUSTRY 14: EVENT / WEDDING SERVICES (12 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 12 professional website template sections for EVENT & WEDDING SERVICE professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1519741497674-611481863552?w=800 (wedding)
+- https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800 (event)
+- https://images.unsplash.com/photo-1478146059778-acee2e5b0bec?w=800 (flowers)
+- https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800 (reception)
+- https://images.unsplash.com/photo-1530023367847-a683933f4172?w=800 (dj)
+- https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=800 (decor)
+
+Templates:
+1. "Wedding Planner" — romantic, timeline, packages, real wedding gallery.
+2. "Event Planner" — polished, corporate + social events, venue partnerships.
+3. "DJ Entertainment" — energetic, music genres, equipment list, event types, song request.
+4. "Event Photographer" — gallery-focused, event types, packages, booking calendar.
+5. "Event Videographer" — cinematic, highlight reels, packages, turnaround times.
+6. "Event Caterer" — menu focused, tasting events, dietary options, plating gallery.
+7. "Event Florist" — botanical, arrangement styles, seasonal availability, consultation.
+8. "Bridal Makeup" — glamorous, bridal gallery, trial info, travel radius.
+9. "Wedding Officiant" — personal, ceremony types, vow writing, couples testimonials.
+10. "Party Rentals" — catalog-style, inventory preview, delivery area, setup/breakdown.
+11. "Balloon Artist" — fun, installation gallery, event types, design consultation.
+12. "Venue Owner" — space showcase, capacity info, rental packages, virtual tour.
+
+Include: hero, event gallery, packages, availability inquiry, testimonials, pricing guide.
+All CSS in <style>. Google Fonts. [Check Availability] button.
+Save as: mockups-events.html
+
+
+=========================================================================
+INDUSTRY 15: CHILDCARE / FAMILY / SENIOR (10 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 10 professional website template sections for CHILDCARE, FAMILY & SENIOR SUPPORT professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800 (children)
+- https://images.unsplash.com/photo-1476703993599-0035a21b17a9?w=800 (family)
+- https://images.unsplash.com/photo-1511895426328-dc8714191300?w=800 (baby)
+- https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=800 (senior)
+- https://images.unsplash.com/photo-1544776193-352d25ca82cd?w=800 (care)
+- https://images.unsplash.com/photo-1604881991720-f91add269bed?w=800 (doula)
+
+Templates:
+1. "Daycare Center" — bright, safe, programs by age, parent testimonials, facility tour.
+2. "Nanny Service" — warm, background check badge, experience, availability calendar.
+3. "Babysitter" — young/fresh, availability, rates, certifications, parent reviews.
+4. "Childcare Consultant" — professional, sleep training, feeding, developmental guidance.
+5. "Parenting Coach" — supportive, age-based programs, workshops, community group.
+6. "Senior Care" — respectful, services list, caregiver qualifications, family resources.
+7. "Elder Care Coordinator" — organized, care planning, provider network, family support.
+8. "Disability Support" — inclusive, adaptive services, community resources, advocacy.
+9. "Doula Services" — nurturing, birth philosophy, prenatal/postnatal packages, birth gallery.
+10. "Sleep Consultant" — calming, age-based programs, method explanation, success stories.
+
+Include: hero, credentials/background check, services, availability, testimonials, safety info.
+All CSS in <style>. Google Fonts. [Inquire About Care] button.
+Save as: mockups-childcare.html
+
+
+=========================================================================
+INDUSTRY 16: PET SERVICES (9 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 9 professional website template sections for PET SERVICE professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800 (dog)
+- https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=800 (dogs playing)
+- https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=800 (grooming)
+- https://images.unsplash.com/photo-1450778869180-41d0601e046e?w=800 (cat)
+- https://images.unsplash.com/photo-1601758228041-f3b2795255f1?w=800 (vet)
+- https://images.unsplash.com/photo-1544568100-847a948585b9?w=800 (dog portrait)
+
+Templates:
+1. "Dog Trainer" — energetic, training programs, before/after behavior, certification.
+2. "Pet Groomer" — cute, breed gallery, service menu, grooming packages.
+3. "Pet Sitter" — trustworthy, home environment photos, daily updates promise, rates.
+4. "Dog Walker" — active, route area map, walk options, GPS tracking mention.
+5. "Veterinarian" — clinical yet warm, services, emergency info, wellness plans.
+6. "Mobile Vet" — convenient, service area, house call booking, vaccination schedule.
+7. "Pet Photographer" — adorable portfolio, session types, print packages.
+8. "Pet Boarding" — facility showcase, activities, webcam mention, booking calendar.
+9. "Pet Daycare" — playful, activity schedule, facility tour, enrollment form.
+
+Include: hero, services, pricing, pet photos, booking, service area, reviews.
+All CSS in <style>. Google Fonts. [Book for Your Pet] button.
+Save as: mockups-pet-services.html
+
+
+=========================================================================
+INDUSTRY 17: TRAVEL / HOSPITALITY (8 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 8 professional website template sections for TRAVEL & HOSPITALITY professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800 (travel)
+- https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800 (resort)
+- https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=800 (road trip)
+- https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800 (hotel)
+- https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800 (adventure)
+- https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800 (beach)
+
+Templates:
+1. "Travel Agent" — wanderlust, destination cards, package deals, group trips.
+2. "Tour Guide" — local expert, tour types, schedule, group size, reviews.
+3. "Airbnb Host" — home showcase, amenities grid, house rules, local tips.
+4. "B&B Owner" — charming, room gallery, rates calendar, breakfast menu.
+5. "Boutique Hotel" — luxury, room types, amenities, booking engine placeholder.
+6. "Retreat Organizer" — wellness, retreat calendar, location gallery, registration.
+7. "Travel Consultant" — premium, bespoke itineraries, honeymoon specialist, trip types.
+8. "Experience Host" — local, activity photos, availability, what's included, meeting point.
+
+Include: hero, packages/rooms, photos, booking, availability, location, reviews.
+All CSS in <style>. Google Fonts. [Book a Trip] / [Check Availability] button.
+Save as: mockups-travel.html
+
+
+=========================================================================
+INDUSTRY 18: TECH / IT / SOFTWARE (10 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 10 professional website template sections for TECH & IT professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800 (code)
+- https://images.unsplash.com/photo-1518770660439-4636190af475?w=800 (tech)
+- https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800 (cybersecurity)
+- https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800 (programming)
+- https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800 (screens)
+- https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800 (AI)
+
+Templates:
+1. "Software Developer" — clean tech, project cards, tech stack badges, GitHub link.
+2. "App Developer" — mobile-focused, app screenshots, platform badges, download links.
+3. "IT Consultant" — corporate, service tiers, infrastructure diagram, SLA info.
+4. "Cybersecurity Expert" — dark/secure, threat assessment, compliance certifications, audit offer.
+5. "Data Analyst" — dashboard aesthetic, visualization samples, tools, case studies.
+6. "AI Consultant" — futuristic, use cases, implementation timeline, ROI projections.
+7. "Automation Specialist" — workflow diagrams, time-saved metrics, integration logos.
+8. "Tech Support" — friendly, service plans, response times, remote/onsite options.
+9. "Product Consultant" — startup-friendly, discovery call, methodology, client logos.
+10. "No-Code Builder" — modern, platform logos (Bubble/Webflow), project showcase, speed stats.
+
+Include: hero, services, case studies, tech skills, consultation booking, client examples.
+All CSS in <style>. Google Fonts. [Start a Project] button.
+Save as: mockups-tech.html
+
+
+=========================================================================
+INDUSTRY 19: OFFICES, STUDIOS, RENTALS (11 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 11 professional website template sections for OFFICE, STUDIO & RENTAL SPACE businesses.
+
+Sample photos:
+- https://images.unsplash.com/photo-1497366216548-37526070297c?w=800 (office)
+- https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800 (coworking)
+- https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800 (studio)
+- https://images.unsplash.com/photo-1497366412874-3415097a27e7?w=800 (meeting room)
+- https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=800 (theater)
+- https://images.unsplash.com/photo-1495321308589-43affb814ae6?w=800 (creative space)
+
+Templates:
+1. "Coworking Space" — community, desk types, pricing tiers, amenities, events calendar.
+2. "Private Office" — professional, floor plans, lease terms, virtual tour link.
+3. "Therapy Suite" — calming, soundproofing mention, hourly/daily rates, booking.
+4. "Beauty Suite" — salon-style, chair rental, shared amenities, independent contractor info.
+5. "Photo Studio" — equipment list, backdrop options, hourly rates, portfolio from studio.
+6. "Music Rehearsal" — soundproofed, room sizes, equipment included, hourly block booking.
+7. "Dance Studio" — mirror walls, class schedule, rental rates, performance space.
+8. "Art Studio" — creative, natural light, shared tools, exhibition space.
+9. "Event Venue" — elegant, capacity chart, catering options, packages, gallery.
+10. "Conference Room" — corporate, AV equipment, catering add-ons, hourly/daily rates.
+11. "Podcast Studio" — tech-equipped, gear list, booking calendar, editing services.
+
+Include: hero, space photos, rates, amenities, booking calendar, location, rules.
+All CSS in <style>. Google Fonts. [Book a Space] button.
+Save as: mockups-offices.html
+
+
+=========================================================================
+INDUSTRY 20: SPECIALTY INDEPENDENTS (10 templates)
+=========================================================================
+PROMPT:
+
+Create a single self-contained HTML file with 10 professional website template sections for SPECIALTY INDEPENDENT professionals.
+
+Sample photos:
+- https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800 (professional)
+- https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=800 (consultant)
+- https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=800 (speaking)
+- https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?w=800 (research)
+- https://images.unsplash.com/photo-1507537297725-24a1c029d3ca?w=800 (spiritual)
+- https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800 (writing)
+
+Templates:
+1. "Private Investigator" — discreet, dark, service types, confidentiality pledge, consultation.
+2. "Translator" — multilingual, language pairs, certified badge, turnaround times, rates.
+3. "Interpreter" — professional, interpretation types (simultaneous/consecutive), booking.
+4. "Genealogist" — heritage, family tree imagery, research packages, sample reports.
+5. "Grant Writer" — results-focused, success rate, grant types, nonprofit clients.
+6. "Researcher" — academic, publication list, methodology, consultation services.
+7. "Spiritual Advisor" — mystical yet professional, service types, reading options, testimonials.
+8. "Religious Counselor" — warm, faith-based, counseling types, community resources.
+9. "Astrologer" — celestial, reading types, birth chart sample, booking, cosmic aesthetic.
+10. "Public Speaker" — keynote, topic list, speaking reel embed, booking inquiry, event photos.
+
+Include: hero, services, credentials, booking, testimonials, methodology/approach.
+All CSS in <style>. Google Fonts. [Schedule Consultation] button.
+Save as: mockups-specialty.html
+
+
+=========================================================================
+TOTAL: 229 PROFESSIONAL TEMPLATES ACROSS 20 INDUSTRIES
+=========================================================================
+
+After generating all 20 HTML files via Codex, copy them to:
+  C:\Users\shant\photo\public\
+
+Then tell the developer to:
+1. Deploy (so you can preview all mockups in the browser)
+2. Review and pick the best ones
+3. Convert winners to React template components
+4. Add to the collapsible industry picker
+
+Each mockup file is viewable at:
+  https://framenest.photos/mockups-{industry-slug}.html

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FrameNest Templates — Fitness & Movement</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@600;700;800&family=Libre+Baskerville:wght@400;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+:root{
+  --ink:#111827;--muted:#64748b;--line:rgba(15,23,42,.12);--shadow:0 28px 90px rgba(15,23,42,.16);--radius:30px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#07111f;color:var(--ink)}
+img{display:block;width:100%;object-fit:cover}
+a{text-decoration:none;color:inherit}
+.cover{min-height:72vh;display:grid;place-items:center;padding:84px 6vw;text-align:center;color:white;background:radial-gradient(circle at 15% 20%,rgba(34,197,94,.34),transparent 30%),radial-gradient(circle at 84% 20%,rgba(168,85,247,.28),transparent 28%),linear-gradient(135deg,#020617,#0f172a 58%,#052e16)}
+.cover .eyebrow{display:inline-flex;padding:10px 16px;border:1px solid rgba(255,255,255,.22);border-radius:999px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:900;color:#d1fae5}
+.cover h1{max-width:1060px;margin:24px auto 18px;font-size:clamp(42px,7vw,94px);line-height:.94;letter-spacing:-.07em}
+.cover p{max-width:790px;margin:0 auto;font-size:clamp(18px,2vw,23px);line-height:1.65;color:#d1d5db}
+.template{min-height:760px;padding:78px 6vw;position:relative;overflow:hidden;background:var(--bg,#fff);color:var(--fg,#111827)}
+.template:before{content:"";position:absolute;width:430px;height:430px;border-radius:999px;background:var(--orb,rgba(34,197,94,.18));top:-140px;right:-125px;filter:blur(5px)}
+.template:after{content:"";position:absolute;width:300px;height:300px;border:1px solid var(--mark,rgba(15,23,42,.08));left:-110px;bottom:-120px;border-radius:80px;transform:rotate(24deg)}
+.wrap{width:min(1200px,100%);margin:0 auto;position:relative;z-index:2}
+.template-number{position:absolute;top:22px;right:5vw;z-index:2;font-size:12px;letter-spacing:.17em;text-transform:uppercase;font-weight:950;opacity:.42}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-bottom:46px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:950;letter-spacing:-.03em}
+.logo{width:42px;height:42px;border-radius:15px;background:var(--accent,#22c55e);color:var(--accentText,#fff);display:grid;place-items:center;font-weight:950;box-shadow:0 14px 34px rgba(0,0,0,.18)}
+.navlinks{display:flex;justify-content:flex-end;gap:18px;flex-wrap:wrap;font-weight:850;font-size:14px;opacity:.72}
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:42px;align-items:center}
+.hero h2{margin:0;font-family:var(--display,Inter),sans-serif;font-size:clamp(40px,5.5vw,78px);line-height:.95;letter-spacing:-.06em;color:var(--head,currentColor)}
+.hero p{max-width:690px;margin:22px 0 0;font-size:18px;line-height:1.7;color:var(--text,currentColor);opacity:.78}
+.pills{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.pill{padding:10px 14px;border-radius:999px;background:var(--pill,rgba(255,255,255,.72));border:1px solid var(--pillLine,rgba(15,23,42,.1));font-size:13px;font-weight:900}
+.btn-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 22px;border-radius:999px;background:var(--accent,#22c55e);color:var(--accentText,#fff);font-weight:950;box-shadow:0 18px 46px rgba(15,23,42,.2)}
+.btn.secondary{background:transparent;color:var(--head,currentColor);border:1px solid currentColor;box-shadow:none;opacity:.8}
+.media{position:relative;border-radius:var(--shape,var(--radius));overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--mediaLine,rgba(255,255,255,.5));background:white}
+.media img{height:430px}
+.media-note{position:absolute;left:22px;right:22px;bottom:22px;padding:18px;border-radius:22px;background:rgba(255,255,255,.9);backdrop-filter:blur(16px);color:#0f172a;font-weight:850;line-height:1.45;box-shadow:0 16px 48px rgba(15,23,42,.18)}
+.schedule-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px}
+.schedule-mini{padding:16px;border-radius:22px;background:var(--card,rgba(255,255,255,.8));border:1px solid var(--cardLine,rgba(15,23,42,.08));box-shadow:0 14px 34px rgba(15,23,42,.06)}
+.schedule-mini b{display:block;color:var(--accent,#22c55e);font-size:24px;letter-spacing:-.04em}
+.main-grid{display:grid;grid-template-columns:.88fr 1.12fr;gap:24px;margin-top:52px}
+.panel{background:var(--card,rgba(255,255,255,.84));border:1px solid var(--cardLine,rgba(15,23,42,.08));border-radius:26px;padding:26px;box-shadow:0 18px 50px rgba(15,23,42,.08);backdrop-filter:blur(14px)}
+.panel h3{margin:0 0 12px;font-size:24px;letter-spacing:-.035em;color:var(--head,currentColor)}
+.panel p{margin:0;color:var(--mutedText,#64748b);line-height:1.65}
+.package-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.price-card{padding:22px;border-radius:24px;background:var(--serviceBg,rgba(255,255,255,.75));border:1px solid var(--cardLine,rgba(15,23,42,.08));min-height:180px;display:flex;flex-direction:column;justify-content:space-between}
+.price-card strong{font-size:18px}
+.price-card .price{font-size:31px;font-weight:950;letter-spacing:-.06em;color:var(--accent,#22c55e);margin:14px 0 8px}
+.price-card small{color:var(--mutedText,#64748b);line-height:1.5}
+.info-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+.info-card{padding:22px;border-radius:24px;background:var(--card,rgba(255,255,255,.84));border:1px solid var(--cardLine,rgba(15,23,42,.08));box-shadow:0 16px 42px rgba(15,23,42,.07)}
+.info-card b{display:block;margin-bottom:9px;color:var(--head,currentColor)}
+.info-card p{margin:0;color:var(--mutedText,#64748b);line-height:1.6}
+.gallery{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:14px;margin-top:26px}
+.gallery img{height:170px;border-radius:24px;box-shadow:0 18px 42px rgba(15,23,42,.1)}
+.gallery img:first-child{height:220px}
+.link{display:inline-flex;margin-top:12px;color:var(--accent,#22c55e);font-weight:950}
+
+/* Themes */
+.trainer{--bg:radial-gradient(circle at 15% 20%,rgba(239,68,68,.24),transparent 28%),linear-gradient(135deg,#111827,#1f2937 55%,#450a0a);--fg:#f8fafc;--head:#fff;--text:#fee2e2;--mutedText:#e5e7eb;--accent:#ef4444;--accentText:#fff;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Space Grotesk";--shape:20px}
+.yogaflow{--bg:linear-gradient(135deg,#f0fdf4,#fff 48%,#dcfce7);--accent:#16a34a;--accentText:#052e16;--orb:rgba(34,197,94,.22);--display:"Playfair Display";--shape:80px 28px 80px 28px}
+.pilates{--bg:linear-gradient(135deg,#fff7ed,#fff 50%,#fce7f3);--accent:#be185d;--orb:rgba(244,114,182,.23);--display:"Playfair Display";--shape:44px}
+.dojo{--bg:linear-gradient(135deg,#09090b,#1c1917 55%,#7f1d1d);--fg:#f8fafc;--head:#fff7ed;--text:#fed7aa;--mutedText:#e7e5e4;--accent:#f97316;--accentText:#111827;--card:rgba(255,255,255,.08);--cardLine:rgba(255,255,255,.15);--serviceBg:rgba(255,255,255,.08);--pill:rgba(255,255,255,.08);--pillLine:rgba(255,255,255,.18);--display:"Libre Baskerville";--shape:12px}
+.dance{--bg:radial-gradient(circle at 18% 18%,rgba(236,72,153,.25),transparent 25%),linear-gradient(135deg,#fdf2f8,#fff 44%,#ede9fe);--accent:#db2777;--orb:rgba(168,85,247,.22);--display:"Space Grotesk";--shape:26px 90px 26px 90px}
+.sports{--bg:linear-gradient(135deg,#eff6ff,#fff 48%,#dbeafe);--accent:#2563eb;--orb:rgba(37,99,235,.18);--display:"Space Grotesk";--shape:18px}
+.meditation{--bg:linear-gradient(135deg,#f8fafc,#ffffff 48%,#e0f2fe);--accent:#0f766e;--orb:rgba(20,184,166,.18);--display:"Libre Baskerville";--shape:999px 999px 40px 40px}
+.wellness{--bg:linear-gradient(135deg,#faf7ef,#fff 48%,#ecfccb);--accent:#65a30d;--accentText:#1a2e05;--orb:rgba(132,204,22,.24);--display:"Playfair Display";--shape:34px}
+
+/* Variation tweaks */
+.yogaflow .hero,.pilates .hero,.dance .hero,.meditation .hero{grid-template-columns:.95fr 1.05fr}
+.dojo .hero,.sports .hero,.wellness .hero{grid-template-columns:1.12fr .88fr}
+.trainer .media:before,.sports .media:before{
+  content:"RESULTS";
+  position:absolute;
+  top:18px;left:18px;z-index:2;
+  padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.9);color:#111827;font-weight:950;letter-spacing:.08em;font-size:12px;
+}
+.yogaflow .media:before,.meditation .media:before{
+  content:"BREATHE";
+  position:absolute;
+  top:18px;left:18px;z-index:2;
+  padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.86);color:#14532d;font-weight:950;letter-spacing:.12em;font-size:12px;
+}
+
+@media(max-width:980px){
+  .hero,.main-grid{grid-template-columns:1fr!important}
+  .package-grid,.info-row,.gallery,.schedule-strip{grid-template-columns:1fr}
+  .gallery img,.gallery img:first-child{height:220px}
+  .media img{height:340px}
+  .nav{align-items:flex-start;flex-direction:column}
+  .navlinks{justify-content:flex-start}
+}
+@media(max-width:620px){
+  .cover,.template{padding:64px 5vw}
+  .hero h2{font-size:40px}
+  .panel,.info-card,.price-card{padding:20px}
+  .media-note{position:static;margin:-48px 18px 18px}
+}
+</style>
+</head>
+<body>
+  <header class="cover">
+    <div>
+      <span class="eyebrow">FrameNest Mockup Collection</span>
+      <h1>Fitness & Movement Website Templates</h1>
+      <p>Eight professional website sections for personal trainers, yoga teachers, Pilates studios, martial arts schools, dance academies, sports coaches, meditation guides, and wellness instructors.</p>
+    </div>
+  </header>
+  
+  <!-- 01. Personal Trainer -->
+  <section class="template trainer">
+    <span class="template-number">Template 01 / Personal Trainer</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Forge Personal Training</div>
+        <div class="navlinks"><span>Schedule</span><span>Packages</span><span>Instructor</span><span>Location</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">1:1 Training</span><span class="pill">Transformation Plans</span><span class="pill">Free Consultation</span></div>
+          <h2>Build strength with a plan that actually follows you home.</h2>
+          <p>A high-energy trainer template built for transformation photos, program packages, accountability, and a free consultation pathway.</p>
+          <div class="schedule-strip"><div class="schedule-mini"><b>Mon</b>6:00 AM Strength Lab</div><div class="schedule-mini"><b>Wed</b>12:00 PM Lunch Lift</div><div class="schedule-mini"><b>Sat</b>9:00 AM Small Group</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#join">Join a Class</a>
+            <a class="btn secondary" href="#schedule">View Schedule</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50a?w=800" alt="Personal Trainer fitness website hero">
+          <div class="media-note">Transformation photos · Program packages · Free consultation CTA</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Instructor Bio</h3>
+          <p>Coach Marcus is a strength and conditioning trainer helping busy adults build sustainable strength, better mobility, and confidence in the gym.</p>
+        </div>
+        <div class="panel" id="join">
+          <h3>Memberships & Packages</h3>
+          <div class="package-grid"><div class="price-card"><strong>Starter</strong><div class="price">$149</div><small>Two sessions + movement screen</small></div><div class="price-card"><strong>Build</strong><div class="price">$399/mo</div><small>Weekly training + plan</small></div><div class="price-card"><strong>Transform</strong><div class="price">$749/mo</div><small>2x weekly + nutrition check-ins</small></div></div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="schedule">
+          <b>Class Schedule</b>
+          <p>Weekly classes are designed for beginners, returning students, and committed members with clear progression paths.</p>
+          <a class="link" href="#schedule">Open Full Schedule →</a>
+        </div>
+        <div class="info-card">
+          <b>Location</b>
+          <p>Iron District Studio · 210 Barbell Avenue<br>Parking, changing space, and arrival details included in confirmation email.</p>
+        </div>
+        <div class="info-card">
+          <b>Online Class Option</b>
+          <p>Live video form checks and app-based programming are available for hybrid clients.</p>
+          <a class="link" href="#online">Join Online →</a>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50a?w=800" alt="Personal Trainer gallery one">
+        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800" alt="Personal Trainer gallery two">
+        <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800" alt="Personal Trainer gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 02. Yoga Flow -->
+  <section class="template yogaflow">
+    <span class="template-number">Template 02 / Yoga Flow</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">Y</span>Riverstone Yoga Flow</div>
+        <div class="navlinks"><span>Schedule</span><span>Packages</span><span>Instructor</span><span>Location</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Vinyasa</span><span class="pill">Restorative</span><span class="pill">Retreats</span></div>
+          <h2>Move with breath, leave with steadiness.</h2>
+          <p>A serene yoga template with natural visuals, class schedule, retreat announcements, and a grounding philosophy section.</p>
+          <div class="schedule-strip"><div class="schedule-mini"><b>Tue</b>7:30 AM Sunrise Flow</div><div class="schedule-mini"><b>Thu</b>6:00 PM Restore</div><div class="schedule-mini"><b>Sun</b>10:00 AM Community Flow</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#join">Join a Class</a>
+            <a class="btn secondary" href="#schedule">View Schedule</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800" alt="Yoga Flow fitness website hero">
+          <div class="media-note">Class schedule · Retreat announcements · Philosophy section</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Instructor Bio</h3>
+          <p>Maya teaches breath-led movement with an emphasis on nervous system care, body awareness, and accessible modifications.</p>
+        </div>
+        <div class="panel" id="join">
+          <h3>Memberships & Packages</h3>
+          <div class="package-grid"><div class="price-card"><strong>Drop-In</strong><div class="price">$24</div><small>Single studio class</small></div><div class="price-card"><strong>Monthly</strong><div class="price">$129</div><small>Unlimited weekly classes</small></div><div class="price-card"><strong>Retreat</strong><div class="price">$580</div><small>Weekend reset experience</small></div></div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="schedule">
+          <b>Class Schedule</b>
+          <p>Weekly classes are designed for beginners, returning students, and committed members with clear progression paths.</p>
+          <a class="link" href="#schedule">Open Full Schedule →</a>
+        </div>
+        <div class="info-card">
+          <b>Location</b>
+          <p>Riverstone Studio · 88 Willow Lane<br>Parking, changing space, and arrival details included in confirmation email.</p>
+        </div>
+        <div class="info-card">
+          <b>Online Class Option</b>
+          <p>Livestream yoga and replay library available for monthly members.</p>
+          <a class="link" href="#online">Join Online →</a>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800" alt="Yoga Flow gallery one">
+        <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800" alt="Yoga Flow gallery two">
+        <img src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=800" alt="Yoga Flow gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 03. Pilates Studio -->
+  <section class="template pilates">
+    <span class="template-number">Template 03 / Pilates Studio</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">P</span>Line &amp; Lift Pilates</div>
+        <div class="navlinks"><span>Schedule</span><span>Packages</span><span>Instructor</span><span>Location</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Reformer</span><span class="pill">Mat Pilates</span><span class="pill">Memberships</span></div>
+          <h2>Precision movement for a stronger, longer line.</h2>
+          <p>An elegant Pilates studio template for reformer and mat classes, instructor team highlights, memberships, and private sessions.</p>
+          <div class="schedule-strip"><div class="schedule-mini"><b>Mon</b>8:00 AM Reformer I</div><div class="schedule-mini"><b>Wed</b>5:30 PM Sculpt Mat</div><div class="schedule-mini"><b>Fri</b>10:00 AM Private Duets</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#join">Join a Class</a>
+            <a class="btn secondary" href="#schedule">View Schedule</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800" alt="Pilates Studio fitness website hero">
+          <div class="media-note">Reformer/mat classes · Instructor team · Membership tiers</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Instructor Bio</h3>
+          <p>Elena leads a team of certified instructors focused on alignment, control, breath, and steady progression for every body.</p>
+        </div>
+        <div class="panel" id="join">
+          <h3>Memberships & Packages</h3>
+          <div class="package-grid"><div class="price-card"><strong>Intro</strong><div class="price">$69</div><small>Two beginner classes</small></div><div class="price-card"><strong>Studio</strong><div class="price">$189/mo</div><small>8 monthly classes</small></div><div class="price-card"><strong>Unlimited</strong><div class="price">$279/mo</div><small>Unlimited mat + reformer</small></div></div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="schedule">
+          <b>Class Schedule</b>
+          <p>Weekly classes are designed for beginners, returning students, and committed members with clear progression paths.</p>
+          <a class="link" href="#schedule">Open Full Schedule →</a>
+        </div>
+        <div class="info-card">
+          <b>Location</b>
+          <p>Line &amp; Lift Studio · 512 Pearl Street<br>Parking, changing space, and arrival details included in confirmation email.</p>
+        </div>
+        <div class="info-card">
+          <b>Online Class Option</b>
+          <p>Mat Pilates livestreams and technique tutorials available on demand.</p>
+          <a class="link" href="#online">Join Online →</a>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800" alt="Pilates Studio gallery one">
+        <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50a?w=800" alt="Pilates Studio gallery two">
+        <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800" alt="Pilates Studio gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 04. Martial Arts Dojo -->
+  <section class="template dojo">
+    <span class="template-number">Template 04 / Martial Arts Dojo</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">M</span>Iron Path Dojo</div>
+        <div class="navlinks"><span>Schedule</span><span>Packages</span><span>Instructor</span><span>Location</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Belt Levels</span><span class="pill">Youth Classes</span><span class="pill">Adult Training</span></div>
+          <h2>Discipline, respect, and skill — one belt at a time.</h2>
+          <p>A bold martial arts template with belt levels, class schedules, dojo philosophy, youth programs, and beginner trial classes.</p>
+          <div class="schedule-strip"><div class="schedule-mini"><b>Mon</b>4:00 PM Youth Foundations</div><div class="schedule-mini"><b>Tue</b>7:00 PM Adult Sparring</div><div class="schedule-mini"><b>Sat</b>11:00 AM Belt Prep</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#join">Join a Class</a>
+            <a class="btn secondary" href="#schedule">View Schedule</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800" alt="Martial Arts Dojo fitness website hero">
+          <div class="media-note">Belt levels · Dojo philosophy · Class schedule</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Instructor Bio</h3>
+          <p>Sensei Daniel teaches practical technique, mental discipline, and confidence through structured progression and respectful training.</p>
+        </div>
+        <div class="panel" id="join">
+          <h3>Memberships & Packages</h3>
+          <div class="package-grid"><div class="price-card"><strong>Trial</strong><div class="price">$29</div><small>Two intro classes</small></div><div class="price-card"><strong>Youth</strong><div class="price">$135/mo</div><small>2 classes weekly</small></div><div class="price-card"><strong>Family</strong><div class="price">$289/mo</div><small>Multi-student membership</small></div></div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="schedule">
+          <b>Class Schedule</b>
+          <p>Weekly classes are designed for beginners, returning students, and committed members with clear progression paths.</p>
+          <a class="link" href="#schedule">Open Full Schedule →</a>
+        </div>
+        <div class="info-card">
+          <b>Location</b>
+          <p>Iron Path Dojo · 19 Cedar Court<br>Parking, changing space, and arrival details included in confirmation email.</p>
+        </div>
+        <div class="info-card">
+          <b>Online Class Option</b>
+          <p>Online fundamentals videos help students review forms and drills between classes.</p>
+          <a class="link" href="#online">Join Online →</a>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800" alt="Martial Arts Dojo gallery one">
+        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800" alt="Martial Arts Dojo gallery two">
+        <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50a?w=800" alt="Martial Arts Dojo gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 05. Dance Academy -->
+  <section class="template dance">
+    <span class="template-number">Template 05 / Dance Academy</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">D</span>Momentum Dance Academy</div>
+        <div class="navlinks"><span>Schedule</span><span>Packages</span><span>Instructor</span><span>Location</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Ballet</span><span class="pill">Hip-Hop</span><span class="pill">Recitals</span></div>
+          <h2>Find your rhythm. Train your expression.</h2>
+          <p>An expressive dance academy template with movement-inspired design, class types, recital gallery, age groups, and performance announcements.</p>
+          <div class="schedule-strip"><div class="schedule-mini"><b>Tue</b>4:30 PM Kids Ballet</div><div class="schedule-mini"><b>Thu</b>6:00 PM Teen Hip-Hop</div><div class="schedule-mini"><b>Sat</b>1:00 PM Contemporary</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#join">Join a Class</a>
+            <a class="btn secondary" href="#schedule">View Schedule</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=800" alt="Dance Academy fitness website hero">
+          <div class="media-note">Class types · Recital gallery · Age-group programs</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Instructor Bio</h3>
+          <p>Artistic Director Sofia blends technique, creativity, and stage confidence for dancers from first class to recital night.</p>
+        </div>
+        <div class="panel" id="join">
+          <h3>Memberships & Packages</h3>
+          <div class="package-grid"><div class="price-card"><strong>Mini Movers</strong><div class="price">$110/mo</div><small>Ages 4–7 weekly class</small></div><div class="price-card"><strong>Core</strong><div class="price">$165/mo</div><small>Two weekly classes</small></div><div class="price-card"><strong>Company</strong><div class="price">$320/mo</div><small>Performance track</small></div></div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="schedule">
+          <b>Class Schedule</b>
+          <p>Weekly classes are designed for beginners, returning students, and committed members with clear progression paths.</p>
+          <a class="link" href="#schedule">Open Full Schedule →</a>
+        </div>
+        <div class="info-card">
+          <b>Location</b>
+          <p>Momentum Dance Academy · 700 Stage Road<br>Parking, changing space, and arrival details included in confirmation email.</p>
+        </div>
+        <div class="info-card">
+          <b>Online Class Option</b>
+          <p>Virtual choreography review and recital practice videos are available for enrolled families.</p>
+          <a class="link" href="#online">Join Online →</a>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=800" alt="Dance Academy gallery one">
+        <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800" alt="Dance Academy gallery two">
+        <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800" alt="Dance Academy gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 06. Sports Coach -->
+  <section class="template sports">
+    <span class="template-number">Template 06 / Sports Coach</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">S</span>PeakForm Sports Coaching</div>
+        <div class="navlinks"><span>Schedule</span><span>Packages</span><span>Instructor</span><span>Location</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Speed</span><span class="pill">Strength</span><span class="pill">Performance</span></div>
+          <h2>Train for the result, not just the workout.</h2>
+          <p>A competitive sports coaching template with athlete testimonials, training programs, performance metrics, and results-focused copy.</p>
+          <div class="schedule-strip"><div class="schedule-mini"><b>Mon</b>5:00 PM Speed Mechanics</div><div class="schedule-mini"><b>Wed</b>6:00 PM Strength Block</div><div class="schedule-mini"><b>Sun</b>8:00 AM Athlete Testing</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#join">Join a Class</a>
+            <a class="btn secondary" href="#schedule">View Schedule</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800" alt="Sports Coach fitness website hero">
+          <div class="media-note">Athlete testimonials · Training programs · Performance testing</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Instructor Bio</h3>
+          <p>Coach Avery works with student athletes and adult competitors on speed, agility, strength, and durable performance habits.</p>
+        </div>
+        <div class="panel" id="join">
+          <h3>Memberships & Packages</h3>
+          <div class="package-grid"><div class="price-card"><strong>Assessment</strong><div class="price">$95</div><small>Performance baseline</small></div><div class="price-card"><strong>Season Prep</strong><div class="price">$450</div><small>6-week training block</small></div><div class="price-card"><strong>Elite</strong><div class="price">$900</div><small>12-week athlete plan</small></div></div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="schedule">
+          <b>Class Schedule</b>
+          <p>Weekly classes are designed for beginners, returning students, and committed members with clear progression paths.</p>
+          <a class="link" href="#schedule">Open Full Schedule →</a>
+        </div>
+        <div class="info-card">
+          <b>Location</b>
+          <p>PeakForm Performance Center · 44 Victory Drive<br>Parking, changing space, and arrival details included in confirmation email.</p>
+        </div>
+        <div class="info-card">
+          <b>Online Class Option</b>
+          <p>Remote athlete programming includes video review, weekly metrics, and coach feedback.</p>
+          <a class="link" href="#online">Join Online →</a>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800" alt="Sports Coach gallery one">
+        <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50a?w=800" alt="Sports Coach gallery two">
+        <img src="https://images.unsplash.com/photo-1555597673-b21d5c935865?w=800" alt="Sports Coach gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 07. Meditation Guide -->
+  <section class="template meditation">
+    <span class="template-number">Template 07 / Meditation Guide</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">M</span>Stillpoint Meditation</div>
+        <div class="navlinks"><span>Schedule</span><span>Packages</span><span>Instructor</span><span>Location</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Guided Meditation</span><span class="pill">Retreats</span><span class="pill">Audio Library</span></div>
+          <h2>Quiet the noise. Practice presence.</h2>
+          <p>A minimal peaceful meditation template with session types, retreat calendar, guided audio samples, and low-pressure booking.</p>
+          <div class="schedule-strip"><div class="schedule-mini"><b>Wed</b>7:00 AM Morning Sit</div><div class="schedule-mini"><b>Fri</b>12:30 PM Reset Session</div><div class="schedule-mini"><b>Sun</b>6:00 PM Deep Calm</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#join">Join a Class</a>
+            <a class="btn secondary" href="#schedule">View Schedule</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800" alt="Meditation Guide fitness website hero">
+          <div class="media-note">Retreat calendar · Guided audio samples · Minimal booking flow</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Instructor Bio</h3>
+          <p>Nora guides practical meditation for beginners, stressed professionals, and people seeking a calmer relationship with their thoughts.</p>
+        </div>
+        <div class="panel" id="join">
+          <h3>Memberships & Packages</h3>
+          <div class="package-grid"><div class="price-card"><strong>Single</strong><div class="price">$30</div><small>One guided session</small></div><div class="price-card"><strong>Monthly</strong><div class="price">$99</div><small>Weekly practice circle</small></div><div class="price-card"><strong>Retreat Day</strong><div class="price">$220</div><small>Half-day immersion</small></div></div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="schedule">
+          <b>Class Schedule</b>
+          <p>Weekly classes are designed for beginners, returning students, and committed members with clear progression paths.</p>
+          <a class="link" href="#schedule">Open Full Schedule →</a>
+        </div>
+        <div class="info-card">
+          <b>Location</b>
+          <p>Stillpoint Room · 12 Garden Walk<br>Parking, changing space, and arrival details included in confirmation email.</p>
+        </div>
+        <div class="info-card">
+          <b>Online Class Option</b>
+          <p>Audio samples, livestream sits, and a private replay library are included with monthly membership.</p>
+          <a class="link" href="#online">Join Online →</a>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800" alt="Meditation Guide gallery one">
+        <img src="https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=800" alt="Meditation Guide gallery two">
+        <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800" alt="Meditation Guide gallery three">
+      </div>
+    </div>
+  </section>
+
+  <!-- 08. Wellness Instructor -->
+  <section class="template wellness">
+    <span class="template-number">Template 08 / Wellness Instructor</span>
+    <div class="wrap">
+      <nav class="nav">
+        <div class="brand"><span class="logo">W</span>WholeBody Wellness Studio</div>
+        <div class="navlinks"><span>Schedule</span><span>Packages</span><span>Instructor</span><span>Location</span></div>
+      </nav>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="pills"><span class="pill">Mind-Body</span><span class="pill">Workshops</span><span class="pill">Hybrid Classes</span></div>
+          <h2>A grounded mind-body approach to feeling well.</h2>
+          <p>A holistic wellness instructor template for workshops, movement sessions, breathwork, online classes, and in-person community events.</p>
+          <div class="schedule-strip"><div class="schedule-mini"><b>Tue</b>9:00 AM Breath + Mobility</div><div class="schedule-mini"><b>Thu</b>7:00 PM Stress Reset</div><div class="schedule-mini"><b>Sat</b>10:30 AM Wellness Workshop</div></div>
+          <div class="btn-row">
+            <a class="btn" href="#join">Join a Class</a>
+            <a class="btn secondary" href="#schedule">View Schedule</a>
+          </div>
+        </div>
+        <div class="media">
+          <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800" alt="Wellness Instructor fitness website hero">
+          <div class="media-note">Workshop calendar · Online/in-person options · Holistic programs</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="panel">
+          <h3>Instructor Bio</h3>
+          <p>Leah combines mindful movement, breathwork, gentle strength, and practical wellness education for sustainable whole-body care.</p>
+        </div>
+        <div class="panel" id="join">
+          <h3>Memberships & Packages</h3>
+          <div class="package-grid"><div class="price-card"><strong>Drop-In</strong><div class="price">$28</div><small>Single hybrid class</small></div><div class="price-card"><strong>Studio Pass</strong><div class="price">$120/mo</div><small>5 classes monthly</small></div><div class="price-card"><strong>Workshop</strong><div class="price">$180</div><small>Monthly intensive</small></div></div>
+        </div>
+      </div>
+
+      <div class="info-row">
+        <div class="info-card" id="schedule">
+          <b>Class Schedule</b>
+          <p>Weekly classes are designed for beginners, returning students, and committed members with clear progression paths.</p>
+          <a class="link" href="#schedule">Open Full Schedule →</a>
+        </div>
+        <div class="info-card">
+          <b>Location</b>
+          <p>WholeBody Studio · 340 Wellness Row<br>Parking, changing space, and arrival details included in confirmation email.</p>
+        </div>
+        <div class="info-card">
+          <b>Online Class Option</b>
+          <p>Hybrid classes include livestream access, replays, and downloadable practice guides.</p>
+          <a class="link" href="#online">Join Online →</a>
+        </div>
+      </div>
+
+      <div class="gallery">
+        <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=800" alt="Wellness Instructor gallery one">
+        <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800" alt="Wellness Instructor gallery two">
+        <img src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50a?w=800" alt="Wellness Instructor gallery three">
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>
