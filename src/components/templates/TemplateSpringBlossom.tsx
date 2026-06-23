@@ -4,7 +4,7 @@ const fonts = `@import url('https://fonts.googleapis.com/css2?family=Allura&fami
 
 export default function TemplateSpringBlossom(props: TemplateProps) {
   const { name, tagline, specialties, bio, serviceArea, verified, pricing, portfolio, onHire, onPhotoClick } = props;
-  const priceLabel = pricing?.downloads?.single ? `From $${pricing.downloads.single}` : "";
+  const priceLabel = pricing?.downloads?.single ? `From $${pricing?.downloads?.single}` : "";
 
   /* Petal-shaped photo placements (absolute, matching mockup) */
   const petalPlacements: Record<number, React.CSSProperties> = {

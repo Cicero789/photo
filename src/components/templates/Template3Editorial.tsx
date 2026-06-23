@@ -16,12 +16,12 @@ export default function Template3Editorial(props: TemplateProps) {
   }, []);
 
   const priceLabel = pricing?.downloads?.single
-    ? `From $${pricing.downloads.single}`
+    ? `From $${pricing?.downloads?.single}`
     : pricing?.downloads?.full
-      ? `Full gallery $${pricing.downloads.full}`
+      ? `Full gallery $${pricing?.downloads?.full}`
       : null;
 
-  const featurePhoto = portfolio[0];
+  const featurePhoto = portfolio?.[0];
   const stackPhotos = portfolio.slice(1, 3);
 
   return (

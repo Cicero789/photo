@@ -16,9 +16,9 @@ export default function Template1Clean(props: TemplateProps) {
   }, []);
 
   const priceLabel = pricing?.downloads?.single
-    ? `Starting at $${pricing.downloads.single}`
+    ? `Starting at $${pricing?.downloads?.single}`
     : pricing?.downloads?.full
-      ? `Full gallery $${pricing.downloads.full}`
+      ? `Full gallery $${pricing?.downloads?.full}`
       : null;
 
   return (

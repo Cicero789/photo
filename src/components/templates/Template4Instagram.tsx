@@ -16,12 +16,12 @@ export default function Template4Instagram(props: TemplateProps) {
   }, []);
 
   const priceLabel = pricing?.downloads?.single
-    ? `Starting at $${pricing.downloads.single}`
+    ? `Starting at $${pricing?.downloads?.single}`
     : pricing?.downloads?.full
-      ? `Full gallery $${pricing.downloads.full}`
+      ? `Full gallery $${pricing?.downloads?.full}`
       : null;
 
-  const avatarPhoto = portfolio[0];
+  const avatarPhoto = portfolio?.[0];
   const handle = name.toLowerCase().replace(/\s+/g, "").replace(/[^a-z0-9]/g, "");
 
   return (

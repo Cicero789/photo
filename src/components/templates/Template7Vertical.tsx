@@ -2,7 +2,7 @@ import type { TemplateProps } from "./types";
 
 export default function Template7Vertical(props: TemplateProps) {
   const { name, tagline, specialties, bio, serviceArea, verified, pricing, portfolio, onHire, onPhotoClick } = props;
-  const priceLabel = pricing?.downloads?.single ? `From $${pricing.downloads.single}` : "";
+  const priceLabel = pricing?.downloads?.single ? `From $${pricing?.downloads?.single}` : "";
 
   // Generate captions: use filename or fallback
   const captions = portfolio.map((p, i) => {

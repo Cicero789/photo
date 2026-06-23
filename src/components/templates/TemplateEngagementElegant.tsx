@@ -17,12 +17,12 @@ export default function TemplateEngagementElegant(props: TemplateProps) {
   }, []);
 
   const priceLabel = pricing?.downloads?.single
-    ? `Starting at $${pricing.downloads.single}`
+    ? `Starting at $${pricing?.downloads?.single}`
     : pricing?.downloads?.full
-      ? `Full gallery $${pricing.downloads.full}`
+      ? `Full gallery $${pricing?.downloads?.full}`
       : null;
 
-  const heroPhoto = portfolio.length > 0 ? portfolio[0] : null;
+  const heroPhoto = portfolio.length > 0 ? portfolio?.[0] : null;
   const galleryPhotos = portfolio.slice(1, 4);
 
   return (

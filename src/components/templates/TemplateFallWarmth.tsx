@@ -17,12 +17,12 @@ export default function TemplateFallWarmth(props: TemplateProps) {
   } = props;
 
   const priceLabel = pricing?.downloads?.single
-    ? `From $${pricing.downloads.single}`
+    ? `From $${pricing?.downloads?.single}`
     : pricing?.downloads?.full
-      ? `Full set $${pricing.downloads.full}`
+      ? `Full set $${pricing?.downloads?.full}`
       : "";
 
-  const heroPhoto = portfolio.length > 0 ? portfolio[0] : null;
+  const heroPhoto = portfolio.length > 0 ? portfolio?.[0] : null;
   const galleryPhotos = portfolio.slice(1, 4);
 
   return (

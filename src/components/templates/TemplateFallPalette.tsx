@@ -20,9 +20,9 @@ export default function TemplateFallPalette(props: TemplateProps) {
   } = props;
 
   const priceLabel = pricing?.downloads?.single
-    ? `From $${pricing.downloads.single}`
+    ? `From $${pricing?.downloads?.single}`
     : pricing?.downloads?.full
-      ? `Full set $${pricing.downloads.full}`
+      ? `Full set $${pricing?.downloads?.full}`
       : "";
 
   return (

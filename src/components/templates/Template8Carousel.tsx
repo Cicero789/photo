@@ -5,7 +5,7 @@ export default function Template8Carousel(props: TemplateProps) {
   const { name, tagline, verified, pricing, portfolio, onHire, onPhotoClick } = props;
   const [current, setCurrent] = useState(0);
   const total = portfolio.length;
-  const priceLabel = pricing?.downloads?.single ? `Starting at $${pricing.downloads.single}` : "";
+  const priceLabel = pricing?.downloads?.single ? `Starting at $${pricing?.downloads?.single}` : "";
 
   const prev = () => setCurrent((c) => (c > 0 ? c - 1 : total - 1));
   const next = () => setCurrent((c) => (c < total - 1 ? c + 1 : 0));

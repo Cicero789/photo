@@ -17,7 +17,7 @@ export default function TemplatePortraitStudio(props: TemplateProps) {
   } = props;
 
   const priceLabel = pricing?.downloads?.single
-    ? `From $${pricing.downloads.single}`
+    ? `From $${pricing?.downloads?.single}`
     : "";
   const photos = portfolio.slice(0, 3);
 

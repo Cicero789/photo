@@ -29,12 +29,12 @@ export default function TemplateSportsEditorial(props: TemplateProps) {
   }, []);
 
   const priceLabel = pricing?.downloads?.single
-    ? `From $${pricing.downloads.single}`
+    ? `From $${pricing?.downloads?.single}`
     : pricing?.downloads?.full
-      ? `Full gallery $${pricing.downloads.full}`
+      ? `Full gallery $${pricing?.downloads?.full}`
       : null;
 
-  const heroPhoto = portfolio[0];
+  const heroPhoto = portfolio?.[0];
   const galleryPhotos = portfolio.slice(1, 6);
 
   /* Generate stats from available data */

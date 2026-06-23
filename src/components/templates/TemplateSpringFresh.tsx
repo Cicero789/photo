@@ -18,7 +18,7 @@ export default function TemplateSpringFresh(props: TemplateProps) {
   } = props;
 
   const priceLabel = pricing?.downloads?.single
-    ? `From $${pricing.downloads.single}`
+    ? `From $${pricing?.downloads?.single}`
     : "";
 
   const displayPhotos = portfolio.slice(0, 6);

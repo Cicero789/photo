@@ -17,9 +17,9 @@ export default function TemplateFamilyWarm(props: TemplateProps) {
   }, []);
 
   const priceLabel = pricing?.downloads?.single
-    ? `Starting at $${pricing.downloads.single}`
+    ? `Starting at $${pricing?.downloads?.single}`
     : pricing?.downloads?.full
-      ? `Full gallery $${pricing.downloads.full}`
+      ? `Full gallery $${pricing?.downloads?.full}`
       : null;
 
   const photos = portfolio.slice(0, 5);

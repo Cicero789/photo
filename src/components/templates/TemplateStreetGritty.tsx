@@ -4,7 +4,7 @@ const fonts = `@import url('https://fonts.googleapis.com/css2?family=Barlow+Cond
 
 export default function TemplateStreetGritty(props: TemplateProps) {
   const { name, tagline, specialties, bio, serviceArea, verified, pricing, portfolio, onHire, onPhotoClick } = props;
-  const priceLabel = pricing?.downloads?.single ? `From $${pricing.downloads.single}` : "";
+  const priceLabel = pricing?.downloads?.single ? `From $${pricing?.downloads?.single}` : "";
 
   // Split name for outline effect on second word/line
   const nameParts = name.split(" ");

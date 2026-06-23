@@ -16,9 +16,9 @@ export default function TemplateSummerBeach(props: TemplateProps) {
   }, []);
 
   const priceLabel = pricing?.downloads?.single
-    ? `Starting at $${pricing.downloads.single}`
+    ? `Starting at $${pricing?.downloads?.single}`
     : pricing?.downloads?.full
-      ? `Full gallery $${pricing.downloads.full}`
+      ? `Full gallery $${pricing?.downloads?.full}`
       : null;
 
   const gridPhotos = portfolio.slice(0, 6);

@@ -16,13 +16,13 @@ export default function TemplateEngagementBlush(props: TemplateProps) {
     onPhotoClick,
   } = props;
 
-  const heroPhoto = portfolio[0];
+  const heroPhoto = portfolio?.[0];
   const floatingPhotos = portfolio.slice(1, 4);
   const priceLabel =
     pricing?.downloads?.single
-      ? `From $${pricing.downloads.single}`
+      ? `From $${pricing?.downloads?.single}`
       : pricing?.downloads?.full
-        ? `Full gallery $${pricing.downloads.full}`
+        ? `Full gallery $${pricing?.downloads?.full}`
         : "";
 
   /* Load Google Fonts */

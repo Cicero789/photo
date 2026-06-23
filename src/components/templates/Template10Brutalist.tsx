@@ -4,7 +4,7 @@ const fonts = `@import url('https://fonts.googleapis.com/css2?family=Oswald:wght
 
 export default function Template10Brutalist(props: TemplateProps) {
   const { name, tagline, specialties, bio, serviceArea, verified, pricing, portfolio, onHire, onPhotoClick } = props;
-  const priceLabel = pricing?.downloads?.single ? `Starting at $${pricing.downloads.single}` : "";
+  const priceLabel = pricing?.downloads?.single ? `Starting at $${pricing?.downloads?.single}` : "";
 
   return (
     <>

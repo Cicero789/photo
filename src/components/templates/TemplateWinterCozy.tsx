@@ -17,12 +17,12 @@ export default function TemplateWinterCozy(props: TemplateProps) {
   }, []);
 
   const priceLabel = pricing?.downloads?.single
-    ? `Starting at $${pricing.downloads.single}`
+    ? `Starting at $${pricing?.downloads?.single}`
     : pricing?.downloads?.full
-      ? `Full gallery $${pricing.downloads.full}`
+      ? `Full gallery $${pricing?.downloads?.full}`
       : null;
 
-  const heroPhoto = portfolio[0];
+  const heroPhoto = portfolio?.[0];
   const galleryPhotos = portfolio.slice(1);
   const warmGallery = galleryPhotos.slice(0, 3);
   const storyPhotos = galleryPhotos.slice(3);

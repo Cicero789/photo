@@ -18,10 +18,10 @@ export default function TemplateStreetNeon(props: TemplateProps) {
   } = props;
 
   const priceLabel = pricing?.downloads?.single
-    ? `$${pricing.downloads.single}`
+    ? `$${pricing?.downloads?.single}`
     : "";
   const fullPackLabel = pricing?.downloads?.full
-    ? `$${pricing.downloads.full}`
+    ? `$${pricing?.downloads?.full}`
     : "";
 
   const nameParts = name.split(" ");

@@ -14,7 +14,7 @@ function storyLabel(index: number, specialties: string[], filename: string): { s
 
 export default function Template9StoryCards(props: TemplateProps) {
   const { name, tagline, specialties, bio, serviceArea, verified, pricing, portfolio, onHire, onPhotoClick } = props;
-  const priceLabel = pricing?.downloads?.single ? `From $${pricing.downloads.single}` : "";
+  const priceLabel = pricing?.downloads?.single ? `From $${pricing?.downloads?.single}` : "";
   const metaLine = [serviceArea, ...specialties].filter(Boolean).join(" · ");
 
   return (

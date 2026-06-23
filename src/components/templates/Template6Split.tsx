@@ -4,9 +4,9 @@ const fonts = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+G
 
 export default function Template6Split(props: TemplateProps) {
   const { name, tagline, specialties, bio, serviceArea, verified, pricing, portfolio, onHire, onPhotoClick } = props;
-  const heroPhoto = portfolio[0];
+  const heroPhoto = portfolio?.[0];
   const thumbPhotos = portfolio.slice(1);
-  const priceLabel = pricing?.downloads?.single ? `Starting at $${pricing.downloads.single}` : "";
+  const priceLabel = pricing?.downloads?.single ? `Starting at $${pricing?.downloads?.single}` : "";
 
   return (
     <>

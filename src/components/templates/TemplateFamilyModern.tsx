@@ -44,9 +44,9 @@ export default function TemplateFamilyModern(props: TemplateProps) {
   } = props;
 
   const priceLabel = pricing?.downloads?.single
-    ? `From $${pricing.downloads.single}/photo`
+    ? `From $${pricing?.downloads?.single}/photo`
     : pricing?.downloads?.full
-      ? `Full gallery $${pricing.downloads.full}`
+      ? `Full gallery $${pricing?.downloads?.full}`
       : "";
 
   useEffect(() => {
