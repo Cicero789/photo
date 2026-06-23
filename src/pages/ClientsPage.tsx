@@ -16,10 +16,26 @@ interface ClientSite {
 }
 
 const INDUSTRIES = [
-  "Photography", "Videography", "Wedding", "Beauty", "Fashion",
-  "Real Estate", "Restaurant", "Fitness", "Medical", "Legal",
-  "Marketing", "Tech", "Education", "Music", "Art",
-  "Childcare", "Home Services", "Coaching", "Retail", "Events",
+  "Teaching & Tutoring",
+  "Coaching & Personal Development",
+  "Medical / Health Clinic",
+  "Legal / Financial / Professional",
+  "Beauty / Wellness",
+  "Fitness / Movement",
+  "Creative Portfolio",
+  "Marketing / Digital Services",
+  "Influencer / Personal Brand",
+  "Real Estate",
+  "Home & Local Services",
+  "Restaurant / Food Business",
+  "Retail / Boutique",
+  "Event / Wedding Services",
+  "Childcare / Family / Senior",
+  "Pet Services",
+  "Travel / Hospitality",
+  "Tech / IT / Software",
+  "Offices, Studios & Rentals",
+  "Specialty Independents",
 ];
 
 // ─── Clients Page ───
