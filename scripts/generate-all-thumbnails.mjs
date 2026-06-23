@@ -1,11 +1,10 @@
-// Generate thumbnails for ALL 20 industry mockup files by screenshotting sections
+// Generate thumbnails by screenshotting each template section individually
 // Run: node scripts/generate-all-thumbnails.mjs
 
 import puppeteer from "puppeteer";
 import { mkdirSync, existsSync } from "fs";
 import { resolve } from "path";
 
-// Mockup files and how many template sections each contains
 const MOCKUPS = [
   { file: "mockups-teaching.html", count: 13, category: "teaching" },
   { file: "mockups-coaching.html", count: 10, category: "coaching" },
@@ -37,41 +36,52 @@ async function run() {
   const page = await browser.newPage();
   await page.setViewport({ width: 1200, height: 800 });
 
-  let generated = 0;
-
   for (const mockup of MOCKUPS) {
     const filePath = resolve(`public/${mockup.file}`);
-    if (!existsSync(filePath)) { console.log(`SKIP: ${mockup.file} not found`); continue; }
+    if (!existsSync(filePath)) { console.log(`SKIP: ${mockup.file}`); continue; }
 
-    console.log(`Processing ${mockup.file} (${mockup.count} sections)...`);
+    console.log(`${mockup.file} (${mockup.count} templates)...`);
     await page.goto(`file://${filePath}`, { waitUntil: "networkidle2", timeout: 30000 });
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 1500));
 
-    // Screenshot each section by scrolling through them
-    for (let i = 0; i < mockup.count; i++) {
-      const sectionHeight = 700;
-      const y = i * sectionHeight + 100; // offset for headers
-      await page.evaluate((scrollY) => window.scrollTo(0, scrollY), y);
-      await new Promise(r => setTimeout(r, 300));
+    // Find all template sections — they use <section> or .template class elements
+    // Each section should have unique content
+    const sections = await page.$$("section, .template, .photographer-section, [class*='template-']");
+    const found = sections.length;
 
-      const outFile = `${outDir}/${mockup.category}-${i}.jpg`;
-      try {
-        await page.screenshot({
-          path: outFile,
-          type: "jpeg",
-          quality: 70,
-          clip: { x: 0, y: 0, width: 1200, height: 680 },
-        });
-        generated++;
-      } catch (e) {
-        console.log(`  Failed section ${i}: ${e.message}`);
+    if (found >= mockup.count) {
+      for (let i = 0; i < mockup.count; i++) {
+        const outFile = `${outDir}/${mockup.category}-${i}.jpg`;
+        try {
+          await sections[i].screenshot({ path: outFile, type: "jpeg", quality: 65 });
+        } catch (e) {
+          console.log(`  Section ${i} failed: ${e.message}`);
+        }
+      }
+    } else {
+      // Fallback: scroll to each section and capture the full viewport at that position
+      console.log(`  Only ${found} sections found, using scroll fallback for ${mockup.count}...`);
+      for (let i = 0; i < mockup.count; i++) {
+        // Scroll to show different parts of the page
+        await page.evaluate((idx) => {
+          const secs = document.querySelectorAll("section, .template, [class*='template-']");
+          if (secs[idx]) secs[idx].scrollIntoView({ block: "start" });
+        }, i);
+        await new Promise(r => setTimeout(r, 200));
+
+        const outFile = `${outDir}/${mockup.category}-${i}.jpg`;
+        try {
+          await page.screenshot({ path: outFile, type: "jpeg", quality: 65, fullPage: false });
+        } catch (e) {
+          console.log(`  Fallback ${i} failed: ${e.message}`);
+        }
       }
     }
-    console.log(`  ✓ ${mockup.count} screenshots for ${mockup.file}`);
+    console.log(`  ✓ ${mockup.count} screenshots`);
   }
 
   await browser.close();
-  console.log(`\nGenerated ${generated} thumbnails in ${outDir}`);
+  console.log(`\nDone. Files in ${outDir}`);
 }
 
-run().catch(err => { console.error("Failed:", err.message); process.exit(1); });
+run().catch(err => { console.error(err.message); process.exit(1); });
