@@ -9,6 +9,7 @@ import { ConnectionsTab } from "@/components/community/ConnectionsTab";
 import { CommunityFeed } from "@/components/community/CommunityFeed";
 import { PhotographerHero } from "@/components/photographer/PhotographerHero";
 import { TemplatePicker } from "@/components/photographer/TemplatePicker";
+import { ClientsPage } from "@/pages/ClientsPage";
 import type { EventCategory, Photo } from "@/types";
 
 // ─── Types ───
@@ -52,7 +53,7 @@ interface AdTileData {
   position: number;
 }
 
-type Tab = "feed" | "events" | "stats" | "members" | "connections" | "settings";
+type Tab = "feed" | "events" | "clients" | "stats" | "members" | "connections" | "settings";
 
 // ─── Dashboard ───
 export function DashboardPage() {
@@ -163,7 +164,7 @@ export function DashboardPage() {
       {/* Tabs */}
       <div className="mb-6 flex gap-1 rounded-xl bg-muted p-1 w-fit">
         {(accountMode === "pro"
-          ? [{ key: "events", label: "Events" }, { key: "stats", label: "Stats" }, { key: "members", label: "Members" }, { key: "connections", label: "Connections" }, { key: "settings", label: "Settings" }]
+          ? [{ key: "events", label: "Events" }, { key: "clients", label: "My Clients" }, { key: "stats", label: "Stats" }, { key: "members", label: "Members" }, { key: "connections", label: "Connections" }, { key: "settings", label: "Settings" }]
           : [{ key: "events", label: "Memories" }, { key: "members", label: "Members" }, { key: "connections", label: "Connections" }, { key: "settings", label: "Settings" }]
         ).map((tab) => (
           <button
@@ -187,6 +188,7 @@ export function DashboardPage() {
           <CommunityFeed />
         </div>
       )}
+      {activeTab === "clients" && <ClientsPage />}
       {activeTab === "events" && (
         <EventsTabContent
           events={events}

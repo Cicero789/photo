@@ -51,7 +51,7 @@ const RATE_LIMITED_PREFIXES = [
   "/api/auth/forgot-password", "/api/auth/reset-password", "/api/photographers",
   "/api/photos/upload", "/api/videos/upload", "/api/albums",
   "/api/albums/view", "/api/connections", "/api/bookings",
-  "/api/events", "/api/spaces/members"
+  "/api/events", "/api/spaces/members", "/api/clients",
 ];
 
 function isRateLimited(request: Request): boolean {
@@ -71,6 +71,8 @@ const PROTECTED_PREFIXES = [
   "/api/events",
   "/api/admin",
   "/api/auth/me",
+  "/api/clients",
+  "/api/albums",
 ];
 
 function requiresAuth(request: Request): boolean {
@@ -80,9 +82,15 @@ function requiresAuth(request: Request): boolean {
   // GET /api/spaces/:slug — gate page must show the space
   // GET /api/events — demo and public space browsing
   // GET /api/events/:id — public event detail pages
+  // GET /api/clients/public/:slug — public client site
+  // GET /api/clients/public/:slug/galleries/:gid — public gallery photos
+  // GET /api/blog/:siteSlug/:postSlug — public blog posts
   if (request.method === "GET") {
     if (/^\/api\/spaces\/[^/]+$/.test(path) && path !== "/api/spaces/members") return false;
     if (/^\/api\/events(\/[^/]+)?$/.test(path)) return false;
+    if (/^\/api\/clients\/public\//.test(path)) return false;
+    if (/^\/api\/blog\//.test(path)) return false;
+    if (/^\/api\/albums\/view\//.test(path)) return false;
   }
   return PROTECTED_PREFIXES.some((prefix) => path.startsWith(prefix));
 }

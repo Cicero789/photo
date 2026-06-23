@@ -20,7 +20,9 @@ import { AdminPhotographersPage } from "./pages/AdminPhotographersPage";
 import { PhotographerPage } from "./pages/PhotographerPage";
 import { AlbumViewerPage } from "./pages/AlbumViewerPage";
 import { AlbumsPage } from "./pages/AlbumsPage";
-import { PhotographerProfilePage } from "./pages/PhotographerProfilePage";
+import { ClientsPage } from "./pages/ClientsPage";
+import { ClientSitePage } from "./pages/ClientSitePage";
+import { ClientEditorPage } from "./pages/ClientEditorPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { AdminDashboardPage } from "./pages/admin/AdminDashboardPage";
 import { AdminPeoplePage } from "./pages/admin/AdminPeoplePage";
@@ -60,6 +62,7 @@ export default function App() {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
           <Route path="/photographers" element={<PhotographerPage />} />
           <Route path="/inspiration" element={<InspirationMapPage />} />
+          <Route path="/site/:slug" element={<ClientSitePage />} />
           {/* Public space routes */}
           <Route path="/s/:spaceSlug" element={<SpacePage />} />
           <Route path="/s/:spaceSlug/e/:eventId" element={<EventDetailPage />} />
@@ -95,6 +98,22 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <DashboardGalleryPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/clients"
+            element={
+              <ProtectedRoute>
+                <ClientsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/clients/:id/edit"
+            element={
+              <ProtectedRoute>
+                <ClientEditorPage />
               </ProtectedRoute>
             }
           />
@@ -137,8 +156,8 @@ export default function App() {
           <Route path="/citysite/commerce" element={<ProtectedRoute requiredRole="platform_owner"><AdminCommercePage /></ProtectedRoute>} />
           <Route path="/citysite/discovery" element={<ProtectedRoute requiredRole="platform_owner"><AdminDiscoveryPage /></ProtectedRoute>} />
           <Route path="/citysite/system" element={<ProtectedRoute requiredRole="platform_owner"><AdminSystemPage /></ProtectedRoute>} />
-          {/* Photographer profile — catch-all (must be LAST before 404) */}
-          <Route path="/:slug" element={<PhotographerProfilePage />} />
+          {/* Client site + Photographer profile — catch-all (must be LAST before 404) */}
+          <Route path="/:slug" element={<ClientSitePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

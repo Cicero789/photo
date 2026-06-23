@@ -307,6 +307,67 @@ CREATE INDEX IF NOT EXISTS idx_rate_limits_ip_ep ON rate_limits(ip, endpoint);
 CREATE INDEX IF NOT EXISTS idx_rate_limits_ts ON rate_limits(timestamp);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_unique ON reviews(photographer_id, reviewer_id);
 
+-- ─── Client Sites (multi-site platform) ───
+
+CREATE TABLE IF NOT EXISTS client_sites (
+  id                TEXT PRIMARY KEY,
+  photographer_id   TEXT NOT NULL,
+  name              TEXT NOT NULL,
+  slug              TEXT NOT NULL UNIQUE,
+  industry_id       TEXT,
+  custom_domain     TEXT,
+  content           TEXT DEFAULT '{}',
+  gallery_config    TEXT DEFAULT '{}',
+  setup_fee_cents   INTEGER DEFAULT 0,
+  monthly_fee_cents INTEGER DEFAULT 0,
+  published         INTEGER DEFAULT 0,
+  created_at        TEXT NOT NULL,
+  updated_at        TEXT NOT NULL,
+  deleted_at        TEXT
+);
+
+CREATE TABLE IF NOT EXISTS blog_posts (
+  id              TEXT PRIMARY KEY,
+  client_site_id  TEXT NOT NULL REFERENCES client_sites(id),
+  title           TEXT NOT NULL,
+  slug            TEXT NOT NULL,
+  body            TEXT DEFAULT '',
+  featured_image  TEXT,
+  published       INTEGER DEFAULT 0,
+  created_at      TEXT NOT NULL,
+  updated_at      TEXT NOT NULL,
+  deleted_at      TEXT,
+  UNIQUE(client_site_id, slug)
+);
+
+CREATE TABLE IF NOT EXISTS client_galleries (
+  id              TEXT PRIMARY KEY,
+  client_site_id  TEXT NOT NULL REFERENCES client_sites(id),
+  name            TEXT NOT NULL,
+  created_at      TEXT NOT NULL,
+  updated_at      TEXT NOT NULL,
+  deleted_at      TEXT
+);
+
+CREATE TABLE IF NOT EXISTS client_gallery_photos (
+  id            TEXT PRIMARY KEY,
+  gallery_id    TEXT NOT NULL REFERENCES client_galleries(id),
+  storage_key   TEXT NOT NULL,
+  filename      TEXT DEFAULT '',
+  width         INTEGER DEFAULT 0,
+  height        INTEGER DEFAULT 0,
+  file_size     INTEGER DEFAULT 0,
+  sort_order    INTEGER DEFAULT 0,
+  created_at    TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_client_sites_slug ON client_sites(slug);
+CREATE INDEX IF NOT EXISTS idx_client_sites_photographer ON client_sites(photographer_id);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_client ON blog_posts(client_site_id);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON blog_posts(slug);
+CREATE INDEX IF NOT EXISTS idx_client_galleries_site ON client_galleries(client_site_id);
+CREATE INDEX IF NOT EXISTS idx_client_gallery_photos_gallery ON client_gallery_photos(gallery_id);
+
 -- ─── Migration Tracking ───
 
 CREATE TABLE IF NOT EXISTS _migrations (
