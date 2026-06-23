@@ -73,13 +73,39 @@ const CATEGORY_BADGE_COLORS: Record<string, string> = {
   fall: "bg-amber-100 text-amber-800",
   portraits: "bg-purple-100 text-purple-700",
   street: "bg-neutral-200 text-neutral-700",
+  beauty: "bg-rose-100 text-rose-700",
+  childcare: "bg-cyan-100 text-cyan-700",
+  coaching: "bg-indigo-100 text-indigo-700",
+  creative: "bg-violet-100 text-violet-700",
+  events: "bg-fuchsia-100 text-fuchsia-700",
+  fitness: "bg-lime-100 text-lime-700",
+  "home-services": "bg-teal-100 text-teal-700",
+  influencer: "bg-pink-100 text-pink-600",
+  legal: "bg-slate-200 text-slate-700",
+  marketing: "bg-orange-100 text-orange-600",
+  medical: "bg-red-100 text-red-600",
+  offices: "bg-gray-100 text-gray-600",
+  "pet-services": "bg-amber-100 text-amber-600",
+  "real-estate": "bg-blue-100 text-blue-600",
+  restaurant: "bg-yellow-100 text-yellow-600",
+  retail: "bg-emerald-100 text-emerald-600",
+  specialty: "bg-purple-100 text-purple-600",
+  teaching: "bg-sky-100 text-sky-600",
+  tech: "bg-zinc-200 text-zinc-700",
+  travel: "bg-cyan-100 text-cyan-600",
 };
 
 const CATEGORY_GROUPS = [
   { label: "Base Templates", categories: ["base"] },
   { label: "Seasonal", categories: ["spring", "summer", "fall", "winter"] },
-  { label: "Events & Occasions", categories: ["engagement", "family", "corporate", "holiday-season", "holiday"] },
-  { label: "Specialty", categories: ["sports", "portraits", "street"] },
+  { label: "Events & Occasions", categories: ["engagement", "family", "corporate", "holiday-season", "holiday", "events"] },
+  { label: "Health & Wellness", categories: ["medical", "fitness", "beauty"] },
+  { label: "Professional Services", categories: ["legal", "coaching", "creative", "marketing", "tech", "specialty"] },
+  { label: "Home & Property", categories: ["real-estate", "home-services", "offices"] },
+  { label: "Food & Retail", categories: ["restaurant", "retail"] },
+  { label: "Care & Community", categories: ["childcare", "pet-services", "teaching", "travel"] },
+  { label: "Media & Influence", categories: ["influencer"] },
+  { label: "Photography", categories: ["sports", "portraits", "street"] },
 ];
 
 // ─── Mini-mockup thumbnails for each template ───
@@ -104,6 +130,10 @@ export function TemplatePicker({
   // Color scheme & font pairing state
   const [colorScheme, setColorScheme] = useState(currentColorScheme || "light");
   const [fontPairing, setFontPairing] = useState(currentFontPairing || "modern");
+
+  // Preview modal color/font state (initialized from current selections)
+  const [previewColor, setPreviewColor] = useState<string>(currentColorScheme || "light");
+  const [previewFont, setPreviewFont] = useState<string>(currentFontPairing || "modern");
 
   // ─── Fetch photographer profile data for preview ───
   const fetchProfileData = useCallback(async () => {
@@ -209,15 +239,19 @@ export function TemplatePicker({
   const handleUseTemplate = () => {
     if (previewId) {
       setSelected(previewId);
+      setColorScheme(previewColor);
+      setFontPairing(previewFont);
       setPreviewId(null);
     }
   };
 
-  // Get current color scheme and font pairing objects
+  // Get available color schemes
   const schemes = COLOR_SCHEMES.default!;
-  const currentScheme = schemes.find((s) => s.key === colorScheme) ?? schemes[0]!;
-  const currentFont =
-    FONT_PAIRINGS.find((f) => f.key === fontPairing) ?? FONT_PAIRINGS[0]!;
+
+  // Get preview color scheme and font pairing objects
+  const previewScheme = schemes.find((s) => s.key === previewColor) ?? schemes[0]!;
+  const previewFontObj =
+    FONT_PAIRINGS.find((f) => f.key === previewFont) ?? FONT_PAIRINGS[0]!;
 
   // Find the template info for preview
   const previewTemplate = previewId
@@ -286,6 +320,8 @@ export function TemplatePicker({
                       onClick={(e) => {
                         e.stopPropagation();
                         setPreviewId(t.id);
+                        setPreviewColor(colorScheme);
+                        setPreviewFont(fontPairing);
                       }}
                       className="absolute bottom-3 right-3 text-[11px] font-medium text-neutral-500 opacity-0 transition-opacity group-hover:opacity-100 hover:text-neutral-800"
                     >
@@ -449,7 +485,7 @@ export function TemplatePicker({
                 </button>
                 {slug && (
                   <a
-                    href={`/${slug}?preview=${previewId}&color=${colorScheme}&font=${fontPairing}`}
+                    href={`/${slug}?preview=${previewId}&color=${previewColor}&font=${previewFont}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{ padding: "8px 16px", border: "1px solid #ddd", borderRadius: 6, fontSize: 12, color: "#666", textDecoration: "none", display: "inline-flex", alignItems: "center" }}
@@ -491,34 +527,61 @@ export function TemplatePicker({
                   </div>
                 </div>
               ) : (
-                <div
-                  style={
-                    {
-                      "--theme-bg": currentScheme.bg,
-                      "--theme-text": currentScheme.text,
-                      "--theme-accent": currentScheme.accent,
-                      "--theme-heading-font": currentFont.heading,
-                      "--theme-body-font": currentFont.body,
-                    } as React.CSSProperties
-                  }
-                >
-                  <Suspense
-                    fallback={
-                      <div className="flex items-center justify-center py-32">
-                        <div className="flex flex-col items-center gap-3">
-                          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
-                          <p className="text-sm text-neutral-500">
-                            Loading template...
-                          </p>
-                        </div>
-                      </div>
+                <div>
+                  {/* Color/font controls INSIDE the preview */}
+                  <div className="flex items-center gap-4 px-4 py-2 bg-neutral-800 text-white text-xs rounded-t-lg sticky top-0 z-10">
+                    <span className="text-neutral-400">Color:</span>
+                    {schemes.map(s => (
+                      <button
+                        key={s.key}
+                        onClick={() => setPreviewColor(s.key)}
+                        className={`w-5 h-5 rounded-full border-2 transition-all ${previewColor === s.key ? 'border-white scale-125' : 'border-transparent'}`}
+                        style={{ background: s.bg }}
+                        title={s.name}
+                      />
+                    ))}
+                    <span className="ml-4 text-neutral-400">Font:</span>
+                    {FONT_PAIRINGS.map(f => (
+                      <button
+                        key={f.key}
+                        onClick={() => setPreviewFont(f.key)}
+                        className={`px-2 py-0.5 rounded text-[10px] transition-all ${previewFont === f.key ? 'bg-white text-black' : 'text-neutral-400 hover:text-white'}`}
+                      >
+                        {f.name}
+                      </button>
+                    ))}
+                  </div>
+                  <div
+                    style={
+                      {
+                        "--theme-bg": previewScheme.bg,
+                        "--theme-text": previewScheme.text,
+                        "--theme-accent": previewScheme.accent,
+                        "--theme-heading-font": `"${previewFontObj.heading}", sans-serif`,
+                        "--theme-body-font": `"${previewFontObj.body}", sans-serif`,
+                      } as React.CSSProperties
                     }
                   >
-                    <PreviewRenderer
-                      templateId={previewId}
-                      profileData={profileData}
-                    />
-                  </Suspense>
+                    <Suspense
+                      fallback={
+                        <div className="flex items-center justify-center py-32">
+                          <div className="flex flex-col items-center gap-3">
+                            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
+                            <p className="text-sm text-neutral-500">
+                              Loading template...
+                            </p>
+                          </div>
+                        </div>
+                      }
+                    >
+                      <PreviewRenderer
+                        templateId={previewId}
+                        profileData={profileData}
+                        colorScheme={previewScheme}
+                        fontPairing={previewFontObj}
+                      />
+                    </Suspense>
+                  </div>
                 </div>
               )}
             </div>
@@ -533,9 +596,13 @@ export function TemplatePicker({
 function PreviewRenderer({
   templateId,
   profileData,
+  colorScheme,
+  fontPairing,
 }: {
   templateId: string;
   profileData: PreviewProfileData;
+  colorScheme?: { bg: string; text: string; accent: string };
+  fontPairing?: { heading: string; body: string };
 }) {
   const TemplateComponent = templateComponents[templateId];
 
@@ -562,6 +629,8 @@ function PreviewRenderer({
       portfolio={profileData.portfolio}
       onHire={() => {}}
       onPhotoClick={() => {}}
+      colorScheme={colorScheme}
+      fontPairing={fontPairing}
     />
   );
 }
