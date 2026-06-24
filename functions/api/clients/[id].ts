@@ -8,6 +8,31 @@ async function getOwnedSite(db: D1Database, id: string, userId: string) {
   return site;
 }
 
+export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string }; params: { id: string } }): Promise<Response> {
+  const a = await requireAuth(context.request, context.env);
+  if (a instanceof Response) return a;
+  const { id } = context.params;
+  const site = await getOwnedSite(context.env.DB!, id, a.userId);
+  if ("error" in site) return json({ error: site.error }, site.status);
+
+  let content: any = {};
+  let galleryConfig: any = {};
+  try { content = JSON.parse(site.content || "{}"); } catch {}
+  try { galleryConfig = JSON.parse(site.gallery_config || "{}"); } catch {}
+
+  return json({
+    client: {
+      id: site.id, name: site.name, slug: site.slug,
+      industry: site.industry_id || "general",
+      customDomain: site.custom_domain || null,
+      status: site.published === 1 ? "published" : "draft",
+      galleryConfig,
+      bio: content.bio || "", services: content.services || "", pricing: content.pricing || "",
+      blogCount: 0, galleryCount: 0,
+    },
+  });
+}
+
 export async function onRequestPut(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string }; params: { id: string } }): Promise<Response> {
   const a = await requireAuth(context.request, context.env);
   if (a instanceof Response) return a;
