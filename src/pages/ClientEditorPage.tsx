@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, type FormEvent } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { api, getToken } from "@/lib/api";
+import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 // ─── Types ───
@@ -107,8 +107,8 @@ export function ClientEditorPage() {
     setSaving(true);
     setMessage(null);
     try {
-      await api.put(`/clients/${id}`, { bio, services, pricing });
-      setMessage({ type: "success", text: "Content saved!" });
+      await api.put(`/clients/${id}`, { content: { bio, services, pricing } });
+      setMessage({ type: "success", text: "Content saved! Changes are live on the public site." });
     } catch (err) {
       setMessage({ type: "error", text: err instanceof Error ? err.message : "Failed to save" });
     } finally {
@@ -364,7 +364,7 @@ function PhotosTab({ clientId, onUploaded }: { clientId: string; onUploaded: () 
     try {
       const formData = new FormData();
       previewFiles.forEach((pf) => formData.append("photos", pf.file));
-      const token = getToken();
+      const token = localStorage.getItem("photo_token");
       const res = await fetch(`/api/clients/${clientId}/photos`, {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
