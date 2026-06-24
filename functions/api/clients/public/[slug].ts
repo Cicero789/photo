@@ -13,11 +13,11 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
   if (!site) return json({ error: "Client site not found" }, 404);
 
   const blogsQuery = await db.prepare(
-    "SELECT id, title, slug, body, featured_image, published, created_at, updated_at FROM blog_posts WHERE client_site_id = ? AND published = 1 AND deleted_at IS NULL ORDER BY created_at DESC"
+    "SELECT id, title, slug, body, featured_image, published, created_at FROM blog_posts WHERE client_site_id = ? AND published = 1 ORDER BY created_at DESC"
   ).bind(site.id).all();
 
   const galleriesQuery = await db.prepare(
-    "SELECT g.id, g.name, g.created_at, g.updated_at, (SELECT COUNT(*) FROM client_gallery_photos WHERE gallery_id = g.id) as photo_count FROM client_galleries g WHERE g.client_site_id = ? AND g.deleted_at IS NULL ORDER BY g.created_at DESC"
+    "SELECT g.id, g.name, g.created_at, (SELECT COUNT(*) FROM client_gallery_photos WHERE gallery_id = g.id) as photo_count FROM client_galleries g WHERE g.client_site_id = ? ORDER BY g.created_at DESC"
   ).bind(site.id).all();
 
   // Parse JSON configs safely
