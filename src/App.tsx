@@ -23,6 +23,7 @@ import { AlbumsPage } from "./pages/AlbumsPage";
 import { ClientsPage } from "./pages/ClientsPage";
 import { ClientSitePage } from "./pages/ClientSitePage";
 import { ClientEditorPage } from "./pages/ClientEditorPage";
+import { ClientBlogPostPage } from "./pages/ClientBlogPostPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { AdminDashboardPage } from "./pages/admin/AdminDashboardPage";
 import { AdminPeoplePage } from "./pages/admin/AdminPeoplePage";
@@ -156,6 +157,8 @@ export default function App() {
           <Route path="/citysite/commerce" element={<ProtectedRoute requiredRole="platform_owner"><AdminCommercePage /></ProtectedRoute>} />
           <Route path="/citysite/discovery" element={<ProtectedRoute requiredRole="platform_owner"><AdminDiscoveryPage /></ProtectedRoute>} />
           <Route path="/citysite/system" element={<ProtectedRoute requiredRole="platform_owner"><AdminSystemPage /></ProtectedRoute>} />
+          {/* Public client blog post (must be before the catch-all /:slug) */}
+          <Route path="/blog/:siteSlug/:postSlug" element={<ClientBlogPostPage />} />
           {/* Client site + Photographer profile — catch-all (must be LAST before 404) */}
           <Route path="/:slug" element={<ClientSitePage />} />
           <Route path="*" element={<NotFoundPage />} />

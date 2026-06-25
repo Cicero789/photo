@@ -80,6 +80,7 @@ export async function onRequestDelete(context: { request: Request; env: { DB?: D
   await context.env.DB!.prepare("UPDATE client_sites SET deleted_at = ? WHERE id = ?").bind(now, id).run();
   await context.env.DB!.prepare("UPDATE blog_posts SET deleted_at = ? WHERE client_site_id = ? AND deleted_at IS NULL").bind(now, id).run();
   await context.env.DB!.prepare("UPDATE client_galleries SET deleted_at = ? WHERE client_site_id = ? AND deleted_at IS NULL").bind(now, id).run();
+  await context.env.DB!.prepare("UPDATE client_gallery_photos SET deleted_at = ? WHERE gallery_id IN (SELECT id FROM client_galleries WHERE client_site_id = ?)").bind(now, id).run();
 
   return json({ success: true });
 }

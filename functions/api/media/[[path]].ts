@@ -87,8 +87,34 @@ export async function onRequestGet(context: {
           // allow — portfolio is public
           isPublic = true;
         } else {
-          // Unknown key — reject
-          return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { "Content-Type": "application/json" } });
+          // Check client gallery photos
+          const cgp = await db.prepare(
+            `SELECT cgp.storage_key, cs.published, cs.photographer_id, cs.deleted_at as site_deleted,
+                    cg.deleted_at as gallery_deleted
+             FROM client_gallery_photos cgp
+             JOIN client_galleries cg ON cg.id = cgp.gallery_id
+             JOIN client_sites cs ON cs.id = cg.client_site_id
+             WHERE cgp.storage_key = ?`
+          ).bind(storageKey).first() as any;
+
+          if (cgp) {
+            if (cgp.site_deleted || cgp.gallery_deleted) {
+              return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+            }
+            // Public if published, private if draft (owner only)
+            if (cgp.published === 1) {
+              isPublic = true;
+            } else {
+              const a = await requireAuth(context.request, context.env);
+              if (a instanceof Response) return a;
+              if (a.userId !== cgp.photographer_id) {
+                return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403 });
+              }
+            }
+          } else {
+            // Unknown key — reject
+            return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { "Content-Type": "application/json" } });
+          }
         }
       }
     }

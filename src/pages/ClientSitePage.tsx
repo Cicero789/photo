@@ -104,7 +104,8 @@ export function ClientSitePage() {
 
   const tagline = site.content?.hero?.subheading || site.industryId || "";
   const specialties = site.industryId ? [site.industryId] : [];
-  const bio = site.content?.sections?.find((s: ContentSection) => s.type === "text")?.body || "";
+  // Public renderer reads the actual content model the editor saves: { bio, services, pricing }
+  const bio = site.content?.bio || "";
 
   return (
     <div>

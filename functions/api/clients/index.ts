@@ -4,13 +4,14 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
   const a = await requireAuth(context.request, context.env);
   if (a instanceof Response) return a;
   const db = context.env.DB!;
-  const r = await db.prepare("SELECT cs.*, (SELECT COUNT(*) FROM blog_posts WHERE client_site_id = cs.id) as blog_count, (SELECT COUNT(*) FROM client_galleries WHERE client_site_id = cs.id) as gallery_count FROM client_sites cs WHERE cs.photographer_id = ? AND cs.deleted_at IS NULL ORDER BY cs.updated_at DESC").bind(a.userId).all();
+  const r = await db.prepare("SELECT cs.*, (SELECT COUNT(*) FROM blog_posts WHERE client_site_id = cs.id AND deleted_at IS NULL) as blog_count, (SELECT COUNT(*) FROM client_galleries WHERE client_site_id = cs.id AND deleted_at IS NULL) as gallery_count FROM client_sites cs WHERE cs.photographer_id = ? AND cs.deleted_at IS NULL ORDER BY cs.updated_at DESC").bind(a.userId).all();
   const clients = (r.results || []).map((c: any) => ({
-    id: c.id, name: c.name, slug: c.slug, industryId: c.industry_id,
-    customDomain: c.custom_domain, published: c.published === 1,
+    id: c.id, name: c.name, slug: c.slug,
+    industryId: c.industry_id || null,
+    customDomain: c.custom_domain || null,
+    status: c.published === 1 ? "published" : "draft",
     blogCount: c.blog_count, galleryCount: c.gallery_count,
-    setupFeeCents: c.setup_fee_cents, monthlyFeeCents: c.monthly_fee_cents,
-    createdAt: c.created_at, updatedAt: c.updated_at,
+    updatedAt: c.updated_at,
   }));
   return json({ clients });
 }

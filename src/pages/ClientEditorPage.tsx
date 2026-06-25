@@ -56,6 +56,7 @@ export function ClientEditorPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<EditorTab>("content");
   const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // Tab data states
@@ -85,7 +86,7 @@ export function ClientEditorPage() {
 
   const fetchBlogs = useCallback(async () => {
     try {
-      const data = await api.get<{ blogs: BlogPost[] }>(`/clients/${id}/blogs`);
+      const data = await api.get<{ blogs: BlogPost[] }>(`/clients/${id}/blog`);
       setBlogs(data.blogs);
     } catch { /* ignore */ }
   }, [id]);
@@ -130,6 +131,25 @@ export function ClientEditorPage() {
     }
   };
 
+  const togglePublish = async () => {
+    if (!client) return;
+    const newPublished = client.status !== "published";
+    setPublishing(true);
+    setMessage(null);
+    try {
+      await api.put(`/clients/${id}`, { published: newPublished });
+      setClient({ ...client, status: newPublished ? "published" : "draft" });
+      setMessage({
+        type: "success",
+        text: newPublished ? "Site published — it's now live." : "Site unpublished — it's now a draft.",
+      });
+    } catch (err) {
+      setMessage({ type: "error", text: err instanceof Error ? err.message : "Failed to update publish status" });
+    } finally {
+      setPublishing(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -170,6 +190,18 @@ export function ClientEditorPage() {
           >
             {client.status}
           </span>
+          <button
+            onClick={togglePublish}
+            disabled={publishing}
+            className={cn(
+              "rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50",
+              client.status === "published"
+                ? "border border-border text-neutral-600 hover:bg-neutral-50"
+                : "bg-emerald-600 text-white hover:bg-emerald-700"
+            )}
+          >
+            {publishing ? "..." : client.status === "published" ? "Unpublish" : "Publish"}
+          </button>
           <a
             href={`/${client.slug}`}
             target="_blank"
@@ -622,9 +654,9 @@ function BlogTab({
     setSaving(true);
     try {
       if (editingId) {
-        await api.put(`/clients/${clientId}/blogs/${editingId}`, form);
+        await api.put(`/clients/${clientId}/blog/${editingId}`, form);
       } else {
-        await api.post(`/clients/${clientId}/blogs`, form);
+        await api.post(`/clients/${clientId}/blog`, form);
       }
       setForm({ title: "", slug: "", excerpt: "", content: "" });
       setShowForm(false);
@@ -651,7 +683,7 @@ function BlogTab({
   const handleDelete = async (blogId: string) => {
     if (!confirm("Delete this blog post? This cannot be undone.")) return;
     try {
-      await api.delete(`/clients/${clientId}/blogs/${blogId}`);
+      await api.delete(`/clients/${clientId}/blog/${blogId}`);
       onRefresh();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Failed to delete blog post");

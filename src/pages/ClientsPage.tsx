@@ -8,7 +8,7 @@ interface ClientSite {
   id: string;
   name: string;
   slug: string;
-  industry: string;
+  industryId: string | null;
   customDomain: string | null;
   status: "published" | "draft";
   blogCount: number;
@@ -44,7 +44,7 @@ export function ClientsPage() {
   const [clients, setClients] = useState<ClientSite[]>([]);
   const [loading, setLoading] = useState(true);
   const [showNewModal, setShowNewModal] = useState(false);
-  const [form, setForm] = useState({ name: "", industry: "Photography", slug: "", customDomain: "" });
+  const [form, setForm] = useState({ name: "", industryId: "Teaching & Tutoring", slug: "", customDomain: "" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -68,7 +68,7 @@ export function ClientsPage() {
     try {
       await api.post("/clients", form);
       setShowNewModal(false);
-      setForm({ name: "", industry: "Photography", slug: "", customDomain: "" });
+      setForm({ name: "", industryId: "Teaching & Tutoring", slug: "", customDomain: "" });
       await fetchClients();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create client site");
@@ -77,6 +77,18 @@ export function ClientsPage() {
 
   const generateSlug = (name: string) => {
     return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  };
+
+  const togglePublish = async (client: ClientSite) => {
+    const newPublished = client.status !== "published";
+    try {
+      await api.put(`/clients/${client.id}`, { published: newPublished });
+      setClients((prev) =>
+        prev.map((c) => (c.id === client.id ? { ...c, status: newPublished ? "published" : "draft" } : c))
+      );
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to update publish status");
+    }
   };
 
   if (loading) {
@@ -129,6 +141,7 @@ export function ClientsPage() {
               key={client.id}
               client={client}
               onClick={() => navigate(`/clients/${client.id}/edit`)}
+              onTogglePublish={() => togglePublish(client)}
             />
           ))}
         </div>
@@ -183,8 +196,8 @@ export function ClientsPage() {
               <div>
                 <label className="block text-sm font-medium text-neutral-700">Industry</label>
                 <select
-                  value={form.industry}
-                  onChange={(e) => setForm((f) => ({ ...f, industry: e.target.value }))}
+                  value={form.industryId}
+                  onChange={(e) => setForm((f) => ({ ...f, industryId: e.target.value }))}
                   className="mt-1 block w-full rounded-lg border border-border bg-white px-3 py-2 text-sm focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-100"
                 >
                   {INDUSTRIES.map((ind) => (
@@ -249,7 +262,7 @@ export function ClientsPage() {
 }
 
 // ─── Client Card ───
-function ClientCard({ client, onClick }: { client: ClientSite; onClick: () => void }) {
+function ClientCard({ client, onClick, onTogglePublish }: { client: ClientSite; onClick: () => void; onTogglePublish: () => void }) {
   return (
     <div
       onClick={onClick}
@@ -281,7 +294,7 @@ function ClientCard({ client, onClick }: { client: ClientSite; onClick: () => vo
       {/* Industry badge */}
       <div className="mt-3">
         <span className="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-600">
-          {client.industry}
+          {client.industryId}
         </span>
       </div>
 
@@ -314,6 +327,17 @@ function ClientCard({ client, onClick }: { client: ClientSite; onClick: () => vo
           className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-50"
         >
           Galleries
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); onTogglePublish(); }}
+          className={cn(
+            "rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+            client.status === "published"
+              ? "border border-border text-neutral-600 hover:bg-neutral-50"
+              : "bg-emerald-600 text-white hover:bg-emerald-700"
+          )}
+        >
+          {client.status === "published" ? "Unpublish" : "Publish"}
         </button>
         <a
           href={`/${client.slug}`}

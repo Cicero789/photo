@@ -16,22 +16,18 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
   if (!gallery) return json({ error: "Gallery not found" }, 404);
 
   const photos = await db.prepare(
-    "SELECT id, storage_key, filename, width, height, file_size, sort_order, created_at FROM client_gallery_photos WHERE gallery_id = ? ORDER BY sort_order, created_at"
+    "SELECT storage_key, caption, sort_order, uploaded_at FROM client_gallery_photos WHERE gallery_id = ? ORDER BY sort_order, uploaded_at"
   ).bind(gid).all();
 
   return json({
     id: gallery.id,
     name: gallery.name,
     photos: (photos.results || []).map((p: any) => ({
-      id: p.id,
       url: `/api/media/photos/${p.storage_key}`,
       storageKey: p.storage_key,
-      filename: p.filename || "",
-      width: p.width,
-      height: p.height,
-      fileSize: p.file_size,
+      caption: p.caption || "",
       sortOrder: p.sort_order,
-      createdAt: p.created_at,
+      uploadedAt: p.uploaded_at,
     })),
   });
 }

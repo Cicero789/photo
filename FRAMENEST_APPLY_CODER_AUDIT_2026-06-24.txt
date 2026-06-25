@@ -1,0 +1,1769 @@
+FRAMENEST APPLY-CODER FULL SITE AUDIT
+Date: June 24, 2026
+Repository: Cicero789/photo
+Audited working copy: C:\Users\shant\photo
+Audited commit: 4f10392e74d6fdabfdc6dc6006e7b6975b188167
+Production checked: https://framenest.photos
+
+===============================================================================
+1. EXECUTIVE VERDICT
+===============================================================================
+
+The original event/photo application is in better condition than it was during
+the previous audit. Several important defects were repaired: the mobile header
+no longer overflows, the demo event renders, robots.txt and sitemap.xml are
+real files, public fee wording is consistent, deleted media filtering improved,
+and several admin deletion/data-leak problems were corrected.
+
+However, the newly added multi-site/client platform is not release-ready. It
+contains multiple independently confirmed contract and database failures:
+
+1. The editor calls nonexistent plural "/blogs" endpoints.
+2. Frontend and backend blog field names are incompatible.
+3. The client photo-pool upload executes SQL against columns that do not exist.
+4. Uploaded client photos cannot be served by the media endpoint.
+5. There is no working publish control in the UI.
+6. Public blog links lead to a route that is not registered.
+7. Editor content is saved in a structure the public renderer does not use.
+8. Client custom domains are stored but are not routed or verified.
+
+The main application can still be used, but the client-site feature should be
+treated as an incomplete beta and hidden from production navigation until the
+P0 repair phase below is complete.
+
+Recommended release decision:
+
+  HOLD new client-site feature promotion.
+  CONTINUE operating existing photo/event features with caution.
+  DO NOT add more templates or client-site features until P0-P1 are complete.
+
+Severity scale:
+
+  P0 = release blocker, data loss, security boundary, or feature cannot work
+  P1 = high user impact, authorization/data-integrity risk
+  P2 = reliability, accessibility, performance, maintainability
+  P3 = cleanup, consistency, developer-experience improvement
+
+Confirmed issue count in this report:
+
+  P0: 8
+  P1: 17
+  P2: 18
+  P3: 8
+
+===============================================================================
+2. AUDIT METHOD AND VERIFIED RESULTS
+===============================================================================
+
+The audit covered:
+
+  - React routes, pages, hooks, shared API client, and generated templates
+  - All Cloudflare Pages Functions and shared function libraries
+  - D1 schema and migrations
+  - R2 upload, deletion, and media-delivery paths
+  - Authentication, roles, gate tokens, password reset, and magic login
+  - Stripe checkout, subscription, Connect, and webhook code
+  - Build, tests, lint, Wrangler types, dependency audit, and clean D1 setup
+  - Production desktop/mobile navigation and selected public routes
+  - Production headers, assets, SEO files, demo page, and error behavior
+
+Verification was run from a clean archive of commit 4f10392, not from a dirty
+working tree.
+
+PASS:
+
+  - npm ci
+  - npm run build
+  - npm test: 5 files, 61 tests
+  - Fresh db/schema.sql execution: 54 commands
+  - PRAGMA foreign_key_check: no violations in the fresh test database
+  - Production JS/CSS asset hashes match this audited commit
+  - Desktop homepage basic smoke test
+  - Mobile 375 x 812 layout: no horizontal overflow
+  - /s/demo/e/demo-beach renders successfully
+  - /robots.txt returns a real text file
+  - /sitemap.xml returns a real XML file
+  - Production-only dependency audit: 0 vulnerabilities
+
+FAIL:
+
+  - npm run lint: 57 findings
+      1 configuration error
+      56 no-floating-promises warnings
+  - npx wrangler types --check:
+      worker-configuration.d.ts is missing
+  - npx wrangler d1 migrations list:
+      no migrations folder configured/found
+  - Full npm audit:
+      5 development-tool vulnerabilities, including 4 high severity
+  - Existing release bundle budgets:
+      main JS exceeds 550 kB
+      CSS exceeds 70 kB
+      first-load main+CSS exceeds 620 kB
+
+Build sizes:
+
+  Main JS:          656.50 kB minified / 166.95 kB gzip
+  Main CSS:          72.66 kB minified /  11.71 kB gzip
+  PhotoEditor:      950.32 kB minified / 278.36 kB gzip
+  First-load min:   approximately 729.16 kB before route/template chunks
+  Main JS increase: approximately 85.15 kB, or 14.9%, since prior audit
+
+Important testing limitation:
+
+  No valid Chrome DevTools performance trace was available in this environment,
+  so this report does not invent Lighthouse or Core Web Vitals numbers. Bundle,
+  DOM, source, network-header, and browser observations are reported instead.
+
+===============================================================================
+3. REPAIRS THAT ARE CONFIRMED TO BE WORKING
+===============================================================================
+
+Keep these changes. Do not accidentally regress them during the next repair:
+
+  - Mobile navigation now collapses without horizontal overflow.
+  - Demo event routing works.
+  - robots.txt and sitemap.xml are no longer SPA fallback documents.
+  - Photographer marketing text now states the 5% fee consistently.
+  - Admin user listing no longer returns password hashes.
+  - User deletion no longer automatically deletes an entire owned space.
+  - Gate viewers are blocked from event messaging.
+  - Event deletion now marks photos/videos deleted before storage cleanup.
+  - Media event queries now filter deleted event/media records.
+  - Missing media database binding now fails closed.
+  - Password reset and magic tokens are stored hashed.
+  - Stripe webhook no longer treats a subscription as identity verification.
+  - Album deletion avoids deleting event-owned files in the common key layout.
+  - Client detail GET was added and returns the editor's basic site fields.
+  - Template registry is internally consistent:
+      263 unique IDs
+      263 component mappings
+      no missing registered component
+      no missing registered thumbnail
+
+===============================================================================
+4. APPLY-CODER OPERATING RULES
+===============================================================================
+
+Give the next coder these rules before implementation:
+
+1. Work in the numbered phase order in this report.
+2. One ticket or tightly related group per commit.
+3. Add a failing test before changing behavior for every P0/P1 item.
+4. Do not edit the 263 templates while repairing API/database contracts.
+5. Do not deploy a schema change before a forward D1 migration exists.
+6. Do not use production as the migration test environment.
+7. Validate every request body at the API boundary.
+8. Treat R2 writes plus D1 writes as a compensating transaction.
+9. Do not trust a frontend role check as authorization.
+10. Do not allow a gate token to act as a real user account.
+11. Keep old API response compatibility only through explicit adapters.
+12. Run the complete release gate after every phase.
+
+Suggested branch:
+
+  fix/client-platform-stabilization
+
+Suggested commit sequence:
+
+  01 tests: reproduce client API contract failures
+  02 fix: align client list and create DTOs
+  03 fix: align client blog routes and DTOs
+  04 fix: repair client photo upload schema usage
+  05 fix: authorize and serve client gallery media
+  06 fix: add client publish workflow
+  07 fix: add public blog page and route
+  08 fix: align editor content with public renderer
+  09 db: add client platform forward migration
+  10 security: separate gate and user token types
+  11 security: require client-site entitlement and quotas
+  12 security: bind signed media URLs to scope
+  13 fix: enforce deleted/expired-resource rules
+  14 fix: repair invitation and password-reset lifecycle
+  15 fix: harden Stripe and payout ownership
+  16 refactor: replace unsafe template claims with editable content
+  17 perf: reduce template-picker and asset costs
+  18 qa: add browser, accessibility, and Cloudflare integration tests
+
+===============================================================================
+5. PHASE 0 - STOP DATA LOSS AND RESTORE THE CLIENT PLATFORM
+===============================================================================
+
+AP-001 [P0] CLIENT BLOG ROUTES DO NOT MATCH
+
+Evidence:
+
+  src/pages/ClientEditorPage.tsx:88 and blog mutations call:
+    /api/clients/:id/blogs
+
+  Implemented Functions are under:
+    functions/api/clients/[id]/blog/
+
+Impact:
+
+  Blog list, create, update, and delete return 404 from the editor.
+
+Recommended fix:
+
+  Keep the existing singular backend route and change all frontend calls to
+  "/clients/${id}/blog". Put route construction in one client API module so the
+  spelling cannot diverge again.
+
+Sample:
+
+  // src/lib/client-sites-api.ts
+  export const clientSiteRoutes = {
+    root: "/clients",
+    one: (siteId: string) => `/clients/${encodeURIComponent(siteId)}`,
+    blog: (siteId: string) =>
+      `/clients/${encodeURIComponent(siteId)}/blog`,
+    blogPost: (siteId: string, postId: string) =>
+      `/clients/${encodeURIComponent(siteId)}/blog/${encodeURIComponent(postId)}`,
+  } as const;
+
+Acceptance tests:
+
+  - Editor loads an empty blog list with HTTP 200.
+  - Creating a post returns HTTP 201 and it appears without reloading.
+  - Editing and deleting that post succeed.
+  - A test fails if "/blogs" is reintroduced.
+
+
+AP-002 [P0] CLIENT BLOG REQUEST/RESPONSE CONTRACT IS INCOMPATIBLE
+
+Evidence:
+
+  Frontend expects:
+    excerpt, content, coverImageUrl, status, publishedAt
+
+  Backend reads/returns:
+    body, featuredImage, published, createdAt, updatedAt
+
+Impact:
+
+  Even after the URL is fixed, body content is sent under the wrong key and can
+  be saved blank. Status and dates render as undefined/Invalid Date.
+
+Recommended fix:
+
+  Define one shared DTO and map database snake_case fields only inside the
+  Function. Do not let React pages know database column names.
+
+Sample:
+
+  // src/contracts/client-sites.ts
+  export type PublishStatus = "draft" | "published";
+
+  export interface BlogPostDto {
+    id: string;
+    title: string;
+    slug: string;
+    excerpt: string;
+    content: string;
+    coverImageUrl: string | null;
+    status: PublishStatus;
+    publishedAt: string | null;
+    createdAt: string;
+    updatedAt: string;
+  }
+
+  export interface SaveBlogPostInput {
+    title: string;
+    slug?: string;
+    excerpt?: string;
+    content: string;
+    coverImageUrl?: string | null;
+    status?: PublishStatus;
+  }
+
+  function toBlogPostDto(row: any): BlogPostDto {
+    return {
+      id: row.id,
+      title: row.title,
+      slug: row.slug,
+      excerpt: row.excerpt ?? "",
+      content: row.body ?? "",
+      coverImageUrl: row.featured_image ?? null,
+      status: row.published === 1 ? "published" : "draft",
+      publishedAt: row.published_at ?? null,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
+  }
+
+Database recommendation:
+
+  Add excerpt and published_at through a forward migration. Do not overload
+  created_at as the publication date.
+
+Acceptance tests:
+
+  - Round-trip every DTO field through create, GET, update, and GET.
+  - Publishing sets published_at once.
+  - Unpublishing does not destroy content.
+  - Invalid status is rejected with 400.
+
+
+AP-003 [P0] CLIENT PHOTO-POOL UPLOAD USES NONEXISTENT COLUMNS
+
+Evidence:
+
+  functions/api/clients/[id]/photos.ts queries or inserts:
+    client_galleries.slug
+    client_gallery_photos.caption
+    client_gallery_photos.uploaded_at
+
+  Those columns do not exist in db/schema.sql.
+
+  It also omits required IDs and required gallery updated_at fields.
+
+Confirmed clean-D1 errors:
+
+  no such column: slug
+  no column named caption
+
+Impact:
+
+  Client photo-pool upload cannot complete. R2 may receive an object before the
+  D1 failure, leaving an orphaned billable object.
+
+Recommended fix:
+
+  Do not maintain two separate client upload implementations. Extract one
+  gallery upload service and have the photo-pool endpoint create/use a
+  conventional default gallery using the actual schema.
+
+Correct insertion shape:
+
+  const now = new Date().toISOString();
+  const galleryId = crypto.randomUUID();
+
+  await db.prepare(
+    `INSERT INTO client_galleries
+       (id, client_site_id, name, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?)`
+  ).bind(galleryId, siteId, "Photos", now, now).run();
+
+  const photoId = crypto.randomUUID();
+  await db.prepare(
+    `INSERT INTO client_gallery_photos
+       (id, gallery_id, storage_key, filename, width, height,
+        file_size, sort_order, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  ).bind(
+    photoId, galleryId, storageKey, safeFilename,
+    width, height, file.size, sortOrder, now
+  ).run();
+
+Required compensation:
+
+  let uploaded = false;
+  try {
+    await env.PHOTOS.put(storageKey, file.stream(), metadata);
+    uploaded = true;
+    await insertPhotoRow();
+  } catch (error) {
+    if (uploaded) await env.PHOTOS.delete(storageKey).catch(() => undefined);
+    throw error;
+  }
+
+Additional requirements:
+
+  - Validate all files before writing the first object.
+  - Limit files per request.
+  - Limit aggregate bytes per request and per account.
+  - Derive extension from validated content, not the original filename.
+  - Do not swallow R2/D1 consistency errors.
+
+Acceptance tests:
+
+  - Upload one valid JPEG and verify R2 plus D1.
+  - Reject an invalid signature before R2 write.
+  - Simulate D1 failure and verify the R2 object is removed.
+  - Reject more than the configured count and total-byte limits.
+
+
+AP-004 [P0] CLIENT GALLERY PHOTOS CANNOT BE SERVED
+
+Evidence:
+
+  Client gallery APIs return:
+    /api/media/photos/<client storage key>
+
+  functions/api/media/[[path]].ts recognizes event photos/videos, album photos,
+  and photographer portfolio records. It never resolves client_gallery_photos.
+
+Impact:
+
+  A successful client gallery upload still displays as 403/broken image.
+
+Recommended fix:
+
+  Add an explicit media policy resolver. A client photo is public only when:
+
+  - client site is published and not deleted
+  - gallery is not deleted
+  - photo belongs to that gallery
+
+  Draft-site owners may access through an authenticated owner path or a scoped
+  preview signature.
+
+Sample policy query:
+
+  SELECT cgp.storage_key, cs.photographer_id, cs.published
+  FROM client_gallery_photos cgp
+  JOIN client_galleries cg ON cg.id = cgp.gallery_id
+  JOIN client_sites cs ON cs.id = cg.client_site_id
+  WHERE cgp.storage_key = ?
+    AND cg.deleted_at IS NULL
+    AND cs.deleted_at IS NULL
+
+Decision:
+
+  public access = cs.published = 1
+  owner access  = authenticated user ID equals cs.photographer_id
+
+Do not expose storageKey in the public JSON response. Return a URL only.
+
+Acceptance tests:
+
+  - Published client photo returns 200.
+  - Draft client photo returns 403 anonymously.
+  - Owner preview returns 200.
+  - Deleted gallery/site photo returns 404.
+
+
+AP-005 [P0] CLIENT SITES CANNOT BE PUBLISHED FROM THE UI
+
+Evidence:
+
+  client_sites.published defaults to 0.
+  The backend PUT accepts published.
+  ClientsPage and ClientEditorPage expose no working publish/unpublish action.
+
+Impact:
+
+  Newly created sites remain permanently unavailable to the public.
+  "View Live" is misleading while the site is draft.
+
+Recommended fix:
+
+  Add a publish control with validation and explicit state:
+
+  async function setPublished(published: boolean) {
+    const updated = await api.put<ClientSiteDetail>(
+      clientSiteRoutes.one(id),
+      { published }
+    );
+    setClient(updated);
+  }
+
+Before publishing, require:
+
+  - nonempty name
+  - allowed, nonreserved slug
+  - valid selected template
+  - at least one meaningful content block
+  - no unresolved upload failures
+
+Acceptance tests:
+
+  - Draft returns 404 from public API.
+  - Publish changes public API to 200.
+  - Unpublish immediately returns public API to 404.
+  - UI status updates from server response, not optimistic local text only.
+
+
+AP-006 [P0] PUBLIC BLOG LINKS HAVE NO REACT ROUTE
+
+Evidence:
+
+  ClientSitePage links to:
+    /blog/:siteSlug/:postSlug
+
+  App.tsx registers no matching route/page.
+
+Impact:
+
+  Every public client blog link lands on NotFound behavior.
+
+Recommended fix:
+
+  Add BlogPostPage and register it before the generic "/:slug" route:
+
+  <Route
+    path="/blog/:siteSlug/:postSlug"
+    element={<ClientBlogPostPage />}
+  />
+
+The page should:
+
+  - call the public blog API
+  - reject unpublished/deleted site or post
+  - render content safely
+  - set document title, description, canonical URL, and Open Graph tags
+  - show a real 404 state for missing posts
+
+If rich text is introduced, sanitize with an allowlist on both write and render.
+Do not use raw dangerouslySetInnerHTML with user content.
+
+Acceptance tests:
+
+  - Published post is readable.
+  - Draft/deleted post returns a 404 UI.
+  - Script/event-handler HTML is rejected or sanitized.
+  - Browser back/forward works.
+
+
+AP-007 [P0] EDITOR CONTENT DOES NOT FEED THE PUBLIC TEMPLATE
+
+Evidence:
+
+  Editor saves:
+    { bio, services, pricing }
+
+  ClientSitePage looks for:
+    content.sections
+    content.heroPhotos
+
+  The public template receives an empty portfolio and onHire={() => {}}.
+  ClientEditorPage has no template picker despite ClientSitePage reading
+  galleryConfig.template.
+
+Impact:
+
+  A user can edit content and still see a mostly generic template.
+  Uploaded photos do not become hero/portfolio content.
+  Hire/contact actions do nothing.
+
+Recommended canonical content contract:
+
+  export interface ClientSiteContent {
+    bio: string;
+    services: Array<{
+      id: string;
+      name: string;
+      description: string;
+      priceLabel?: string;
+    }>;
+    heroPhotoIds: string[];
+    sections: Array<{
+      id: string;
+      type: "text" | "gallery" | "services" | "contact";
+      title?: string;
+      body?: string;
+      galleryId?: string;
+      visible: boolean;
+    }>;
+    contact: {
+      email?: string;
+      phone?: string;
+      bookingUrl?: string;
+    };
+  }
+
+Use IDs rather than user-editable raw R2 URLs. Resolve URLs server-side.
+
+Implementation order:
+
+  1. Define and validate the content schema.
+  2. Migrate/normalize existing JSON at read time.
+  3. Make editor save the canonical schema.
+  4. Make ClientSitePage read the same schema.
+  5. Add template selection to the editor.
+  6. Make CTA labels/actions industry-specific.
+
+Acceptance tests:
+
+  - Bio saved in editor appears publicly.
+  - Selected template persists.
+  - Selected photos appear in the intended order.
+  - Contact/booking CTA performs a real action.
+  - Invalid content JSON is rejected with 400.
+
+
+AP-008 [P0] CLIENT LIST/CREATE DTOS DO NOT MATCH
+
+Evidence:
+
+  ClientsPage expects:
+    industry
+    status: "published" | "draft"
+
+  GET /api/clients returns:
+    industryId
+    published: boolean
+
+  Create form sends:
+    industry
+
+  POST /api/clients reads:
+    industryId
+
+Impact:
+
+  Industry is saved as null.
+  List cards show undefined industry/status or incorrect draft styling.
+
+Recommended fix:
+
+  Use shared ClientSiteSummary and CreateClientSiteInput types:
+
+  export interface ClientSiteSummary {
+    id: string;
+    name: string;
+    slug: string;
+    industryId: string | null;
+    customDomain: string | null;
+    status: "draft" | "published";
+    blogCount: number;
+    galleryCount: number;
+    updatedAt: string;
+  }
+
+  export interface CreateClientSiteInput {
+    name: string;
+    slug: string;
+    industryId: string;
+  }
+
+  Do not accept customDomain during ordinary creation. Domain setup needs its
+  own verified workflow.
+
+Acceptance tests:
+
+  - POST input and GET output use the shared types.
+  - Industry round-trips correctly.
+  - Counts exclude deleted blogs/galleries.
+
+===============================================================================
+6. PHASE 1 - AUTHORIZATION, DATA INTEGRITY, AND MIGRATIONS
+===============================================================================
+
+AP-009 [P1] GATE TOKENS CAN BE TREATED AS REAL USERS
+
+All client-management endpoints call requireAuth but do not require a real user
+session, approved photographer/account, role, entitlement, or quota. The current
+gate identity uses a synthetic "viewer" user ID/role.
+
+Impact:
+
+  A gate token can potentially reach authenticated account actions, create
+  client sites, and consume storage. A normal viewer account can also create
+  an unlimited number of client sites unless another layer happens to block it.
+
+Recommended model:
+
+  type AuthPayload =
+    | { typ: "user"; userId: string; role: Role; sessionId: string }
+    | { typ: "gate"; spaceId: string; role: "viewer" };
+
+  export function requireUserSession(
+    auth: AuthPayload
+  ): Extract<AuthPayload, { typ: "user" }> | Response {
+    if (auth.typ !== "user") {
+      return json({ error: "User account required" }, 403);
+    }
+    return auth;
+  }
+
+For client management, also query an account entitlement:
+
+  - approved photographer, platform owner, or explicit site-builder plan
+  - account not disabled/deleted
+  - within site/storage limits
+
+Acceptance tests:
+
+  - Gate token gets 403 for every client write endpoint.
+  - Real unauthorized viewer gets 403.
+  - Entitled owner succeeds.
+  - Another owner gets 403 for site/gallery/blog IDs.
+
+
+AP-010 [P1] THERE IS NO FORWARD MIGRATION FOR CLIENT TABLES
+
+Evidence:
+
+  db/schema.sql contains client tables.
+  migrations contains only earlier migrations.
+  Wrangler reports no migrations folder configured/found.
+  wrangler.toml has no migrations_dir.
+
+Impact:
+
+  A clean database works, but an existing production database has no reliable,
+  reviewable upgrade path. Manual schema pushes can diverge by environment.
+
+Required fix:
+
+  1. Add:
+
+       [[d1_databases]]
+       binding = "DB"
+       database_name = "photo-db"
+       database_id = "..."
+       migrations_dir = "migrations"
+
+  2. Create the next numbered migration for client tables/columns/indexes.
+  3. Make the migration idempotent where D1 permits.
+  4. Test it against a copy of the pre-client schema.
+  5. Record applied migration state before deploying code that depends on it.
+
+Example additions if adopting the canonical DTO:
+
+  ALTER TABLE blog_posts ADD COLUMN excerpt TEXT NOT NULL DEFAULT '';
+  ALTER TABLE blog_posts ADD COLUMN published_at TEXT;
+  CREATE UNIQUE INDEX IF NOT EXISTS idx_client_sites_custom_domain
+    ON client_sites(lower(custom_domain))
+    WHERE custom_domain IS NOT NULL AND deleted_at IS NULL;
+
+Note:
+
+  SQLite/D1 cannot add every constraint safely with ALTER TABLE. For ownership
+  foreign keys or stricter constraints, create a new table, copy validated data,
+  swap tables, recreate indexes, then run PRAGMA foreign_key_check.
+
+Acceptance tests:
+
+  - Fresh schema and migrated old schema have equivalent PRAGMA table_info.
+  - Migration applies once and is tracked.
+  - Re-running deployment does not attempt to replay it.
+  - Foreign-key check returns zero rows.
+
+
+AP-011 [P1] SLUG VALIDATION ALLOWS ROUTE COLLISIONS
+
+Current validation accepts any lowercase letters/numbers/hyphens.
+
+Examples that conflict with application routes:
+
+  login, signup, dashboard, clients, site, blog, citysite, albums,
+  photographers, inspiration, admin, s, api
+
+The generic "/:slug" route also appears before the final "*" route and can
+turn unrelated unknown URLs into a misleading client/photographer lookup.
+
+Recommended fix:
+
+  const RESERVED_SLUGS = new Set([
+    "admin", "albums", "api", "blog", "citysite", "clients", "dashboard",
+    "inspiration", "login", "photographers", "s", "signup", "site",
+  ]);
+
+  function validateSlug(value: string): string {
+    const slug = value.trim().toLowerCase();
+    if (!/^[a-z0-9](?:[a-z0-9-]{1,61}[a-z0-9])?$/.test(slug)) {
+      throw new ValidationError("Slug must be 3-63 characters");
+    }
+    if (RESERVED_SLUGS.has(slug)) {
+      throw new ValidationError("This slug is reserved");
+    }
+    return slug;
+  }
+
+Soft-delete policy must be explicit:
+
+  - Either keep slugs permanently reserved, and query all rows for uniqueness.
+  - Or release slugs by moving deleted rows to a tombstone slug.
+
+Acceptance tests:
+
+  - Reserved and malformed slugs are rejected.
+  - Mixed-case input is normalized before uniqueness lookup.
+  - Unknown app URL reaches the true NotFoundPage.
+  - Deleted-site slug policy is deterministic.
+
+
+AP-012 [P1] CUSTOM DOMAINS ARE STORED BUT NOT IMPLEMENTED
+
+Current behavior:
+
+  - client_sites.custom_domain accepts arbitrary text
+  - middleware/domain lookup only resolves spaces
+  - frontend CustomDomainRedirect only calls /api/spaces/by-domain
+  - no DNS ownership verification
+  - no uniqueness/normalization workflow
+  - no Cloudflare custom-hostname/domain provisioning
+
+Impact:
+
+  The UI promises a feature that cannot route. It can also store domains the
+  user does not own.
+
+Immediate recommendation:
+
+  Hide/disable client custom-domain UI and label it "Coming soon" until the full
+  workflow exists. Do not pretend manual text entry connects a domain.
+
+Full implementation:
+
+  1. Normalize with URL/hostname parsing; reject paths, ports, and IPs.
+  2. Store lowercase ASCII hostname.
+  3. Create pending domain record, not active custom_domain.
+  4. Give user a DNS TXT/CNAME verification value.
+  5. Verify ownership server-side.
+  6. Provision through an operator-controlled Cloudflare workflow.
+  7. Route host to client_sites as well as spaces.
+  8. Handle removal, conflicts, certificate status, and retries.
+
+At scale, evaluate Cloudflare for SaaS/custom hostnames rather than manually
+adding every customer hostname to a Pages project.
+
+
+AP-013 [P1] CLIENT DELETE LEAVES PHOTOS AND STORAGE FOREVER
+
+Deleting a client site soft-deletes the site, blogs, and galleries, but leaves:
+
+  - client_gallery_photos rows
+  - R2 objects
+
+Gallery deletion attempts R2 deletion, swallows errors, then removes D1 rows.
+This can permanently lose the only retry record while leaving storage orphaned.
+
+Recommended fix:
+
+  Use a deletion job/tombstone:
+
+  deletion_jobs(
+    id, resource_type, resource_id, storage_key,
+    status, attempts, last_error, created_at, completed_at
+  )
+
+  - Mark logical records deleted first.
+  - Enqueue one job per storage object.
+  - Delete through a Queue/consumer or scheduled retry.
+  - Only remove/tombstone the photo row after confirmed storage deletion.
+  - Keep a dead-letter state for operator repair.
+
+
+AP-014 [P1] PUBLIC CLIENT QUERIES INCLUDE SOFT-DELETED CHILDREN
+
+functions/api/clients/public/[slug].ts:
+
+  - published blog query omits blog_posts.deleted_at IS NULL
+  - gallery query omits client_galleries.deleted_at IS NULL
+  - list count subqueries count deleted blogs/galleries
+
+Fix every query and centralize active-record predicates.
+
+Acceptance tests:
+
+  - Deleted post never appears publicly.
+  - Deleted gallery never appears publicly.
+  - Counts change immediately after deletion.
+
+
+AP-015 [P1] CLIENT REQUEST BODIES ARE LARGELY UNVALIDATED
+
+Client update accepts arbitrary:
+
+  - content JSON
+  - galleryConfig JSON
+  - name/domain strings
+  - fee values
+
+Recommended fix:
+
+  Add a schema validator already compatible with the project, or write explicit
+  typed validators with strict allowed keys. Reject unknown/oversized payloads.
+
+Minimum limits:
+
+  name:            1-120 characters
+  slug:            3-63
+  bio:             <= 10,000
+  blog title:      <= 180
+  blog body:       configured safe maximum
+  galleries/site:  plan limit
+  files/request:   plan limit
+  bytes/request:   plan limit
+  fee values:      finite integers in a documented range
+
+Never use truthiness to validate numbers. Use Number.isFinite and integer/range
+checks.
+
+
+AP-016 [P1] OWNERSHIP COLUMN IS CONFUSING AND NOT CONSTRAINED
+
+client_sites.photographer_id stores users.id, not photographers.id, and has no
+foreign key. The name invites future joins against the wrong table.
+
+Recommendation:
+
+  Rename through a table migration to owner_user_id, with a users(id) foreign
+  key, or intentionally store photographer profile ID and update every query.
+  Pick one ownership model and enforce it at the database level.
+
+===============================================================================
+7. PHASE 2 - EXISTING SECURITY AND ACCOUNT LIFECYCLE
+===============================================================================
+
+AP-017 [P1] SIGNED MEDIA URLS BYPASS RESOURCE POLICY
+
+Current signed URL verification is performed before the database policy lookup.
+A valid signature authorizes the storage key even if the requested key is not
+the intended album/resource. The signature binds only key and expiry.
+
+Additional concerns:
+
+  - MEDIA_SIGNING_SECRET falls back to JWT_SECRET
+  - dedicated media secret is not required
+  - direct string comparison remains in signed-url verification
+  - album ownership/audience is not included in the signature
+
+Recommended token claims:
+
+  interface MediaGrant {
+    v: 1;
+    key: string;
+    kind: "photo" | "video";
+    audience: "public-site" | "album-share" | "owner-preview";
+    resourceId: string;
+    expires: number;
+  }
+
+Sign canonical JSON or a fixed canonical field string. Verify:
+
+  - HMAC using a dedicated MEDIA_SIGNING_SECRET
+  - expiry
+  - kind
+  - storage key
+  - resource ID
+  - current resource still active/allowed
+
+Use crypto.subtle.verify for constant-time verification.
+
+
+AP-018 [P1] ALBUM RAW-KEY ACCESS IS TOO PERMISSIVE
+
+Media lookup allows album_photos by storage key. Password-protected albums rely
+on signatures, but unprotected albums can be fetched by key without proving the
+share token. Album deleted_at and expiry are not consistently checked.
+
+Recommended fix:
+
+  - Require a scoped album grant for all nonpublic album media.
+  - Check albums.deleted_at IS NULL and expires_at at access time.
+  - Do not treat an unguessable R2 key as authorization.
+  - Fail album view if no dedicated signing secret exists; never sign with "".
+
+
+AP-019 [P1] SOFT-DELETED EVENTS CAN STILL BE READ/UPDATED DIRECTLY
+
+functions/api/events/[id].ts selects:
+
+  SELECT * FROM events WHERE id = ?
+
+for GET, PUT, and DELETE without deleted_at IS NULL.
+
+Recommended fix:
+
+  Apply active-event filtering in one shared loader. Return 404 for deleted
+  events. Repeat the active predicate in event-access and upload authorization.
+
+
+AP-020 [P1] EVENT STORAGE CLEANUP CAN TIME OUT
+
+Event deletion loops through R2 copy/delete work inside the request and swallows
+cleanup errors. Large events can exceed the request lifetime and leave partial
+results.
+
+Recommended fix:
+
+  - Logical delete and enqueue cleanup jobs in the request.
+  - Process objects through Cloudflare Queues or a retryable workflow.
+  - Record per-object status.
+  - Use waitUntil only for best-effort noncritical work, not the sole deletion
+    guarantee.
+
+
+AP-021 [P1] PASSWORD RESET EXPIRY USES MIXED DATE FORMATS
+
+forgot-password stores JavaScript ISO strings such as:
+
+  2026-06-24T...Z
+
+reset-password compares them lexicographically against SQLite datetime('now'):
+
+  2026-06-24 ...
+
+Those formats are not safely comparable as text.
+
+Recommended fix:
+
+  Store Unix epoch seconds consistently:
+
+  const expiresAt = Math.floor(Date.now() / 1000) + 3600;
+
+  SELECT ... WHERE token = ? AND expires_at_epoch > unixepoch()
+
+Also revoke active sessions/JWT session records after a password reset.
+
+
+AP-022 [P1] INVITATIONS TO NEW EMAILS ARE DEAD LINKS
+
+connections/index.ts says account creation happens on magic-login acceptance.
+magic-login actually returns "Account not found" when the email has no user.
+
+Choose and implement one policy:
+
+  A. Invite flow creates a pending signup and completes account creation after
+     email ownership is proven.
+  B. Invite flow redirects new recipients to signup while preserving a
+     single-use invite token.
+
+Do not silently promise automatic account creation without code to perform it.
+Reduce the current seven-day magic-link lifetime and record used_at/revoked_at.
+
+
+AP-023 [P1] JWT LOGOUT/REVOCATION REMAINS INCOMPLETE
+
+JWT lifetime is improved to 24 hours, but:
+
+  - logout is client-side only
+  - no session ID/revocation table
+  - role/account changes do not immediately revoke existing tokens
+  - token is stored in localStorage
+
+Recommended staged fix:
+
+  1. Add sessions table and sid claim.
+  2. Check session active state for sensitive writes.
+  3. Revoke sessions on password reset, account disable, and role downgrade.
+  4. Prefer Secure, HttpOnly, SameSite cookies when the CSRF model is ready.
+
+
+AP-024 [P1] ADMIN USER DELETE CAN VIOLATE OWNERSHIP/FKS
+
+The prior space-wipe defect was fixed, but hard-deleting users can still collide
+with spaces.owner_id, uploads, and other ownership records. It also lacks robust
+self/last-platform-owner protections.
+
+Recommendation:
+
+  - Soft-disable users by default.
+  - Transfer or explicitly resolve owned resources.
+  - Prevent deleting/demoting self and the last platform owner.
+  - Audit every admin mutation.
+  - Use a transaction/batch for membership and role changes.
+
+
+AP-025 [P1] EXISTING USER CANNOT BE ADDED TO ANOTHER SPACE CLEANLY
+
+Space-member POST attempts to insert a new global user. Because users.email is
+unique, inviting an existing account can produce a 500.
+
+Fix:
+
+  - Normalize email.
+  - Find existing user.
+  - Insert space_members for that user if not already present.
+  - Otherwise create a pending invitation, not a duplicate user.
+  - Return 409 for existing membership, not 500.
+
+===============================================================================
+8. PHASE 3 - PAYMENTS, BOOKINGS, AND REVIEWS
+===============================================================================
+
+AP-026 [P1] USERS CAN OVERWRITE STRIPE PAYOUT CONFIG
+
+functions/api/photographers/config.ts accepts stripeAccount and writes
+stripe_config. This can bypass the Stripe Connect ownership/onboarding flow.
+
+Immediate fix:
+
+  Remove stripeAccount from this general settings endpoint. Only the Stripe
+  Connect endpoint/webhook may set stripe account identifiers.
+
+  const allowed = {
+    pricing: body.pricing,
+    design: body.design,
+    slug: body.slug,
+    tagline: body.tagline,
+    specialties: body.specialties,
+  };
+
+Never accept payout destination IDs from an ordinary client settings form.
+
+
+AP-027 [P1] CHECKOUT DOES NOT PROVE THE ITEM IS SELLABLE
+
+Stripe checkout should verify:
+
+  - photo/event exists and is active
+  - item belongs to the selected photographer
+  - item is marked purchasable
+  - server-calculated price is finite, positive, and within limits
+  - buyer is allowed to buy it
+
+Current code can create a pending order before Stripe session creation; failure
+can leave an orphan order.
+
+Recommended fix:
+
+  - Derive all prices server-side.
+  - Create Stripe session with an idempotency key.
+  - Store order and session atomically as far as possible.
+  - Mark failed session creation explicitly.
+  - Add a unique Stripe event/session ledger.
+
+
+AP-028 [P2] SUBSCRIPTION PRODUCT NAME IS MISLEADING
+
+The subscription checkout calls the product "FrameNest Verified" and describes
+a "Verified badge", while the webhook correctly no longer grants identity
+verification for subscriptions.
+
+Rename to the actual subscription tier and list only features it grants.
+
+
+AP-029 [P1] GATE ACTOR CAN ENTER BOOKING/REVIEW FLOWS
+
+Booking inquiry does not reject the synthetic gate actor. Review eligibility is
+based on any inquiry, not an accepted/completed booking.
+
+Fix:
+
+  - requireUserSession for bookings/reviews
+  - require valid photographer with FK-backed ID
+  - require completed booking for review
+  - constrain rating to integer 1-5
+  - bound and normalize comment length
+  - keep one review per completed booking, not merely per photographer/user
+
+===============================================================================
+9. PHASE 4 - TEMPLATE SYSTEM SAFETY AND MAINTAINABILITY
+===============================================================================
+
+AP-030 [P1] TEMPLATES PUBLISH FABRICATED CLAIMS AS DEFAULT CONTENT
+
+Many generated templates contain fixed public claims, credentials, prices,
+testimonials, revenue figures, client counts, health/safety assertions, and
+professional qualifications.
+
+Examples include childcare licensing/CPR/security claims, coaching credentials
+and revenue claims, fixed medical/legal/business claims, and invented customer
+testimonials.
+
+Impact:
+
+  A customer can publish false advertising or regulated-industry claims without
+  realizing the text is fictional. This is a legal and trust risk, not merely a
+  copywriting concern.
+
+Required rule:
+
+  Templates may contain obvious preview placeholders, but published sites must
+  display only user-confirmed claims. Never silently publish credentials,
+  ratings, client counts, testimonials, guarantees, prices, or safety claims.
+
+Recommended content model:
+
+  interface Claim {
+    id: string;
+    text: string;
+    category:
+      | "credential"
+      | "testimonial"
+      | "statistic"
+      | "safety"
+      | "price";
+    confirmedByUser: boolean;
+    sourceNote?: string;
+  }
+
+Published renderer:
+
+  const visibleClaims = claims.filter((claim) => claim.confirmedByUser);
+
+Add a pre-publish checklist requiring confirmation for regulated claims.
+
+
+AP-031 [P1] PHOTOGRAPHER PROPS ARE REUSED FOR UNRELATED INDUSTRIES
+
+The shared TemplateProps model is photography-oriented: portfolio, download
+pricing, verified photographer, and onHire. It is used for doctors, lawyers,
+childcare, finance, coaches, and other industries.
+
+Symptoms:
+
+  - "Hire Me" on professional/medical templates
+  - photo-download price reused as service pricing
+  - empty portfolio passed to non-photo sites
+  - CTA often does nothing
+
+Recommended architecture:
+
+  interface BaseSiteProps {
+    businessName: string;
+    bio: string;
+    theme: ThemeConfig;
+    media: SiteMedia[];
+    primaryAction: ActionConfig;
+  }
+
+  type IndustrySiteProps =
+    | { industry: "photography"; portfolio: Photo[]; licensing: ... }
+    | { industry: "health"; services: Service[]; appointment: ... }
+    | { industry: "legal"; practices: PracticeArea[]; consultation: ... }
+    | { industry: "childcare"; programs: Program[]; inquiry: ... };
+
+Templates should consume a normalized view model, not reinterpret unrelated
+photography fields.
+
+
+AP-032 [P2] GOOGLE FONT IMPLEMENTATION CONFLICTS WITH CSP
+
+Findings:
+
+  - 262 of 263 template files reference Google Fonts
+  - CSP permits self-hosted styles/fonts and Mapbox, not Google font origins
+  - 156 templates append link elements
+  - none of those templates remove the links on unmount
+  - 106 templates use @import inside injected style blocks
+
+Impact:
+
+  Intended fonts are blocked by CSP, preview sessions accumulate links, and the
+  implementation adds privacy/performance variability.
+
+Recommended fix:
+
+  Self-host an approved, small font set. Load it once in the application. Map
+  template font choices to CSS variables. Remove per-template link injection
+  and @import.
+
+  :root {
+    --font-display: "FrameNest Display", Georgia, serif;
+    --font-body: "FrameNest Sans", system-ui, sans-serif;
+  }
+
+
+AP-033 [P2] TEMPLATE PICKER RENDERS TOO MUCH AT ONCE
+
+Current assets:
+
+  - 263 registered templates
+  - 502 thumbnail files
+  - approximately 40.2 MB of template thumbnails
+
+TemplatePicker creates all template cards in the DOM. Lazy images reduce initial
+network use but do not solve DOM/search/usability cost, and scrolling can still
+download a large asset set.
+
+Recommended fix:
+
+  - search by name/industry
+  - category filter
+  - show 12-24 results per page
+  - virtualize or paginate
+  - remove obsolete duplicate thumbnail files
+  - generate modern AVIF/WebP thumbnails at fixed dimensions
+  - add width/height and meaningful alt text
+
+
+AP-034 [P2] EACH TEMPLATE INJECTS LARGE LOCAL CSS
+
+All 263 templates inject style tags, creating duplicated CSS patterns and making
+visual maintenance expensive. One template uses dangerouslySetInnerHTML for
+static CSS, contrary to repository guidance.
+
+Recommended direction:
+
+  - shared template primitives: header, hero, service grid, testimonial,
+    contact section, gallery, footer
+  - shared design tokens and CSS modules
+  - template manifests that select layout/tokens
+  - no dangerouslySetInnerHTML
+
+Do this after functional contracts are fixed. A mass template rewrite before P0
+is complete would increase risk.
+
+
+AP-035 [P2] TEMPLATE INTERACTIONS ARE OFTEN DECORATIVE
+
+Many navigation labels are spans instead of links/buttons. Some forms and CTAs
+have no submit/action behavior. ClientSitePage currently provides no-op onHire.
+
+Acceptance standard:
+
+  - Every interactive-looking control is a semantic button/link/input.
+  - Keyboard focus is visible.
+  - Navigation changes URL or scrolls to a real section.
+  - Form submit has validation, success, and error behavior.
+  - No button is shipped with an empty handler.
+
+
+AP-036 [P2] NO VISUAL REGRESSION COVERAGE FOR 263 TEMPLATES
+
+Recommended test system:
+
+  - render every template from a deterministic fixture
+  - desktop and mobile screenshot
+  - detect runtime errors and horizontal overflow
+  - sample accessibility scan for every template
+  - full screenshot diff for a representative template per layout family
+
+Do not require manual inspection of 526 screenshots on every change. Group
+templates by shared layout once the component model is normalized.
+
+===============================================================================
+10. PHASE 5 - PERFORMANCE, ACCESSIBILITY, SEO, AND ROUTING
+===============================================================================
+
+AP-037 [P2] BUNDLE BUDGETS ARE CURRENTLY FAILED
+
+The build succeeds but exceeds all documented main bundle/CSS first-load
+budgets. PhotoEditor is a very large lazy chunk.
+
+Recommended investigation:
+
+  1. Run a real production performance trace on homepage, event, photographer,
+     editor, and client-site routes.
+  2. Generate bundle visualization.
+  3. Confirm template registry uses true dynamic imports and does not retain
+     unnecessary eager metadata.
+  4. Lazy-load maps, editors, admin, client editor, and heavy modal code.
+  5. Split template-picker data from public-site rendering.
+  6. Keep release budgets enforced in CI.
+
+Do not optimize based only on gzip size. Measure LCP, INP, CLS, request chains,
+and route interaction.
+
+
+AP-038 [P2] HASHED ASSETS ARE NOT IMMUTABLY CACHED
+
+Production hashed JS/CSS returned:
+
+  Cache-Control: public, max-age=0, must-revalidate
+
+Hashed assets should normally use a long immutable cache lifetime:
+
+  Cache-Control: public, max-age=31536000, immutable
+
+Keep index.html short-lived so deployments update promptly.
+
+
+AP-039 [P2] INSPIRATION GRID HAS IMAGE/DOM ACCESSIBILITY COST
+
+Production observation:
+
+  - 100 images
+  - 100 blank alt values
+  - 0 lazy-loaded
+  - 100 without width/height
+  - 107 buttons
+
+Fix:
+
+  - paginate or virtualize
+  - loading="lazy" below the fold
+  - width/height or aspect-ratio reservation
+  - useful alt when the image conveys a location/idea
+  - alt="" only when truly decorative and adjacent text supplies meaning
+  - reduce one-button-per-card patterns where possible
+
+
+AP-040 [P2] HIRE MODAL LACKS DIALOG ACCESSIBILITY
+
+The photographer Hire action now opens, which is an improvement. The modal
+lacks complete dialog semantics/focus management.
+
+Required behavior:
+
+  - role="dialog"
+  - aria-modal="true"
+  - accessible title/description
+  - focus moves into dialog
+  - focus remains trapped while open
+  - Escape closes
+  - focus returns to trigger
+  - background content is inert
+
+
+AP-041 [P2] UNKNOWN URLS RETURN MISLEADING PROFILE ERRORS
+
+App.tsx has a generic "/:slug" route before "*". An unknown URL is treated as a
+client site, then may fall back to a photographer-profile error. The HTTP status
+remains 200 because Pages serves the SPA shell.
+
+Fix:
+
+  - make slug resolution explicit
+  - show a general NotFoundPage when neither client nor photographer exists
+  - avoid displaying "Photographer not found" for arbitrary URLs
+  - use edge/server routing if true 404 status is required for SEO
+
+
+AP-042 [P2] PAGE METADATA IS GENERIC
+
+Homepage and profile/client pages retain a generic FrameNest title. Add route
+metadata:
+
+  - unique title
+  - meta description
+  - canonical
+  - Open Graph/Twitter cards
+  - noindex for editor/admin/private/gate pages
+  - structured data only when facts are user-confirmed
+
+Privacy and Terms text in the homepage footer should be real links.
+
+
+AP-043 [P2] CSP AND SECURITY HEADERS NEED COMPLETION
+
+Current CSP blocks the template Google fonts but also omits several recommended
+directives. Review/add:
+
+  object-src 'none'
+  base-uri 'self'
+  form-action 'self'
+  frame-ancestors 'none'
+
+Also add an appropriate Permissions-Policy. Do not loosen style/script policy
+merely to accommodate generated templates; fix template asset loading instead.
+
+
+AP-044 [P2] INLINE STRIPE KEY CONFIG IS BLOCKED BY CSP
+
+window.STRIPE_PK is absent in production because the inline assignment is
+blocked by CSP. A hardcoded publishable key elsewhere currently masks this.
+
+Fix:
+
+  - provide public runtime config through a same-origin JSON/module asset, or
+  - use a build-time VITE_STRIPE_PUBLISHABLE_KEY
+  - remove duplicate/hardcoded configuration paths
+  - fail visibly when config is missing
+
+Publishable keys are not secret, but configuration should still be consistent.
+
+===============================================================================
+11. PHASE 6 - CLOUDFLARE, TOOLING, AND OBSERVABILITY
+===============================================================================
+
+AP-045 [P2] LINT CONFIGURATION IS BROKEN
+
+eslint-plugin-react-hooks is installed but not registered in eslint.config.js,
+while rules reference react-hooks/exhaustive-deps.
+
+Example fix:
+
+  import reactHooks from "eslint-plugin-react-hooks";
+
+  export default [
+    {
+      plugins: {
+        "@typescript-eslint": tseslint,
+        "react-hooks": reactHooks,
+      },
+      rules: {
+        ...reactHooks.configs.recommended.rules,
+      },
+    },
+  ];
+
+Then resolve all 56 no-floating-promises findings. For deliberate background
+work, use one of:
+
+  void doSomething().catch(reportError);
+
+or, in a Function:
+
+  context.waitUntil(doSomething());
+
+Do not silence promise warnings globally.
+
+
+AP-046 [P2] WRANGLER TYPES GATE IS NOT MAINTAINED
+
+npx wrangler types --check fails because worker-configuration.d.ts is missing.
+
+Fix:
+
+  - generate the file with the repository's Wrangler version
+  - include generation/check in CI
+  - stop hand-writing environment binding types where generated types apply
+
+
+AP-047 [P2] COMPATIBILITY DATE IS OVER A YEAR OLD
+
+wrangler.toml uses compatibility_date = "2025-06-09".
+
+Update intentionally in small steps after tests pass. Read Cloudflare
+compatibility-change notes, run integration tests, and deploy to preview before
+production. Do not blindly change the date and deploy.
+
+
+AP-048 [P2] WORKER OBSERVABILITY IS NOT CONFIGURED
+
+Add Cloudflare observability/logging appropriate to the account and environment.
+Log structured request IDs, route, status, duration, and safe error codes.
+
+Never log:
+
+  - passwords
+  - JWTs
+  - reset/magic tokens
+  - Stripe secrets/signatures
+  - raw private customer content
+
+Add alerts for:
+
+  - 5xx rate
+  - D1 errors
+  - R2 cleanup dead-letter jobs
+  - webhook failures
+  - queue backlog
+  - repeated login/reset abuse
+
+
+AP-049 [P2] HEALTH CHECK IS STALE AND PARTLY STATIC
+
+functions/api/health.ts omits newer tables such as albums, reviews, bookings,
+portfolio, and all client tables. Its signup validation check is a static import
+check that always passes rather than an operational dependency check.
+
+Fix:
+
+  - maintain a schema version/migration status check
+  - check required bindings without writing user data
+  - report component status separately
+  - protect detailed diagnostics from public disclosure
+  - return non-200 for failed critical dependencies
+
+
+AP-050 [P2] RATE LIMITER HAS D1 RACE CONDITIONS
+
+The D1 read/count/write limiter is vulnerable to concurrent requests exceeding
+the intended limit. Some routes also apply both middleware and handler limits.
+
+Recommendation:
+
+  - define one policy per route
+  - for strict limits, use a Durable Object or another atomic limiter
+  - retain coarse D1 logging/abuse analytics if useful
+  - document whether the limit is per IP, account, email, or resource
+
+
+AP-051 [P3] DEVELOPMENT TOOLCHAIN ADVISORIES
+
+Production dependency audit is clean. Full audit reports 5 advisories in
+Wrangler/Miniflare/undici/ws/esbuild-related development dependencies.
+
+Installed Wrangler reports a newer version is available.
+
+Fix:
+
+  - update Wrangler and related Cloudflare packages together
+  - run build, tests, types, local D1, and preview deployment
+  - do not use npm audit --force without reviewing breaking changes
+
+
+AP-052 [P3] TWO PRIMARY BRANCH NAMES REMAIN
+
+Local main, local master, origin/main, and origin/master currently point to the
+same commit. CI deploys only main.
+
+Recommendation:
+
+  - make main the sole documented/deployed primary branch
+  - remove or protect stale master after confirming no automation depends on it
+  - keep origin/HEAD on main
+
+
+AP-053 [P3] GENERATED TYPESCRIPT BUILD INFO IS TRACKED
+
+tsconfig.tsbuildinfo is tracked. It is generated and can cause needless commit
+churn or machine-specific changes.
+
+Add it to .gitignore and remove it from tracking unless the project has a
+specific reproducibility reason to version it.
+
+
+AP-054 [P1] PRODUCTION-LIKE ADMIN CREDENTIALS ARE IN AGENTS.MD
+
+AGENTS.md contains a plaintext admin login example. This report intentionally
+does not reproduce it.
+
+Action:
+
+  - If it is or ever was valid, rotate the password immediately.
+  - Remove credentials from tracked documentation.
+  - Use a seed script with environment-provided values for local development.
+  - Review git history and secret-scanning alerts.
+
+===============================================================================
+12. REQUIRED TEST PLAN
+===============================================================================
+
+The current 61 tests pass but do not cover the new client platform. Add:
+
+UNIT TESTS
+
+  - shared DTO mappers
+  - slug validation/reserved words
+  - custom-domain normalization
+  - auth user-vs-gate discrimination
+  - content schema validation
+  - media grant signing/verification
+  - price validation
+  - upload magic-byte/extension derivation
+
+FUNCTION INTEGRATION TESTS USING CLOUDFLARE VITEST POOL
+
+  - client site CRUD and ownership
+  - blog CRUD/publish/public access
+  - gallery CRUD/upload/delete
+  - R2 compensation when D1 fails
+  - public media policy for draft/published/deleted states
+  - gate-token denial on account endpoints
+  - migration path from pre-client schema
+  - album signed access and expiry
+  - event deleted-state access
+  - Stripe webhook signature and event deduplication
+
+The current Vitest environment is Node, not the Cloudflare Workers pool. Use the
+official Cloudflare Vitest integration for D1/R2/binding behavior rather than
+mocking all platform semantics.
+
+BROWSER TESTS
+
+  1. Signup/login/logout/reset
+  2. Create client site
+  3. Edit bio/services/contact
+  4. Select template
+  5. Upload photos
+  6. Create gallery
+  7. Create draft blog post
+  8. Publish post and site
+  9. Verify public page, gallery, blog, and CTA
+  10. Unpublish and verify public denial
+  11. Delete and verify cleanup workflow
+  12. Mobile/keyboard/modal accessibility
+  13. Existing event/demo/album/photographer regression flows
+
+SECURITY TESTS
+
+  - cross-owner ID substitution
+  - gate token on every authenticated write endpoint
+  - deleted resource access
+  - expired album/reset/magic token
+  - arbitrary signed storage key
+  - oversized JSON and multipart requests
+  - HTML/script payloads in blog/content fields
+  - custom-domain spoofing
+  - negative/NaN/extreme prices
+
+VISUAL TESTS
+
+  - representative template from every layout family
+  - mobile 375 px and desktop 1440 px
+  - no horizontal overflow
+  - no missing fonts/images
+  - focus and modal states
+  - long names/content and empty states
+
+===============================================================================
+13. RELEASE GATE: DO NOT DEPLOY UNTIL ALL ARE TRUE
+===============================================================================
+
+Code/tooling:
+
+  [ ] npm ci passes from a clean archive
+  [ ] npm run build passes
+  [ ] npm test passes
+  [ ] npm run lint passes with zero errors
+  [ ] npx wrangler types --check passes
+  [ ] production dependency audit has no high/critical findings
+  [ ] documented bundle budgets pass or are deliberately revised with evidence
+
+Database/storage:
+
+  [ ] client migration applies to a pre-client database copy
+  [ ] PRAGMA foreign_key_check returns zero rows
+  [ ] migration state is tracked by Wrangler
+  [ ] upload DB-failure compensation is tested
+  [ ] deletion retry/dead-letter process is tested
+
+Client platform:
+
+  [ ] create/list/detail DTOs round-trip
+  [ ] blog CRUD works
+  [ ] gallery and photo-pool uploads work
+  [ ] public client photos load
+  [ ] draft/publish/unpublish works
+  [ ] public blog route works
+  [ ] editor content appears in public renderer
+  [ ] template selection persists
+  [ ] CTA performs a real action
+  [ ] reserved slug and unknown-route behavior works
+  [ ] custom domains are either complete or hidden
+
+Security:
+
+  [ ] gate token is rejected from account writes
+  [ ] cross-owner access tests pass
+  [ ] dedicated media signing secret is required
+  [ ] signed media grant is resource-scoped
+  [ ] deleted/expired resources are inaccessible
+  [ ] payout account cannot be changed through general config
+  [ ] password reset revokes sessions
+  [ ] no tracked production credentials
+
+Production smoke:
+
+  [ ] homepage desktop/mobile
+  [ ] demo event
+  [ ] authenticated event workflow
+  [ ] photographer profile and modal
+  [ ] client site/gallery/blog
+  [ ] robots.txt/sitemap.xml
+  [ ] true user-friendly not-found behavior
+  [ ] no new browser console errors
+  [ ] performance trace reviewed for key routes
+
+===============================================================================
+14. FIRST TEN ACTIONS FOR THE NEXT CODER
+===============================================================================
+
+Do these in this exact order:
+
+1. Add integration tests that reproduce AP-001 through AP-008.
+2. Create shared client-site DTO/contracts and API route helpers.
+3. Fix list/create/blog route and field mismatches.
+4. Replace the broken photo-pool SQL with the real gallery schema.
+5. Extend media authorization for client gallery photos.
+6. Add publish/unpublish and the public blog route.
+7. Make editor content/template/photo IDs feed the public renderer.
+8. Add and test the forward D1 migration.
+9. Separate gate tokens from real user sessions and add entitlement/quotas.
+10. Run the entire release gate before touching custom domains or templates.
+
+The most important management recommendation is restraint: stabilize the small
+set of contracts that connect React, Functions, D1, and R2 before adding another
+template or feature. Most current failures are not caused by difficult code;
+they are caused by four layers independently inventing different names and
+assumptions.
+
+===============================================================================
+15. OFFICIAL REFERENCES USED
+===============================================================================
+
+Cloudflare Workers best practices:
+https://developers.cloudflare.com/workers/best-practices/workers-best-practices/
+
+Cloudflare D1 migrations:
+https://developers.cloudflare.com/d1/reference/migrations/
+
+Cloudflare Vitest integration:
+https://developers.cloudflare.com/workers/testing/vitest-integration/
+
+Web Vitals:
+https://web.dev/articles/vitals
+
+Lighthouse performance scoring:
+https://developer.chrome.com/docs/lighthouse/performance/performance-scoring
+
+END OF REPORT

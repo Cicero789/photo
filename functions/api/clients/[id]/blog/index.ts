@@ -1,6 +1,23 @@
 /** Blog posts for a client site — GET + POST /api/clients/:id/blog */
 import { json } from "../../../../lib/response"; import { requireAuth } from "../../../../lib/auth";
 
+// Maps a blog_posts DB row → BlogPostDto (see ARCHITECTURE.md). Note: the live
+// schema has no `excerpt`/`published_at` columns, so those fall back to ""/null.
+function toBlogPostDto(row: any): any {
+  return {
+    id: row.id,
+    title: row.title,
+    slug: row.slug,
+    excerpt: row.excerpt || "",
+    content: row.body || "",                        // DB 'body' → DTO 'content'
+    coverImageUrl: row.featured_image || null,      // DB 'featured_image' → DTO 'coverImageUrl'
+    status: row.published === 1 ? "published" : "draft", // DB 0/1 → DTO string
+    publishedAt: row.published_at || null,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
 async function getOwnedSite(db: D1Database, id: string, userId: string) {
   const site = await db.prepare("SELECT id FROM client_sites WHERE id = ? AND photographer_id = ? AND deleted_at IS NULL").bind(id, userId).first();
   if (!site) return null;
@@ -18,12 +35,8 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     "SELECT id, title, slug, body, featured_image, published, created_at, updated_at FROM blog_posts WHERE client_site_id = ? AND deleted_at IS NULL ORDER BY created_at DESC"
   ).bind(id).all();
 
-  const posts = (r.results || []).map((p: any) => ({
-    id: p.id, title: p.title, slug: p.slug, body: p.body,
-    featuredImage: p.featured_image || "", published: p.published === 1,
-    createdAt: p.created_at, updatedAt: p.updated_at,
-  }));
-  return json({ posts });
+  const posts = (r.results || []).map(toBlogPostDto);
+  return json({ blogs: posts });
 }
 
 export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string }; params: { id: string } }): Promise<Response> {
@@ -33,7 +46,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
   const site = await getOwnedSite(context.env.DB!, id, a.userId);
   if (!site) return json({ error: "Client site not found or access denied" }, 404);
 
-  const body = await context.request.json() as { title: string; body?: string; slug?: string; featuredImage?: string };
+  const body = await context.request.json() as { title: string; slug?: string; excerpt?: string; content?: string; coverImageUrl?: string | null; status?: "draft" | "published" };
   if (!body.title?.trim()) return json({ error: "Title required" }, 400);
 
   const db = context.env.DB!;
@@ -50,7 +63,10 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
 
   const postId = crypto.randomUUID();
   const now = new Date().toISOString();
-  await db.prepare("INSERT INTO blog_posts (id, client_site_id, title, slug, body, featured_image, published, created_at, updated_at) VALUES (?,?,?,?,?,?,0,?,?)").bind(postId, id, body.title.trim(), slug, body.body || "", body.featuredImage || null, now, now).run();
+  // DTO → DB columns: content→body, coverImageUrl→featured_image, status→published.
+  // (Schema has no excerpt/published_at columns, so those inputs are not persisted.)
+  const publishedFlag = body.status === "published" ? 1 : 0;
+  await db.prepare("INSERT INTO blog_posts (id, client_site_id, title, slug, body, featured_image, published, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?)").bind(postId, id, body.title.trim(), slug, body.content || "", body.coverImageUrl || null, publishedFlag, now, now).run();
 
   return json({ id: postId, slug }, 201);
 }

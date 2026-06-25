@@ -87,10 +87,10 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     }
 
     await context.env.DB!.prepare(
-      "INSERT INTO client_gallery_photos (id, gallery_id, storage_key, filename, width, height, file_size, sort_order, created_at) VALUES (?,?,?,?,?,?,?,?,?)"
-    ).bind(photoId, gid, storageKey, file.name, 0, 0, file.size, sortOrder, now).run();
+      "INSERT INTO client_gallery_photos (gallery_id, storage_key, caption, sort_order, uploaded_at) VALUES (?,?,?,?,datetime('now'))"
+    ).bind(gid, storageKey, file.name, sortOrder).run();
 
-    uploaded.push({ id: photoId, storageKey, filename: file.name, url: `/api/media/photos/${storageKey}` });
+    uploaded.push({ storageKey, filename: file.name, url: `/api/media/photos/${storageKey}` });
     sortOrder++;
   }
 

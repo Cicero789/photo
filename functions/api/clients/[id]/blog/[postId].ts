@@ -16,15 +16,15 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
   const post = await getOwnedPost(context.env.DB!, id, postId, a.userId);
   if (!post) return json({ error: "Post not found or access denied" }, 404);
 
-  const body = await context.request.json() as { title?: string; body?: string; slug?: string; featuredImage?: string; published?: boolean };
+  const body = await context.request.json() as { title?: string; slug?: string; excerpt?: string; content?: string; coverImageUrl?: string | null; status?: "draft" | "published" };
   const now = new Date().toISOString();
   const sets: string[] = ["updated_at = ?"];
   const vals: any[] = [now];
 
   if (body.title !== undefined) { sets.push("title = ?"); vals.push(body.title.trim()); }
-  if (body.body !== undefined) { sets.push("body = ?"); vals.push(body.body); }
-  if (body.featuredImage !== undefined) { sets.push("featured_image = ?"); vals.push(body.featuredImage || null); }
-  if (body.published !== undefined) { sets.push("published = ?"); vals.push(body.published ? 1 : 0); }
+  if (body.content !== undefined) { sets.push("body = ?"); vals.push(body.content); }
+  if (body.coverImageUrl !== undefined) { sets.push("featured_image = ?"); vals.push(body.coverImageUrl || null); }
+  if (body.status !== undefined) { sets.push("published = ?"); vals.push(body.status === "published" ? 1 : 0); }
   if (body.slug !== undefined) {
     if (!/^[a-z0-9-]+$/.test(body.slug)) return json({ error: "Invalid slug" }, 400);
     const existing = await context.env.DB!.prepare("SELECT id FROM blog_posts WHERE client_site_id = ? AND slug = ? AND id != ? AND deleted_at IS NULL").bind(id, body.slug, postId).first();
