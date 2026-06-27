@@ -11,7 +11,7 @@ function mapVideo(v: Row) {
 export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string }; params: { id: string } }): Promise<Response> {
   try {
     const db = context.env.DB!;
-    const event = await db.prepare("SELECT * FROM events WHERE id = ?").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
+    const event = await db.prepare("SELECT * FROM events WHERE id = ? AND deleted_at IS NULL").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
     const ev = event as Record<string,unknown>;
 
     // Resolve access using shared event-access helpers
@@ -42,7 +42,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
 export async function onRequestPut(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string }; params: { id: string } }): Promise<Response> {
   try {
     const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
-    const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ?").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
+    const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ? AND deleted_at IS NULL").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
     if ((event as Record<string,unknown>).space_id !== authResult.spaceId || authResult.role === 'viewer') return json({ error: "Forbidden" }, 403);
     const body = await context.request.json() as { title?: string; category?: string; eventDate?: string; description?: string; address?: string; visibility?: string };
     if (body.title !== undefined && body.title.length > 200) return json({ error: "Title too long" }, 400);
@@ -72,7 +72,7 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
 export async function onRequestDelete(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string; PHOTOS?: R2Bucket; VIDEOS?: R2Bucket }; params: { id: string } }): Promise<Response> {
   try {
     const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
-    const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ?").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
+    const db = context.env.DB!; const event = await db.prepare("SELECT * FROM events WHERE id = ? AND deleted_at IS NULL").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
     if ((event as Record<string,unknown>).space_id !== authResult.spaceId || authResult.role === 'viewer') return json({ error: "Forbidden" }, 403);
 
     // STEP 1: Fetch storage keys before soft-delete (so we know what to clean up)
