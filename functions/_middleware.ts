@@ -48,7 +48,7 @@ function addCorsHeaders(response: Response, origin: string): Response {
 const RATE_LIMITED_METHODS = new Set(["POST", "PUT", "PATCH", "DELETE"]);
 const RATE_LIMITED_PREFIXES = [
   "/api/auth/login", "/api/auth/gate", "/api/auth/signup",
-  "/api/auth/forgot-password", "/api/auth/reset-password", "/api/photographers",
+  "/api/auth/magic-login", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/photographers",
   "/api/photos/upload", "/api/videos/upload", "/api/albums",
   "/api/albums/view", "/api/connections", "/api/bookings",
   "/api/events", "/api/spaces/members", "/api/clients",

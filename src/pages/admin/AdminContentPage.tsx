@@ -118,7 +118,7 @@ export function AdminContentPage() {
       );
       const mapped: DeletedPhoto[] = (data.photos || []).map((p: any) => ({
         id: p.id,
-        filename: p.filename || p.storage_key || "",
+        filename: p.original_filename || p.storage_key || "",
         storageKey: p.storage_key || "",
         eventName: p.space_name || "",
         deletedAt: p.deleted_at || "",

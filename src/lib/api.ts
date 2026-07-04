@@ -25,6 +25,9 @@ interface ApiError {
 
 async function handleResponse<T>(res: Response): Promise<T> {
   const ct = res.headers.get("content-type") || "";
+  if (ct.includes("text/html")) {
+    throw new Error(`API route not found (${res.status}). Check the endpoint path.`);
+  }
   if (!ct.includes("application/json")) {
     if (!res.ok) throw new Error(`Request failed (${res.status})`);
     return {} as T; // non-JSON success (e.g., 204 No Content)

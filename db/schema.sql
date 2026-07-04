@@ -360,7 +360,6 @@ CREATE TABLE IF NOT EXISTS client_gallery_photos (
   sort_order    INTEGER DEFAULT 0,
   created_at    TEXT NOT NULL,
   deleted_at    TEXT
-  deleted_at    TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_client_sites_slug ON client_sites(slug);
