@@ -22,7 +22,7 @@ export function ClientBlogPostPage() {
       {post.coverImageUrl && <img src={post.coverImageUrl} alt="" className="w-full rounded-xl mt-6 aspect-video object-cover" />}
       <h1 className="font-display text-3xl font-bold mt-6">{post.title}</h1>
       {post.publishedAt && <p className="text-sm text-neutral-400 mt-2">{new Date(post.publishedAt).toLocaleDateString()}</p>}
-      <div className="mt-8 prose prose-neutral max-w-none" dangerouslySetInnerHTML={{ __html: post.content }} />
+      <div className="whitespace-pre-wrap text-neutral-700 leading-relaxed mt-8">{post.content}</div>
     </div>
   );
 }

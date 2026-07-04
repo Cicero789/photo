@@ -66,10 +66,14 @@ export const api = {
     return handleResponse<T>(res);
   },
 
-  async delete<T>(path: string): Promise<T> {
+  async delete<T>(path: string, body?: unknown): Promise<T> {
     const res = await fetch(`${API_BASE}${path}`, {
       method: "DELETE",
-      headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+      headers: {
+        ...(body ? { "Content-Type": "application/json" } : {}),
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
     });
     return handleResponse<T>(res);
   },

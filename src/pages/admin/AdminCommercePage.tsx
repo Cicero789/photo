@@ -72,8 +72,24 @@ export function AdminCommercePage() {
   const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await api.get<OrdersResponse>("/citysite/orders");
-      setData(res);
+      const res = await api.get<{ orders: any[] }>("/admin/orders");
+      const mapped: Order[] = (res.orders || []).map((o: any) => ({
+        id: o.id,
+        buyerName: o.buyer_name || "",
+        photographerName: o.photographer_name || "",
+        product: o.product || "Photo package",
+        amount: o.amount_cents || 0,
+        status: o.status || "pending",
+        createdAt: o.created_at || "",
+      }));
+      const totalRevenue = mapped.reduce((sum, o) => sum + o.amount, 0);
+      const summary = {
+        totalRevenue,
+        platformFees: Math.round(totalRevenue * 0.05),
+        pendingOrders: mapped.filter(o => o.status === "pending").length,
+        verifiedSubscribers: 0,
+      };
+      setData({ orders: mapped, summary });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load orders");
     } finally {

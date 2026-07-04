@@ -82,7 +82,7 @@ export function AdminDiscoveryPage() {
   const fetchPins = useCallback(async () => {
     try {
       setPinsLoading(true);
-      const data = await api.get<{ pins: MapPin[] }>("/citysite/pins");
+      const data = await api.get<{ pins: MapPin[] }>("/admin/pins");
       setPins(data.pins || []);
     } catch (err) {
       setPinsError(err instanceof Error ? err.message : "Failed to load map pins");

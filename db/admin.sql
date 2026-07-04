@@ -1,3 +1,7 @@
+-- ⚠️ SECURITY: The admin password below is ONLY FOR LOCAL DEVELOPMENT.
+-- Rotate immediately after first login in any deployed environment.
+-- Never commit real production credentials.
+
 -- WARNING: Change this password immediately after first login
 INSERT INTO users (id, email, name, password_hash, role, space_id) VALUES ('fc5ae7e6-2ed8-4370-87a3-9b2abca15e1f', 'admin@photo.app', 'Admin', '100000:16ed970d6d0f17dfd8d70fa7c5cc0b29:337afef159720dffadee567b0af6075c1f81e9fe72beee84b3dfb4852012b2b6', 'platform_owner', '0b733d7b-6793-4401-aca8-cd1ad23314ad');
 INSERT INTO spaces (id, name, slug, password_hash, owner_id) VALUES ('0b733d7b-6793-4401-aca8-cd1ad23314ad', 'Platform Admin', 'platform-admin', '100000:nogate:nogate', 'fc5ae7e6-2ed8-4370-87a3-9b2abca15e1f');

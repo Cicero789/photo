@@ -90,8 +90,18 @@ export function AdminPeoplePage() {
   const fetchUsers = useCallback(async () => {
     try {
       setUsersLoading(true);
-      const data = await api.get<{ users: AdminUser[] }>("/citysite/users");
-      setUsers(data.users || []);
+      const data = await api.get<{ users: any[] }>("/admin/users");
+      const mapped: AdminUser[] = (data.users || []).map((u: any) => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        spaceName: u.space_name || null,
+        eventCount: u.event_count || 0,
+        photoCount: u.photo_count || 0,
+        createdAt: u.created_at || "",
+      }));
+      setUsers(mapped);
     } catch (err) {
       setUsersError(err instanceof Error ? err.message : "Failed to load users");
     } finally {
@@ -102,8 +112,23 @@ export function AdminPeoplePage() {
   const fetchPhotographers = useCallback(async () => {
     try {
       setPhotosLoading(true);
-      const data = await api.get<{ photographers: Photographer[] }>("/photographers");
-      setPhotographers(data.photographers || []);
+      const data = await api.get<{ photographers: any[] }>("/photographers");
+      const mapped: Photographer[] = (data.photographers || []).map((r: any) => ({
+        id: r.id,
+        userId: r.user_id || "",
+        name: r.name || "",
+        email: r.email || "",
+        slug: r.slug || "",
+        tagline: r.tagline || "",
+        bio: r.bio || "",
+        status: r.status || "pending",
+        verified: r.verified === 1,
+        featured: r.featured === 1,
+        coverUrl: r.cover_url || null,
+        avatarUrl: r.avatar_url || null,
+        createdAt: r.created_at || "",
+      }));
+      setPhotographers(mapped);
     } catch (err) {
       setPhotosError(
         err instanceof Error ? err.message : "Failed to load photographers"
@@ -128,7 +153,7 @@ export function AdminPeoplePage() {
 
   const handleChangeRole = async (userId: string, newRole: string) => {
     try {
-      await api.put(`/admin/users/${userId}`, { role: newRole });
+      await api.put("/admin/users", { id: userId, role: newRole });
       setUsers((prev) =>
         prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u))
       );
@@ -140,7 +165,7 @@ export function AdminPeoplePage() {
   const handleDeleteUser = async (userId: string, name: string) => {
     if (!window.confirm(`Delete user "${name}"? This cannot be undone.`)) return;
     try {
-      await api.delete(`/admin/users/${userId}`);
+      await api.delete("/admin/users", { id: userId });
       setUsers((prev) => prev.filter((u) => u.id !== userId));
     } catch {
       /* silent */

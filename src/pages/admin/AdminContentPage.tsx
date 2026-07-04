@@ -93,8 +93,16 @@ export function AdminContentPage() {
   const fetchSpaces = useCallback(async () => {
     try {
       setSpacesLoading(true);
-      const data = await api.get<{ spaces: AdminSpace[] }>("/citysite/spaces");
-      setSpaces(data.spaces || []);
+      const data = await api.get<{ spaces: any[] }>("/admin/spaces");
+      const mapped: AdminSpace[] = (data.spaces || []).map((s: any) => ({
+        id: s.id,
+        name: s.name,
+        slug: s.slug,
+        ownerName: s.owner_name || "",
+        eventCount: s.event_count || 0,
+        photoCount: s.photo_count || 0,
+      }));
+      setSpaces(mapped);
     } catch (err) {
       setSpacesError(err instanceof Error ? err.message : "Failed to load spaces");
     } finally {
@@ -105,10 +113,18 @@ export function AdminContentPage() {
   const fetchDeleted = useCallback(async () => {
     try {
       setDeletedLoading(true);
-      const data = await api.get<{ items: DeletedPhoto[] }>(
-        "/citysite/content?type=photos&status=deleted"
+      const data = await api.get<{ photos: any[] }>(
+        "/admin/content?type=photos&status=deleted"
       );
-      setDeleted(data.items || []);
+      const mapped: DeletedPhoto[] = (data.photos || []).map((p: any) => ({
+        id: p.id,
+        filename: p.filename || p.storage_key || "",
+        storageKey: p.storage_key || "",
+        eventName: p.space_name || "",
+        deletedAt: p.deleted_at || "",
+        thumbnailUrl: p.thumbnail_url || null,
+      }));
+      setDeleted(mapped);
     } catch (err) {
       setDeletedError(
         err instanceof Error ? err.message : "Failed to load deleted content"
@@ -121,10 +137,19 @@ export function AdminContentPage() {
   const fetchAlbums = useCallback(async () => {
     try {
       setAlbumsLoading(true);
-      const data = await api.get<{ items: AdminAlbum[] }>(
-        "/citysite/content?type=albums"
+      const data = await api.get<{ albums: any[] }>(
+        "/admin/content?type=albums"
       );
-      setAlbums(data.items || []);
+      const mapped: AdminAlbum[] = (data.albums || []).map((a: any) => ({
+        id: a.id,
+        name: a.name || "",
+        ownerName: a.owner_name || "",
+        photoCount: a.photo_count || 0,
+        viewCount: a.view_count || 0,
+        shareToken: a.share_token || "",
+        expiresAt: a.expires_at || null,
+      }));
+      setAlbums(mapped);
     } catch (err) {
       setAlbumsError(
         err instanceof Error ? err.message : "Failed to load albums"
@@ -152,7 +177,7 @@ export function AdminContentPage() {
     if (!window.confirm(`Reset space "${name}"? This will clear all content.`))
       return;
     try {
-      await api.post(`/admin/spaces/${spaceId}/reset`);
+      await api.post("/admin/spaces", { spaceId, action: "reset" });
       fetchSpaces();
     } catch {
       /* silent */
@@ -161,7 +186,7 @@ export function AdminContentPage() {
 
   const handleRestorePhoto = async (photoId: string) => {
     try {
-      await api.post(`/admin/content/restore`, { photoId });
+      await api.put("/admin/content", { type: "photo", id: photoId, action: "restore" });
       setDeleted((prev) => prev.filter((p) => p.id !== photoId));
     } catch {
       /* silent */
@@ -170,7 +195,8 @@ export function AdminContentPage() {
 
   const handleExtendAlbum = async (albumId: string) => {
     try {
-      await api.put(`/admin/content/albums/${albumId}`, { extend: true });
+      const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      await api.put("/admin/content", { type: "album", id: albumId, expiresAt });
       fetchAlbums();
     } catch {
       /* silent */
@@ -180,7 +206,7 @@ export function AdminContentPage() {
   const handleDeleteAlbum = async (albumId: string, name: string) => {
     if (!window.confirm(`Delete album "${name}"?`)) return;
     try {
-      await api.delete(`/admin/content/albums/${albumId}`);
+      await api.delete("/admin/content", { type: "album", id: albumId });
       setAlbums((prev) => prev.filter((a) => a.id !== albumId));
     } catch {
       /* silent */

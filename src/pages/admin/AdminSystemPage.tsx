@@ -70,7 +70,6 @@ export function AdminSystemPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [flags, setFlags] = useState(FEATURE_FLAGS);
-  const [backupStatus, setBackupStatus] = useState<string | null>(null);
 
   const fetchHealth = useCallback(async () => {
     try {
@@ -100,16 +99,6 @@ export function AdminSystemPage() {
     setFlags((prev) =>
       prev.map((f) => (f.key === key ? { ...f, enabled: !f.enabled } : f))
     );
-  };
-
-  const handleBackup = async () => {
-    try {
-      setBackupStatus("running");
-      await api.post("/citysite/backup");
-      setBackupStatus("success");
-    } catch {
-      setBackupStatus("manual");
-    }
   };
 
   return (
@@ -296,37 +285,16 @@ export function AdminSystemPage() {
           </h2>
           <div className="mt-3 rounded-lg border border-neutral-200 bg-white p-5">
             <p className="text-sm text-neutral-600">
-              Trigger a database backup or run the wrangler command manually:
+              D1 databases cannot self-export from within a Worker. Run the wrangler CLI command manually to back up your database:
             </p>
             <div className="mt-3 rounded-md bg-neutral-50 px-4 py-3">
               <code className="text-xs text-neutral-700">
                 npx wrangler d1 export photo-db --remote --output=backup.sql
               </code>
             </div>
-            <div className="mt-4 flex items-center gap-3">
-              <button
-                onClick={handleBackup}
-                disabled={backupStatus === "running"}
-                className={cn(
-                  "rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors",
-                  backupStatus === "running"
-                    ? "cursor-not-allowed bg-neutral-400"
-                    : "bg-neutral-900 hover:bg-neutral-800"
-                )}
-              >
-                {backupStatus === "running" ? "Running..." : "Run Backup"}
-              </button>
-              {backupStatus === "success" && (
-                <span className="text-sm text-emerald-600">
-                  Backup completed successfully
-                </span>
-              )}
-              {backupStatus === "manual" && (
-                <span className="text-sm text-amber-600">
-                  API backup unavailable — use the wrangler command above
-                </span>
-              )}
-            </div>
+            <p className="mt-3 text-xs text-neutral-400">
+              This command must be run from your local development machine with wrangler installed and authenticated.
+            </p>
           </div>
         </div>
       </div>

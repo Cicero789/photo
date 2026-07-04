@@ -29,7 +29,7 @@ function addSecurityHeaders(headers: Headers): void {
   headers.set("X-Frame-Options", "DENY");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-  headers.set("Content-Security-Policy", "default-src 'self'; script-src 'self' https://api.mapbox.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://api.mapbox.com; img-src 'self' data: blob: https://images.unsplash.com https://*.mapbox.com; connect-src 'self' https://api.mapbox.com https://*.stripe.com; frame-src https://js.stripe.com https://connect.stripe.com; font-src 'self'");
+  headers.set("Content-Security-Policy", "default-src 'self'; script-src 'self' https://api.mapbox.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://api.mapbox.com; img-src 'self' data: blob: https://images.unsplash.com https://*.mapbox.com; connect-src 'self' https://api.mapbox.com https://*.stripe.com; frame-src https://js.stripe.com https://connect.stripe.com; font-src 'self'; worker-src 'self' blob:");
 }
 
 function addCorsHeaders(response: Response, origin: string): Response {

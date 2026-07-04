@@ -46,11 +46,17 @@ function AdminNav() {
 interface Stats {
   users: number;
   spaces: number;
+  events: number;
   photos: number;
+  photosBytes: number;
+  videos: number;
   albums: number;
-  photographers: { total: number; pending: number; approved: number };
-  revenue: number;
-  mapPins: number;
+  photographers: number;
+  photographersPending: number;
+  photographersVerified: number;
+  orders: number;
+  revenueCents: number;
+  pins: number;
   inquiries: number;
 }
 
@@ -63,7 +69,7 @@ export function AdminDashboardPage() {
   const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await api.get<Stats>("/citysite/stats");
+      const data = await api.get<Stats>("/admin/stats");
       setStats(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load stats");
@@ -92,25 +98,25 @@ export function AdminDashboardPage() {
         { label: "Albums", value: stats.albums },
         {
           label: "Photographers",
-          value: stats.photographers.total,
-          sub: `${stats.photographers.pending} pending`,
+          value: stats.photographers,
+          sub: `${stats.photographersPending} pending`,
         },
         {
           label: "Revenue",
-          value: `$${(stats.revenue / 100).toFixed(2)}`,
+          value: `$${((stats.revenueCents || 0) / 100).toFixed(2)}`,
         },
-        { label: "Map Pins", value: stats.mapPins },
+        { label: "Map Pins", value: stats.pins },
         { label: "Inquiries", value: stats.inquiries },
       ]
     : [];
 
   const alerts: string[] = [];
   if (stats) {
-    if (stats.photographers.pending > 0)
+    if (stats.photographersPending > 0)
       alerts.push(
-        `${stats.photographers.pending} photographer application(s) pending review`
+        `${stats.photographersPending} photographer application(s) pending review`
       );
-    if (stats.photographers.approved === 0)
+    if (stats.photographersVerified === 0)
       alerts.push("No verified photographers — directory will appear empty");
     if (stats.photos === 0)
       alerts.push("No photos uploaded yet");
