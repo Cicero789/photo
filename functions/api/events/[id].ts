@@ -8,7 +8,7 @@ function mapVideo(v: Row) {
   return { id: v.id, eventId: v.event_id, spaceId: v.space_id, originalFilename: v.original_filename, storageKey: v.storage_key, url: `/api/media/videos/${v.storage_key}`, duration: v.duration, fileSize: v.file_size, uploadedBy: v.uploaded_by, createdAt: v.created_at };
 }
 
-export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string }; params: { id: string } }): Promise<Response> {
+export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; MEDIA_SIGNING_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string }; params: { id: string } }): Promise<Response> {
   try {
     const db = context.env.DB!;
     const event = await db.prepare("SELECT * FROM events WHERE id = ? AND deleted_at IS NULL").bind(context.params.id).first(); if (!event) return json({ error: "Event not found" }, 404);
