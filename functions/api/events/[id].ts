@@ -1,4 +1,4 @@
-import { json } from "../../lib/response"; import { requireAuth } from "../../lib/auth"; import { geocodeAddress } from "../../lib/geocode"; import { toPublicEventDto, toPublicPhotoDto } from "../../lib/event-dto"; import { canReadEvent, canManageEvent } from "../../lib/event-access";
+import { json } from "../../lib/response"; import { requireAuth } from "../../lib/auth"; import { geocodeAddress } from "../../lib/geocode"; import { toPublicEventDto, toPublicPhotoDto } from "../../lib/event-dto"; import { canReadEvent, canManageEvent } from "../../lib/event-access"; import { signMediaUrl } from "../../lib/signed-url";
 
 type Row = Record<string, unknown>;
 function mapPhoto(p: Row) {
@@ -30,7 +30,27 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
       // Space owner/manager: full access regardless of visibility
       const photos = await db.prepare("SELECT * FROM photos WHERE event_id = ? AND deleted_at IS NULL ORDER BY created_at").bind(context.params.id).all();
       const videos = await db.prepare("SELECT * FROM videos WHERE event_id = ? AND deleted_at IS NULL ORDER BY created_at").bind(context.params.id).all();
-      return json({ event: { id: ev.id, spaceId: ev.space_id, title: ev.title, category: ev.category, eventDate: ev.event_date, description: ev.description, aiSummary: ev.ai_summary, coverPhotoId: ev.cover_photo_id, address: ev.address || "", addressLocked: (ev.address_locked as number) === 1, public: (ev.public as number) !== 0, createdAt: ev.created_at, updatedAt: ev.updated_at }, photos: (photos.results ?? []).map(mapPhoto), videos: (videos.results ?? []).map(mapVideo) });
+
+      // For private/gate events, generate signed URLs so <img> tags work without auth headers
+      const isPrivate = ev.visibility !== "public";
+      const secret = context.env.MEDIA_SIGNING_SECRET || context.env.JWT_SECRET || "";
+      const photoList = await Promise.all((photos.results ?? []).map(async (p: any) => {
+        const base = mapPhoto(p);
+        if (isPrivate && secret) {
+          base.url = await signMediaUrl(p.storage_key, secret, 3600);
+        }
+        return base;
+      }));
+      const videoList = await Promise.all((videos.results ?? []).map(async (v: any) => {
+        const base = mapVideo(v);
+        if (isPrivate && secret) {
+          base.url = await signMediaUrl(v.storage_key, secret, 3600, "videos");
+        }
+        return base;
+      }));
+
+      return json({ event: { id: ev.id, spaceId: ev.space_id, title: ev.title, category: ev.category, eventDate: ev.event_date, description: ev.description, aiSummary: ev.ai_summary, coverPhotoId: ev.cover_photo_id, address: ev.address || "", addressLocked: (ev.address_locked as number) === 1, public: (ev.public as number) !== 0, createdAt: ev.created_at, updatedAt: ev.updated_at }, photos: photoList, videos: videoList });
+    }
     }
 
     // Return scrubbed public data for readable non-owner events
