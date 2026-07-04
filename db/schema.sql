@@ -360,7 +360,6 @@ CREATE TABLE IF NOT EXISTS client_gallery_photos (
   sort_order    INTEGER DEFAULT 0,
   created_at    TEXT NOT NULL,
   deleted_at    TEXT
-  deleted_at    TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_client_sites_slug ON client_sites(slug);
@@ -369,6 +368,14 @@ CREATE INDEX IF NOT EXISTS idx_blog_posts_client ON blog_posts(client_site_id);
 CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON blog_posts(slug);
 CREATE INDEX IF NOT EXISTS idx_client_galleries_site ON client_galleries(client_site_id);
 CREATE INDEX IF NOT EXISTS idx_client_gallery_photos_gallery ON client_gallery_photos(gallery_id);
+
+-- Storage-key lookups used by /api/media on every request (see migration 006)
+CREATE INDEX IF NOT EXISTS idx_photos_storage_key    ON photos(storage_key);
+CREATE INDEX IF NOT EXISTS idx_videos_storage_key    ON videos(storage_key);
+CREATE INDEX IF NOT EXISTS idx_portfolio_storage_key ON photographer_portfolio(storage_key);
+CREATE INDEX IF NOT EXISTS idx_cgp_storage_key       ON client_gallery_photos(storage_key);
+CREATE INDEX IF NOT EXISTS idx_album_photos_key      ON album_photos(storage_key);
+CREATE INDEX IF NOT EXISTS idx_connections_magic     ON connections(magic_token);
 
 -- ─── Migration Tracking ───
 

@@ -1,0 +1,231 @@
+================================================================================
+FRAMENEST RE-AUDIT (v2) — 2026-07-04
+Repo: Cicero789/photo @ e9ae8e3 (main, after fix commits d6a0503, c21dcc4, e9ae8e3)
+Compares against: FRAMENEST_AUDIT_2026-07-04.txt (v1)
+Branch with this report + small fixes: claude/review-photo-repo-0p8y5b
+================================================================================
+
+VERIFICATION RESULTS ON CURRENT MAIN
+------------------------------------
+- npm run build : ✅ PASSES (tsc frontend + tsc functions + vite)
+- npm test      : ✅ 61/61 pass
+- npm run lint  : ❌ FAILS — 1 error + 57 warnings (details in NEW-2 below;
+                  these are PRE-EXISTING, not caused by the fix commits)
+  ⚠ CORRECTION TO v1: the v1 audit claimed lint passed. That was wrong — a
+  piped exit code masked the failure. Actual state then and now: failing.
+
+================================================================================
+SECTION A — V1 FINDINGS: WHAT GOT FIXED, WHAT DIDN'T
+================================================================================
+
+P0-1  Build-breaking syntax error (events/[id].ts)
+      ✅ FIXED (commits d6a0503 + c21dcc4 — stray brace removed,
+      MEDIA_SIGNING_SECRET added to the env type). Verified: build passes.
+
+P0-2  Admin panel /citysite API mismatches
+      ✅ FIXED, verified line-by-line:
+      - AdminPeoplePage → GET /admin/users + snake_case mapping; PUT/DELETE
+        with body { id } ✓
+      - AdminDashboardPage → GET /admin/stats; Stats interface rewritten to
+        the backend's flat field names ✓
+      - AdminCommercePage → GET /admin/orders; amounts kept in cents and
+        divided by 100 at display (consistent) ✓; summary computed client-side ✓
+      - AdminContentPage → GET /admin/spaces + /admin/content?type=…; reset/
+        restore/extend/delete all use flat routes with body params matching
+        the backend contracts ✓
+      - AdminDiscoveryPage → GET /admin/pins ✓
+      - AdminSystemPage → fake backup button removed ✓
+      - NEW backend: functions/api/admin/pins.ts (GET) and
+        functions/api/admin/pins/[id].ts (PUT/DELETE) ✓ correct auth
+        (platform_owner), parameterized SQL, loves cleanup on delete ✓
+      - functions/api/photographers.ts PUT now accepts status/verified/
+        featured/slug/tagline with slug validation + uniqueness ✓; GET now
+        SELECTs `featured` ✓
+      - src/lib/api.ts delete() now supports a JSON body ✓
+      Minor nits (non-blocking, listed in Section C): verified_at not set,
+      deleted-photo `filename` maps a nonexistent column, `context: any`.
+
+P0-3  client_gallery_photos.deleted_at missing
+      ⚠️ HALF-FIXED, and the half that was done had a bug:
+      - schema.sql got the column added — but DUPLICATED with a missing comma:
+            created_at TEXT NOT NULL,
+            deleted_at TEXT
+            deleted_at TEXT        ← no comma before this line
+        SQLite happens to parse this as ONE column named deleted_at whose
+        declared type is the junk string "TEXT deleted_at TEXT" (still TEXT
+        affinity), so it accidentally works — but it's a landmine for any
+        schema tooling and plainly an editing mistake.
+        ✅ FIXED on branch claude/review-photo-repo-0p8y5b (single clean line).
+      - ❌ NO MIGRATION WAS CREATED. This was the actual point of P0-3:
+        editing schema.sql does NOTHING for a database whose tables already
+        exist (CREATE TABLE IF NOT EXISTS skips them). Unless someone ran a
+        manual ALTER against the remote D1, the LIVE database still lacks
+        client_gallery_photos.deleted_at → public client sites
+        (GET /api/clients/public/:slug) and client-site deletion still 500
+        in production.
+        ✅ PROVIDED on the branch: db/migrations/006_client_site_integrity.sql
+        — run it against the remote DB after the PRAGMA checks in its header:
+          npm run db:backup
+          npx wrangler d1 execute photo-db --remote --command="PRAGMA table_info(client_gallery_photos)"
+          npx wrangler d1 execute photo-db --remote --file=./db/migrations/006_client_site_integrity.sql
+        THIS IS THE #1 REMAINING ACTION ITEM.
+
+P0-4  Inspiration love-button route mismatch
+      ✅ FIXED — functions/api/inspiration/[id]/love.ts created, correct
+      logic, params.id used properly.
+      ⚠️ The old dead file functions/api/inspiration/love.ts was left behind
+      (unreachable by the frontend, params.id forever undefined).
+      ✅ REMOVED on branch claude/review-photo-repo-0p8y5b.
+
+P0-5  CSP blocks Mapbox GL workers
+      ✅ FIXED — `worker-src 'self' blob:` added to the CSP. Maps will render.
+      Two optional leftovers (cosmetic): no `child-src blob:` fallback for
+      older Safari, and events.mapbox.com is not in connect-src, so Mapbox
+      telemetry errors will appear in the console (harmless).
+
+P1-1  Stored XSS in ClientBlogPostPage
+      ✅ FIXED — dangerouslySetInnerHTML replaced with plain-text rendering
+      ({post.content} in a whitespace-pre-wrap div). React escapes it: safe.
+      TRADE-OFF to be aware of: any blog post authored as HTML now displays
+      its tags as literal text. If rich formatting is wanted later, render
+      Markdown or reintroduce HTML through DOMPurify.sanitize() — never raw.
+
+P1-2  api.ts treats SPA-fallback HTML 200s as success   ❌ NOT FIXED
+      handleResponse() is unchanged. Any future mistyped /api path will
+      again fail SILENTLY (empty data instead of an error). Recommended fix
+      (from v1) still applies — add at the top of handleResponse():
+        const ct = res.headers.get("content-type") || "";
+        if (ct.includes("text/html")) {
+          throw new Error(`API route not found (${res.status}). Check the endpoint path.`);
+        }
+
+P1-3  Committed admin password hash (db/admin.sql)      ❌ NOT FIXED
+      Only a warning comment was added; the real PBKDF2 hash for
+      admin@photo.app is still in the repo (and in git history). ACTIONS:
+      (1) change the live admin password NOW, (2) replace the hash in the
+      file with a placeholder, (3) optionally scrub history.
+
+P1-4  Rotate all API keys from the leaked .env          ❌ OPS TASK — still open
+      GitHub PAT, Cloudflare keys, OpenAI, DeepSeek, Zoho, Mapbox sk.*,
+      Stripe. Also set the wrangler secrets (JWT_SECRET ≥32 chars,
+      MEDIA_SIGNING_SECRET, DEEPSEEK_API_KEY, ZOHO_API_KEY, STRIPE_SECRET_KEY,
+      STRIPE_WEBHOOK_SECRET, MAPBOX_API_KEY) via:
+        npx wrangler pages secret put <NAME> --project-name photo
+
+P1-5  Hardcoded Mapbox tokens (3 frontend files + geocode.ts)  ❌ NOT FIXED
+P1-6  Non-constant-time signature compare (signed-url.ts:20)   ❌ NOT FIXED
+P1-7  /api/auth/magic-login not rate-limited                   ❌ NOT FIXED
+      (one line: add "/api/auth/magic-login" to RATE_LIMITED_PREFIXES in
+      functions/_middleware.ts)
+P1-8  AI summary fire-and-forget without context.waitUntil     ❌ NOT FIXED
+      (functions/api/events/index.ts:75 — TODO comment still there)
+
+P2-1  storage_key indexes        → ✅ INCLUDED in migration 006 + schema.sql
+                                    on the branch; run the migration.
+P2-2  No thumbnails              → ❌ not addressed
+P2-3  Stale health-check table list → ❌ not addressed
+P2-4  Demo space map 401         → ❌ not addressed
+P2-5  Rate limiter DELETE-per-request + race → ❌ not addressed
+P2-6  Video upload 500MB > platform ~100MB cap → ❌ not addressed
+P2-8  ClientSitePage treats any 500 as "not a client site" → ❌ not addressed
+      (matters until migration 006 runs: broken client sites silently render
+      as photographer profiles)
+P2-9  Bundle size (659KB main + 950KB editor chunk) → ❌ not addressed
+P3-1  tsconfig.tsbuildinfo tracked in git → ❌ not addressed
+P3-2/3/4  master branch, docs drift, deploy.sh secrets list → ❌ not addressed
+
+================================================================================
+SECTION B — NEW FINDINGS IN THE FIX COMMITS (all verified)
+================================================================================
+
+NEW-1 (was P0-severity, ✅ fixed on this branch)
+  db/schema.sql duplicated `deleted_at TEXT` with a missing comma in
+  client_gallery_photos (see P0-3 above). Fixed to a single clean column;
+  verified with a real SQLite parse: column reports type "TEXT".
+
+NEW-2 (P1) LINT GATE FAILS: 1 error + 57 warnings — pre-existing, but now
+  confirmed (v1 misreported this as passing).
+  - THE ERROR: src/pages/InspirationMapPage.tsx:268 has
+      // eslint-disable-line react-hooks/exhaustive-deps
+    but eslint.config.js never registers eslint-plugin-react-hooks (it IS in
+    devDependencies) → "Definition for rule 'react-hooks/exhaustive-deps'
+    was not found". FIX — register the plugin for src files in
+    eslint.config.js:
+      import reactHooks from "eslint-plugin-react-hooks";
+      // inside the src/**/*.tsx config object:
+      plugins: { "@typescript-eslint": tseslint, "react-hooks": reactHooks },
+      rules: {
+        "@typescript-eslint/no-floating-promises": "warn",
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn",
+      },
+  - THE 57 WARNINGS: @typescript-eslint/no-floating-promises across src/
+    pages/components (fire-and-forget fetch chains). Because package.json
+    lint uses --max-warnings 0, ANY warning fails the gate. Mechanical fix:
+    prefix intentional fire-and-forget calls with `void `, e.g.
+      void fetchUsers();
+    or add .catch(() => {}) where a rejection handler is genuinely wanted.
+    Do this as one sweep; keep the rule on.
+
+NEW-3 (P3, ✅ fixed on this branch) Dead endpoint left behind:
+  functions/api/inspiration/love.ts (superseded by [id]/love.ts, reads
+  params.id that can never exist at that path). Removed; build+tests green.
+
+NEW-4 (P3) photographers.ts PUT: toggling `verified` does not set/clear
+  `verified_at` (schema has the column; stats/UI may rely on it later).
+  Add alongside the verified part:
+    parts.push("verified_at = ?"); vals.push(body.verified ? new Date().toISOString() : null);
+
+NEW-5 (P3) AdminContentPage deleted-photos mapping reads p.filename, but the
+  photos table column is original_filename — so the UI always falls back to
+  the storage key. Change to: filename: p.original_filename || p.storage_key.
+
+NEW-6 (P3) functions/api/admin/pins/[id].ts types context as `any` and its
+  catch blocks swallow errors without console.error — tighten when touched
+  (violates "DO NOT #10: never swallow errors silently").
+
+================================================================================
+SECTION C — WHAT WAS CHANGED ON BRANCH claude/review-photo-repo-0p8y5b (v2)
+================================================================================
+1. db/schema.sql — de-duplicated the client_gallery_photos deleted_at column
+   (NEW-1) and added the storage_key/magic_token indexes (parity with 006).
+2. db/migrations/006_client_site_integrity.sql — NEW: the missing live-DB
+   migration (deleted_at ALTER + 6 lookup indexes + _migrations record).
+3. functions/api/inspiration/love.ts — DELETED dead endpoint (NEW-3).
+4. FRAMENEST_AUDIT_2026-07-04.txt (v1) carried onto this branch for history;
+   this file (v2) added.
+Verified after changes: schema parses clean (node:sqlite), build passes,
+tests 61/61 pass.
+
+================================================================================
+SECTION D — REMAINING WORK QUEUE (priority order)
+================================================================================
+1. RUN MIGRATION 006 against remote D1 (after PRAGMA checks + db:backup).
+   Until this runs, public client sites are still broken in production.  [P0]
+2. Deploy: npm run deploy:safe. Confirm in the Cloudflare Pages dashboard
+   that the deployment succeeded (deploys were failing while the build was
+   broken — production is stale until a green deploy lands).           [P0]
+3. Set wrangler secrets + rotate every key from the leaked .env + change
+   the admin@photo.app password (P1-3/P1-4).                            [P1]
+4. api.ts handleResponse text/html guard (P1-2).                        [P1]
+5. Lint gate: register react-hooks plugin + void-sweep the 57 floating
+   promises (NEW-2).                                                    [P1]
+6. magic-login rate limit (P1-7, one line) + constant-time signature
+   verify (P1-6) + waitUntil for AI summary (P1-8) + Mapbox tokens to
+   env (P1-5).                                                          [P1]
+7. P2 batch: demo-map 401, video upload cap 95MB, health table list,
+   ClientSitePage 404-vs-500 handling, thumbnails, bundle splitting,
+   rate-limiter cleanup.                                                [P2]
+8. P3 hygiene: untrack tsconfig.tsbuildinfo, NEW-4/5/6 nits, master
+   branch, docs/deploy.sh drift.                                        [P3]
+
+SMOKE-TEST AFTER DEPLOY
+-----------------------
+/, /login, /dashboard (create event → upload photo → open event detail →
+edit address → delete photo), /inspiration (map renders; love a pin, reload,
+still loved), /citysite (all six tabs show real data; approve/verify/feature
+a photographer; edit + delete a map pin), /s/demo (grid + gate), a client
+site at /site/:slug (galleries load), a published blog post (formatting is
+plain text now — expected).
+
+END OF RE-AUDIT (v2)

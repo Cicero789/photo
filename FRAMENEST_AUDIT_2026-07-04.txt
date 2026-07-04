@@ -1,0 +1,814 @@
+================================================================================
+FRAMENEST FULL-SITE AUDIT — 2026-07-04
+Repo: Cicero789/photo @ 1c44b03 | Audited on branch: claude/review-photo-repo-0p8y5b
+Audience: AI coder (apply fixes in priority order)
+================================================================================
+
+HOW TO USE THIS FILE
+--------------------
+- Fixes are ordered P0 (site-breaking) → P1 (security/correctness) → P2
+  (quality/perf) → P3 (hygiene). Apply in order.
+- After EVERY fix: `npm run build && npm test`. Both must pass before moving on.
+- Code blocks are ready to paste. File paths are relative to repo root.
+- Follow ARCHITECTURE.md "DO NOT Rules". Do not rename tables/columns.
+- Work on a feature branch, merge to main via PR (per CLAUDE.md workflow).
+
+VERIFICATION STATUS AT AUDIT TIME
+---------------------------------
+- `npm run build`  : ❌ FAILED before this audit (syntax error in
+                     functions/api/events/[id].ts). ✅ PASSES after fix P0-1,
+                     which is ALREADY APPLIED AND COMMITTED on branch
+                     claude/review-photo-repo-0p8y5b.
+- `npm test`       : ✅ 61/61 pass.
+- IMPORTANT COROLLARY: while the build was broken, `npm run deploy` /
+  `deploy:safe` could not produce a new bundle. The LIVE site is very likely
+  running an OLD deployment. After merging P0 fixes, redeploy and verify in
+  the Cloudflare Pages dashboard that the deployment actually succeeded.
+
+WHY "MANY THINGS ARE NOT WORKING" — ROOT-CAUSE SUMMARY
+------------------------------------------------------
+1. The build has been broken by a stray `}` in functions/api/events/[id].ts —
+   blocks all deploys (P0-1). Event detail/gallery pages depend on this file.
+2. The ENTIRE admin panel (/citysite/*) calls API paths and payload shapes
+   that were never implemented on the backend (P0-2). Because unmatched
+   /api/* GETs fall through to the SPA's index.html with HTTP 200, and
+   src/lib/api.ts treats any non-JSON 200 as success (returns `{}`), these
+   failures are SILENT — pages just render empty. Writes (PUT/POST/DELETE to
+   nonexistent routes) return 405 and are swallowed by `catch { /* silent */ }`
+   blocks in the admin pages.
+3. All three maps (Inspiration map, event photo map, space event map) are
+   blocked by the Content-Security-Policy: Mapbox GL v3 spawns a Web Worker
+   from a blob: URL, and the CSP has no `worker-src` (P0-5).
+4. The "love" button on the Inspiration map posts to a URL that no function
+   matches (P0-4).
+5. Client-site queries reference client_gallery_photos.deleted_at, a column
+   that schema.sql does not create and no migration adds (P0-3) — public
+   client sites and client-site deletion 500 on any DB built from schema.sql.
+
+================================================================================
+P0 — SITE-BREAKING (fix first)
+================================================================================
+
+--------------------------------------------------------------------------------
+P0-1. BUILD BROKEN: syntax error in functions/api/events/[id].ts
+--------------------------------------------------------------------------------
+STATUS: ✅ ALREADY FIXED and committed on branch claude/review-photo-repo-0p8y5b.
+        Merge that branch (or re-apply the patch below). Verified: build passes,
+        61/61 tests pass.
+
+PROBLEM (for the record):
+- Line ~54 had a duplicated closing brace that terminated the `try` block
+  early, so the following code sat outside try/catch:
+    tsc: [id].ts(57,5) error TS1472: 'catch' or 'finally' expected.
+- `npm run build` runs `tsc -b && tsc -p functions && vite build`, so the
+  functions type-check failure aborted every build → no deploys possible.
+- BLAST RADIUS of this one file: GET/PUT/DELETE /api/events/:id powers
+  EventDetailPage, GalleryPage, DashboardGalleryPage, SpaceGalleryPage,
+  SpaceEventMap, event editing, and event deletion.
+
+THE APPLIED PATCH (2 changes):
+1) Removed the stray `}` after the isOwner `return json(...)` block (the
+   doubled brace on its own line).
+2) Added `MEDIA_SIGNING_SECRET?: string` to onRequestGet's env type (the code
+   reads context.env.MEDIA_SIGNING_SECRET on line ~36 but the type didn't
+   declare it — it would have failed type-check right after the brace fix):
+
+   export async function onRequestGet(context: { request: Request; env: {
+     DB?: D1Database; JWT_SECRET?: string; MEDIA_SIGNING_SECRET?: string;
+     ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string }; params: { id: string }
+   }): Promise<Response> {
+
+--------------------------------------------------------------------------------
+P0-2. ADMIN PANEL: all 6 /citysite pages call endpoints that don't exist,
+      or send the wrong payload shape
+--------------------------------------------------------------------------------
+The backend admin API is: flat routes under /api/admin/*, IDs passed in the
+JSON BODY (not the URL), responses in snake_case rows. The frontend admin
+pages were written against a different, never-implemented API. Every admin
+page is affected.
+
+FULL MISMATCH TABLE (frontend call → what actually exists):
+
+| Frontend (file:line)                                        | Backend reality                                             |
+|-------------------------------------------------------------|-------------------------------------------------------------|
+| GET  /citysite/users        (AdminPeoplePage:93)             | GET  /api/admin/users  → { users: [snake_case rows] }        |
+| PUT  /admin/users/:id {role} (AdminPeoplePage:131)           | PUT  /api/admin/users  body { id, role?, email?, name? }     |
+| DELETE /admin/users/:id      (AdminPeoplePage:143)           | DELETE /api/admin/users body { id }  (needs body support!)   |
+| GET  /citysite/stats        (AdminDashboardPage:66)          | GET  /api/admin/stats  → flat fields, different names        |
+| GET  /citysite/orders       (AdminCommercePage:75)           | GET  /api/admin/orders → { orders: [rows] }, NO summary      |
+| GET  /citysite/spaces       (AdminContentPage:96)            | GET  /api/admin/spaces → { spaces: [rows] }                  |
+| POST /admin/spaces/:id/reset (AdminContentPage:155)          | POST /api/admin/spaces body { spaceId, action: "reset" }     |
+| GET  /citysite/content?type=... (AdminContentPage:109,125)   | GET  /api/admin/content?type=... → keys `photos`/`albums`,   |
+|                                                              |   NOT `items`                                                |
+| POST /admin/content/restore {photoId} (AdminContentPage:164) | PUT  /api/admin/content body { type:"photo", id, action:"restore" } |
+| PUT  /admin/content/albums/:id {extend} (AdminContentPage:173)| PUT  /api/admin/content body { type:"album", id, expiresAt } |
+| DELETE /admin/content/albums/:id (AdminContentPage:183)      | DELETE /api/admin/content body { type:"album", id }          |
+| GET  /citysite/pins         (AdminDiscoveryPage:85)          | ❌ NO BACKEND — must be created (code below)                 |
+| PUT  /admin/pins/:id        (AdminDiscoveryPage:143)         | ❌ NO BACKEND — must be created (code below)                 |
+| DELETE /admin/pins/:id      (AdminDiscoveryPage:129)         | ❌ NO BACKEND — must be created (code below)                 |
+| PUT  /photographers {id, verified|featured|slug|tagline}     | PUT /api/photographers only accepts { id, status } and       |
+|   (AdminPeoplePage:167,178,191,204; AdminDiscoveryPage:161)  |   returns 400 for anything else — extend handler (code below)|
+| POST /citysite/backup       (AdminSystemPage:108)            | ❌ NO BACKEND and D1 cannot self-export from a Worker.       |
+|                                                              |   Remove the button / show manual instructions (below).      |
+
+WHY IT FAILS *SILENTLY*: see root-cause #2 above. Fix P1-2 (api.ts hardening)
+makes this whole class of bug loud in the future.
+
+FIX STRATEGY (recommended): keep the existing backend contracts (flat routes,
+body ids) and fix the FRONTEND calls + add the two missing backend endpoints
++ extend the photographers PUT. Steps A–H below.
+
+--- STEP A: extend src/lib/api.ts — allow DELETE with a JSON body ---
+(needed by admin users/content deletes; also see P1-2 for handleResponse)
+
+Replace the delete method with:
+
+  async delete<T>(path: string, body?: unknown): Promise<T> {
+    const res = await fetch(`${API_BASE}${path}`, {
+      method: "DELETE",
+      headers: {
+        ...(body ? { "Content-Type": "application/json" } : {}),
+        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return handleResponse<T>(res);
+  },
+
+--- STEP B: NEW FILE functions/api/admin/pins.ts (GET pin list) ---
+
+import { json } from "../../lib/response";
+import { requireAuth, requireRole } from "../../lib/auth";
+
+export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string } }): Promise<Response> {
+  try {
+    const a = await requireAuth(context.request, context.env);
+    if (a instanceof Response) return a;
+    const rc = requireRole(a, "platform_owner");
+    if (rc) return rc;
+    const r = await context.env.DB!.prepare(
+      "SELECT id, address, latitude, longitude, source, score, loves FROM inspiration ORDER BY score DESC, created_at DESC"
+    ).all();
+    const pins = (r.results ?? []).map((p: Record<string, unknown>) => ({
+      id: p.id,
+      address: p.address,
+      lat: p.latitude,
+      lng: p.longitude,
+      source: (p.source as string) || "framenest",
+      score: (p.score as number) || 0,
+      loves: (p.loves as number) || 0,
+    }));
+    return json({ pins });
+  } catch (err) {
+    console.error("Admin list pins error:", err);
+    return json({ error: "Something went wrong" }, 500);
+  }
+}
+
+--- STEP C: NEW FILE functions/api/admin/pins/[id].ts (PUT edit, DELETE) ---
+
+import { json } from "../../../lib/response";
+import { requireAuth, requireRole } from "../../../lib/auth";
+
+export async function onRequestPut(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string }; params: { id: string } }): Promise<Response> {
+  try {
+    const a = await requireAuth(context.request, context.env);
+    if (a instanceof Response) return a;
+    const rc = requireRole(a, "platform_owner");
+    if (rc) return rc;
+    const body = await context.request.json() as { address?: string; lat?: number; lng?: number; score?: number };
+    const parts: string[] = [];
+    const values: (string | number)[] = [];
+    if (body.address !== undefined) { parts.push("address = ?"); values.push(body.address); }
+    if (typeof body.lat === "number") { parts.push("latitude = ?"); values.push(body.lat); }
+    if (typeof body.lng === "number") { parts.push("longitude = ?"); values.push(body.lng); }
+    if (typeof body.score === "number") { parts.push("score = ?"); values.push(body.score); }
+    if (parts.length === 0) return json({ error: "No fields to update" }, 400);
+    values.push(context.params.id);
+    await context.env.DB!.prepare(`UPDATE inspiration SET ${parts.join(", ")} WHERE id = ?`).bind(...values).run();
+    return json({ success: true });
+  } catch (err) {
+    console.error("Admin update pin error:", err);
+    return json({ error: "Something went wrong" }, 500);
+  }
+}
+
+export async function onRequestDelete(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string }; params: { id: string } }): Promise<Response> {
+  try {
+    const a = await requireAuth(context.request, context.env);
+    if (a instanceof Response) return a;
+    const rc = requireRole(a, "platform_owner");
+    if (rc) return rc;
+    const db = context.env.DB!;
+    await db.prepare("DELETE FROM inspiration_loves WHERE inspiration_id = ?").bind(context.params.id).run();
+    await db.prepare("DELETE FROM inspiration WHERE id = ?").bind(context.params.id).run();
+    return json({ success: true });
+  } catch (err) {
+    console.error("Admin delete pin error:", err);
+    return json({ error: "Something went wrong" }, 500);
+  }
+}
+
+--- STEP D: EXTEND functions/api/photographers.ts onRequestPut ---
+Current PUT rejects anything that isn't { id, status }. The admin UI also
+sends { id, verified }, { id, featured }, { id, slug }, { id, tagline }.
+Replace onRequestPut with:
+
+export async function onRequestPut(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string } }): Promise<Response> {
+  try {
+    const a = await requireAuth(context.request, context.env);
+    if (a instanceof Response) return a;
+    const rc = requireRole(a, "platform_owner");
+    if (rc) return rc;
+    const body = await context.request.json() as { id: string; status?: string; verified?: boolean; featured?: boolean; slug?: string; tagline?: string };
+    if (!body.id) return json({ error: "id is required" }, 400);
+    const db = context.env.DB!;
+    const parts: string[] = [];
+    const values: (string | number)[] = [];
+    if (body.status !== undefined) {
+      if (!["pending", "approved", "rejected"].includes(body.status)) return json({ error: "Invalid status" }, 400);
+      parts.push("status = ?"); values.push(body.status);
+    }
+    if (body.verified !== undefined) {
+      parts.push("verified = ?"); values.push(body.verified ? 1 : 0);
+      parts.push("verified_at = ?"); values.push(body.verified ? new Date().toISOString() : "");
+    }
+    if (body.featured !== undefined) { parts.push("featured = ?"); values.push(body.featured ? 1 : 0); }
+    if (body.slug !== undefined) {
+      if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(body.slug)) return json({ error: "Invalid slug format" }, 400);
+      const existing = await db.prepare("SELECT id FROM photographers WHERE slug = ? AND id != ?").bind(body.slug, body.id).first();
+      if (existing) return json({ error: "Slug already taken" }, 409);
+      parts.push("slug = ?"); values.push(body.slug);
+    }
+    if (body.tagline !== undefined) {
+      if (body.tagline.length > 200) return json({ error: "Tagline too long" }, 400);
+      parts.push("tagline = ?"); values.push(body.tagline);
+    }
+    if (parts.length === 0) return json({ error: "No fields to update" }, 400);
+    values.push(body.id);
+    await db.prepare(`UPDATE photographers SET ${parts.join(", ")} WHERE id = ?`).bind(...values).run();
+    return json({ success: true });
+  } catch (err) {
+    console.error("Update photographer error:", err);
+    return json({ error: "Something went wrong." }, 500);
+  }
+}
+
+--- STEP E: FIX src/pages/admin/AdminPeoplePage.tsx ---
+1) fetchUsers (line ~93): path + snake_case mapping:
+
+  const data = await api.get<{ users: Record<string, unknown>[] }>("/admin/users");
+  setUsers(
+    (data.users || []).map((u) => ({
+      id: u.id as string,
+      name: u.name as string,
+      email: u.email as string,
+      role: u.role as string,
+      spaceName: (u.space_name as string) ?? null,
+      eventCount: (u.event_count as number) ?? 0,
+      photoCount: (u.photo_count as number) ?? 0,
+      createdAt: u.created_at as string,
+    }))
+  );
+
+2) handleChangeRole (line ~131):
+     await api.put("/admin/users", { id: userId, role: newRole });
+3) handleDeleteUser (line ~143):
+     await api.delete("/admin/users", { id: userId });
+4) Photographer list mapping (fetchPhotographers, line ~105): backend returns
+   snake_case-ish fields and INTEGER verified — map verified/featured to
+   booleans: verified: r.verified === 1, featured: r.featured === 1,
+   createdAt: r.created_at. (GET /photographers response fields: id, name,
+   email, website, portfolio_url, service_area, bio, status, slug,
+   specialties, tagline, verified, created_at — note: NO featured, avatarUrl,
+   coverUrl, userId. Either add `featured` to the SELECT in
+   functions/api/photographers.ts GET — recommended, 1 word — or drop those
+   columns from the UI.)
+
+--- STEP F: FIX src/pages/admin/AdminDashboardPage.tsx (line ~66) ---
+
+  const d = await api.get<{
+    users: number; spaces: number; photos: number; albums: number;
+    photographers: number; photographersPending: number; photographersVerified: number;
+    revenueCents: number; pins: number; inquiries: number;
+  }>("/admin/stats");
+  setStats({
+    users: d.users,
+    spaces: d.spaces,
+    photos: d.photos,
+    albums: d.albums,
+    photographers: { total: d.photographers, pending: d.photographersPending, approved: d.photographersVerified },
+    revenue: (d.revenueCents || 0) / 100,
+    mapPins: d.pins,
+    inquiries: d.inquiries,
+  });
+
+--- STEP G: FIX src/pages/admin/AdminCommercePage.tsx (line ~75) ---
+Backend /api/admin/orders returns { orders: rows } with NO summary object.
+Compute the summary client-side:
+
+  const res = await api.get<{ orders: Record<string, unknown>[] }>("/admin/orders");
+  const orders = (res.orders || []).map((o) => ({
+    id: o.id as string,
+    buyerName: (o.buyer_name as string) || "",
+    photographerName: (o.photographer_name as string) || "",
+    product: o.product as string,
+    amount: ((o.amount_cents as number) || 0) / 100,
+    status: o.status as Order["status"],
+    createdAt: o.created_at as string,
+  }));
+  setData({
+    orders,
+    summary: {
+      totalRevenue: orders.filter((o) => o.status === "paid").reduce((s, o) => s + o.amount, 0),
+      platformFees: 0, // platform fee not tracked per-order yet
+      pendingOrders: orders.filter((o) => o.status === "pending").length,
+      verifiedSubscribers: 0, // fetch from /admin/stats photographersVerified if displayed
+    },
+  });
+
+--- STEP H: FIX src/pages/admin/AdminContentPage.tsx ---
+1) fetchSpaces (line ~96): "/admin/spaces"; map rows:
+     id, name: s.name, slug: s.slug, ownerName: s.owner_name,
+     ownerEmail: s.owner_email, eventCount: s.event_count,
+     photoCount: s.photo_count, createdAt: s.created_at
+   (match to the AdminSpace interface fields actually used in the JSX)
+2) fetchDeleted (line ~109): path "/admin/content?type=photos&status=deleted",
+   response key is `photos` (not `items`); map snake_case:
+     id, filename: p.original_filename, spaceName: p.space_name,
+     ownerName: p.owner_name, deletedAt: p.deleted_at,
+     thumbnailUrl: null  // storage keys of deleted photos are not servable
+3) fetchAlbums (line ~125): path "/admin/content?type=albums", key `albums`;
+   map: id, name, ownerName: a.owner_name, photoCount: 0 (backend doesn't
+   compute it — optionally add a COUNT subquery to admin/content.ts albums
+   SELECT:  (SELECT COUNT(*) FROM album_photos WHERE album_id = a.id) as
+   photo_count ), viewCount: a.view_count, shareToken: a.share_token,
+   expiresAt: a.expires_at
+4) handleResetSpace (line ~155):
+     await api.post("/admin/spaces", { spaceId, action: "reset" });
+5) handleRestorePhoto (line ~164):
+     await api.put("/admin/content", { type: "photo", id: photoId, action: "restore" });
+6) handleExtendAlbum (line ~173): backend wants an explicit expiresAt —
+     await api.put("/admin/content", {
+       type: "album", id: albumId,
+       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+     });
+7) handleDeleteAlbum (line ~183):
+     await api.delete("/admin/content", { type: "album", id: albumId });
+
+--- STEP I: FIX src/pages/admin/AdminDiscoveryPage.tsx ---
+1) fetchPins (line ~85): change "/citysite/pins" → "/admin/pins"
+   (endpoint from STEP B; pin PUT/DELETE paths /admin/pins/:id now exist via
+   STEP C — no change needed to those two handlers).
+2) handleToggleFeatured (line ~161) works after STEP D.
+
+--- STEP J: FIX src/pages/admin/AdminSystemPage.tsx backup button (~108) ---
+There is no backend for POST /citysite/backup, and a Worker CANNOT run
+`wrangler d1 export`. Honest options:
+  (a) RECOMMENDED: remove the button; show the command instead:
+        <code>npm run db:backup</code>  (runs wrangler d1 export locally)
+  (b) Keep the button but make it purely informational:
+        const handleBackup = () => setBackupStatus("manual");
+Do NOT ship a button that pretends to back up.
+
+--------------------------------------------------------------------------------
+P0-3. DB SCHEMA DRIFT: client_gallery_photos.deleted_at used but never created
+--------------------------------------------------------------------------------
+EVIDENCE:
+- functions/api/clients/[id].ts:83 runs
+    UPDATE client_gallery_photos SET deleted_at = ? WHERE gallery_id IN (...)
+- functions/api/clients/public/[slug].ts:20 runs a subquery
+    (SELECT COUNT(*) FROM client_gallery_photos WHERE gallery_id = g.id AND deleted_at IS NULL)
+- db/schema.sql defines client_gallery_photos WITHOUT deleted_at (lines 352-362).
+- NO migration (001–005) adds deleted_at to ANY client-site table
+  (client_sites, blog_posts, client_galleries got theirs only via edits to
+  schema.sql CREATE TABLE — which does nothing for tables that already exist,
+  because of IF NOT EXISTS).
+
+IMPACT: on any DB whose client tables were created before those schema.sql
+edits, or freshly created from current schema.sql (client_gallery_photos
+case): public client sites (GET /api/clients/public/:slug) 500, and
+DELETE /api/clients/:id 500. The public 500 also silently degrades /:slug
+routes to PhotographerProfilePage (ClientSitePage falls back on any error),
+which makes client sites "disappear".
+
+FIX:
+1) Add `deleted_at TEXT` to the client_gallery_photos CREATE TABLE in
+   db/schema.sql (after created_at).
+2) NEW FILE db/migrations/006_client_site_integrity.sql:
+
+-- Migration 006: client-site soft-delete integrity + media lookup indexes
+-- Run: npx wrangler d1 execute photo-db --remote --file=./db/migrations/006_client_site_integrity.sql
+-- NOTE: "ALTER TABLE ... ADD COLUMN" fails if the column already exists.
+-- BEFORE running, check which columns are missing on the LIVE db:
+--   npx wrangler d1 execute photo-db --remote --command="PRAGMA table_info(client_gallery_photos)"
+--   npx wrangler d1 execute photo-db --remote --command="PRAGMA table_info(client_sites)"
+--   npx wrangler d1 execute photo-db --remote --command="PRAGMA table_info(blog_posts)"
+--   npx wrangler d1 execute photo-db --remote --command="PRAGMA table_info(client_galleries)"
+-- and delete the ALTER lines for columns that already exist.
+
+ALTER TABLE client_gallery_photos ADD COLUMN deleted_at TEXT;
+-- Uncomment if missing on the live DB (see PRAGMA checks above):
+-- ALTER TABLE client_sites      ADD COLUMN deleted_at TEXT;
+-- ALTER TABLE blog_posts        ADD COLUMN deleted_at TEXT;
+-- ALTER TABLE client_galleries  ADD COLUMN deleted_at TEXT;
+
+-- Media serving looks up storage keys on EVERY request; none are indexed:
+CREATE INDEX IF NOT EXISTS idx_photos_storage_key    ON photos(storage_key);
+CREATE INDEX IF NOT EXISTS idx_videos_storage_key    ON videos(storage_key);
+CREATE INDEX IF NOT EXISTS idx_portfolio_storage_key ON photographer_portfolio(storage_key);
+CREATE INDEX IF NOT EXISTS idx_cgp_storage_key       ON client_gallery_photos(storage_key);
+-- (album_photos already has storage_key in its PK, second column — index helps:)
+CREATE INDEX IF NOT EXISTS idx_album_photos_key      ON album_photos(storage_key);
+-- Magic-link login scans connections by token:
+CREATE INDEX IF NOT EXISTS idx_connections_magic     ON connections(magic_token);
+
+3) Mirror the new indexes in db/schema.sql (keep schema.sql = source of truth).
+
+--------------------------------------------------------------------------------
+P0-4. INSPIRATION "LOVE" BUTTON: route mismatch, params.id always undefined
+--------------------------------------------------------------------------------
+EVIDENCE:
+- Frontend: src/pages/InspirationMapPage.tsx:291
+    api.post(`/inspiration/${id}/love`)        → /api/inspiration/<id>/love
+- Backend file: functions/api/inspiration/love.ts → serves /api/inspiration/love
+  ONLY, and reads context.params.id — which is ALWAYS undefined at that path
+  (the route has no [id] segment).
+- Result: the POST matches no function → SPA fallback → api.ts returns {} →
+  hearts never persist; and even if it hit the handler it would write
+  NULL/undefined ids into inspiration_loves.
+
+FIX (move the file so the path carries the id):
+1) CREATE functions/api/inspiration/[id]/love.ts with the SAME logic, imports
+   adjusted one level deeper:
+
+import { json } from "../../../lib/response";
+import { requireAuth } from "../../../lib/auth";
+
+export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string }; params: { id: string } }): Promise<Response> {
+  const a = await requireAuth(context.request, context.env);
+  if (a instanceof Response) return a;
+  const db = context.env.DB!;
+  const existing = await db.prepare("SELECT 1 FROM inspiration_loves WHERE inspiration_id = ? AND user_id = ?").bind(context.params.id, a.userId).first();
+  if (existing) {
+    await db.prepare("DELETE FROM inspiration_loves WHERE inspiration_id = ? AND user_id = ?").bind(context.params.id, a.userId).run();
+    await db.prepare("UPDATE inspiration SET loves = MAX(0, loves - 1) WHERE id = ?").bind(context.params.id).run();
+    return json({ loved: false });
+  } else {
+    await db.prepare("INSERT INTO inspiration_loves (inspiration_id, user_id) VALUES (?,?)").bind(context.params.id, a.userId).run();
+    await db.prepare("UPDATE inspiration SET loves = loves + 1 WHERE id = ?").bind(context.params.id).run();
+    return json({ loved: true });
+  }
+}
+
+2) DELETE functions/api/inspiration/love.ts (the old flat file).
+3) No frontend change needed.
+
+--------------------------------------------------------------------------------
+P0-5. ALL MAPS BROKEN: CSP blocks Mapbox GL's blob: Web Worker
+--------------------------------------------------------------------------------
+EVIDENCE:
+- functions/_middleware.ts:32 sets a CSP with NO worker-src directive.
+  Mapbox GL JS v3 (loaded from https://api.mapbox.com in EventMap.tsx,
+  SpaceEventMap.tsx, InspirationMapPage.tsx) creates its worker from a blob:
+  URL. Without `worker-src blob:`, the browser falls back to script-src
+  (which has no blob:) and blocks the Worker → mapboxgl.Map constructor
+  throws → maps never render. Browser console shows:
+  "Refused to create a worker from 'blob:...' because it violates the
+   following Content Security Policy directive ..."
+- Also: connect-src misses https://events.mapbox.com (GL telemetry —
+  non-fatal, but fills the console with errors).
+
+FIX — replace the CSP line in functions/_middleware.ts addSecurityHeaders():
+
+  headers.set("Content-Security-Policy",
+    "default-src 'self'; " +
+    "script-src 'self' https://api.mapbox.com https://js.stripe.com; " +
+    "style-src 'self' 'unsafe-inline' https://api.mapbox.com; " +
+    "img-src 'self' data: blob: https://images.unsplash.com https://*.mapbox.com; " +
+    "connect-src 'self' https://api.mapbox.com https://events.mapbox.com https://*.stripe.com; " +
+    "worker-src 'self' blob:; " +
+    "child-src blob:; " +
+    "frame-src https://js.stripe.com https://connect.stripe.com; " +
+    "font-src 'self'");
+
+(child-src blob: is the fallback for older Safari. Everything else unchanged —
+do NOT loosen font-src; self-hosting Google Fonts stays the plan per
+ARCHITECTURE.md quirk #9.)
+
+VERIFY after deploy: open /inspiration — the map must render; console must
+show no CSP violations (an events.mapbox.com telemetry error is acceptable
+if you chose not to add it).
+
+================================================================================
+P1 — SECURITY / CORRECTNESS
+================================================================================
+
+--------------------------------------------------------------------------------
+P1-1. STORED XSS: blog posts rendered with dangerouslySetInnerHTML
+--------------------------------------------------------------------------------
+EVIDENCE: src/pages/ClientBlogPostPage.tsx:25
+    <div ... dangerouslySetInnerHTML={{ __html: post.content }} />
+post.content is blog_posts.body — authored by photographers (regular users)
+through ClientEditorPage. Any of them can inject <script>/<img onerror>
+into a PUBLIC page. This also violates repo rule "DO NOT #11".
+
+FIX (sanitize at render):
+1) npm i dompurify && npm i -D @types/dompurify
+2) In ClientBlogPostPage.tsx:
+     import DOMPurify from "dompurify";
+     ...
+     <div className="mt-8 prose prose-neutral max-w-none"
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }} />
+3) ALSO sanitize/deny raw HTML server-side on save if feasible (defense in
+   depth): in functions/api/clients/[id]/blog/index.ts (POST) and
+   [postId].ts (PUT), strip <script and on*= attributes, or store markdown.
+   Client-side DOMPurify is the minimum viable fix.
+NOTE: src/components/templates/TemplatePortraitHeadshot.tsx:75,567 also uses
+dangerouslySetInnerHTML, but with static template strings (no user input) —
+acceptable; leave as is.
+
+--------------------------------------------------------------------------------
+P1-2. api.ts SWALLOWS routing errors (root enabler of the silent admin bugs)
+--------------------------------------------------------------------------------
+EVIDENCE: src/lib/api.ts handleResponse() — a non-JSON 200 returns `{}` as
+success. On Cloudflare Pages, ANY /api/* GET that matches no function returns
+the SPA index.html with 200 text/html → every mistyped endpoint "succeeds"
+with empty data.
+
+FIX — make HTML responses loud, keep 204 support:
+
+async function handleResponse<T>(res: Response): Promise<T> {
+  const ct = res.headers.get("content-type") || "";
+  if (ct.includes("text/html")) {
+    // An /api call answered by the SPA shell = endpoint does not exist.
+    throw new Error(`API route not found (${res.status}). Check the endpoint path.`);
+  }
+  if (!ct.includes("application/json")) {
+    if (!res.ok) throw new Error(`Request failed (${res.status})`);
+    return {} as T; // 204 No Content etc.
+  }
+  const data = await res.json();
+  if (!res.ok) throw new Error((data as ApiError).error ?? `Request failed (${res.status})`);
+  return data as T;
+}
+
+ALSO recommended while in this file: on 401 responses for authenticated
+sessions, clear the stored token so the app doesn't stay wedged with an
+expired JWT (optional, small UX win).
+
+--------------------------------------------------------------------------------
+P1-3. COMMITTED ADMIN CREDENTIAL: db/admin.sql contains a real platform_owner
+      password hash
+--------------------------------------------------------------------------------
+EVIDENCE: db/admin.sql inserts user admin@photo.app with a PBKDF2 hash
+(100000 iterations) — committed to the repo. Anyone with repo access can
+brute-force it OFFLINE at leisure; if that password was reused anywhere the
+damage spreads. The seed space's password_hash is also the literal string
+'100000:nogate:nogate'.
+
+FIX:
+1) Immediately change the live admin password (log in → change, or issue an
+   UPDATE with a freshly generated hash directly against D1).
+2) Replace db/admin.sql content with a TEMPLATE (no real hash), e.g. generate
+   the hash at seed time via a small script, or document:
+     -- Generate a hash locally: node scripts/hash-password.mjs 'YourNewPass'
+     -- Then paste it below before running this file. NEVER commit the result.
+3) Consider `git rm --cached db/admin.sql` + .gitignore entry, and (ideally)
+   scrub it from git history (git filter-repo) since the hash is already
+   public in history.
+
+--------------------------------------------------------------------------------
+P1-4. ROTATE ALL API KEYS (the .env was shared outside the vault)
+--------------------------------------------------------------------------------
+The .env containing these keys was uploaded to a third-party session (this
+audit). Treat ALL of them as exposed and rotate:
+- GITHUB_API_KEY (ghp_… PAT) — rotate FIRST; a repo-scoped PAT is the worst leak.
+- CLOUDFLARE_API_KEY + CLOUDFLARED1R1_API_KEY — rotate in Cloudflare dashboard.
+- OPENAI_API_KEY, DEEPSEEK_API_KEY, ZOHO_API_KEY — rotate in each provider.
+- MAPBOX_API_KEY — NOTE: this is an sk.* (SECRET-scoped) Mapbox token. It must
+  NEVER be exposed client-side. Rotate it; use it only server-side (P1-5).
+- STRIPE_SECRET_KEY — currently sk_test_… (test mode, low stakes) but rotate
+  the pair when switching to live keys, and set STRIPE_WEBHOOK_SECRET too.
+Also remember: .env is NOT read by Cloudflare Pages Functions. Every runtime
+secret must be set with:
+  npx wrangler pages secret put <NAME> --project-name photo
+Required in production:
+  JWT_SECRET (≥32 chars — getJwtSecret() THROWS in production if unset/short,
+              which turns into 500s on every authenticated route)
+  MEDIA_SIGNING_SECRET (recommended; falls back to JWT_SECRET)
+  DEEPSEEK_API_KEY (AI summaries), ZOHO_API_KEY (+ optional EMAIL_FROM),
+  STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, MAPBOX_API_KEY (after P1-5).
+
+--------------------------------------------------------------------------------
+P1-5. HARDCODED MAPBOX TOKENS in 4 files
+--------------------------------------------------------------------------------
+EVIDENCE:
+- pk.* token hardcoded in src/components/map/EventMap.tsx:55,
+  src/components/map/SpaceEventMap.tsx:21, src/pages/InspirationMapPage.tsx:15
+- pk.* token hardcoded as DEFAULT in functions/lib/geocode.ts:8, and NO caller
+  ever passes the env token (events/index.ts + events/[id].ts call
+  geocodeAddress(address) with no key).
+A pk token in the client is normal (restrict it by URL in the Mapbox
+dashboard!), but hardcoding means you can't rotate without a deploy, and the
+same literal is pasted in 4 places.
+
+FIX:
+1) Frontend: create src/lib/mapbox.ts:
+     export const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string;
+   Add VITE_MAPBOX_TOKEN=pk.… to .env (and Cloudflare Pages build env vars).
+   Replace the three hardcoded literals with this import. While there,
+   dedupe the three copies of the "load mapbox-gl from CDN" snippet into one
+   shared loader (src/lib/mapbox.ts) — EventMap's copy has a subtle bug where
+   `typeof mapboxgl === "undefined"` can race the CSS load.
+2) Backend: change geocodeAddress to REQUIRE the env key:
+     functions/lib/geocode.ts — keep the signature (address, mapboxToken?),
+     but REMOVE the hardcoded default (return null + console.error if no
+     token), and update the two call sites to pass it:
+       events/index.ts (POST):  geocodeAddress(body.address, context.env.MAPBOX_API_KEY)
+       events/[id].ts   (PUT):  geocodeAddress(body.address, context.env.MAPBOX_API_KEY)
+     and add MAPBOX_API_KEY?: string to those env types.
+   Set the secret: npx wrangler pages secret put MAPBOX_API_KEY --project-name photo
+   (use the rotated secret token here; the frontend keeps the pk token).
+
+--------------------------------------------------------------------------------
+P1-6. SIGNED-URL SIGNATURE COMPARED WITH === (not constant-time)
+--------------------------------------------------------------------------------
+EVIDENCE: functions/lib/signed-url.ts:20 `return expected === signature;`
+(Also flagged as fix-queue #8 in ARCHITECTURE.md.)
+FIX — verify with crypto.subtle.verify instead of string equality:
+
+export async function verifyMediaSignature(storageKey: string, signature: string, expires: string, secret: string): Promise<boolean> {
+  const exp = parseInt(expires, 10);
+  if (isNaN(exp) || exp < Math.floor(Date.now() / 1000)) return false; // expired
+  if (!/^[0-9a-f]+$/i.test(signature) || signature.length !== 64) return false;
+  const data = `${storageKey}:${exp}`;
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
+  const sigBytes = new Uint8Array(signature.match(/.{2}/g)!.map((b) => parseInt(b, 16)));
+  return crypto.subtle.verify("HMAC", key, sigBytes, new TextEncoder().encode(data));
+}
+
+(Keep signMediaUrl as is. tests/signed-url.test.ts should still pass — run it.)
+
+--------------------------------------------------------------------------------
+P1-7. /api/auth/magic-login IS NOT RATE-LIMITED
+--------------------------------------------------------------------------------
+EVIDENCE: functions/_middleware.ts RATE_LIMITED_PREFIXES covers login/gate/
+signup/forgot/reset but NOT "/api/auth/magic-login". Tokens are hashed and
+single-use (good), but unlimited guessing is free.
+FIX: add "/api/auth/magic-login" to RATE_LIMITED_PREFIXES (one line).
+
+--------------------------------------------------------------------------------
+P1-8. EVENT CREATE: AI summary is fire-and-forget WITHOUT waitUntil
+--------------------------------------------------------------------------------
+EVIDENCE: functions/api/events/index.ts:76 — generateSummary(...).then(...)
+without context.waitUntil. On Workers, the runtime may kill that pending
+promise as soon as the response returns → ai_summary randomly never saves
+(matches "sometimes the AI summary doesn't appear"). There's even a TODO.
+FIX: add waitUntil to the context type and wrap:
+  context type: { request: Request; env: {...}; waitUntil: (p: Promise<unknown>) => void }
+  code:
+    if (body.description && body.description.trim().length >= 10) {
+      context.waitUntil(
+        generateSummary(body.description, body.title, body.category, getDeepSeekKey(context.env))
+          .then(async (summary) => { if (summary) await db.prepare("UPDATE events SET ai_summary = ? WHERE id = ?").bind(summary, eventId).run(); })
+          .catch((e) => console.error("Summary generation failed:", e))
+      );
+    }
+Same pattern applies to the R2 trash-copy loop in events/[id].ts DELETE
+(currently awaited inline — fine functionally, but slow deletes; optional).
+
+================================================================================
+P2 — QUALITY / PERFORMANCE / CONSISTENCY
+================================================================================
+
+P2-1. MEDIA LOOKUPS UNINDEXED (fixed by migration 006 in P0-3)
+  functions/api/media/[[path]].ts queries photos/videos/album_photos/
+  photographer_portfolio/client_gallery_photos BY storage_key on every image
+  request — none had an index. Migration 006 adds them. No code change.
+
+P2-2. NO THUMBNAILS — grids load full-size originals
+  photos.thumbnail_key exists in the schema but is never written; EventGrid /
+  galleries load original files (often multi-MB) for small tiles. Cheapest
+  robust fix on Cloudflare: enable Image Resizing and serve tiles via
+  /cdn-cgi/image/width=480,quality=75,format=auto/<media-url>, falling back
+  to the raw URL locally. Alternative: generate a resized copy client-side at
+  upload (canvas) and store `${photoId}_thumb.webp` in thumbnail_key. Medium
+  effort — do after P0/P1.
+
+P2-3. HEALTH CHECK TABLE LIST IS STALE (fix-queue #9)
+  functions/api/health.ts:32 `expected` array is missing albums, album_photos,
+  reviews, booking_inquiries, photographer_portfolio, inspiration_loves,
+  client_sites, blog_posts, client_galleries, client_gallery_photos,
+  _migrations. Replace with:
+    const expected = ["users","spaces","events","photos","videos","orders",
+      "event_messages","activity_log","inspiration","inspiration_loves",
+      "connections","photographers","photographer_portfolio","reviews",
+      "booking_inquiries","albums","album_photos","ad_tiles","rate_limits",
+      "password_resets","space_members","client_sites","blog_posts",
+      "client_galleries","client_gallery_photos"];
+
+P2-4. DEMO SPACE MAP ALWAYS EMPTY
+  SpacePage auto-unlocks slug "demo" WITHOUT a gate token (line ~114), but
+  fetchMapPhotos calls /api/photos which requires auth → 401 → silently
+  ignored → "Map" tab shows nothing on the demo space. Fix options:
+  (a) hide the map toggle when there's no token, or (b) allow anonymous
+  GET /api/photos?spaceId=… to return only photos of PUBLIC events of that
+  space (mirror the events/index.ts public branch). (a) is one line; (b) is
+  more correct.
+
+P2-5. RATE LIMITER: DELETE ON EVERY REQUEST + KNOWN RACE (fix-queue #7)
+  functions/lib/rate-limit.ts runs a table-wide DELETE per call and is
+  read-then-write racy (documented quirk #5). Cheap interim improvement:
+  make cleanup probabilistic (if (Math.random() < 0.05) DELETE…) and combine
+  the two COUNTs into one query. Proper fix: Cloudflare's native rate
+  limiting rules or a Durable Object. gate.ts ALSO rate-limits itself through
+  the same table (bucket "gate") while middleware limits "auth/gate" — one of
+  the two is redundant; drop the in-handler one to halve DB writes.
+
+P2-6. VIDEO UPLOAD LIMIT CLAIMS 500MB — PLATFORM CAPS AT ~100MB
+  functions/api/videos/upload.ts allows file.size up to 500MB, but Cloudflare
+  (Pages Functions/Workers) rejects request bodies over ~100MB long before
+  your code runs → users see a generic failure on big files. Lower the check
+  to 95MB and update the UI copy, or move big uploads to R2 presigned
+  multipart uploads / Cloudflare Stream (videos.stream_id column already
+  exists, unused). Also: the event lookup here misses `deleted_at IS NULL`
+  (photos/upload.ts has it) — add for consistency.
+
+P2-7. EVENTS LIST N+1-ish SUBQUERIES — fine at current scale, but the owner
+  branch also computes cover_key via correlated subquery per row. Acceptable;
+  revisit if spaces exceed ~1k events. No action required now.
+
+P2-8. ClientSitePage swallows ALL fetch errors as "not a client site"
+  (src/pages/ClientSitePage.tsx:69-73): any 500 from /api/clients/public/:slug
+  silently renders PhotographerProfilePage. After P0-3 this stops happening
+  for the schema reason, but distinguish 404 (→ fallback) from other statuses
+  (→ error state) so real outages are visible:
+    .then((r) => { if (r.status === 404) return null; if (!r.ok) throw new Error(String(r.status)); return r.json(); })
+
+P2-9. BUNDLE SIZE: index chunk 659KB + PhotoEditorModal 950KB (build warning).
+  PhotoEditorModal is already lazy-loaded (good). For the main chunk, add
+  manualChunks for react-router/react-query, and lazy-load InspirationMapPage
+  + admin pages with React.lazy — they're platform_owner-only.
+
+================================================================================
+P3 — HYGIENE
+================================================================================
+P3-1. tsconfig.tsbuildinfo is tracked in git (fix-queue #10):
+        git rm --cached tsconfig.tsbuildinfo && echo "tsconfig.tsbuildinfo" >> .gitignore
+P3-2. Delete/archive the legacy `master` branch (fix-queue #2) after checking
+      nothing (CI/Pages) deploys from it.
+P3-3. ARCHITECTURE.md drift: says the /:slug catch-all renders
+      PhotographerProfilePage — it actually renders ClientSitePage which
+      falls back to PhotographerProfilePage; fix-queue #1 (events/[id] GET
+      deleted_at) is ALREADY DONE in code — the GET filters deleted_at (line
+      14). Update the doc when convenient. CLAUDE.md also undercounts the API
+      surface ("28 endpoints" → 60+ files; "11 tables" → 25+).
+P3-4. deploy.sh drifts from package.json (deploy.sh omits MEDIA_SIGNING_SECRET,
+      STRIPE_*, MAPBOX_API_KEY in its secrets step; also mentions the old
+      photo-ll2.pages.dev name). Update the secrets list to match P1-4.
+P3-5. eslint: ✅ `npm run lint` passes with zero errors at audit time (after
+      the P0-1 fix). Keep it green — RELEASE_GATES requires zero errors.
+P3-6. functions/api/admin/users.ts / spaces.ts / content.ts / stats.ts declare
+      an unused `interface Env` — harmless; remove when touching those files.
+
+================================================================================
+SUGGESTED EXECUTION ORDER FOR THE AI CODER
+================================================================================
+ 1. Merge branch claude/review-photo-repo-0p8y5b (P0-1 build fix + this file).
+ 2. P0-5 CSP (one line) — restores all maps.               [build+test]
+ 3. P0-4 love endpoint move (new file + delete old).       [build+test]
+ 4. P0-3 schema.sql edit + migration 006; run PRAGMA checks against the
+    remote DB, prune ALTERs accordingly, then execute the migration remotely
+    AFTER backing up: npm run db:backup.                   [verify PRAGMA]
+ 5. P1-2 api.ts handleResponse hardening + STEP A delete-with-body.
+ 6. P0-2 steps B,C,D (backend) then E,F,G,H,I,J (frontend admin pages).
+                                                            [build+test]
+ 7. P1-1 XSS sanitize; P1-6 constant-time verify; P1-7 rate-limit line;
+    P1-8 waitUntil.                                        [build+test]
+ 8. P1-3 admin credential rotation + P1-4 key rotation + set ALL wrangler
+    secrets (JWT_SECRET etc.). P1-5 Mapbox token env refactor.
+ 9. Deploy: npm run deploy:safe. Confirm the Pages deployment succeeded and
+    smoke-test: /, /login, /dashboard (create event, upload photo, open event
+    detail), /inspiration (map renders, love persists after reload),
+    /citysite (all six tabs show data), /s/demo, a client site, a blog post.
+10. P2 items in order of pain: P2-4, P2-6, P2-3, P2-8, P2-2, P2-9, P2-5.
+11. P3 cleanup.
+
+================================================================================
+WHAT WAS AUDITED / NOT AUDITED
+================================================================================
+Audited in depth: build/test/lint pipeline, wrangler.toml, _middleware (CORS/
+CSP/rate limit/auth gate), auth libs (jwt/password/auth), signed-url, media
+serving, events (index/[id]/summarize), photos (index/upload/[id]/favorite),
+videos/upload, spaces ([slug]/members/by-domain), all 8 admin endpoints vs
+all 6 admin pages, photographers.ts, inspiration + love, magic-login, gate,
+stripe (connect/subscribe/webhook), email lib, geocode, users/mode, clients
+public/blog DTOs, schema.sql vs all 5 migrations, App.tsx routing, api.ts,
+useAuth, SpacePage/EventDetailPage/ClientSitePage/ClientBlogPostPage data flow.
+Skimmed only: albums endpoints, feed.ts, connections details, messages,
+bookings, photographer portfolio/profile/reviews/stats, the 263 template
+components (out of scope per DO-NOT #4), DashboardPage internals beyond API
+calls. Nothing alarming seen there, but they did not get line-by-line review.
+
+END OF AUDIT
