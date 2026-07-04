@@ -7,9 +7,9 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     const formData = await context.request.formData(); const eventId = formData.get("eventId") as string; const metadataStr = formData.get("metadata") as string | null; const files = formData.getAll("files") as unknown as File[];
     if (!eventId) return json({ error: "eventId is required" }, 400); if (!files || files.length === 0) return json({ error: "At least one file is required" }, 400);
     const VIDEO_TYPES = ["video/mp4","video/webm","video/quicktime","video/mov"];
-    for (const file of files) { if (!VIDEO_TYPES.includes(file.type)) return json({ error: "Invalid file type" }, 400); if (file.size > 500 * 1024 * 1024) return json({ error: "File too large (max 500MB)" }, 400); }
+    for (const file of files) { if (!VIDEO_TYPES.includes(file.type)) return json({ error: "Invalid file type" }, 400); if (file.size > 95 * 1024 * 1024) return json({ error: "File too large (max 95MB)" }, 400); }
     for (const file of files) { const contentCheck = await validateUploadContent(file); if (!contentCheck.valid) return json({ error: contentCheck.reason }, 400); }
-    const db = context.env.DB!; const event = await db.prepare("SELECT id, space_id FROM events WHERE id = ?").bind(eventId).first<{id:string;space_id:string}>(); if (!event) return json({ error: "Event not found" }, 404);
+    const db = context.env.DB!; const event = await db.prepare("SELECT id, space_id FROM events WHERE id = ? AND deleted_at IS NULL").bind(eventId).first<{id:string;space_id:string}>(); if (!event) return json({ error: "Event not found" }, 404);
     if (event.space_id !== authResult.spaceId) return json({ error: "Access denied" }, 403);
     let metadataList: Array<{filename?:string;duration?:number}> = []; if (metadataStr) { try { metadataList = JSON.parse(metadataStr); } catch (e) { console.error("Upload parse error:", e); } }
     const r2 = context.env.VIDEOS; const uploaded: Array<{id:string;eventId:string;originalFilename:string;storageKey:string;duration:number;fileSize:number}> = [];

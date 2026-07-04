@@ -32,6 +32,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
 export async function onRequestPost(context: { request: Request; env: { DB?: D1Database } }): Promise<Response> {
   try {
     const a = await requireAuth(context.request, context.env); if (a instanceof Response) return a;
+    if (a.role === "viewer" && a.userId === "viewer") return json({ error: "Sign in to interact" }, 403);
     const body = await context.request.json() as { photoUrl?: string; address: string; latitude: number; longitude: number; category?: string; season?: string; tips?: string; bestTime?: string; permissionInfo?: string };
     if (!body.address || typeof body.latitude !== "number" || typeof body.longitude !== "number") return json({ error: "address, latitude, longitude required" }, 400);
 

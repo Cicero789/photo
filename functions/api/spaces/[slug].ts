@@ -14,9 +14,9 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
     if (space.owner_id !== authResult.userId && authResult.role !== "platform_owner") return json({ error: "You don't have permission to edit this space" }, 403);
     const body = await context.request.json() as { name?: string; slug?: string; gateKey?: string; themeColor?: string; customDomain?: string; heroSource?: string; heroStyle?: string }; const slug = context.params.slug;
     const db = context.env.DB!; const updates: string[] = []; const values: (string|null)[] = [];
-    if (body.name) { updates.push("name = ?"); values.push(body.name); }
+    if (body.name) { if (body.name.length > 100) return json({ error: "Name must be 100 characters or fewer" }, 400); updates.push("name = ?"); values.push(body.name); }
     if (body.gateKey) { updates.push("password_hash = ?"); values.push(await hashPassword(body.gateKey)); }
-    if (body.themeColor) { updates.push("theme_color = ?"); values.push(body.themeColor); }
+    if (body.themeColor) { if (!/^#[0-9a-fA-F]{6}$/.test(body.themeColor)) return json({ error: "Invalid theme color format" }, 400); updates.push("theme_color = ?"); values.push(body.themeColor); }
     if (body.customDomain !== undefined) { updates.push("custom_domain = ?"); values.push(body.customDomain || null); }
     if (body.heroSource !== undefined) { updates.push("hero_source = ?"); values.push(body.heroSource); }
     if (body.heroStyle !== undefined) { updates.push("hero_style = ?"); values.push(body.heroStyle); }

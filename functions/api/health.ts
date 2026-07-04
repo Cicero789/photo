@@ -29,7 +29,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     results.database = [
       await check("d1-connect", async () => { await db.prepare("SELECT 1").run(); }),
       await check("tables-exist", async () => {
-        const expected = ["users","spaces","events","photos","videos","orders","event_messages","activity_log","inspiration","connections","photographers","ad_tiles","rate_limits","password_resets","space_members"];
+        const expected = ["users","password_resets","spaces","space_members","events","photos","videos","event_messages","photographers","photographer_portfolio","reviews","booking_inquiries","albums","album_photos","inspiration","inspiration_loves","connections","activity_log","orders","ad_tiles","rate_limits","client_sites","blog_posts","client_galleries","client_gallery_photos"];
         const actual = await db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all<{name:string}>();
         const names = new Set((actual.results||[]).map(r => r.name));
         const missing = expected.filter(t => !names.has(t));

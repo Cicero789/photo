@@ -164,7 +164,7 @@ export function AdminCommercePage() {
                   Platform Fees (5%)
                 </p>
                 <p className="mt-1 font-display text-2xl font-semibold text-neutral-900">
-                  ${(data.summary.platformFees / 100).toFixed(2)}
+                  ${(data.summary.platformFees / 100).toFixed(2)} <span className="text-xs font-normal text-neutral-400">(est.)</span>
                 </p>
               </div>
               <div className="rounded-lg border border-neutral-200 bg-white px-4 py-5">

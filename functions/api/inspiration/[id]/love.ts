@@ -5,6 +5,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
   try {
     const a = await requireAuth(context.request, context.env);
     if (a instanceof Response) return a;
+    if (a.role === "viewer" && a.userId === "viewer") return json({ error: "Sign in to interact" }, 403);
     const inspirationId = context.params.id;
     if (!inspirationId) return json({ error: "ID required" }, 400);
     const db = context.env.DB!;

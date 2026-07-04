@@ -50,7 +50,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
   } catch (err) { console.error("List events error:", err); return json({ error: "Something went wrong" }, 500); }
 }
 
-export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string } }): Promise<Response> {
+export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string }; waitUntil: (p: Promise<unknown>) => void }): Promise<Response> {
   try {
     const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const roleCheck = requireRole(authResult, "staff"); if (roleCheck) return roleCheck;
@@ -72,9 +72,10 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     const legacyPublic = vis === "public" ? 1 : 0;
     await db.prepare("INSERT INTO events (id, space_id, title, category, event_date, description, address, latitude, longitude, visibility, public) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").bind(eventId, authResult.spaceId, body.title, body.category, body.eventDate, body.description ?? "", body.address ?? "", lat, lng, vis, legacyPublic).run();
     if (body.description && body.description.trim().length >= 10) {
-      // TODO: Use context.waitUntil() for this async operation
-      generateSummary(body.description, body.title, body.category, getDeepSeekKey(context.env)).then(async (summary) => { if (summary) await db.prepare("UPDATE events SET ai_summary = ? WHERE id = ?").bind(summary, eventId).run(); }).catch(() => {});
+      context.waitUntil(
+        generateSummary(body.description, body.title, body.category, getDeepSeekKey(context.env)).then(async (summary) => { if (summary) await db.prepare("UPDATE events SET ai_summary = ? WHERE id = ?").bind(summary, eventId).run(); }).catch(() => {})
+      );
     }
-    return json({ event: { id: eventId, spaceId: authResult.spaceId, title: body.title, category: body.category, eventDate: body.eventDate, description: body.description ?? "", aiSummary: null, coverPhotoId: null, coverPhotoUrl: null, photoCount: 0, createdAt: now, updatedAt: now } }, 201);
+    return json({ event: { id: eventId, spaceId: authResult.spaceId, title: body.title, category: body.category, eventDate: body.eventDate, description: body.description ?? "", aiSummary: null, coverPhotoId: null, coverPhotoUrl: null, photoCount: 0, address: body.address ?? "", visibility: vis, latitude: lat, longitude: lng, createdAt: now, updatedAt: now } }, 201);
   } catch (err) { console.error("Create event error:", err); return json({ error: "Something went wrong" }, 500); }
 }

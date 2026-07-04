@@ -1,7 +1,7 @@
 import { json } from "../../../lib/response";
 import { requireAuth, requireRole } from "../../../lib/auth";
 
-export async function onRequestPut(context: any): Promise<Response> {
+export async function onRequestPut(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string }; params: { id: string } }): Promise<Response> {
   try {
     const a = await requireAuth(context.request, context.env);
     if (a instanceof Response) return a;
@@ -16,10 +16,10 @@ export async function onRequestPut(context: any): Promise<Response> {
     vals.push(context.params.id);
     await context.env.DB!.prepare(`UPDATE inspiration SET ${parts.join(", ")} WHERE id = ?`).bind(...vals).run();
     return json({ success: true });
-  } catch (err) { return json({ error: "Failed" }, 500); }
+  } catch (err) { console.error("Admin update pin error:", err); return json({ error: "Failed" }, 500); }
 }
 
-export async function onRequestDelete(context: any): Promise<Response> {
+export async function onRequestDelete(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string }; params: { id: string } }): Promise<Response> {
   try {
     const a = await requireAuth(context.request, context.env);
     if (a instanceof Response) return a;
@@ -27,5 +27,5 @@ export async function onRequestDelete(context: any): Promise<Response> {
     await context.env.DB!.prepare("DELETE FROM inspiration_loves WHERE inspiration_id = ?").bind(context.params.id).run();
     await context.env.DB!.prepare("DELETE FROM inspiration WHERE id = ?").bind(context.params.id).run();
     return json({ success: true });
-  } catch (err) { return json({ error: "Failed" }, 500); }
+  } catch (err) { console.error("Admin delete pin error:", err); return json({ error: "Failed" }, 500); }
 }

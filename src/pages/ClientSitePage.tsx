@@ -67,7 +67,11 @@ export function ClientSitePage() {
   useEffect(() => {
     if (!slug) return;
     fetch(`/api/clients/public/${slug}`)
-      .then((r) => (r.ok ? r.json() : null))
+      .then((r) => {
+        if (r.status === 404) return null;
+        if (!r.ok) throw new Error(`Server error (${r.status})`);
+        return r.json();
+      })
       .then((d: ClientSiteData | null) => setSite(d))
       .catch(() => setSite(null));
   }, [slug]);

@@ -1,6 +1,6 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { useParams, Link } from "react-router-dom";
-import { api, setToken } from "@/lib/api";
+import { api, setToken, getToken } from "@/lib/api";
 import { EventGrid } from "@/components/events/EventGrid";
 import { SpaceEventMap } from "@/components/map/SpaceEventMap";
 import { PhotographerHero } from "@/components/photographer/PhotographerHero";
@@ -207,12 +207,14 @@ export function SpacePage() {
                 viewMode === "tile" ? "text-white shadow-md" : "text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100")}
               style={viewMode === "tile" ? { backgroundColor: theme } : {}}
             >🎨 Tiles</button>
+            {getToken() && (
             <button
               onClick={() => setViewMode("map")}
               className={cn("rounded-md px-4 py-2 text-sm font-semibold transition-all",
                 viewMode === "map" ? "text-white shadow-md" : "text-neutral-500 hover:text-neutral-700 hover:bg-neutral-100")}
               style={viewMode === "map" ? { backgroundColor: theme } : {}}
             >🗺️ Map</button>
+            )}
           </div>
         </div>
       </div>
