@@ -51,7 +51,6 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
 
       return json({ event: { id: ev.id, spaceId: ev.space_id, title: ev.title, category: ev.category, eventDate: ev.event_date, description: ev.description, aiSummary: ev.ai_summary, coverPhotoId: ev.cover_photo_id, address: ev.address || "", addressLocked: (ev.address_locked as number) === 1, public: (ev.public as number) !== 0, createdAt: ev.created_at, updatedAt: ev.updated_at }, photos: photoList, videos: videoList });
     }
-    }
 
     // Return scrubbed public data for readable non-owner events
     const photos = await db.prepare("SELECT id, storage_key, width, height, license FROM photos WHERE event_id = ? AND deleted_at IS NULL ORDER BY created_at").bind(context.params.id).all();
