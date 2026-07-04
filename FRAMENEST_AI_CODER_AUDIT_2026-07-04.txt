@@ -1,0 +1,1003 @@
+FrameNest Photo Platform Audit for AI Coder
+Date: 2026-07-04
+Repo: C:\Users\shant\photo
+Production: https://framenest.photos
+GitHub: https://github.com/Cicero789/photo
+
+Purpose
+This is a complete handoff audit for the next AI coder. It covers correctness, security, Cloudflare Workers/Pages practices, performance, frontend quality, schema drift, and product enhancements. Prioritize the "Fix first" section before doing feature work.
+
+Important guardrails
+- Do not read, print, commit, or upload .env or any secret values.
+- Do not commit production credentials, API keys, R2 object keys that are secrets, or JWT secrets.
+- Do not use eval, innerHTML, raw SQL string concatenation, or unguarded dynamic SQL.
+- Do not weaken the role model. New endpoints need requireAuth plus role or ownership checks.
+- Before coding, run: git pull origin main.
+- After coding, run at least: npm.cmd run build, npm.cmd test, npm.cmd run lint.
+
+Audit commands run
+- git status --short --branch: clean local branch named master.
+- git pull origin main: already up to date.
+- npm.cmd run build: passed.
+- npm.cmd test: passed, 5 test files, 61 tests.
+- npm.cmd run lint: failed because warnings are treated as errors with --max-warnings 0. There were 67 warnings, mostly no-floating-promises and react-hooks/exhaustive-deps.
+- npm.cmd outdated --long: several dependencies are behind. See "Dependency updates".
+- curl checks against production confirmed security headers and CORS behavior. See "Live production observations".
+
+Limitations of this audit
+- No production credentials or .env values were read.
+- No authenticated production workflow was exercised.
+- Chrome DevTools/Lighthouse MCP was not available, so no measured Lighthouse/Core Web Vitals trace was captured. Performance findings are based on production headers, build output, bundle size, and code review.
+
+Fix first: highest priority items
+
+1. Critical: client gallery code does not match the D1 schema
+
+Impact
+Client gallery photo upload/list endpoints are likely broken in production. The code inserts and selects columns that do not exist in db/schema.sql.
+
+Evidence
+- db/schema.sql client_galleries has: id, client_site_id, name, created_at, updated_at, deleted_at.
+- db/schema.sql client_gallery_photos has: id, gallery_id, storage_key, filename, width, height, file_size, sort_order, created_at, deleted_at.
+- functions/api/clients/[id]/photos.ts queries client_galleries.slug = 'photos' and inserts slug.
+- functions/api/clients/[id]/photos.ts and functions/api/clients/[id]/galleries/[gid].ts insert caption and uploaded_at into client_gallery_photos.
+- functions/api/clients/public/[slug]/galleries/[gid].ts selects caption and uploaded_at.
+- No migration currently adds slug, caption, or uploaded_at.
+
+Recommended approach
+Prefer aligning code to the existing schema unless product requirements truly need gallery slugs and captions. If captions are required, create a migration and update all reads/writes consistently. Do not leave code and schema split.
+
+Suggested code pattern for default gallery lookup/create
+
+```ts
+async function getOrCreateDefaultClientGallery(db: D1Database, clientSiteId: string) {
+  const existing = await db.prepare(`
+    SELECT id
+    FROM client_galleries
+    WHERE client_site_id = ? AND name = ? AND deleted_at IS NULL
+    LIMIT 1
+  `).bind(clientSiteId, "Photos").first<{ id: string }>();
+
+  if (existing) return existing.id;
+
+  const galleryId = crypto.randomUUID();
+  const now = new Date().toISOString();
+
+  await db.prepare(`
+    INSERT INTO client_galleries (id, client_site_id, name, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?)
+  `).bind(galleryId, clientSiteId, "Photos", now, now).run();
+
+  return galleryId;
+}
+```
+
+Suggested code pattern for inserting client gallery photos
+
+```ts
+const photoId = crypto.randomUUID();
+const now = new Date().toISOString();
+
+await db.prepare(`
+  INSERT INTO client_gallery_photos
+    (id, gallery_id, storage_key, filename, width, height, file_size, sort_order, created_at)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+`).bind(
+  photoId,
+  galleryId,
+  storageKey,
+  file.name,
+  0,
+  0,
+  file.size,
+  sortOrder,
+  now
+).run();
+```
+
+Suggested public list query
+
+```ts
+const photos = await db.prepare(`
+  SELECT id, storage_key, filename, width, height, file_size, sort_order, created_at
+  FROM client_gallery_photos
+  WHERE gallery_id = ? AND deleted_at IS NULL
+  ORDER BY sort_order ASC, created_at ASC
+`).bind(galleryId).all();
+```
+
+If captions are required instead, add a migration similar to this:
+
+```sql
+ALTER TABLE client_gallery_photos ADD COLUMN caption TEXT;
+ALTER TABLE client_gallery_photos ADD COLUMN uploaded_at TEXT;
+UPDATE client_gallery_photos SET uploaded_at = created_at WHERE uploaded_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_client_gallery_photos_uploaded
+  ON client_gallery_photos(gallery_id, uploaded_at);
+```
+
+Then update schema.sql, queries, tests, and health checks together.
+
+Tests to add
+- Upload a client-site photo into a local/test D1 database created from db/schema.sql.
+- List a public client gallery and assert no SQL "no such column" error.
+- Run the same test before and after the migration path, if choosing migration.
+
+2. High: album upload accepts weakly validated files and has no size/count cap
+
+Impact
+The public album upload endpoint can store arbitrary or oversized content if the browser-provided MIME type is missing or misleading. This risks storage abuse, unexpected downloads, and operational cost.
+
+Evidence
+- functions/api/albums/[id]/photos.ts calls await request.formData() and stores files in R2.
+- It uses validateUploadContent(file), but validateUploadContent mostly rejects known dangerous signatures and accepts files when type is empty or not image/* unless the file starts with HTML/SVG patterns.
+- No explicit max file size, max file count, total request size, or allowlist MIME check is enforced in this route.
+
+Suggested shared upload policy
+
+```ts
+// functions/lib/upload-policy.ts
+export const PHOTO_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif"
+]);
+
+export const VIDEO_MIME_TYPES = new Set([
+  "video/mp4",
+  "video/webm",
+  "video/quicktime"
+]);
+
+export const MAX_ALBUM_PHOTO_BYTES = 15 * 1024 * 1024;
+export const MAX_ALBUM_PHOTO_COUNT = 20;
+export const MAX_ALBUM_UPLOAD_BYTES = MAX_ALBUM_PHOTO_BYTES * MAX_ALBUM_PHOTO_COUNT;
+
+export function safeImageExtension(file: File): string {
+  switch (file.type) {
+    case "image/jpeg": return "jpg";
+    case "image/png": return "png";
+    case "image/webp": return "webp";
+    case "image/gif": return "gif";
+    default: return "bin";
+  }
+}
+
+export function rejectOversizedRequest(request: Request, maxBytes: number): Response | null {
+  const rawLength = request.headers.get("content-length");
+  if (!rawLength) return null;
+
+  const contentLength = Number(rawLength);
+  if (!Number.isFinite(contentLength) || contentLength < 0) {
+    return new Response(JSON.stringify({ error: "Invalid Content-Length" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+
+  if (contentLength > maxBytes) {
+    return new Response(JSON.stringify({ error: "Upload too large" }), {
+      status: 413,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+
+  return null;
+}
+```
+
+Suggested album upload route checks
+
+```ts
+const tooLarge = rejectOversizedRequest(context.request, MAX_ALBUM_UPLOAD_BYTES);
+if (tooLarge) return tooLarge;
+
+const formData = await context.request.formData();
+const files = formData.getAll("photos").filter((entry): entry is File => entry instanceof File);
+
+if (files.length === 0) {
+  return Response.json({ error: "No photos provided" }, { status: 400 });
+}
+
+if (files.length > MAX_ALBUM_PHOTO_COUNT) {
+  return Response.json({ error: "Too many photos in one request" }, { status: 413 });
+}
+
+for (const file of files) {
+  if (!PHOTO_MIME_TYPES.has(file.type)) {
+    return Response.json({ error: `Unsupported image type: ${file.type || "unknown"}` }, { status: 400 });
+  }
+
+  if (file.size <= 0 || file.size > MAX_ALBUM_PHOTO_BYTES) {
+    return Response.json({ error: "Photo file is too large" }, { status: 413 });
+  }
+
+  const contentCheck = await validateUploadContent(file);
+  if (!contentCheck.valid) {
+    return Response.json({ error: contentCheck.error }, { status: 400 });
+  }
+}
+```
+
+Also update validateUploadContent so it fails closed when MIME is missing for upload routes that require a photo or video.
+
+3. High: authenticated photo/video uploads parse full form data before request size checks
+
+Impact
+The app reads the entire multipart body before deciding whether it is too large. This can waste memory and CPU at the edge. Cloudflare guidance is to enforce limits before consuming large bodies.
+
+Evidence
+- functions/api/photos/upload.ts calls await context.request.formData() before checking file sizes.
+- functions/api/videos/upload.ts calls await context.request.formData() before checking file sizes.
+- Neither route caps file count or total size.
+
+Suggested fix
+- Check Content-Length before formData().
+- Enforce max count.
+- Enforce per-file and total bytes after parsing.
+- For larger production uploads, switch to direct-to-R2 signed upload URLs or multipart/resumable upload flow and keep the Function as the metadata/finalize endpoint.
+
+Suggested helper
+
+```ts
+function sumFileBytes(files: File[]) {
+  return files.reduce((sum, file) => sum + file.size, 0);
+}
+
+function requireFileBatch(files: File[], options: {
+  maxCount: number;
+  maxEachBytes: number;
+  maxTotalBytes: number;
+  allowedTypes: Set<string>;
+}) {
+  if (files.length === 0) return "No files provided";
+  if (files.length > options.maxCount) return "Too many files";
+
+  const total = sumFileBytes(files);
+  if (total > options.maxTotalBytes) return "Upload batch is too large";
+
+  for (const file of files) {
+    if (!options.allowedTypes.has(file.type)) return `Unsupported file type: ${file.type || "unknown"}`;
+    if (file.size <= 0 || file.size > options.maxEachBytes) return "One or more files are too large";
+  }
+
+  return null;
+}
+```
+
+4. High: signed media URLs should sign the media kind and use constant-time comparison
+
+Impact
+The current signature signs storageKey and expires, but not kind. If the same storage key exists in both buckets, a signature may be replayed across photo/video routes. The comparison also uses direct string equality, which is not ideal for secret signatures.
+
+Evidence
+- functions/lib/signed-url.ts signs `${storageKey}:${expires}`.
+- functions/lib/signed-url.ts verifies with `expected === signature`.
+- functions/api/media/[[path]].ts bypasses DB authorization when a signed URL is valid.
+
+Suggested signed URL implementation
+
+```ts
+async function hmacHex(secret: string, data: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(data));
+  return Array.from(new Uint8Array(signature))
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function constantTimeEqualHex(a: string, b: string): boolean {
+  const maxLength = Math.max(a.length, b.length);
+  let diff = a.length ^ b.length;
+
+  for (let i = 0; i < maxLength; i++) {
+    diff |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+  }
+
+  return diff === 0;
+}
+
+function mediaSigningPayload(kind: "photos" | "videos", storageKey: string, expires: number) {
+  return `v1:${kind}:${storageKey}:${expires}`;
+}
+
+export async function signMediaUrl(
+  storageKey: string,
+  kind: "photos" | "videos",
+  secret: string,
+  ttlSeconds = 900
+): Promise<string> {
+  const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
+  const signature = await hmacHex(secret, mediaSigningPayload(kind, storageKey, expires));
+  return `/api/media/${kind}/${encodeURIComponent(storageKey)}?expires=${expires}&signature=${signature}`;
+}
+
+export async function verifyMediaSignature(
+  storageKey: string,
+  kind: "photos" | "videos",
+  expires: string | null,
+  signature: string | null,
+  secret: string
+): Promise<boolean> {
+  if (!expires || !signature) return false;
+
+  const expiresAt = Number(expires);
+  if (!Number.isFinite(expiresAt) || expiresAt < Math.floor(Date.now() / 1000)) return false;
+
+  const expected = await hmacHex(secret, mediaSigningPayload(kind, storageKey, expiresAt));
+  return constantTimeEqualHex(expected, signature);
+}
+```
+
+Recommended extra hardening
+- Keep the TTL short, for example 10 to 15 minutes for private media.
+- Consider checking the database row still exists and is not deleted even when the signature is valid.
+- Add tests that a photo signature cannot access the videos bucket and vice versa.
+
+5. High: custom domains need validation, uniqueness, and ownership verification
+
+Impact
+Users can currently submit arbitrary custom_domain values for spaces/client sites. Without DNS verification, a user can claim a domain they do not control. Without normalization and uniqueness checks, the same hostname can be stored in multiple forms.
+
+Evidence
+- functions/api/spaces/[slug].ts accepts custom_domain from the request body.
+- functions/api/clients/[id].ts accepts custom_domain from the request body.
+- db/schema.sql does not show a unique index for client_sites.custom_domain.
+
+Suggested hostname normalization
+
+```ts
+export function normalizeCustomDomain(input: unknown): string | null {
+  if (typeof input !== "string") return null;
+
+  const value = input.trim();
+  if (!value) return null;
+
+  let host: string;
+  try {
+    const url = value.includes("://") ? new URL(value) : new URL(`https://${value}`);
+    host = url.hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+
+  const labels = host.split(".");
+  const valid = labels.length >= 2 && labels.every((label) =>
+    label.length > 0 &&
+    label.length <= 63 &&
+    !label.startsWith("-") &&
+    !label.endsWith("-") &&
+    /^[a-z0-9-]+$/.test(label)
+  );
+
+  if (!valid) return null;
+  if (host === "framenest.photos" || host.endsWith(".framenest.photos")) return null;
+
+  return host;
+}
+```
+
+Recommended schema changes
+
+```sql
+CREATE UNIQUE INDEX IF NOT EXISTS idx_spaces_custom_domain_unique
+  ON spaces(custom_domain)
+  WHERE custom_domain IS NOT NULL;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_client_sites_custom_domain_unique
+  ON client_sites(custom_domain)
+  WHERE custom_domain IS NOT NULL;
+
+ALTER TABLE spaces ADD COLUMN custom_domain_verified_at TEXT;
+ALTER TABLE spaces ADD COLUMN custom_domain_verification_token TEXT;
+
+ALTER TABLE client_sites ADD COLUMN custom_domain_verified_at TEXT;
+ALTER TABLE client_sites ADD COLUMN custom_domain_verification_token TEXT;
+```
+
+Recommended workflow
+- Save normalized hostname plus a random verification token.
+- Ask the owner to add a TXT record like `_framenest.<domain>`.
+- Only route traffic for a custom domain after the TXT record validates.
+- Return 409 if another space/client site already owns the hostname.
+
+6. High: JWT/session revocation is missing
+
+Impact
+Password reset does not invalidate existing JWTs. If a token is stolen before reset, it can remain usable until it expires. For admin roles, immediate revocation matters.
+
+Evidence
+- functions/api/auth/reset-password.ts contains a comment noting existing JWTs are not invalidated.
+- Auth appears to rely on short-lived JWTs without server-side session versioning.
+
+Suggested schema
+
+```sql
+ALTER TABLE users ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0;
+CREATE INDEX IF NOT EXISTS idx_users_token_version ON users(id, token_version);
+```
+
+Suggested behavior
+- Include token_version in JWT claims.
+- requireAuth loads the user and verifies JWT token_version equals users.token_version.
+- On password reset, password change, role demotion, owner rotation, or "log out all devices", increment users.token_version.
+
+Suggested password reset update
+
+```ts
+await db.prepare(`
+  UPDATE users
+  SET password_hash = ?, token_version = token_version + 1, updated_at = ?
+  WHERE id = ?
+`).bind(passwordHash, new Date().toISOString(), user.id).run();
+```
+
+7. Medium-high: space member role logic can block valid changes
+
+Impact
+The member delete endpoint treats any page_admin as the space owner. That can make non-owner admins undeletable. Invite/add logic also appears to only check whether an email exists in the current space, while users.email is globally unique, so inviting a user who exists in another space can fail.
+
+Evidence
+- functions/api/spaces/members.ts refuses to remove a user if their role is page_admin.
+- users.email is unique in schema.
+- Existing code checks email within the current space rather than globally handling existing users.
+
+Suggested remove-owner check
+
+```ts
+const space = await db.prepare(`
+  SELECT owner_id FROM spaces WHERE id = ?
+`).bind(spaceId).first<{ owner_id: string }>();
+
+if (space?.owner_id === targetUserId) {
+  return Response.json({ error: "Cannot remove the space owner" }, { status: 400 });
+}
+```
+
+Suggested invite behavior
+- If email exists globally, add a space_members row for that user instead of trying to create a duplicate user.
+- If email exists and is already a member, return 409 with a clear message.
+- If email does not exist, create pending/invited user or send invite token.
+
+8. Medium-high: background activity logging should use context.waitUntil
+
+Impact
+Fire-and-forget promises may be dropped after the response finishes in Workers/Pages Functions. Activity logs can be lost.
+
+Evidence
+- functions/lib/activity.ts calls db.prepare(...).run().catch(...) internally.
+- functions/api/bookings/inquire.ts and functions/api/connections/index.ts call logActivity without waitUntil.
+
+Suggested helper change
+
+```ts
+// functions/lib/activity.ts
+export function logActivity(
+  db: D1Database,
+  spaceId: string,
+  actorUserId: string | null,
+  action: string,
+  entityType: string,
+  entityId: string,
+  metadata?: unknown
+): Promise<unknown> {
+  return db.prepare(`
+    INSERT INTO activity_logs
+      (id, space_id, actor_user_id, action, entity_type, entity_id, metadata, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(
+    crypto.randomUUID(),
+    spaceId,
+    actorUserId,
+    action,
+    entityType,
+    entityId,
+    metadata ? JSON.stringify(metadata) : null,
+    new Date().toISOString()
+  ).run();
+}
+```
+
+Suggested call-site pattern
+
+```ts
+context.waitUntil(
+  logActivity(db, spaceId, userId, "booking.created", "booking", bookingId, metadata)
+    .catch((error) => console.error("activity_log_failed", error))
+);
+```
+
+9. Medium: Cloudflare runtime config and types are stale
+
+Impact
+Runtime compatibility is more than a year behind the current date, and function TypeScript types are pinned to 2023-07-01. This increases drift from the current Workers runtime and misses newer APIs/types.
+
+Evidence
+- wrangler.toml has compatibility_date = "2025-06-09".
+- functions/tsconfig.json uses @cloudflare/workers-types/2023-07-01.
+- No generated worker-configuration.d.ts was found.
+- No observability block was found in wrangler.toml.
+
+Suggested steps
+1. Upgrade in a branch and test locally.
+2. Generate Cloudflare binding types:
+
+```bash
+npx wrangler types worker-configuration.d.ts
+```
+
+3. Include the generated Env type in function code or global types.
+4. Update compatibility_date incrementally after testing. Because today is 2026-07-04, do not jump blindly in production without testing.
+5. Add observability configuration if supported by the project setup.
+
+Suggested wrangler.toml direction
+
+```toml
+compatibility_date = "2026-07-04"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+
+[observability.traces]
+enabled = true
+head_sampling_rate = 0.01
+```
+
+If Wrangler rejects this exact TOML shape for Pages, adapt to the current official schema but keep the intent: logs and traces enabled with reasonable sampling.
+
+10. Medium: static assets are not cached aggressively
+
+Impact
+Production hashed JS assets and static thumbnails are served with revalidation instead of long-lived immutable caching. This slows repeat visits and increases bandwidth.
+
+Evidence from production
+- /assets/index-Dk0tTWEL.js returned Cache-Control: public, max-age=0, must-revalidate.
+- /thumbnails/travel-3.jpg returned Cache-Control: public, max-age=0, must-revalidate.
+
+Suggested public/_headers file
+
+```txt
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/thumbnails/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+/templates/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+```
+
+Notes
+- Vite copies public/_headers to dist/_headers during build.
+- Keep HTML max-age low so deployments are picked up quickly.
+- Do not add broad immutable caching to non-hashed user media paths.
+
+11. Medium: CSP and Google Fonts usage are inconsistent
+
+Impact
+The CSP does not allow Google Fonts, but at least one template imports Google Fonts. That font load will be blocked in production unless CSP is more permissive. Self-hosting fonts is better for performance and privacy.
+
+Evidence
+- functions/_middleware.ts CSP style/font directives do not include fonts.googleapis.com or fonts.gstatic.com.
+- src/pages/templates/TemplatePortraitHeadshot.tsx imports Google Fonts via CSS.
+
+Best fix
+- Self-host required fonts or remove template-level external imports.
+- If external fonts are required, add the exact domains to CSP:
+
+```ts
+style-src 'self' 'unsafe-inline' https://api.mapbox.com https://fonts.googleapis.com;
+font-src 'self' data: https://fonts.gstatic.com;
+```
+
+Also consider replacing style injection/dangerouslySetInnerHTML usage with imported CSS modules or normal CSS when possible.
+
+12. Medium: API HEAD behavior can mislead monitors
+
+Impact
+GET /api/health returns JSON 401 unauthenticated, but HEAD /api/health returned SPA HTML 200 in production. A monitor using HEAD can incorrectly report the API as healthy.
+
+Suggested options
+- Configure monitors to use GET.
+- Add onRequestHead handlers where needed.
+- Add a public /api/public-health endpoint that intentionally returns JSON 200 without auth and without leaking details.
+
+13. Medium: lint warnings are blocking CI/developer workflow
+
+Impact
+npm run lint fails because --max-warnings 0 is enabled and 67 warnings exist. That means any coder who follows the required commands will fail even if build/tests pass.
+
+Main warning groups
+- @typescript-eslint/no-floating-promises.
+- react-hooks/exhaustive-deps.
+- Unused eslint-disable comments.
+
+Suggested fix pattern for intentional fire-and-forget UI calls
+
+```ts
+void doAsyncWork().catch((error) => {
+  console.error("operation_failed", error);
+});
+```
+
+Suggested fix pattern for effects
+
+```ts
+useEffect(() => {
+  let cancelled = false;
+
+  void loadData().then((data) => {
+    if (!cancelled) setData(data);
+  });
+
+  return () => {
+    cancelled = true;
+  };
+}, [loadData]);
+```
+
+If loadData is declared inside the component, wrap it in useCallback with the correct dependencies or move the logic into the effect.
+
+14. Medium: main frontend bundle is large
+
+Impact
+The main bundle is 660.42 kB minified and 168.10 kB gzip. Route components are eagerly imported from App.tsx. This increases first-load cost.
+
+Evidence
+- npm run build output: dist/assets/index-Dk0tTWEL.js is 660.42 kB.
+- src/App.tsx imports many pages at startup.
+- PhotoEditorModal is already lazy but its chunk is 950.32 kB minified. That is acceptable only if it stays out of first load.
+
+Suggested route splitting
+
+```tsx
+import { lazy, Suspense } from "react";
+
+const HomePage = lazy(() => import("./pages/HomePage").then((m) => ({ default: m.HomePage })));
+const LoginPage = lazy(() => import("./pages/LoginPage").then((m) => ({ default: m.LoginPage })));
+const EventDetailPage = lazy(() => import("./pages/EventDetailPage").then((m) => ({ default: m.EventDetailPage })));
+
+function RouteFallback() {
+  return (
+    <main className="min-h-screen bg-white">
+      <div className="mx-auto max-w-6xl px-4 py-10 text-sm text-gray-600">
+        Loading...
+      </div>
+    </main>
+  );
+}
+
+export function App() {
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <Routes>
+        {/* existing routes */}
+      </Routes>
+    </Suspense>
+  );
+}
+```
+
+Suggested targets
+- Keep public home/login/gate route JS small.
+- Lazy-load admin dashboards, maps, editors, template screens, Stripe pages, and heavy media pages.
+- Consider prefetch on hover for expected next actions.
+
+15. Medium: localStorage JWTs are XSS-sensitive
+
+Impact
+JWTs in localStorage are accessible to any successful XSS. The current CSP and React defaults help, but admin roles and private media justify stronger session handling.
+
+Evidence
+- src/lib/api.ts stores the token in localStorage and injects Authorization headers.
+
+Suggested improvement
+- Move auth to HttpOnly, Secure, SameSite=Lax or SameSite=Strict cookies.
+- Keep CSRF protection for state-changing requests.
+- If full migration is too large, shorten JWT lifetime and add token_version revocation first.
+
+16. Medium: Mapbox public token is hardcoded
+
+Impact
+A Mapbox public token is not a secret, but hardcoding it makes rotation and environment separation harder. It should also be URL/domain restricted in Mapbox.
+
+Evidence
+- functions/lib/geocode.ts includes a pk.* fallback token.
+- src/pages/InspirationMapPage.tsx includes a hardcoded pk.* token.
+
+Suggested fix
+- Use env.MAPBOX_API_KEY for server geocoding with no hardcoded fallback.
+- For frontend map rendering, expose a Vite public env var or a small public config endpoint.
+- Restrict the frontend Mapbox token to approved domains in Mapbox settings.
+
+17. Medium: schema drift prevention needs automation
+
+Impact
+The client-gallery mismatch shows that TypeScript build and current tests do not catch SQL/schema drift.
+
+Suggested additions
+- Add a local D1/miniflare test that creates schema from db/schema.sql and exercises each important route.
+- Add route smoke tests for:
+  - auth login failure/success paths.
+  - album upload bad file rejection.
+  - photo upload max size rejection.
+  - client gallery upload/list.
+  - media signed URL expiration and wrong-kind rejection.
+- Extend /api/health or an admin-only diagnostics endpoint to check critical column presence, not just table existence.
+
+18. Low-medium: source encoding and mojibake should be cleaned up
+
+Impact
+Some source files/comments render corrupted characters in terminal output. This is usually harmless at runtime but hurts maintainability and can affect UI text if corruption exists inside strings.
+
+Suggested fix
+- Normalize source files to UTF-8.
+- Replace corrupted decorative glyphs/comments with plain ASCII or correct Unicode.
+- Keep UI copy consistent and test rendered pages after cleanup.
+
+19. Low-medium: reduce any and hand-written Env drift
+
+Impact
+Many route context types are manually declared. That increases the chance of missing bindings and hiding mistakes.
+
+Suggested fix
+- Generate worker-configuration.d.ts.
+- Use shared Env and route context types.
+- Replace broad any with typed request DTOs and zod validation where inputs cross trust boundaries.
+
+20. Low-medium: update dependencies intentionally
+
+Outdated packages observed
+- @cloudflare/workers-types: installed 4.20260611.1, wanted 4.20260702.1, latest 5.20260704.1.
+- @stripe/stripe-js: 9.8.0 -> 9.9.0.
+- @tailwindcss/vite: 4.3.0 -> 4.3.2.
+- @tanstack/react-query: 5.101.0 -> 5.101.2.
+- @typescript-eslint packages: 8.61.1 -> 8.62.1.
+- @vitejs/plugin-react: 4.7.0 -> 6.0.3.
+- eslint: 10.5.0 -> 10.6.0.
+- puppeteer: 25.1.0 -> 25.3.0.
+- react-router-dom: 7.17.0 -> 7.18.1.
+- sharp: 0.35.2 -> 0.35.3.
+- tailwindcss: 4.3.0 -> 4.3.2.
+- typescript: 5.8.3 -> 6.0.3.
+- vite: 6.4.3 -> 8.1.3.
+- wrangler: 4.99.0 -> 4.107.0.
+- zod: 3.25.76 -> 4.4.3.
+
+Suggested update strategy
+- Patch/minor updates first: Wrangler, Tailwind, React Query, Stripe, ESLint, TypeScript ESLint, Sharp.
+- Then test Vite/plugin-react major upgrades separately.
+- Treat zod v4 and TypeScript v6 as separate migration branches.
+- Run build, tests, lint, and a smoke deploy preview after each group.
+
+Live production observations
+
+Good findings
+- GET https://framenest.photos returns HSTS, X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Referrer-Policy, and a CSP.
+- API CORS rejects an evil Origin for /api/auth/login OPTIONS and for public photographer GET.
+- OPTIONS with Origin https://framenest.photos returns Access-Control-Allow-Origin: https://framenest.photos.
+- GET /api/health returns 401 JSON when unauthenticated.
+
+Needs attention
+- Static hashed assets and thumbnails have Cache-Control: public, max-age=0, must-revalidate.
+- HEAD /api/health returned SPA HTML 200.
+- Main JS bundle is large.
+
+Security hardening checklist
+
+Authentication and authorization
+- Add token_version session revocation.
+- Audit all endpoints for requireAuth plus requireRole/ownership checks.
+- Add tests that viewer/staff/page_admin/platform_owner boundaries match the intended matrix.
+- Consider HttpOnly cookie auth with CSRF protection.
+- Add "log out all devices" for account settings and platform owner tools.
+
+Uploads and media
+- Fail closed on unknown MIME types.
+- Enforce request Content-Length before reading multipart bodies.
+- Add max count and total batch bytes.
+- Re-encode images or generate safe derivatives before serving thumbnails/previews.
+- Store user-visible filenames separately from storage keys.
+- Keep media response headers strict:
+
+```txt
+X-Content-Type-Options: nosniff
+Content-Disposition: inline; filename="<safe-name>"
+Cache-Control: private, max-age=300
+```
+
+Use attachment disposition for unknown or untrusted types.
+
+Rate limiting and abuse protection
+- Rate limit by user ID plus IP for authenticated routes.
+- Add per-space/per-album upload quotas.
+- Return Retry-After on 429 responses.
+- Add Cloudflare Turnstile to signup, login, forgot password, public album upload, booking inquiry, and gate-key forms where abuse is likely.
+
+Data protection
+- Add audit_logs/activity_logs for admin actions: role change, custom domain change, delete/restore, export, password reset.
+- Add soft-delete restore workflow and retention policy for spaces/events/photos/videos.
+- Add D1 backup before deploy and document restore steps.
+
+Cloudflare-specific improvements
+- Use ctx.waitUntil for non-critical background tasks.
+- Keep compatibility_date current after preview testing.
+- Generate Cloudflare binding types.
+- Enable Workers/Pages observability.
+- Prefer bindings for D1/R2/KV/secrets. Do not use account API tokens inside runtime code unless absolutely necessary.
+- Avoid global mutable request state. Global cached clients/maps are fine only when they do not store per-request/user data.
+
+Performance improvements
+
+Caching
+- Add public/_headers for hashed static assets and thumbnails.
+- Keep HTML uncached or short-lived.
+- Use stale-while-revalidate for non-sensitive static assets.
+
+Images
+- public/thumbnails contains hundreds of files and about 40 MB total. Convert large static JPEGs to WebP/AVIF where quality allows.
+- Use responsive srcset/sizes for thumbnails and hero images.
+- Consider Cloudflare Images or a Worker-based image resizing pipeline for user uploads.
+
+JavaScript
+- Lazy-load route pages from App.tsx.
+- Keep Filerobot/PhotoEditorModal out of initial load.
+- Consider lazy-loading Mapbox pages/components separately.
+- Run a real Lighthouse or Chrome DevTools trace after route splitting.
+
+CSS/fonts
+- Self-host fonts or align CSP with external font domains.
+- Remove unused template CSS when possible.
+
+Database and backend reliability
+
+Schema/versioning
+- Add a migrations folder with numbered migrations if not already used by deploy scripts.
+- Update db/schema.sql whenever migrations change production schema.
+- Add a CI check that applies schema.sql to a fresh test DB and runs route smoke tests.
+
+Indexes to verify
+- user lookup by email.
+- spaces by slug/custom_domain.
+- events by space_id and date.
+- photos by event_id and created_at/sort_order.
+- videos by event_id and created_at.
+- client_sites by slug/custom_domain.
+- client_galleries by client_site_id/deleted_at.
+- client_gallery_photos by gallery_id/sort_order/deleted_at.
+
+Error handling
+- Return consistent JSON error shape:
+
+```ts
+type ApiError = {
+  error: string;
+  code?: string;
+  requestId?: string;
+};
+```
+
+- Add request IDs to responses and logs.
+- Avoid exposing raw SQL errors to clients.
+
+Frontend UX enhancements
+
+Admin/dashboard
+- Add upload progress, retry, and cancel for photo/video uploads.
+- Add failed upload summary with exact file names.
+- Add optimistic UI only when rollback is implemented.
+- Add bulk select/actions for events, photos, videos, client gallery photos, and album moderation.
+- Add activity feed filters by actor/action/date.
+
+Photographer marketplace
+- Add photographer profile preview cards with verified status, service areas, response time, and sample galleries.
+- Add admin approval queue with reasons and email templates.
+- Add public schema.org structured data for photographer profile pages if they are intended for SEO.
+
+Client galleries
+- Add gallery captions/descriptions intentionally if product wants them, with schema migration.
+- Add download permissions by gallery.
+- Add optional watermarking.
+- Add favorites/selection workflow for clients.
+- Add public/private toggle per gallery.
+
+Albums/public sharing
+- Add per-album upload limits and optional moderation before public display.
+- Add share links with expiration.
+- Add abuse report button.
+- Add Turnstile for anonymous upload.
+
+Maps/events
+- Cache geocoding results and show geocode status/failure in admin UI.
+- Add retry button for failed geocoding.
+- Add manual latitude/longitude override for venue addresses.
+
+Payments/bookings
+- Add webhook signature test fixtures.
+- Add booking status history and audit log.
+- Add idempotency keys for payment/bookings mutation routes.
+
+SEO/PWA
+- Add dynamic sitemap entries for public spaces, photographers, client pages, and albums that should be indexed.
+- Add route-specific Open Graph/Twitter metadata for public pages.
+- Keep private/client media pages noindex unless intentionally public.
+
+Recommended implementation order
+
+Phase 1: production correctness and security
+1. Fix client gallery schema/code mismatch.
+2. Add upload policy shared helpers and enforce them on album/photo/video/client uploads.
+3. Fix signed media URL payload and constant-time comparison.
+4. Add token_version revocation.
+5. Fix member owner deletion and existing-user invite behavior.
+6. Add tests for the above.
+
+Phase 2: Cloudflare/runtime hardening
+1. Generate Worker/Pages binding types.
+2. Update compatibility_date in a preview branch.
+3. Add observability/log sampling.
+4. Convert background logging to waitUntil.
+5. Add custom domain verification and uniqueness.
+
+Phase 3: performance
+1. Add public/_headers caching.
+2. Lazy-load routes in App.tsx.
+3. Optimize static thumbnails and add responsive images.
+4. Run Lighthouse/Chrome trace on home, login, event, public album, and admin pages.
+
+Phase 4: product enhancements
+1. Direct-to-R2 uploads with finalize endpoint.
+2. Turnstile on abuse-prone public forms.
+3. Client gallery selection/favorites/download permissions.
+4. Audit trail UI and admin export.
+5. Dynamic SEO metadata for public pages.
+
+Suggested final verification checklist
+
+Run locally
+```bash
+git pull origin main
+npm.cmd install
+npm.cmd run build
+npm.cmd test
+npm.cmd run lint
+```
+
+Manual smoke tests
+- Sign up/login/logout.
+- Password reset invalidates old sessions.
+- Create space/event and upload photos.
+- Upload invalid photo/video/album files and confirm rejection.
+- Public album upload works for valid images.
+- Client gallery upload/list works.
+- Signed media links expire and cannot cross photo/video kind.
+- Custom domain cannot be saved without verification.
+- Static asset headers show immutable caching for /assets/*.
+- API CORS only allows expected origins.
+
+Deployment safety
+- Back up D1 before schema migration.
+- Deploy to preview first.
+- Check logs/traces for SQL errors after migration.
+- Confirm no .env or secrets are staged.
+
+Summary for the AI coder
+The most urgent issue is schema drift: client-gallery endpoints reference columns that are not in db/schema.sql. Fix that first because it is likely a runtime failure. Next, lock down all upload routes before reading formData, enforce MIME/size/count limits, and harden signed media URLs. After that, improve session revocation, waitUntil background work, custom domain verification, Cloudflare config/types, caching headers, and route-level code splitting.

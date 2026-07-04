@@ -2,6 +2,7 @@
 import { json } from "../../lib/response";
 import { requireAuth } from "../../lib/auth";
 import { validateUploadContent } from "../../lib/upload-validate";
+import { rejectOversizedRequest } from "../../lib/upload-policy";
 
 export async function onRequestGet(context: { request: Request; env: { DB?: D1Database } }): Promise<Response> {
   const a = await requireAuth(context.request, context.env);
@@ -32,6 +33,9 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
   if (!user) return json({ error: "User not found" }, 404);
   const photographer = await context.env.DB!.prepare("SELECT id FROM photographers WHERE email = ? AND status = 'approved'").bind(user.email).first() as any;
   if (!photographer) return json({ error: "Not an approved photographer" }, 403);
+
+  const tooLarge = rejectOversizedRequest(context.request, 50 * 1024 * 1024);
+  if (tooLarge) return tooLarge;
 
   const form = await context.request.formData();
   const file = form.get("file") as File | null;

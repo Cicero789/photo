@@ -9,7 +9,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     if (!user) return json({ error: "Invalid email or password." }, 401);
     const valid = await verifyPassword(body.password, user.password_hash as string); if (!valid) return json({ error: "Invalid email or password." }, 401);
     const space = await getSpaceById(context.env, user.space_id as string) as Record<string, unknown> | null;
-    const token = await signToken({ userId: user.id as string, spaceId: user.space_id as string, role: user.role as string }, getJwtSecret(context.env));
+    const token = await signToken({ userId: user.id as string, spaceId: user.space_id as string, role: user.role as string, tokenVersion: (user.token_version as number) ?? 0 }, getJwtSecret(context.env));
     return json({ user: { id: user.id, email: user.email, name: user.name, role: user.role, spaceId: user.space_id }, space: space ? { id: space.id, name: space.name, slug: space.slug } : null, token });
   } catch (err) { console.error("Login error:", err); return json({ error: "Something went wrong." }, 500); }
 }

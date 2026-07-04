@@ -41,6 +41,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
       spaceId: user.space_id as string,
       role: user.role as string,
       email: user.email as string,
+      tokenVersion: (user.token_version as number) ?? 0,
     }, getJwtSecret(context.env));
 
     return json({

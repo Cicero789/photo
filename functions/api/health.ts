@@ -2,6 +2,11 @@
 
 import { json } from "../lib/response"; import { requireAuth, requireRole } from "../lib/auth";
 
+export async function onRequestHead(context: any): Promise<Response> {
+  const result = await onRequestGet(context);
+  return new Response(null, { status: result.status, headers: result.headers });
+}
+
 type CheckResult = { name: string; status: "pass" | "fail" | "warn"; ms: number; error?: string };
 
 async function check(name: string, fn: () => Promise<void>): Promise<CheckResult> {

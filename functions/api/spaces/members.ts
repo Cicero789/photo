@@ -20,6 +20,12 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     const body = { name: sanitize(rawBody.name, MAX_NAME), email: sanitize(rawBody.email, MAX_EMAIL).toLowerCase(), role: rawBody.role, password: rawBody.password };
     const db = context.env.DB!;
     const existing = await db.prepare("SELECT u.id FROM users u JOIN space_members sm ON u.id = sm.user_id WHERE u.email = ? AND sm.space_id = ?").bind(body.email, authResult.spaceId).first(); if (existing) return json({ error: "A member with this email already exists in your space" }, 409);
+    const existingUser = await db.prepare("SELECT id FROM users WHERE email = ?").bind(body.email).first<{id:string}>();
+    if (existingUser) {
+      // Add existing user as member
+      await db.prepare("INSERT OR IGNORE INTO space_members (id, space_id, user_id, role) VALUES (?,?,?,?)").bind(crypto.randomUUID(), authResult.spaceId, existingUser.id, body.role).run();
+      return json({ success: true });
+    }
     const userId = crypto.randomUUID(); const memberId = crypto.randomUUID(); const passwordHash = await hashPassword(body.password);
     await db.prepare("INSERT INTO users (id, email, name, password_hash, role, space_id) VALUES (?, ?, ?, ?, ?, ?)").bind(userId, body.email, body.name, passwordHash, body.role, authResult.spaceId).run();
     await db.prepare("INSERT INTO space_members (id, space_id, user_id, role) VALUES (?, ?, ?, ?)").bind(memberId, authResult.spaceId, userId, body.role).run();
@@ -34,7 +40,8 @@ export async function onRequestDelete(context: { request: Request; env: { DB?: D
     const url = new URL(context.request.url); const memberId = url.searchParams.get("id"); if (!memberId) return json({ error: "Member ID is required" }, 400);
     const db = context.env.DB!;
     const member = await db.prepare("SELECT * FROM space_members WHERE id = ? AND space_id = ?").bind(memberId, authResult.spaceId).first() as { user_id: string } | null; if (!member) return json({ error: "Member not found" }, 404);
-    const user = await db.prepare("SELECT role FROM users WHERE id = ?").bind(member.user_id).first<{role:string}>(); if (user?.role === "page_admin") return json({ error: "Cannot remove the space owner" }, 400);
+    const space = await db.prepare("SELECT owner_id FROM spaces WHERE id = ?").bind(authResult.spaceId).first<{owner_id:string}>();
+    if (space?.owner_id === member.user_id) return json({ error: "Cannot remove the space owner" }, 400);
     await db.prepare("DELETE FROM space_members WHERE id = ?").bind(memberId).run();
     return json({ success: true });
   } catch (err) { console.error("Remove member error:", err); return json({ error: "Something went wrong" }, 500); }

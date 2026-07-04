@@ -40,7 +40,7 @@ export async function onRequestPost(context: {
 
     // Update user password
     await db
-      .prepare("UPDATE users SET password_hash = ? WHERE id = ?")
+      .prepare("UPDATE users SET password_hash = ?, token_version = token_version + 1 WHERE id = ?")
       .bind(passwordHash, reset.user_id)
       .run();
 

@@ -5,7 +5,7 @@ async function getKey(secret: string): Promise<CryptoKey> {
   return crypto.subtle.importKey("raw", ENCODER.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign", "verify"]);
 }
 
-interface JWTPayload { userId: string; spaceId: string; role: string; email?: string; jti: string; iat: number; exp: number; }
+interface JWTPayload { userId: string; spaceId: string; role: string; email?: string; tokenVersion?: number; jti: string; iat: number; exp: number; }
 
 function base64urlEncode(data: ArrayBuffer | Uint8Array): string {
   const bytes = data instanceof ArrayBuffer ? new Uint8Array(data) : data;

@@ -8,7 +8,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     const space = await getSpaceBySlug(context.env, body.spaceSlug) as Record<string, unknown> | null;
     if (!space) return json({ error: "Space not found" }, 404);
     const valid = await verifyPassword(body.gateKey, space.password_hash as string); if (!valid) return json({ error: "Invalid gate key" }, 401);
-    const token = await signToken({ userId: "viewer", spaceId: space.id as string, role: "viewer" }, getJwtSecret(context.env));
+    const token = await signToken({ userId: "viewer", spaceId: space.id as string, role: "viewer", tokenVersion: 0 }, getJwtSecret(context.env));
     return json({ success: true, token, space: { id: space.id, name: space.name, slug: space.slug, themeColor: space.theme_color } });
   } catch (err) { console.error("Gate verify error:", err); return json({ error: "Something went wrong" }, 500); }
 }

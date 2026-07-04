@@ -1,9 +1,10 @@
-import { json } from "../../lib/response"; import { requireAuth, requireRole } from "../../lib/auth"; import { validateUploadContent } from "../../lib/upload-validate";
+import { json } from "../../lib/response"; import { requireAuth, requireRole } from "../../lib/auth"; import { validateUploadContent } from "../../lib/upload-validate"; import { rejectOversizedRequest } from "../../lib/upload-policy";
 
 export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; VIDEOS?: R2Bucket; JWT_SECRET?: string; ENVIRONMENT?: string } }): Promise<Response> {
   try {
     const authResult = await requireAuth(context.request, context.env); if (authResult instanceof Response) return authResult;
     const roleCheck = requireRole(authResult, "staff"); if (roleCheck) return roleCheck;
+    const tooLarge = rejectOversizedRequest(context.request, 500 * 1024 * 1024); if (tooLarge) return tooLarge;
     const formData = await context.request.formData(); const eventId = formData.get("eventId") as string; const metadataStr = formData.get("metadata") as string | null; const files = formData.getAll("files") as unknown as File[];
     if (!eventId) return json({ error: "eventId is required" }, 400); if (!files || files.length === 0) return json({ error: "At least one file is required" }, 400);
     const VIDEO_TYPES = ["video/mp4","video/webm","video/quicktime","video/mov"];

@@ -88,7 +88,7 @@ export async function onRequestPost(context: {
 
     // ── Sign JWT ────────────────────────────────────────────────
     const token = await signToken(
-      { userId, spaceId, role },
+      { userId, spaceId, role, tokenVersion: 0 },
       getJwtSecret(context.env),
     );
 

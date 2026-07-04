@@ -2,6 +2,7 @@
 import { json } from "../../../lib/response";
 import { requireAuth } from "../../../lib/auth";
 import { validateUploadContent } from "../../../lib/upload-validate";
+import { rejectOversizedRequest, PHOTO_MIME_TYPES, MAX_ALBUM_PHOTO_BYTES, MAX_ALBUM_PHOTO_COUNT } from "../../../lib/upload-policy";
 
 export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; PHOTOS?: R2Bucket }; params: { id: string } }): Promise<Response> {
   const a = await requireAuth(context.request, context.env);
@@ -14,11 +15,17 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
 
   const contentType = context.request.headers.get("content-type") || "";
 
+  const tooLarge = rejectOversizedRequest(context.request, MAX_ALBUM_PHOTO_BYTES * MAX_ALBUM_PHOTO_COUNT);
+  if (tooLarge) return tooLarge;
+
   // Handle multipart upload
   if (contentType.includes("multipart/form-data")) {
     const form = await context.request.formData();
     const file = form.get("file") as File | null;
     if (!file) return json({ error: "No file provided" }, 400);
+
+    if (!PHOTO_MIME_TYPES.has(file.type)) return json({ error: "Unsupported type" }, 400);
+    if (file.size > MAX_ALBUM_PHOTO_BYTES) return json({ error: "Photo too large" }, 413);
 
     const contentCheck = await validateUploadContent(file);
     if (!contentCheck.valid) return json({ error: contentCheck.reason }, 400);
