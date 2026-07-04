@@ -1,0 +1,404 @@
+================================================================================
+FRAMENEST FIX PACK — 2026-07-04
+Answers to: (1) official migration file, (2) Section D with exact file:line
+references, (3) findings cut from the v2 re-audit.
+Line numbers verified against main @ e9ae8e3 (+ branch claude/review-photo-repo-0p8y5b).
+================================================================================
+
+================================================================================
+ANSWER 1 — OFFICIAL MIGRATION FILE
+================================================================================
+The file is already committed on branch claude/review-photo-repo-0p8y5b at:
+    db/migrations/006_client_site_integrity.sql
+Merge that branch and you have it. Full content for reference:
+
+--------------------------------- file start -----------------------------------
+-- Migration 006: client-site soft-delete integrity + media lookup indexes
+-- Run: npx wrangler d1 execute photo-db --remote --file=./db/migrations/006_client_site_integrity.sql
+--
+-- WHY: functions/api/clients/[id].ts and clients/public/[slug].ts query
+-- client_gallery_photos.deleted_at, but no migration ever added that column.
+-- Editing schema.sql does NOT alter tables that already exist (CREATE TABLE
+-- IF NOT EXISTS is a no-op for them), so the live DB needs this ALTER.
+--
+-- NOTE: "ALTER TABLE ... ADD COLUMN" fails if the column already exists.
+-- BEFORE running, check the live DB and delete any ALTER line whose column
+-- is already present:
+--   npx wrangler d1 execute photo-db --remote --command="PRAGMA table_info(client_gallery_photos)"
+--   npx wrangler d1 execute photo-db --remote --command="PRAGMA table_info(client_sites)"
+--   npx wrangler d1 execute photo-db --remote --command="PRAGMA table_info(blog_posts)"
+--   npx wrangler d1 execute photo-db --remote --command="PRAGMA table_info(client_galleries)"
+-- Back up first: npm run db:backup
+
+ALTER TABLE client_gallery_photos ADD COLUMN deleted_at TEXT;
+-- Uncomment any of these that the PRAGMA checks show as missing:
+-- ALTER TABLE client_sites     ADD COLUMN deleted_at TEXT;
+-- ALTER TABLE blog_posts       ADD COLUMN deleted_at TEXT;
+-- ALTER TABLE client_galleries ADD COLUMN deleted_at TEXT;
+
+-- Media serving (/api/media/*) looks up storage keys on EVERY image/video
+-- request; none of these columns were indexed:
+CREATE INDEX IF NOT EXISTS idx_photos_storage_key    ON photos(storage_key);
+CREATE INDEX IF NOT EXISTS idx_videos_storage_key    ON videos(storage_key);
+CREATE INDEX IF NOT EXISTS idx_portfolio_storage_key ON photographer_portfolio(storage_key);
+CREATE INDEX IF NOT EXISTS idx_cgp_storage_key       ON client_gallery_photos(storage_key);
+CREATE INDEX IF NOT EXISTS idx_album_photos_key      ON album_photos(storage_key);
+
+-- Magic-link login scans connections by token hash:
+CREATE INDEX IF NOT EXISTS idx_connections_magic     ON connections(magic_token);
+
+INSERT INTO _migrations (name) VALUES ('006_client_site_integrity');
+---------------------------------- file end ------------------------------------
+
+BECAUSE YOU ALREADY RAN THE ALTERs MANUALLY, do this against the remote DB:
+1. Confirm your manual work landed:
+     npx wrangler d1 execute photo-db --remote --command="PRAGMA table_info(client_gallery_photos)"
+   → deleted_at should be listed with plain type TEXT.
+2. In a COPY of the migration (or the file itself, once), comment out the
+   `ALTER TABLE client_gallery_photos ADD COLUMN deleted_at TEXT;` line
+   (it will error "duplicate column name" now that the column exists), then:
+     npm run db:backup
+     npx wrangler d1 execute photo-db --remote --file=./db/migrations/006_client_site_integrity.sql
+   The CREATE INDEX statements are idempotent (IF NOT EXISTS); the final
+   INSERT records the migration in _migrations. If you re-run the file later,
+   that INSERT fails on the UNIQUE(name) constraint — that's the intended
+   "already applied" guard, not a bug.
+3. Keep the committed file with the ALTER line ACTIVE (uncommented) — that
+   is the correct canonical version for anyone rebuilding a DB that lacks
+   the column. Only your one-time remote run needed it skipped.
+
+WHAT YOUR MANUAL ALTERs LIKELY MISSED (all included in the file):
+- The 5 storage_key indexes — /api/media does a by-storage_key lookup on
+  EVERY image/video request; these were full-table scans.
+- idx_connections_magic — magic-login scans connections by token hash.
+- The _migrations bookkeeping row.
+Optional extra (create only if you use these queries often): an index on
+photos(space_id, deleted_at) — the admin deleted-content view and space
+resets filter on those; current idx_photos_space_id covers it well enough,
+so I did NOT include it.
+
+================================================================================
+ANSWER 2 — SECTION D QUEUE WITH EXACT FILE:LINE REFERENCES
+================================================================================
+Format: ID | file:line — problem → fix. Ordered by priority. Line numbers
+are from main @ e9ae8e3; treat ±2 lines as normal drift.
+
+--- P0 / OPS (do first, in this order) ---
+D-1  db/migrations/006_client_site_integrity.sql — run against remote D1
+     (see Answer 1). Until the deleted_at column exists remotely,
+     GET /api/clients/public/:slug and DELETE /api/clients/:id 500 in prod.
+D-2  Deploy: npm run deploy:safe → then verify the deployment shows
+     "Success" in the Cloudflare Pages dashboard. Deploys were failing
+     while the build was broken; production is stale until a green deploy.
+D-3  Secrets (ops, no file): set via
+     `npx wrangler pages secret put <NAME> --project-name photo`:
+     JWT_SECRET (≥32 chars — functions/lib/jwt.ts:50-56 THROWS in production
+     if unset/short), MEDIA_SIGNING_SECRET, DEEPSEEK_API_KEY, ZOHO_API_KEY,
+     EMAIL_FROM (optional), STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
+     MAPBOX_API_KEY (after D-8). Rotate every key that was in the leaked
+     .env (GitHub PAT, Cloudflare ×2, OpenAI, DeepSeek, Zoho, Mapbox sk.*,
+     Stripe) at each provider.
+
+--- P1 ---
+D-4  P1-3 | db/admin.sql:6-7 — real PBKDF2 hash for admin@photo.app is
+     committed (warning comment added, hash unchanged). → Change the live
+     admin password NOW; replace the hash in the file with a placeholder
+     like '<GENERATE-LOCALLY-NEVER-COMMIT>'; optionally scrub git history.
+D-5  P1-2 | src/lib/api.ts:26-35 (handleResponse) — non-JSON 200 returns {}
+     as success, so any /api call that falls through to the SPA's index.html
+     "succeeds" silently. → Insert at the top of handleResponse():
+       if ((res.headers.get("content-type") || "").includes("text/html")) {
+         throw new Error(`API route not found (${res.status}). Check the endpoint path.`);
+       }
+D-6  NEW-2a | eslint.config.js:1-31 — eslint-plugin-react-hooks is installed
+     (package.json devDeps) but never registered, so the disable comment at
+     src/pages/InspirationMapPage.tsx:268 errors with "rule not found"
+     (this is the 1 lint ERROR). → In eslint.config.js:
+       import reactHooks from "eslint-plugin-react-hooks";
+       // in the src/**/*.{ts,tsx} config object:
+       plugins: { "@typescript-eslint": tseslint, "react-hooks": reactHooks },
+       rules: {
+         "@typescript-eslint/no-floating-promises": "warn",
+         "react-hooks/rules-of-hooks": "error",
+         "react-hooks/exhaustive-deps": "warn",
+       },
+D-7  NEW-2b | 57 × @typescript-eslint/no-floating-promises warnings across
+     src/ (lint gate uses --max-warnings 0, so warnings fail the build gate).
+     Run `npm run lint` for the full list; the pattern fix is mechanical:
+     prefix intentional fire-and-forget calls with `void `:
+       void fetchUsers();   void fetchStats();   etc.
+     Biggest clusters: src/pages/admin/* fetch effects, src/pages/
+     InspirationMapPage.tsx:104, src/pages/DashboardPage.tsx effects,
+     src/components/shared/NotificationBell.tsx.
+D-8  P1-5 | Hardcoded Mapbox tokens (4 copies of the same pk.* literal):
+       src/pages/InspirationMapPage.tsx:15   (also used at :307 for geocoding)
+       src/components/map/EventMap.tsx:55
+       src/components/map/SpaceEventMap.tsx:21
+       functions/lib/geocode.ts:8            (fallback default)
+     → Frontend: create src/lib/mapbox.ts exporting
+       `export const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string;`
+       add VITE_MAPBOX_TOKEN to .env AND to the Cloudflare Pages build
+       environment variables; replace the three literals.
+     → Backend: remove the hardcoded default in geocode.ts:8 (no token →
+       log + return null), and pass the env key at both call sites:
+         functions/api/events/index.ts:67  → geocodeAddress(body.address, context.env.MAPBOX_API_KEY)
+         functions/api/events/[id].ts:83   → geocodeAddress(body.address, context.env.MAPBOX_API_KEY)
+       (add MAPBOX_API_KEY?: string to both env types; set the secret, D-3).
+     → In the Mapbox dashboard: URL-restrict the pk token to framenest.photos
+       + *.photo-ll2.pages.dev + localhost.
+D-9  P1-6 | functions/lib/signed-url.ts:20 — `return expected === signature;`
+     is not constant-time. → Replace verifyMediaSignature body:
+       const exp = parseInt(expires, 10);
+       if (isNaN(exp) || exp < Math.floor(Date.now() / 1000)) return false;
+       if (!/^[0-9a-f]{64}$/i.test(signature)) return false;
+       const data = `${storageKey}:${exp}`;
+       const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
+       const sigBytes = new Uint8Array(signature.match(/.{2}/g)!.map((b) => parseInt(b, 16)));
+       return crypto.subtle.verify("HMAC", key, sigBytes, new TextEncoder().encode(data));
+     Then run: npm test (tests/signed-url.test.ts must stay green).
+D-10 P1-7 | functions/_middleware.ts:49-55 (RATE_LIMITED_PREFIXES) — magic
+     link login can be brute-forced without limit. → Add one entry:
+       "/api/auth/magic-login",
+D-11 P1-8 | functions/api/events/index.ts:75-76 — AI summary promise is
+     fire-and-forget without context.waitUntil; the Workers runtime may kill
+     it after the response is returned → ai_summary randomly never saves.
+     → Add `waitUntil: (p: Promise<unknown>) => void` to the context type of
+     onRequestPost and wrap:
+       context.waitUntil(
+         generateSummary(...).then(async (summary) => { ... })
+           .catch((e) => console.error("Summary generation failed:", e))
+       );
+
+--- P2 ---
+D-12 P2-4 | src/pages/SpacePage.tsx:113-118 (demo auto-unlock sets no token)
+     + :71-79 (fetchMapPhotos calls auth-required GET /api/photos, see
+     functions/api/photos/index.ts:18-24) — demo space "Map" view always
+     401s silently and shows nothing. → Cheapest: hide the map toggle when
+     `!getToken()`; correct: add an anonymous branch to photos/index.ts that
+     returns only photos belonging to PUBLIC events of the requested space
+     (mirror the anonymous branch pattern in events/index.ts:13-19).
+D-13 P2-6 | functions/api/videos/upload.ts:10 — 500MB limit is unreachable:
+     Cloudflare caps request bodies at ~100MB, so uploads >100MB die at the
+     edge with a confusing error. → Change to 95MB and update the uploader
+     UI copy; long-term move to R2 multipart/presigned or Cloudflare Stream
+     (videos.stream_id column already exists, unused).
+     ALSO :12 — event lookup misses `AND deleted_at IS NULL` (photos/
+     upload.ts:12 has it) → add for consistency.
+D-14 P2-3 | functions/api/health.ts:32 — `expected` tables list is stale
+     (missing 10 tables). → Replace with:
+       ["users","spaces","events","photos","videos","orders","event_messages",
+        "activity_log","inspiration","inspiration_loves","connections",
+        "photographers","photographer_portfolio","reviews","booking_inquiries",
+        "albums","album_photos","ad_tiles","rate_limits","password_resets",
+        "space_members","client_sites","blog_posts","client_galleries",
+        "client_gallery_photos"]
+D-15 P2-8 | src/pages/ClientSitePage.tsx:69-73 — every non-OK response
+     (including 500s) silently falls back to PhotographerProfilePage, hiding
+     real outages. → Distinguish 404 from failure:
+       .then((r) => { if (r.status === 404) return null;
+                      if (!r.ok) throw new Error(`site fetch ${r.status}`);
+                      return r.json(); })
+       .then((d) => setSite(d))
+       .catch(() => setSite(null));   // optionally set an error banner state
+D-16 P2-5 | functions/lib/rate-limit.ts:5 — table-wide DELETE runs on EVERY
+     rate-limited request; :6-8 read-then-write is racy (documented quirk).
+     → Interim: gate the DELETE behind `if (Math.random() < 0.05)` and merge
+     the two COUNT queries into one. Proper: Cloudflare rate limiting rules
+     or a Durable Object.
+     RELATED | functions/api/auth/gate.ts:5 — gate double-limits (handler
+     bucket "gate" + middleware bucket "auth/gate") → remove the in-handler
+     checkRateLimit call; middleware already covers it. Same applies to
+     functions/api/auth/forgot-password.ts:19-22 (bucket "forgot-password"
+     vs middleware "auth/forgot-password").
+D-17 P2-2 | functions/api/photos/upload.ts:16-22 — thumbnail_key is never
+     populated; grids serve originals (see url mapping at functions/api/
+     photos/index.ts:40 and cover_key at functions/api/events/index.ts:44-47).
+     → Recommended: Cloudflare Image Resizing — wrap tile URLs as
+     /cdn-cgi/image/width=480,quality=75,format=auto{url} in EventTile/
+     gallery components (falls through gracefully in local dev). Alternative:
+     client-side canvas thumbnail at upload stored as `${photoId}_thumb.webp`.
+D-18 P2-9 | vite.config.ts — no manualChunks; main bundle 659KB, lazy editor
+     chunk 950KB. → Add rollupOptions.output.manualChunks splitting
+     react/react-dom/react-router/@tanstack, and React.lazy() the admin
+     pages + InspirationMapPage in src/App.tsx:13,18-33 (platform-owner-only
+     and map pages shouldn't be in the first paint).
+
+--- P3 ---
+D-19 P3-1 | tsconfig.tsbuildinfo (repo root) — build artifact tracked in git:
+       git rm --cached tsconfig.tsbuildinfo && echo "tsconfig.tsbuildinfo" >> .gitignore
+D-20 NEW-4 | functions/api/photographers.ts:10 — toggling `verified` never
+     sets verified_at. → next to the verified part:
+       parts.push("verified_at = ?"); vals.push(body.verified ? new Date().toISOString() : null);
+D-21 NEW-5 | src/pages/admin/AdminContentPage.tsx:121 — maps p.filename but
+     the photos table column is original_filename, so the UI always shows the
+     storage key. → `filename: p.original_filename || p.storage_key || "",`
+D-22 NEW-6 | functions/api/admin/pins/[id].ts:4 and :22 — `context: any`
+     typing, and both catch blocks swallow errors with no console.error
+     (violates DO-NOT #10). → Type the context like admin/pins.ts does and
+     log before returning 500.
+D-23 P3-2 | delete/archive the legacy `master` branch (verify nothing
+     deploys from it first).
+D-24 P3-3 | Docs drift: ARCHITECTURE.md:230 (catch-all is ClientSitePage →
+     falls back to PhotographerProfilePage, not PhotographerProfilePage
+     directly); ARCHITECTURE.md:349 fix-queue row 1 is already done in code;
+     CLAUDE.md says "28 endpoints"/"11 tables" (now 60+/25+). Also add
+     migration 006 to the migrations list when merged.
+D-25 P3-4 | deploy.sh:38-44 — secrets list omits MEDIA_SIGNING_SECRET,
+     STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, MAPBOX_API_KEY. Sync with D-3.
+
+================================================================================
+ANSWER 3 — FINDINGS NOT INCLUDED IN THE v2 REPORT
+================================================================================
+Everything below was observed during the line-by-line review but cut for
+brevity or because it "works today". Ordered roughly by how much I'd care.
+
+C-1  GATE VIEWERS SHARE ONE GLOBAL IDENTITY (closest to a real bug)
+     functions/api/auth/gate.ts:11 signs every gate token with
+     userId:"viewer" — the SAME literal for every visitor of every space.
+     Consequences on any endpoint keyed by userId:
+     - functions/api/inspiration/[id]/love.ts: one gate viewer's love
+       INSERTs (inspiration_id,'viewer') — every other gate viewer worldwide
+       now sees that pin as loved, and any of them can un-love it.
+     - functions/api/inspiration.ts:32-44 (POST): a gate viewer submitting a
+       pin stores user_id='viewer'; the GET at :11 does `JOIN users u ON
+       i.user_id = u.id`, and since no users row has id 'viewer', the pin
+       silently VANISHES from the map. Data loss with no error.
+     - functions/api/notifications.ts: GET/PUT on user_id 'viewer' — shared
+       notification state across all gate viewers (currently benign because
+       nothing writes activity_log for 'viewer', but it's a trap).
+     This also brushes against repo rule DO-NOT #9 ("never allow a gate
+     token to act as a real user account").
+     FIX OPTIONS (pick one):
+     (a) Block role==='viewer' from identity-keyed writes: in
+         inspiration/[id]/love.ts and inspiration.ts POST add
+         `if (a.role === "viewer") return json({ error: "Sign in to do that" }, 403);`
+     (b) Or sign gate tokens with a per-space synthetic id in gate.ts:11:
+         userId: `gate:${space.id}` — scoped, still not a real account.
+     (a) is safer and matches the product model (viewers browse, not write).
+
+C-2  NO-PASSWORD ALBUM PHOTOS ARE KEY-SECRECY-ONLY
+     functions/api/media/[[path]].ts:74-82: if a storage key belongs to an
+     album WITHOUT a password, the file is served to ANYONE who knows the
+     key — the share token is never checked on the media route. Keys contain
+     UUIDs so they're not guessable, but every viewer of a shared album can
+     hotlink files forever, and revoking a share link does not revoke media
+     access. Works as designed today; tighten later by requiring a signed
+     URL for album media (the album view endpoint already signs URLs when a
+     password is set — extend that to all albums).
+
+C-3  LOGOUT IS A SERVER-SIDE NO-OP / NO TOKEN REVOCATION
+     functions/api/auth/logout.ts returns {success:true} and nothing else;
+     JWTs carry a jti (functions/lib/jwt.ts:24) but no revocation list
+     exists, so a stolen token stays valid for the full 24h regardless of
+     logout or password change. Related: the token lives in localStorage
+     (src/lib/api.ts:7), which is XSS-readable — acceptable now that the
+     blog XSS is fixed and CSP is strict, but it's the reason XSS findings
+     here are always account-takeover severity. Cheap upgrade later: store
+     a `tokenVersion` per user, embed it in the JWT, bump on password change.
+
+C-4  DUPLICATED MAPBOX CDN LOADER WITH A RACE
+     src/components/map/EventMap.tsx:35-48 injects the mapbox-gl <script>
+     with no shared-promise guard; InspirationMapPage.tsx:21-36 has a proper
+     `mapboxPromise` singleton; SpaceEventMap.tsx:24-33 is a third copy.
+     Two maps mounting near-simultaneously (e.g. EventDetailPage +
+     SpaceEventMap) can double-inject the script or read window.mapboxgl
+     while it's still undefined. When doing D-8, consolidate all three into
+     one src/lib/mapbox.ts loader (token + loadMapbox() promise).
+
+C-5  ADMIN COMMERCE "PLATFORM FEES" IS AN INVENTED NUMBER
+     src/pages/admin/AdminCommercePage.tsx:88 computes
+     `platformFees: Math.round(totalRevenue * 0.05)` — there is no 5% fee
+     recorded anywhere in the orders schema; this is a guess rendered as
+     fact. Label it "(est.)" in the UI or derive from real Stripe
+     application-fee data when Connect fees are implemented. Same page :90:
+     verifiedSubscribers is hardcoded 0 — either fetch photographersVerified
+     from /admin/stats or drop the tile.
+
+C-6  "VERIFIED" vs "APPROVED" SEMANTICS ARE CONFLATED
+     src/pages/admin/AdminDashboardPage.tsx:118-119 warns "No verified
+     photographers — directory will appear empty" based on
+     photographersVerified (the paid badge), but directory eligibility is
+     driven by application status='approved' (and AdminDiscoveryPage:100
+     filters verified||featured). Decide which field gates the public
+     directory and make the alert + filters agree, or the dashboard will
+     mislead you.
+
+C-7  UPLOADS TRUST CLIENT METADATA BLINDLY
+     functions/api/photos/upload.ts:14,19 stores client-supplied width/
+     height/latitude/longitude/takenAt verbatim (0/null defaults). Bogus
+     dimensions break aspect-ratio layouts; spoofed geotags put pins
+     anywhere on space maps. Low risk (staff-only upload), but validate
+     ranges (lat -90..90, lng -180..180, width/height 0..20000) when handy.
+
+C-8  MULTI-FILE UPLOADS ARE FULLY SEQUENTIAL
+     functions/api/photos/upload.ts:16-22 awaits R2 put + D1 insert per file
+     in a loop; a 20-photo upload pays 40 sequential round-trips and risks
+     the 30s Workers CPU/duration budget. Batch the D1 inserts (db.batch)
+     and Promise.all the R2 puts in chunks of ~5. Same pattern in
+     videos/upload.ts:16-21.
+
+C-9  EVENT DELETE DOES R2 TRASH-COPY IN-REQUEST
+     functions/api/events/[id].ts:109-129 copies every photo/video to
+     trash/ and deletes originals synchronously before responding; a
+     500-photo event will time out (DB soft-delete already happened, so
+     state stays correct — but the user sees an error). Wrap the R2 loop in
+     context.waitUntil (same technique as D-11).
+
+C-10 spaces PUT LACKS INPUT VALIDATION
+     functions/api/spaces/[slug].ts:16-22 — no max length on `name`, and
+     `themeColor` is stored unvalidated (it later lands in inline styles).
+     Add: name ≤100 chars; themeColor must match /^#[0-9a-fA-F]{6}$/.
+     Also note: changing `slug` silently breaks previously shared
+     /s/<old-slug> links — consider keeping a redirect row or warning the
+     user in the UI.
+
+C-11 CSP LEFTOVERS (cosmetic, from P0-5)
+     functions/_middleware.ts:32 — add `child-src blob:` (older Safari
+     worker fallback) and `https://events.mapbox.com` to connect-src to
+     silence Mapbox telemetry console errors. Optional.
+
+C-12 MIDDLEWARE CUSTOM-DOMAIN PATH SKIPS CORS HANDLING
+     functions/_middleware.ts:108-119 — for custom-domain GETs the response
+     returns early with security headers but WITHOUT the CORS headers the
+     normal path adds, and it runs a D1 lookup on every GET for any
+     non-framenest host. Fine today (same-origin GETs don't need CORS);
+     worth a comment so nobody "fixes" it into a bypass, and consider
+     caching the domain→slug lookup in a Map for the isolate's lifetime.
+
+C-13 events/index.ts POST RESPONSE OMITS FIELDS THE LIST RETURNS
+     functions/api/events/index.ts:78 returns the created event without
+     visibility/address/lat/lng (the GET enrichment at :47 includes them).
+     The UI happens to refetch after create, so nothing breaks — but the
+     DTOs should match to keep future callers safe (reuse toPublicEventDto
+     or extend the literal).
+
+C-14 NO CONTRACT TESTS FOR FRONTEND↔BACKEND ROUTES
+     The entire /citysite failure class (v1 P0-2) would have been caught by
+     one cheap test: scan src/ for api.get/post/put/delete literals, map
+     each to functions/api/<path> file-routing rules, and assert a handler
+     file exists. ~40 lines of vitest, prevents the whole category from
+     recurring. Strongly recommended while the admin refactor is fresh.
+
+C-15 ESLINT CONFIG IS MINIMAL
+     eslint.config.js enables exactly one rule family (no-floating-promises).
+     No no-unused-vars, no no-explicit-any (the new admin/pins/[id].ts `any`s
+     sailed through). After D-6/D-7, consider tseslint recommended configs
+     with targeted overrides — incrementally, not as a big-bang reformat.
+
+C-16 POSITIVE CONFIRMATIONS (checked, no action needed)
+     - Password reset flow is solid: tokens stored as SHA-256 hashes,
+       enumeration-safe responses, 1h expiry, 8-char minimum
+       (functions/api/auth/forgot-password.ts, reset-password.ts).
+     - Stripe webhook signature verification is correct and constant-time
+       (crypto.subtle.verify, 5-min timestamp tolerance)
+       (functions/api/stripe/webhook.ts:14-32).
+     - Magic-login tokens are hashed + single-use with global invalidation
+       (functions/api/auth/magic-login.ts:17-36).
+     - AdminCommercePage cents handling is consistent (kept in cents,
+       divided by 100 only at display) — flagged as a suspect in review,
+       verified correct.
+     - upload content validation does real magic-byte checks
+       (functions/lib/upload-validate.ts, exercised by
+       tests/upload-adversarial.test.ts).
+
+END OF FIX PACK
