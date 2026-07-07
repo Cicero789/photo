@@ -1,6 +1,6 @@
 import { useState, useEffect, Suspense, useCallback } from "react";
 import { TEMPLATE_REGISTRY } from "@/components/templates/types";
-import { templateComponents } from "@/components/templates";
+import { templateComponents, resolveTemplateId } from "@/components/templates";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
@@ -118,7 +118,7 @@ export function TemplatePicker({
   slug,
   onSave,
 }: TemplatePickerProps) {
-  const [selected, setSelected] = useState(currentTemplate);
+  const [selected, setSelected] = useState(resolveTemplateId(currentTemplate));
   const [saving, setSaving] = useState(false);
   const [successMsg, setSuccessMsg] = useState(false);
 

@@ -104,7 +104,7 @@ photo/                          ← Git root
 │   ├── mockups-*.html          ← 22 HTML mockup files (preview only, not compiled)
 │   └── thumbnails/             ← Template preview JPGs (~500 files)
 │
-├── tests/                      ← Vitest test suite (61 tests, 5 files)
+├── tests/                      ← Vitest test suite (67 tests, 6 files)
 │   ├── auth-policy.test.ts
 │   ├── signed-url.test.ts
 │   ├── upload-adversarial.test.ts
@@ -323,7 +323,7 @@ The Content-Security-Policy blocks `fonts.googleapis.com` and `fonts.gstatic.com
 
 ```bash
 npm run build          # tsc -b + tsc -p functions + vite build
-npm test               # vitest run (61 tests)
+npm test               # vitest run (67 tests)
 npm run lint           # eslint (currently warns — see KNOWN QUIRKS)
 npm run deploy         # wrangler pages deploy ./dist --project-name photo --branch main
 npm run deploy:safe    # build + test + db:backup + deploy
@@ -333,7 +333,7 @@ npm run db:backup      # wrangler d1 export photo-db --remote
 ### Release Gates
 All must pass before production deploy:
 - [ ] `npm run build` passes
-- [ ] `npm test` passes (61/61)
+- [ ] `npm test` passes (67/67)
 - [ ] `npm run lint` has zero errors
 - [ ] `npx wrangler types --check` passes
 - [ ] PRAGMA foreign_key_check returns 0 rows
@@ -346,9 +346,9 @@ All must pass before production deploy:
 
 | # | Issue | Fix Priority | Effort | Risk |
 |---|-------|-------------|--------|------|
-| 1 | `events/[id].ts` GET missing `deleted_at IS NULL` filter | P1 | 1 line | None |
+| 1 | ~~`events/[id].ts` GET missing `deleted_at IS NULL` filter~~ RESOLVED — filter present since audit fixes | — | — | — |
 | 2 | `master` branch should be deleted/archived | P3 | 1 command | Check CI deps |
-| 3 | Template registry IDs vs thumbnail filenames still have mismatches in ~30 cases | P2 | Script fix | None |
+| 3 | ~~Template registry IDs vs thumbnail filenames mismatched~~ RESOLVED 2026-07-07 — all 263 registry IDs have a matching `/thumbnails/<id>.jpg`; 239 orphan files from old naming schemes deleted; legacy IDs (e.g. `cinematic-dark`) resolve via `LEGACY_TEMPLATE_ALIASES` in `templates/index.ts` | — | — | — |
 | 4 | photographers table name is misleading | P3 (never) | Full migration | HIGH — 50+ queries |
 | 5 | gallery_config column name is misleading | P3 (never) | Full migration | HIGH — 20+ references |
 | 6 | CSP blocks Google Fonts but 262 templates use them | P2 | Self-host fonts | Medium |

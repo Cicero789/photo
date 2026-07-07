@@ -1,7 +1,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { HireButton } from "@/components/photographer/HireButton";
-import { templateComponents } from "@/components/templates";
+import { templateComponents, resolveTemplateId } from "@/components/templates";
 import { TEMPLATE_REGISTRY } from "@/components/templates/types";
 import { COLOR_SCHEMES, FONT_PAIRINGS } from "@/components/photographer/TemplatePicker";
 
@@ -71,7 +71,7 @@ export function PhotographerProfilePage() {
   const hasPricing = profile.pricing?.downloads?.single || profile.pricing?.downloads?.full;
 
   // --- Template System ---
-  const templateId = previewTemplate || profile.galleryConfig?.template || "clean-minimal";
+  const templateId = resolveTemplateId(previewTemplate || profile.galleryConfig?.template);
   const TemplateComponent = templateComponents[templateId];
 
   // Resolve color scheme and font pairing from config or preview params

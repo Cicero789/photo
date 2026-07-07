@@ -269,3 +269,27 @@ export const templateComponents: Record<string, ComponentType<TemplateProps>> = 
 
 export { TEMPLATE_REGISTRY } from "./types";
 export type { TemplateProps, TemplateInfo } from "./types";
+
+/**
+ * Legacy template IDs from before the numeric-kebab rename.
+ * Old gallery_config rows in D1 may still store these values.
+ */
+export const LEGACY_TEMPLATE_ALIASES: Record<string, string> = {
+  "clean-minimal": "1-clean",
+  "cinematic-dark": "2-cinematic",
+  "editorial-magazine": "3-editorial",
+  "instagram-grid": "4-instagram",
+  "masonry-wall": "5-masonry",
+  "split-hero": "6-split",
+  "vertical-scroll": "7-vertical",
+  "carousel-spotlight": "8-carousel",
+  "story-cards": "9-story-cards",
+  "brutalist-bold": "10-brutalist",
+};
+
+/** Resolve a stored template id to a registry key, mapping legacy names to canonical IDs. */
+export function resolveTemplateId(id?: string | null): string {
+  if (!id) return "1-clean";
+  if (templateComponents[id]) return id;
+  return LEGACY_TEMPLATE_ALIASES[id] ?? "1-clean";
+}

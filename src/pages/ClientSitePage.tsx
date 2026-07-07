@@ -1,6 +1,6 @@
 import { Suspense, useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { templateComponents } from "@/components/templates";
+import { templateComponents, resolveTemplateId } from "@/components/templates";
 import { COLOR_SCHEMES, FONT_PAIRINGS } from "@/components/photographer/TemplatePicker";
 import { PhotographerProfilePage } from "./PhotographerProfilePage";
 
@@ -89,7 +89,7 @@ export function ClientSitePage() {
     config = site.galleryConfig;
   }
 
-  const templateId = config.template || "1-clean";
+  const templateId = resolveTemplateId(config.template);
   const TemplateComp = templateComponents[templateId];
 
   const schemeKey = config.colorScheme || "light";
