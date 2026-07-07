@@ -1,0 +1,793 @@
+================================================================================
+FRAMENEST PHOTO PLATFORM — FULL SITE AUDIT
+Date: 2026-07-07
+Repo: Cicero789/photo @ a14909b (branch claude/photo-site-audit-e8yfbr)
+Audience: AI coder — every finding includes file:line and suggested code.
+================================================================================
+
+BUILD STATUS: npm run build passes. All 61 tests pass. Lint configured.
+So the breakage is NOT compile-time — it is runtime: schema drift, an auth
+regression, and API/DB contract mismatches. Findings below are ordered by
+how much of the site they break.
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+  P0-1  Production DB schema drift — users.token_version can 500 EVERY request
+  P0-2  Gate-key viewers get "Session expired" everywhere (auth regression)
+  P0-3  client_galleries / client_gallery_photos code vs schema mismatch (5 sites)
+  P0-4  Add-member INSERT omits required users.created_at → always fails
+  P1-5  Invite flow dead-ends for new users (magic-login 404s)
+  P1-6  Gate-event photos 403 in <img> tags (no signed URLs on scrubbed DTO)
+  P1-7  Gate token overwrites the owner's real login token
+  P1-8  Event "visibility" missing from owner DTOs → dropdown always "private"
+  P1-9  client_sites.custom_domain is saved but never routed
+  P1-10 Client editor "Photos" pool: uploads vanish (no list endpoint/UI)
+  P2-11 Logout does not revoke tokens (token_version never bumped)
+  P2-12 Health check can't see the drift — add column-parity checks
+  P2-13 Signed-URL comparison is not constant-time
+  P2-14 Albums: soft-delete schema vs hard-delete code inconsistency
+  P2-15 Rate limits may throttle legitimate bulk uploads (30/hour/IP)
+  P2-16 Hardcoded Mapbox token in 4 files
+  P2-17 Dead / broken helper code to remove
+  P2-18 CSP notes (Google Fonts, Mapbox telemetry)
+  APPENDIX A: Required production secrets checklist
+  APPENDIX B: Verification commands (run these FIRST)
+  APPENDIX C: Suggested fix order
+
+================================================================================
+STEP 0 — DO THIS BEFORE ANY CODE FIX (see also Appendix B)
+================================================================================
+db/schema.sql uses CREATE TABLE IF NOT EXISTS everywhere, and the deploy doc
+says to push it with `wrangler d1 execute photo-db --remote --file=./db/schema.sql`.
+That command NEVER alters an existing table. Any table created in an older
+shape keeps that shape forever. The migrations folder only ever ALTERed:
+  events(latitude, longitude, public, payment_model, visibility, deleted_at)
+  photos(favorite, license, deleted_at)
+  photographers(hero_photos, stripe_config, pricing_config, gallery_config)
+  connections(magic_token), videos(deleted_at), albums(deleted_at)
+  inspiration(tips, best_time, permission_info)
+
+Columns that appear in schema.sql CREATE statements but were NEVER added by
+any migration (so they are MISSING on any production table that predates them):
+  users:          token_version, account_type
+  spaces:         hero_enabled, hero_source, hero_style
+  photographers:  slug, specialties, tagline, verified, verified_at,
+                  subscription_id, subscription_status, profile_views, featured
+  events:         address, address_locked
+  inspiration:    source, score, author, license_url, thumbnail_url
+  client_galleries / client_gallery_photos: whole shape disputed (see P0-3)
+
+There is direct evidence in the code that production has drifted:
+  - functions/api/users/mode.ts catches and reports
+    "account_type column may not exist"
+  - functions/api/clients/[id]/photos.ts:69 comment says the REAL columns of
+    client_gallery_photos are (gallery_id, storage_key, caption, sort_order,
+    uploaded_at) with a composite PK — which contradicts db/schema.sql.
+
+Run the PRAGMA commands in Appendix B and reconcile before/while applying the
+code fixes below. The migration in P0-1 is written to be safe either way.
+
+================================================================================
+P0-1  SCHEMA DRIFT: users.token_version — CAN 500 EVERY AUTHENTICATED REQUEST
+================================================================================
+WHERE: functions/lib/auth.ts:15-21 (requireAuth)
+
+  const user = await db.prepare("SELECT token_version FROM users WHERE id = ?")
+    .bind(payload.userId).first();
+  if (!user || (payload.tokenVersion ?? 0) !== (user.token_version ?? 0)) {
+    return json({ error: "Session expired" }, 401);
+  }
+
+requireAuth runs this D1 query on EVERY authenticated request. If the
+production users table lacks token_version (no migration ever added it),
+D1 throws "no such column: token_version", the catch block returns
+500 "Server configuration error" — for EVERY logged-in API call: dashboard,
+events, uploads, admin, everything. This single line can account for
+"many things are not working" by itself.
+
+FIX (two parts):
+
+(a) NEW MIGRATION — db/migrations/006_schema_parity.sql
+    Note: D1/SQLite errors on ADD COLUMN if the column already exists.
+    Run each statement individually and ignore "duplicate column" errors,
+    or check PRAGMA table_info first (Appendix B). Statements:
+
+    -- users
+    ALTER TABLE users ADD COLUMN token_version INTEGER NOT NULL DEFAULT 0;
+    ALTER TABLE users ADD COLUMN account_type TEXT DEFAULT 'personal';
+    -- spaces
+    ALTER TABLE spaces ADD COLUMN hero_enabled INTEGER DEFAULT 0;
+    ALTER TABLE spaces ADD COLUMN hero_source TEXT DEFAULT 'off';
+    ALTER TABLE spaces ADD COLUMN hero_style TEXT DEFAULT 'banner';
+    -- photographers
+    ALTER TABLE photographers ADD COLUMN slug TEXT;
+    ALTER TABLE photographers ADD COLUMN specialties TEXT DEFAULT '';
+    ALTER TABLE photographers ADD COLUMN tagline TEXT DEFAULT '';
+    ALTER TABLE photographers ADD COLUMN verified INTEGER DEFAULT 0;
+    ALTER TABLE photographers ADD COLUMN verified_at TEXT;
+    ALTER TABLE photographers ADD COLUMN subscription_id TEXT;
+    ALTER TABLE photographers ADD COLUMN subscription_status TEXT DEFAULT 'none';
+    ALTER TABLE photographers ADD COLUMN profile_views INTEGER DEFAULT 0;
+    ALTER TABLE photographers ADD COLUMN featured INTEGER DEFAULT 0;
+    -- events
+    ALTER TABLE events ADD COLUMN address TEXT DEFAULT '';
+    ALTER TABLE events ADD COLUMN address_locked INTEGER DEFAULT 0;
+    -- inspiration
+    ALTER TABLE inspiration ADD COLUMN source TEXT DEFAULT 'framenest';
+    ALTER TABLE inspiration ADD COLUMN score INTEGER DEFAULT 100;
+    ALTER TABLE inspiration ADD COLUMN author TEXT DEFAULT '';
+    ALTER TABLE inspiration ADD COLUMN license_url TEXT DEFAULT '';
+    ALTER TABLE inspiration ADD COLUMN thumbnail_url TEXT DEFAULT '';
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_photographer_slug ON photographers(slug);
+    INSERT OR IGNORE INTO _migrations (name) VALUES ('006_schema_parity');
+
+(b) DEFENSIVE CODE — make requireAuth fail open on the *revocation* check
+    only (a missing column must not take the whole site down), while still
+    failing closed on bad tokens. In functions/lib/auth.ts replace the
+    token_version block with:
+
+    // Check token_version for revocation.
+    // Gate sessions (userId "viewer") have no users row — skip (see P0-2).
+    if (env?.DB && payload.userId !== "viewer") {
+      try {
+        const db = env.DB as any;
+        const user = await db.prepare("SELECT token_version FROM users WHERE id = ?")
+          .bind(payload.userId).first();
+        if (!user) return json({ error: "Session expired" }, 401);
+        if ((payload.tokenVersion ?? 0) !== (user.token_version ?? 0)) {
+          return json({ error: "Session expired" }, 401);
+        }
+      } catch (err) {
+        // Schema drift (missing column) must not brick every request.
+        console.error("token_version check skipped:", err);
+      }
+    }
+
+================================================================================
+P0-2  GATE-KEY VIEWERS ARE FULLY LOCKED OUT ("Session expired" regression)
+================================================================================
+WHERE:
+  functions/api/auth/gate.ts:11 — gate tokens are minted with
+    userId: "viewer" (synthetic; there is NO users row for it)
+  functions/lib/auth.ts:18-21 — requireAuth looks up users by payload.userId;
+    for gate tokens the row doesn't exist → `!user` → 401 "Session expired".
+
+IMPACT (core product feature "gate key = viewer access" is dead):
+  - SpacePage: gate unlock succeeds, then GET /api/events?spaceId=... is sent
+    WITH the gate token → events/index.ts calls requireAuth → 401. The gate
+    viewer sees an error/empty page. (Ironically an anonymous visitor with NO
+    token sees more — the public-events branch at events/index.ts:13.)
+  - EventDetailPage for gate events: requireAuth fails → actor=null →
+    canReadEvent(null, gate)=false → 403.
+  - Media: same → all gate-event images/videos 403.
+
+FIX: the userId !== "viewer" skip shown in P0-1(b) fixes this. The gate token
+carries no real account, so there is nothing to revoke — the 24h JWT expiry
+is the lifecycle. Keep the existing event-access rules (event-access.ts
+already handles isGateSession correctly once requireAuth stops rejecting it).
+
+REGRESSION TEST TO ADD (tests/auth-policy.test.ts):
+  - sign a token {userId:"viewer", spaceId:"s1", role:"viewer", tokenVersion:0}
+  - call requireAuth with a mock env.DB whose users table is empty
+  - expect payload back, NOT a 401 Response.
+
+================================================================================
+P0-3  CLIENT GALLERIES: CODE AND SCHEMA DISAGREE — HALF THE FEATURE 500s
+================================================================================
+db/schema.sql defines:
+  client_galleries(id, client_site_id, name, created_at, updated_at, deleted_at)
+  client_gallery_photos(id PK, gallery_id, storage_key, filename, width,
+                        height, file_size, sort_order, created_at, deleted_at)
+
+But the code uses a DIFFERENT shape (caption, uploaded_at, client_galleries.slug,
+composite PK, no id):
+
+  BROKEN CALL SITES (against the schema.sql shape):
+  1. functions/api/clients/[id]/photos.ts:41
+       SELECT ... WHERE slug = 'photos'          → no such column: slug
+  2. functions/api/clients/[id]/photos.ts:46
+       INSERT INTO client_galleries (..., slug, ...)   → no such column
+  3. functions/api/clients/[id]/photos.ts:70
+       INSERT INTO client_gallery_photos (gallery_id, storage_key, caption,
+       sort_order, uploaded_at)                  → no caption/uploaded_at;
+       also omits id (PK) and created_at (NOT NULL, no default)
+  4. functions/api/clients/[id]/galleries/[gid].ts:90 — same INSERT problem
+  5. functions/api/clients/public/[slug]/galleries/[gid].ts:19
+       SELECT storage_key, caption, sort_order, uploaded_at → no such columns
+       (this is the PUBLIC client-site gallery page — it 500s)
+
+  Meanwhile OTHER code already assumes the schema.sql shape:
+  - clients/[id]/galleries/[gid]/photos/[photoId].ts deletes WHERE id = ?
+  - clients/[id].ts:83 UPDATEs client_gallery_photos.deleted_at
+  - clients/public/[slug].ts photo_count filters deleted_at IS NULL
+  So NO single production shape can satisfy the current code. Whichever shape
+  the prod table has, several endpoints throw. This is why client-site photo
+  upload and/or the public gallery page are broken.
+
+DECISION: standardize on the db/schema.sql shape (id, filename, created_at,
+deleted_at). It is the canonical file, and more call sites already use it.
+
+FIXES:
+
+(a) db reconciliation (add to 006_schema_parity.sql; each guarded per
+    Appendix B — run only if PRAGMA shows the column missing):
+    ALTER TABLE client_gallery_photos ADD COLUMN id TEXT;
+    ALTER TABLE client_gallery_photos ADD COLUMN filename TEXT DEFAULT '';
+    ALTER TABLE client_gallery_photos ADD COLUMN width INTEGER DEFAULT 0;
+    ALTER TABLE client_gallery_photos ADD COLUMN height INTEGER DEFAULT 0;
+    ALTER TABLE client_gallery_photos ADD COLUMN file_size INTEGER DEFAULT 0;
+    ALTER TABLE client_gallery_photos ADD COLUMN created_at TEXT;
+    ALTER TABLE client_gallery_photos ADD COLUMN deleted_at TEXT;
+    -- backfill if prod had the caption/uploaded_at shape:
+    UPDATE client_gallery_photos SET filename = COALESCE(filename, caption, ''),
+      created_at = COALESCE(created_at, uploaded_at, datetime('now')),
+      id = COALESCE(id, lower(hex(randomblob(16))));
+    (If prod matches schema.sql already, skip the backfill.)
+
+(b) functions/api/clients/[id]/photos.ts — replace the default-gallery lookup
+    and inserts (drop `slug` entirely; find the pool gallery by fixed name):
+
+    // --- Find or create the default "Photos" gallery ---
+    let gallery = await db.prepare(
+      "SELECT id FROM client_galleries WHERE client_site_id = ? AND name = 'Photos' AND deleted_at IS NULL"
+    ).bind(context.params.id).first() as any;
+    if (!gallery) {
+      const gid = crypto.randomUUID();
+      const nowIso = new Date().toISOString();
+      await db.prepare(
+        "INSERT INTO client_galleries (id, client_site_id, name, created_at, updated_at) VALUES (?,?,?,?,?)"
+      ).bind(gid, context.params.id, "Photos", nowIso, nowIso).run();
+      gallery = { id: gid };
+    }
+
+    ...and the per-file insert:
+
+    await db.prepare(
+      "INSERT INTO client_gallery_photos (id, gallery_id, storage_key, filename, sort_order, created_at) VALUES (?,?,?,?,?,?)"
+    ).bind(crypto.randomUUID(), gallery.id, storageKey, file.name, sortOrder,
+           new Date().toISOString()).run();
+
+(c) functions/api/clients/[id]/galleries/[gid].ts:90 — same insert shape:
+
+    await context.env.DB!.prepare(
+      "INSERT INTO client_gallery_photos (id, gallery_id, storage_key, filename, sort_order, created_at) VALUES (?,?,?,?,?,datetime('now'))"
+    ).bind(crypto.randomUUID(), gid, storageKey, file.name, sortOrder).run();
+
+(d) functions/api/clients/public/[slug]/galleries/[gid].ts:19 — select real
+    columns, keep the public DTO field names so the frontend needs no change,
+    and add the missing soft-delete filter:
+
+    const photos = await db.prepare(
+      "SELECT storage_key, filename, sort_order, created_at FROM client_gallery_photos WHERE gallery_id = ? AND deleted_at IS NULL ORDER BY sort_order, created_at"
+    ).bind(gid).all();
+    ...
+    photos: (photos.results || []).map((p: any) => ({
+      url: `/api/media/photos/${p.storage_key}`,
+      storageKey: p.storage_key,
+      caption: p.filename || "",
+      sortOrder: p.sort_order,
+      uploadedAt: p.created_at,
+    })),
+
+(e) functions/api/clients/[id]/galleries/index.ts:17 — photo_count subquery:
+    add AND deleted_at IS NULL inside the COUNT subquery so soft-deleted
+    photos don't inflate counts:
+    (SELECT COUNT(*) FROM client_gallery_photos WHERE gallery_id = g.id AND deleted_at IS NULL) as photo_count
+
+================================================================================
+P0-4  "ADD MEMBER" ALWAYS FAILS FOR NEW USERS (NOT NULL constraint)
+================================================================================
+WHERE: functions/api/spaces/members.ts:30
+
+  INSERT INTO users (id, email, name, password_hash, role, space_id)
+  VALUES (?, ?, ?, ?, ?, ?)
+
+users.created_at is TEXT NOT NULL with NO default (db/schema.sql:6-17), so
+this INSERT throws "NOT NULL constraint failed: users.created_at" → the
+member-add flow 500s whenever the invitee has no existing account.
+(signup.ts:75 does it correctly and includes created_at.)
+
+FIX — functions/api/spaces/members.ts:30:
+
+  await db.prepare(
+    "INSERT INTO users (id, email, name, password_hash, role, space_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
+  ).bind(userId, body.email, body.name, passwordHash, body.role,
+         authResult.spaceId, new Date().toISOString()).run();
+
+ALSO: functions/lib/db.ts createUser() (line 5) and createSpace() (line 16)
+have the same omission. They are UNUSED (nothing imports them) — delete both
+functions, or fix them the same way if you want to keep them (see P2-17).
+
+================================================================================
+P1-5  INVITE FLOW DEAD-ENDS FOR NEW USERS
+================================================================================
+WHERE:
+  functions/api/connections/index.ts (POST) — sends a magic-link email to any
+  address, with the comment "If user doesn't exist, just proceed — account
+  creation happens when they accept via magic-login".
+  functions/api/auth/magic-login.ts:26-27 — but redeeming does:
+    const user = ... WHERE email = ?; if (!user) return 404 "Account not found";
+
+So inviting anyone WITHOUT an existing account sends them an email whose
+button always fails. Invites only work between existing users.
+
+FIX (implement the promised auto-account) — in magic-login.ts, replace the
+404 branch with account creation modeled on signup.ts. Suggested code:
+
+  let user = await db.prepare("SELECT * FROM users WHERE email = ?")
+    .bind(email).first<Record<string, unknown>>();
+  if (!user) {
+    // Auto-provision a personal account + space for the invitee
+    const userId = crypto.randomUUID();
+    const spaceId = crypto.randomUUID();
+    const now = new Date().toISOString();
+    const namePart = email.split("@")[0] || "Friend";
+    // random unguessable password + gate key; user can reset later
+    const randomSecret = crypto.randomUUID() + crypto.randomUUID();
+    const passwordHash = await hashPassword(randomSecret);
+    const gateHash = await hashPassword(crypto.randomUUID());
+    let slug = namePart.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "space";
+    const clash = await db.prepare("SELECT id FROM spaces WHERE slug = ?").bind(slug).first();
+    if (clash) slug = `${slug}-${crypto.randomUUID().slice(0, 6)}`;
+    await db.batch([
+      db.prepare("INSERT INTO users (id, email, name, password_hash, role, space_id, avatar_url, created_at) VALUES (?,?,?,?,?,?,?,?)")
+        .bind(userId, email, namePart, passwordHash, "page_admin", spaceId, null, now),
+      db.prepare("INSERT INTO spaces (id, name, slug, password_hash, custom_domain, logo_url, theme_color, owner_id, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)")
+        .bind(spaceId, `${namePart}'s Space`, slug, gateHash, null, null, "#3b82f6", userId, now, now),
+      db.prepare("INSERT INTO space_members (id, space_id, user_id, role) VALUES (?,?,?,?)")
+        .bind(crypto.randomUUID(), spaceId, userId, "page_admin"),
+    ]);
+    user = await db.prepare("SELECT * FROM users WHERE id = ?").bind(userId).first<Record<string, unknown>>();
+  }
+  (add: import { hashPassword } from "../../lib/password";)
+
+Simpler alternative if you don't want auto-accounts: change the invite email
+CTA link in connections/index.ts from /login?magic=... to
+/signup?email=...&magic=..., prefill SignupPage from those params, and after
+successful signup POST the magic token to /auth/magic-login to auto-accept
+the connection. Either way, TEST: invite a brand-new email end to end.
+
+================================================================================
+P1-6  GATE-EVENT PHOTOS 403 IN <img> TAGS FOR NON-OWNERS
+================================================================================
+WHERE: functions/api/events/[id].ts:56-57 (scrubbed non-owner branch) returns
+plain URLs via toPublicPhotoDto (functions/lib/event-dto.ts:15-20):
+  url: `/api/media/photos/${p.storage_key}`
+
+<img> tags send NO Authorization header. The media endpoint
+(functions/api/media/[[path]].ts) treats such requests as anonymous, and
+canReadEvent(null, {visibility:'gate'}) === false → 403. So even after P0-2
+lets gate viewers list a gate event, every photo on it renders broken.
+(The owner branch at [id].ts:33-49 already solves this with signed URLs.)
+
+FIX — sign URLs in the scrubbed branch for non-public events. In
+functions/api/events/[id].ts replace the final scrubbed return with:
+
+    const photos = await db.prepare("SELECT id, storage_key, width, height, license FROM photos WHERE event_id = ? AND deleted_at IS NULL ORDER BY created_at").bind(context.params.id).all();
+    const isPublicEvent = (ev.visibility as string) === "public";
+    const secret = context.env.MEDIA_SIGNING_SECRET || context.env.JWT_SECRET || "";
+    const publicPhotos = await Promise.all((photos.results ?? []).map(async (p: any) => {
+      const dto = toPublicPhotoDto(p);
+      if (!isPublicEvent && secret) {
+        dto.url = await signMediaUrl(p.storage_key, secret, 3600);
+      }
+      return dto;
+    }));
+    return json({ event: toPublicEventDto(ev), photos: publicPhotos, videos: [] });
+
+(signMediaUrl is already imported in this file.)
+
+================================================================================
+P1-7  ENTERING A GATE KEY LOGS THE REAL USER OUT
+================================================================================
+WHERE: src/pages/SpacePage.tsx:93-94
+
+  const data = await api.post<...>("/auth/gate", { spaceSlug, gateKey });
+  setToken(data.token);
+
+setToken() writes to the single localStorage key "photo_token" — the same one
+that holds a logged-in user's JWT. A signed-in owner who visits a friend's
+gated space and enters the key silently replaces their own session with a
+role="viewer" gate token; on the next reload /auth/me returns user:null and
+they're logged out.
+
+FIX (minimal, no api.ts refactor): store gate tokens separately per space and
+only use the global token slot when nobody is logged in:
+
+  In src/lib/api.ts add:
+    export function setGateToken(spaceSlug: string, token: string) {
+      localStorage.setItem(`photo_gate_${spaceSlug}`, token);
+    }
+    export function getGateToken(spaceSlug: string): string | null {
+      return localStorage.getItem(`photo_gate_${spaceSlug}`);
+    }
+    // optional: an override the caller can pass per-request
+    export const api = { get<T>(path, opts?: { token?: string }) ... }
+    (thread opts.token into the Authorization header when provided)
+
+  In SpacePage.tsx:
+    const { user } = useAuth();
+    ...
+    setGateToken(spaceSlug, data.token);
+    if (!user) setToken(data.token);   // only claim global slot if anonymous
+
+  And where SpacePage / EventDetailPage / GalleryPage fetch space events for a
+  gated space, pass the gate token override when the logged-in user's own
+  request comes back 401/403:
+    api.get(`/events?spaceId=${space.id}`, { token: getGateToken(spaceSlug) ?? undefined })
+
+This keeps one concept per key: "photo_token" = who I am, "photo_gate_<slug>"
+= what I may view. (A fuller fix is a spaceTokens map in an AuthContext, but
+the above is a contained change.)
+
+================================================================================
+P1-8  EVENT VISIBILITY NEVER ROUND-TRIPS TO THE OWNER UI
+================================================================================
+WHERE:
+  functions/api/events/[id].ts:52 — owner-branch event DTO has NO `visibility`
+  field (only the legacy `public` flag).
+  functions/api/events/index.ts (owner branch, "enriched" map) — same omission.
+  src/pages/EventDetailPage.tsx:173 — reads (event as any).visibility to drive
+  the visibility <select>; it is always undefined → always shows "private".
+
+IMPACT: owner sets an event to "gate" or "public"; after refetch the dropdown
+shows "private" again. It looks broken, and a stray change event can silently
+flip a public event back to private.
+
+FIX: add visibility to both owner DTOs.
+  events/[id].ts:52 — inside the event object add:
+      visibility: (ev.visibility as string) || "private",
+  events/index.ts owner branch — in the enriched map add:
+      visibility: (e as any).visibility || "private",
+  Also add `visibility?: string;` to the Event interface in src/types/index.ts
+  and drop the `(event as any)` cast in EventDetailPage.
+
+================================================================================
+P1-9  CLIENT-SITE CUSTOM DOMAINS ARE SAVED BUT NEVER SERVED
+================================================================================
+WHERE:
+  src/pages/ClientEditorPage.tsx "Domain" tab saves client_sites.custom_domain
+  functions/_middleware.ts:108-119 — custom-domain detection only queries
+  `spaces.custom_domain`. Nothing anywhere resolves client_sites.custom_domain,
+  so the editor field is decorative.
+
+FIX (middleware): also check client sites and expose a header the SPA can use:
+
+  if (host !== "framenest.photos" && host !== "localhost" && !host.endsWith(".photo-ll2.pages.dev") && env.DB && request.method === "GET") {
+    try {
+      const space = await env.DB.prepare("SELECT slug FROM spaces WHERE custom_domain = ?").bind(host).first<{slug:string}>();
+      const clientSite = space ? null : await env.DB.prepare(
+        "SELECT slug FROM client_sites WHERE custom_domain = ? AND deleted_at IS NULL AND published = 1"
+      ).bind(host).first<{slug:string}>();
+      if (space || clientSite) {
+        const response = await next();
+        const newResponse = new Response(response.body, response);
+        if (space) newResponse.headers.set("X-FrameNest-Space", space.slug);
+        if (clientSite) newResponse.headers.set("X-FrameNest-Client-Site", clientSite.slug);
+        addSecurityHeaders(newResponse.headers);
+        return newResponse;
+      }
+    } catch (err) { console.error("Custom domain detection error:", err); }
+  }
+
+Then in the SPA bootstrap (src/App.tsx already fetches /api/spaces/by-domain)
+add a parallel /api/clients/by-domain lookup, or extend by-domain to answer
+for both tables. NOTE: custom domains also require the domain to be added to
+the Cloudflare Pages project — if that isn't set up, hide the Domain tab in
+ClientEditorPage until it is (one-line conditional) so users aren't sold a
+feature that can't work.
+
+================================================================================
+P1-10 CLIENT "PHOTO POOL" UPLOADS DISAPPEAR (NO LIST ENDPOINT OR UI)
+================================================================================
+WHERE: functions/api/clients/[id]/photos.ts has ONLY onRequestPost.
+src/pages/ClientEditorPage.tsx Photos tab (lines ~380-500) uploads and then
+shows "No photos uploaded yet" forever — nothing ever lists the pool.
+
+FIX:
+(a) Add onRequestGet to functions/api/clients/[id]/photos.ts:
+
+  export async function onRequestGet(context: {
+    request: Request; env: { DB?: D1Database }; params: { id: string };
+  }): Promise<Response> {
+    const a = await requireAuth(context.request, context.env);
+    if (a instanceof Response) return a;
+    const db = context.env.DB!;
+    const site = await db.prepare("SELECT id FROM client_sites WHERE id = ? AND photographer_id = ? AND deleted_at IS NULL")
+      .bind(context.params.id, a.userId).first();
+    if (!site) return json({ error: "Client site not found" }, 404);
+    const rows = await db.prepare(
+      `SELECT cgp.id, cgp.storage_key, cgp.filename, cgp.sort_order, cgp.created_at, cgp.gallery_id
+       FROM client_gallery_photos cgp
+       JOIN client_galleries g ON g.id = cgp.gallery_id
+       WHERE g.client_site_id = ? AND cgp.deleted_at IS NULL AND g.deleted_at IS NULL
+       ORDER BY cgp.created_at DESC`
+    ).bind(context.params.id).all();
+    return json({
+      photos: (rows.results || []).map((p: any) => ({
+        id: p.id, storageKey: p.storage_key, filename: p.filename || "",
+        galleryId: p.gallery_id, url: `/api/media/photos/${p.storage_key}`,
+        createdAt: p.created_at,
+      })),
+    });
+  }
+
+(b) In the ClientEditorPage Photos tab, fetch that list on mount / after
+upload and render the grid (same thumbnail grid markup already used for
+previews). NOTE: pool photos belong to a DRAFT site until published, so the
+media endpoint serves them only to the owner (published check) — the editor
+grid should render fine because the fetch/img comes from the owner's browser
+BUT <img> has no auth header → for unpublished sites images will 403. Use
+signed URLs in the GET above for unpublished sites (same pattern as P1-6):
+    const secret = context.env.MEDIA_SIGNING_SECRET || context.env.JWT_SECRET || "";
+    url: site.published === 1 ? `/api/media/photos/${p.storage_key}`
+         : await signMediaUrl(p.storage_key, secret, 3600)
+(select `published` in the site lookup; make the map async like P1-6.)
+
+================================================================================
+P2-11 LOGOUT DOES NOT REVOKE THE TOKEN
+================================================================================
+WHERE: functions/api/auth/logout.ts is a no-op ({ success: true }); the
+token_version revocation mechanism exists but nothing bumps it; and
+src/hooks/useAuth.tsx logout() never calls the endpoint anyway. A stolen or
+leaked JWT stays valid for 24h after "logout".
+
+FIX:
+  functions/api/auth/logout.ts:
+
+    import { json } from "../../lib/response";
+    import { requireAuth } from "../../lib/auth";
+    export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string } }): Promise<Response> {
+      const a = await requireAuth(context.request, context.env);
+      if (a instanceof Response) return json({ success: true }); // already invalid
+      if (a.userId !== "viewer" && context.env.DB) {
+        try {
+          await context.env.DB.prepare("UPDATE users SET token_version = token_version + 1 WHERE id = ?").bind(a.userId).run();
+        } catch (err) { console.error("logout revoke failed:", err); }
+      }
+      return json({ success: true });
+    }
+
+  src/hooks/useAuth.tsx logout():
+
+    const logout = useCallback(() => {
+      api.post("/auth/logout").catch(() => {});
+      setToken(null);
+      setState({ user: null, space: null, loading: false, error: null });
+    }, []);
+
+CAVEAT: only ship this together with P0-1's migration — bumping token_version
+requires the column to exist, and note it logs the user out of ALL devices
+(acceptable, but be aware).
+
+================================================================================
+P2-12 MAKE /api/health DETECT SCHEMA DRIFT
+================================================================================
+WHERE: functions/api/health.ts checks tables exist but not columns — exactly
+the failure mode this codebase keeps hitting. Add column-parity checks:
+
+  await check("critical-columns", async () => {
+    const probes: Array<[string, string]> = [
+      ["users", "token_version"], ["users", "account_type"],
+      ["spaces", "hero_source"],
+      ["events", "visibility"], ["events", "address"],
+      ["photographers", "slug"], ["photographers", "featured"],
+      ["client_gallery_photos", "id"], ["client_gallery_photos", "filename"],
+      ["client_gallery_photos", "created_at"], ["client_gallery_photos", "deleted_at"],
+      ["client_galleries", "deleted_at"],
+    ];
+    const missing: string[] = [];
+    for (const [table, col] of probes) {
+      try { await db.prepare(`SELECT ${col} FROM ${table} LIMIT 0`).run(); }
+      catch { missing.push(`${table}.${col}`); }
+    }
+    if (missing.length) throw new Error(`Missing columns: ${missing.join(", ")}`);
+  });
+
+After deploying, open /api/health (or the /health admin page) — it will now
+name any column production is missing.
+
+================================================================================
+P2-13 SIGNED-URL COMPARISON IS NOT CONSTANT-TIME
+================================================================================
+WHERE: functions/lib/signed-url.ts:20 — `return expected === signature;`
+(Already tracked as fix-queue #8.) Use crypto.subtle.verify like the Stripe
+webhook does:
+
+  export async function verifyMediaSignature(storageKey: string, signature: string, expires: string, secret: string): Promise<boolean> {
+    const exp = parseInt(expires, 10);
+    if (isNaN(exp) || exp < Math.floor(Date.now() / 1000)) return false;
+    const data = `${storageKey}:${exp}`;
+    const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
+    // signature is hex; must be even-length hex of the right size
+    if (!/^[0-9a-f]{64}$/i.test(signature)) return false;
+    const sigBytes = new Uint8Array(signature.match(/.{2}/g)!.map(h => parseInt(h, 16)));
+    return crypto.subtle.verify("HMAC", key, sigBytes, new TextEncoder().encode(data));
+  }
+
+Keep the existing tests (tests/signed-url.test.ts) green — they should pass
+unchanged since valid/invalid behavior is identical.
+
+================================================================================
+P2-14 ALBUMS: PICK ONE DELETE SEMANTIC
+================================================================================
+- albums has a deleted_at column (migration 005) and photographers/stats +
+  admin/content filter on it…
+- …but functions/api/albums/[id]/index.ts HARD-deletes (DELETE FROM albums)
+  and functions/api/albums/index.ts GET does not filter deleted_at at all.
+Nothing is broken today, but the admin "restore" story and the stats filters
+imply soft-delete was intended.
+
+FIX (align to soft-delete like events/photos):
+  albums/[id]/index.ts — replace the two DELETE statements with:
+    await context.env.DB!.prepare("UPDATE albums SET deleted_at = datetime('now') WHERE id = ?").bind(id).run();
+    (keep album_photos rows + R2 objects for the recovery window; add a
+    cleanup pass later if storage matters)
+  albums/index.ts GET — add "AND a.deleted_at IS NULL" to the WHERE clause.
+  albums/view/[token].ts — add "AND a.deleted_at IS NULL" to the album lookup.
+
+================================================================================
+P2-15 RATE LIMITS: BULK UPLOADERS CAN HIT 30/hour/IP
+================================================================================
+WHERE: functions/lib/rate-limit.ts (MAX_PER_MINUTE=10, MAX_PER_HOUR=30 for
+every rate-limited endpoint) + functions/_middleware.ts RATE_LIMITED_PREFIXES
+includes /api/photos/upload, /api/videos/upload, /api/clients (which covers
+client photo/gallery uploads).
+
+PhotoUploader batches all files into ONE request (good), but a photographer
+doing 30+ separate upload actions in an hour — or several people behind one
+NAT/office IP — will hit 429 "Too many requests" on core workflows. Auth
+endpoints SHOULD stay strict; uploads should not share those numbers.
+
+FIX: per-endpoint limits. In rate-limit.ts:
+
+  const LIMITS: Record<string, { perMin: number; perHour: number }> = {
+    default:          { perMin: 10, perHour: 30 },
+    "photos/upload":  { perMin: 12, perHour: 120 },
+    "videos/upload":  { perMin: 6,  perHour: 60 },
+    uploads:          { perMin: 12, perHour: 120 }, // client-site uploads
+  };
+  export async function checkRateLimit(db, ip, endpoint) {
+    const cfg = LIMITS[endpoint] ?? LIMITS.default; ...
+  }
+
+And in _middleware.ts, key client uploads to the "uploads" bucket:
+  const endpoint = /^\/api\/clients\/[^/]+\/(photos|galleries)/.test(url.pathname)
+    ? "uploads"
+    : url.pathname.replace(/^\/api\//, "");
+(Keep the known caveat: the D1 counter is racy — fine for UX limits, not a
+hard security boundary; Cloudflare WAF rate rules are the strict layer.)
+
+================================================================================
+P2-16 HARDCODED MAPBOX TOKEN (4 PLACES)
+================================================================================
+WHERE:
+  src/components/map/SpaceEventMap.tsx:21
+  src/components/map/EventMap.tsx:55
+  src/pages/InspirationMapPage.tsx:15
+  functions/lib/geocode.ts (fallback constant)
+
+It's a pk (public) token, so this is exposure-by-design, BUT the repo's own
+rule is "no hardcoded API keys," and rotating it currently means editing 4
+files. FIX:
+  - Frontend: create src/lib/mapbox.ts:
+      export const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN ?? "";
+    import it in the 3 components; set VITE_MAPBOX_TOKEN in the Pages build
+    env (and .env for local dev).
+  - Backend geocode.ts: read env.MAPBOX_API_KEY (already in .env) and pass it
+    through from handlers: geocodeAddress(body.address, context.env.MAPBOX_API_KEY)
+    — keep the current constant only as a last-resort fallback or remove it.
+  - In the Mapbox dashboard, add URL restrictions (framenest.photos,
+    *.photo-ll2.pages.dev, localhost) to the pk token.
+
+================================================================================
+P2-17 DEAD/BROKEN CODE TO REMOVE (reduces future confusion)
+================================================================================
+1. functions/lib/db.ts — createUser(), createSpace(), addSpaceMember() are
+   unused, and the first two are BROKEN (omit NOT NULL created_at). Delete
+   them; keep the getters (getUserByEmail/getUserById/getSpaceBySlug/
+   getSpaceById are used).
+2. functions/api/messages/[eventId].ts — full GET/POST endpoint with no UI
+   calling it (nothing in src/ hits /api/messages/...). Either build the
+   event-chat UI or delete the endpoint; don't leave an unauthenticated-
+   surface you aren't maintaining (it does requireAuth, but still).
+3. functions/api/admin/seed-inspiration.ts — one-off seeding endpoint; if the
+   102 pins are already seeded, remove it (it's platform_owner-gated, but
+   dead weight).
+4. ARCHITECTURE.md fix-queue row 1 (events/[id].ts deleted_at) is DONE in
+   code — update the doc so AI coders stop "re-fixing" it.
+
+================================================================================
+P2-18 CSP NOTES
+================================================================================
+WHERE: functions/_middleware.ts:32
+1. Google Fonts: CSP intentionally blocks fonts.googleapis.com but 262 of 263
+   templates link it → every template page logs CSP errors and falls back to
+   system fonts. The right fix (per ARCHITECTURE.md) is self-hosting: pick the
+   6-8 font families the templates actually use, add them as @font-face in
+   src/index.css with woff2 files in public/fonts/, and strip the
+   <link href="fonts.googleapis..."> injections from templates with a
+   codemod. Until then this is cosmetic noise, not breakage.
+2. Mapbox telemetry: mapbox-gl POSTs to https://events.mapbox.com which is
+   NOT in connect-src → console errors on every map page (maps still work).
+   Either add https://events.mapbox.com to connect-src, or (better) disable
+   telemetry where maps are created:
+     import mapboxgl from "mapbox-gl";
+     // @ts-expect-error private config flag
+     mapboxgl.config?.EVENTS_URL && (mapboxgl.config.EVENTS_URL = "");
+   (or set trackResize/collectResourceTiming options off; simplest is the
+   connect-src addition.)
+
+================================================================================
+APPENDIX A — REQUIRED PRODUCTION SECRETS (verify all are set)
+================================================================================
+Run: npx wrangler pages secret list --project-name photo
+
+  JWT_SECRET            REQUIRED. >=32 chars or every request in production
+                        throws (functions/lib/jwt.ts getJwtSecret).
+  MEDIA_SIGNING_SECRET  Should be set (falls back to JWT_SECRET).
+  DEEPSEEK_API_KEY      AI summaries (optional — degrades gracefully).
+  ZOHO_API_KEY          REQUIRED for invites/password-reset emails; without
+                        it all emails silently fail (email.ts logs + returns).
+  EMAIL_FROM            Optional (defaults to noreply@framenest.photos).
+  STRIPE_SECRET_KEY     REQUIRED for checkout/connect/subscribe — note the
+                        CLAUDE.md .env list does NOT mention Stripe keys, so
+                        double-check these were ever set.
+  STRIPE_WEBHOOK_SECRET REQUIRED for /api/stripe/webhook (else 500 on every
+                        webhook and orders stay "pending").
+
+Also confirm the Pages build has VITE_MAPBOX_TOKEN if you adopt P2-16.
+
+================================================================================
+APPENDIX B — VERIFICATION COMMANDS (run before + after fixes)
+================================================================================
+# 1. What shape is production actually in? (THE most important step)
+npx wrangler d1 execute photo-db --remote --command "PRAGMA table_info(users)"
+npx wrangler d1 execute photo-db --remote --command "PRAGMA table_info(spaces)"
+npx wrangler d1 execute photo-db --remote --command "PRAGMA table_info(events)"
+npx wrangler d1 execute photo-db --remote --command "PRAGMA table_info(photographers)"
+npx wrangler d1 execute photo-db --remote --command "PRAGMA table_info(client_galleries)"
+npx wrangler d1 execute photo-db --remote --command "PRAGMA table_info(client_gallery_photos)"
+npx wrangler d1 execute photo-db --remote --command "PRAGMA table_info(inspiration)"
+
+# 2. Back up BEFORE migrating
+npm run db:backup
+
+# 3. Apply migration 006 (after tailoring it to what step 1 revealed —
+#    delete any ALTER for a column that already exists)
+npx wrangler d1 execute photo-db --remote --file=./db/migrations/006_schema_parity.sql
+
+# 4. Deploy + smoke test
+npm run deploy:safe
+curl -s https://framenest.photos/api/health | python3 -m json.tool
+# then in a browser: login → dashboard; gate key into a space; open a gate
+# event; upload photos; client editor → upload pool photos; public client
+# site gallery; invite a brand-new email and click the magic link.
+
+================================================================================
+APPENDIX C — SUGGESTED FIX ORDER
+================================================================================
+1. Appendix B step 1 (PRAGMA snapshot) + step 2 (backup).
+2. P0-1: migration 006 + defensive requireAuth. Deploy. This alone may
+   resurrect most of the site.
+3. P0-2: gate-session skip in requireAuth (same edit as P0-1b) + test.
+4. P0-4: members.ts created_at (1-line).
+5. P0-3: client galleries code alignment (5 files) + its migration lines.
+6. P1-6 and P1-8 (events DTO fixes, small).
+7. P1-5 (magic-login auto-account) and P1-7 (gate token storage).
+8. P2-12 health checks (so regressions are visible), then P2-11 logout,
+   P2-13 constant-time compare, P2-14 albums, P2-15 rate limits.
+9. P1-9 / P1-10 (client-site domain + photo pool) — feature completion.
+10. P2-16/17/18 cleanups. Update ARCHITECTURE.md fix queue when done.
+
+RULES REMINDER (from CLAUDE.md / ARCHITECTURE.md — they still apply):
+- Never deploy schema changes without a forward migration (P0-1 IS that migration).
+- Keep `deleted_at IS NULL` on all new public queries.
+- Don't rename photographers / gallery_config.
+- Route additions in App.tsx go BEFORE the /:slug catch-all.
+- Commit .env? Never.
+
+================================================================================
+END OF AUDIT
+================================================================================
