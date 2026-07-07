@@ -5,11 +5,10 @@
 
 export async function geocodeAddress(address: string, mapboxToken?: string): Promise<{ lat: number; lng: number } | null> {
   if (!address || address.trim().length < 3) return null;
-  // Pass MAPBOX_API_KEY from env in route handlers; fallback for local dev only
-  const token = mapboxToken || "pk.eyJ1IjoiY2ljZXJvNzg5IiwiYSI6ImNtcThtanB1NTA3bGYycXB2c2R0bHk2bmgifQ.fEmRx2lBgLW6v4bNQdjn5w";
+  if (!mapboxToken) return null; // token must be passed from env — no hardcoded fallback
 
   try {
-    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address.trim())}.json?access_token=${token}&limit=1&types=address,place,poi`;
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address.trim())}.json?access_token=${mapboxToken}&limit=1&types=address,place,poi`;
     const res = await fetch(url);
     if (!res.ok) return null;
 

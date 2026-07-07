@@ -8,6 +8,7 @@ export function validateSignup(body: { name?: string; email?: string; password?:
   if (!body.name || !isValidLength(body.name, MAX_NAME)) return `Name must be between 1 and ${MAX_NAME} characters.`;
   if (!body.email || !isValidEmail(body.email)) return "Please enter a valid email address.";
   if (!body.password || body.password.length < 8) return "Password must be at least 8 characters.";
+  if (body.password.length > 128) return "Password must be at most 128 characters.";
   if (!body.spaceName || !isValidLength(body.spaceName, MAX_NAME)) return `Space name must be between 1 and ${MAX_NAME} characters.`;
   if (!body.spaceSlug || !isValidLength(body.spaceSlug, 50)) return "Link must be between 1 and 50 characters.";
   if (!body.gateKey || body.gateKey.length < 6) return "Gate key must be at least 6 characters.";
@@ -18,6 +19,7 @@ export function validateMember(body: { name?: string; email?: string; password?:
   if (!body.name || !isValidLength(body.name, MAX_NAME)) return `Name must be between 1 and ${MAX_NAME} characters.`;
   if (!body.email || !isValidEmail(body.email)) return "Please enter a valid email address.";
   if (!body.password || body.password.length < 8) return "Password must be at least 8 characters.";
+  if (body.password.length > 128) return "Password must be at most 128 characters.";
   if (!body.role || !["staff", "viewer"].includes(body.role)) return "Role must be staff or viewer.";
   return null;
 }

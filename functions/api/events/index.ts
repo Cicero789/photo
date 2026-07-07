@@ -41,7 +41,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
       return json({ events: enriched });
     }
     if (spaceId && !isPlatformOwner) { const spaceCheck = requireSpaceOwnership(authResult, spaceId); if (spaceCheck) return spaceCheck; }
-    const result = await db.prepare("SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND deleted_at IS NULL) as photo_count, (SELECT storage_key FROM photos WHERE event_id = e.id AND id = e.cover_photo_id LIMIT 1) as cover_key FROM events e WHERE e.space_id = ? AND e.deleted_at IS NULL ORDER BY e.event_date DESC").bind(targetSpaceId).all<EventRow & {photo_count: number; cover_key: string | null}>();
+    const result = await db.prepare("SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND deleted_at IS NULL) as photo_count, COALESCE((SELECT storage_key FROM photos WHERE event_id = e.id AND id = e.cover_photo_id AND deleted_at IS NULL LIMIT 1), (SELECT storage_key FROM photos WHERE event_id = e.id AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 1)) as cover_key FROM events e WHERE e.space_id = ? AND e.deleted_at IS NULL ORDER BY e.event_date DESC").bind(targetSpaceId).all<EventRow & {photo_count: number; cover_key: string | null}>();
     const events = result.results ?? [];
     const secret = (context.env as any).MEDIA_SIGNING_SECRET || (context.env as any).JWT_SECRET || "";
     const enriched = await Promise.all(events.map(async (e) => {

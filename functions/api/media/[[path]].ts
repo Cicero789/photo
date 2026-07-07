@@ -82,9 +82,11 @@ export async function onRequestGet(context: {
         // No password — share link is sufficient, allow access
       } else {
         // Check photographer_portfolio
-        const portfolioPhoto = await db.prepare("SELECT photographer_id FROM photographer_portfolio WHERE storage_key = ?").bind(storageKey).first();
+        const portfolioPhoto = await db.prepare(
+          "SELECT pp.photographer_id FROM photographer_portfolio pp JOIN photographers p ON pp.photographer_id = p.id WHERE pp.storage_key = ? AND p.status = 'approved'"
+        ).bind(storageKey).first();
         if (portfolioPhoto) {
-          // allow — portfolio is public
+          // allow — approved portfolio is public
           isPublic = true;
         } else {
           // Check client gallery photos

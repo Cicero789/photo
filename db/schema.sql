@@ -341,26 +341,27 @@ CREATE TABLE IF NOT EXISTS blog_posts (
   UNIQUE(client_site_id, slug)
 );
 
+-- NOTE: production schema differs from earlier schema.sql versions.
+-- client_galleries has slug; client_gallery_photos uses composite PK (gallery_id, storage_key)
+-- with caption/uploaded_at columns. This matches the production reality and the code.
 CREATE TABLE IF NOT EXISTS client_galleries (
   id              TEXT PRIMARY KEY,
   client_site_id  TEXT NOT NULL REFERENCES client_sites(id),
   name            TEXT NOT NULL,
+  slug            TEXT NOT NULL,
   created_at      TEXT NOT NULL,
   updated_at      TEXT NOT NULL,
   deleted_at      TEXT
 );
 
 CREATE TABLE IF NOT EXISTS client_gallery_photos (
-  id            TEXT PRIMARY KEY,
   gallery_id    TEXT NOT NULL REFERENCES client_galleries(id),
   storage_key   TEXT NOT NULL,
-  filename      TEXT DEFAULT '',
-  width         INTEGER DEFAULT 0,
-  height        INTEGER DEFAULT 0,
-  file_size     INTEGER DEFAULT 0,
+  caption       TEXT DEFAULT '',
   sort_order    INTEGER DEFAULT 0,
-  created_at    TEXT NOT NULL,
-  deleted_at    TEXT
+  uploaded_at   TEXT NOT NULL,
+  deleted_at    TEXT,
+  PRIMARY KEY (gallery_id, storage_key)
 );
 
 CREATE INDEX IF NOT EXISTS idx_client_sites_slug ON client_sites(slug);
