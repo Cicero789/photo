@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "types": ["@cloudflare/workers-types"],
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "paths": {
+      "@framenest/shared": ["../shared/src/index.ts"],
+      "@framenest/shared/*": ["../shared/src/*"]
+    }
+  },
+  "include": ["src", "../shared/src"]
+}

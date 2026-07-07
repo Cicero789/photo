@@ -1,0 +1,21 @@
+{
+  "name": "@framenest/backend",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@framenest/shared": "*"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250601.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.1.0",
+    "miniflare": "^4.20250601.0"
+  }
+}

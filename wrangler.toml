@@ -1,0 +1,20 @@
+name = "framenest-v2"
+compatibility_date = "2025-06-01"
+pages_build_output_dir = "packages/frontend/dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "framenest-v2-db"
+database_id = "106c8371-c84a-49d9-be36-717d3a439a5c"
+
+[[r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "photo-uploads"
+
+[[r2_buckets]]
+binding = "VIDEOS"
+bucket_name = "video-uploads"
+
+[vars]
+ENVIRONMENT = "production"
+APP_URL = "https://framenest.photos"

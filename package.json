@@ -1,0 +1,31 @@
+{
+  "name": "framenest-v2",
+  "version": "2.0.0",
+  "private": true,
+  "description": "FrameNest v2 — multi-sided photo sharing + professional platform",
+  "workspaces": [
+    "packages/shared",
+    "packages/backend",
+    "packages/frontend"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "build": "npm run build --workspace=@framenest/frontend",
+    "test": "npm run test --workspaces --if-present",
+    "test:unit": "npm run test:unit --workspaces --if-present",
+    "test:integration": "npm run test:integration --workspaces --if-present",
+    "deploy:staging": "npm run build && wrangler pages deploy packages/frontend/dist --project-name=framenest-v2 --branch=main",
+    "db:init": "wrangler d1 execute framenest-v2-db --file=db/schema.sql",
+    "db:seed": "wrangler d1 execute framenest-v2-db --file=db/seeds/inspiration.sql",
+    "db:migrate": "wrangler d1 execute framenest-v2-db --file=db/migrations/001_initial.sql",
+    "generate-types": "tsx scripts/generate-types.ts"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.1.0",
+    "wrangler": "^4.15.0"
+  }
+}
