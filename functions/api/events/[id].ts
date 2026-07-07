@@ -79,7 +79,7 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
     }
     if (body.address !== undefined) {
       parts.push("address = ?"); values.push(body.address);
-      const geo = await geocodeAddress(body.address);
+      const geo = await geocodeAddress(body.address, (context.env as any).MAPBOX_API_KEY);
       if (geo) { parts.push("latitude = ?"); values.push(geo.lat.toString()); parts.push("longitude = ?"); values.push(geo.lng.toString()); }
       else { parts.push("latitude = NULL"); parts.push("longitude = NULL"); }
     }

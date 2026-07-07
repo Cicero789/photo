@@ -10,6 +10,7 @@ import { CommunityFeed } from "@/components/community/CommunityFeed";
 import { PhotographerHero } from "@/components/photographer/PhotographerHero";
 import { TemplatePicker } from "@/components/photographer/TemplatePicker";
 import { ClientsPage } from "@/pages/ClientsPage";
+import { normalizeTemplateId } from "@/lib/templateIds";
 import type { EventCategory, Photo } from "@/types";
 
 // ─── Types ───
@@ -638,7 +639,7 @@ function PhotographerProfileCard() {
       .then(d => {
         if (d.slug !== undefined) {
           const design = JSON.parse(d.design || "{}");
-          setProfile({ slug: d.slug || "", tagline: d.tagline || "", specialties: d.specialties || "", template: design.template || "clean-minimal", colorScheme: design.colorScheme || "light", fontPairing: design.fontPairing || "modern" });
+          setProfile({ slug: d.slug || "", tagline: d.tagline || "", specialties: d.specialties || "", template: normalizeTemplateId(design.template), colorScheme: design.colorScheme || "light", fontPairing: design.fontPairing || "modern" });
         }
       })
       .catch(() => {});
@@ -710,7 +711,7 @@ function PhotographerProfileCard() {
 
       <div className="mt-8 border-t border-border pt-8">
         <TemplatePicker
-          currentTemplate={profile.template || "clean-minimal"}
+          currentTemplate={normalizeTemplateId(profile.template)}
           currentColorScheme={profile.colorScheme || "light"}
           currentFontPairing={profile.fontPairing || "modern"}
           slug={profile.slug}

@@ -2,6 +2,7 @@
 import { json } from "../../../lib/response";
 import { requireAuth } from "../../../lib/auth";
 import { validateUploadContent } from "../../../lib/upload-validate";
+import { rejectOversizedRequest } from "../../../lib/upload-policy";
 
 const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif", "image/heic"];
 
@@ -21,6 +22,9 @@ export async function onRequestPost(context: {
 
   const ct = context.request.headers.get("content-type") || "";
   if (!ct.includes("multipart/form-data")) return json({ error: "Use multipart/form-data to upload photos" }, 400);
+
+  const tooLarge = rejectOversizedRequest(context.request, 25 * 1024 * 1024);
+  if (tooLarge) return tooLarge;
 
   const form = await context.request.formData();
   const files = form.getAll("photos") as unknown as File[];

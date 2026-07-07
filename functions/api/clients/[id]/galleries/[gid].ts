@@ -1,6 +1,7 @@
 /** Gallery management — PUT + DELETE + POST (upload) /api/clients/:id/galleries/:gid */
 import { json } from "../../../../lib/response"; import { requireAuth } from "../../../../lib/auth";
 import { validateUploadContent } from "../../../../lib/upload-validate";
+import { rejectOversizedRequest } from "../../../../lib/upload-policy";
 
 async function getOwnedGallery(db: D1Database, clientSiteId: string, galleryId: string, userId: string) {
   const gallery = await db.prepare(
@@ -54,6 +55,8 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
 
   const ct = context.request.headers.get("content-type") || "";
   if (!ct.includes("multipart/form-data")) return json({ error: "Use multipart/form-data to upload photos" }, 400);
+  const tooLarge = rejectOversizedRequest(context.request, 25 * 1024 * 1024);
+  if (tooLarge) return tooLarge;
 
   const form = await context.request.formData();
   const uploaded: any[] = [];

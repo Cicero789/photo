@@ -1,9 +1,10 @@
 import { useState, useEffect, Suspense } from "react";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { HireButton } from "@/components/photographer/HireButton";
-import { templateComponents, resolveTemplateId } from "@/components/templates";
+import { templateComponents } from "@/components/templates";
 import { TEMPLATE_REGISTRY } from "@/components/templates/types";
 import { COLOR_SCHEMES, FONT_PAIRINGS } from "@/components/photographer/TemplatePicker";
+import { normalizeTemplateId, DEFAULT_TEMPLATE_ID } from "@/lib/templateIds";
 
 interface ProfileData {
   id: string;
@@ -71,8 +72,8 @@ export function PhotographerProfilePage() {
   const hasPricing = profile.pricing?.downloads?.single || profile.pricing?.downloads?.full;
 
   // --- Template System ---
-  const templateId = resolveTemplateId(previewTemplate || profile.galleryConfig?.template);
-  const TemplateComponent = templateComponents[templateId];
+  const templateId = normalizeTemplateId(previewTemplate || profile.galleryConfig?.template);
+  const TemplateComponent = templateComponents[templateId] || templateComponents[DEFAULT_TEMPLATE_ID];
 
   // Resolve color scheme and font pairing from config or preview params
   const schemeKey = previewColor || profile.galleryConfig?.colorScheme || "light";

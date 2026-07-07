@@ -1,0 +1,697 @@
+FRAMENEST AI CODER AUDIT
+Audit date: 2026-07-07
+Repo: Cicero789/photo
+Local workspace: C:\Users\shant\photo
+Production site checked from source context: https://framenest.photos
+
+Purpose
+This file is a practical handoff for an AI coder. It lists the highest-risk breakages found in the current checkout, explains why they matter, and includes suggested code patterns to apply.
+
+Verification already run
+- git pull origin main: already up to date.
+- npm.cmd run build: passed.
+- npm.cmd test -- --run: passed, 5 test files, 61 tests.
+- npm.cmd run lint: failed because --max-warnings 0 and there are 67 warnings.
+
+Important repo state
+- The local active branch is master.
+- master is ahead of origin/main by local commits.
+- Build output warns that the main bundle and PhotoEditor chunk are large.
+- Vite warns src/lib/mapbox.ts is both dynamically and statically imported, so it cannot be split into a separate lazy chunk.
+
+Most important findings
+
+1. Client gallery/photo APIs do not match db/schema.sql
+Priority: P0
+
+Why this is likely breaking the app
+The D1 schema in db/schema.sql defines:
+- client_galleries: id, client_site_id, name, created_at, updated_at, deleted_at
+- client_gallery_photos: id, gallery_id, storage_key, filename, width, height, file_size, sort_order, created_at, deleted_at
+
+But several endpoints use columns that do not exist:
+- functions/api/clients/[id]/photos.ts uses client_galleries.slug.
+- functions/api/clients/[id]/photos.ts inserts client_gallery_photos.caption and uploaded_at.
+- functions/api/clients/[id]/photos.ts does not insert the required client_gallery_photos.id.
+- functions/api/clients/[id]/galleries/[gid].ts also inserts caption/uploaded_at and omits id.
+- functions/api/clients/public/[slug]/galleries/[gid].ts selects caption/uploaded_at.
+
+Expected symptoms
+- Client photo uploads fail with D1 errors such as "no such column: slug", "no such column: caption", "no such column: uploaded_at", or "NOT NULL constraint failed: client_gallery_photos.id".
+- Public client galleries can load with missing file names or fail completely.
+
+Recommended direction
+Update the functions to match the schema. Do not add new columns unless you truly want slug/caption/uploaded_at long term.
+
+Suggested code pattern for functions/api/clients/[id]/photos.ts
+
+Use name = "Photos" for the default gallery instead of slug = "photos":
+
+```ts
+const now = new Date().toISOString();
+let gallery = await context.env.DB.prepare(
+  `SELECT id
+   FROM client_galleries
+   WHERE client_site_id = ? AND name = ? AND deleted_at IS NULL`
+).bind(context.params.id, "Photos").first<{ id: string }>();
+
+if (!gallery) {
+  const galleryId = crypto.randomUUID();
+  await context.env.DB.prepare(
+    `INSERT INTO client_galleries (id, client_site_id, name, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?)`
+  ).bind(galleryId, context.params.id, "Photos", now, now).run();
+  gallery = { id: galleryId };
+}
+```
+
+Insert rows using the real client_gallery_photos columns:
+
+```ts
+const photoId = crypto.randomUUID();
+const sortOrder = await getNextSortOrder(context.env.DB, gallery.id);
+const now = new Date().toISOString();
+
+await context.env.DB.prepare(
+  `INSERT INTO client_gallery_photos
+    (id, gallery_id, storage_key, filename, width, height, file_size, sort_order, created_at)
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+).bind(
+  photoId,
+  gallery.id,
+  storageKey,
+  file.name,
+  0,
+  0,
+  file.size,
+  sortOrder,
+  now
+).run();
+```
+
+Select rows using filename and created_at:
+
+```ts
+const photos = await context.env.DB.prepare(
+  `SELECT cgp.id, cgp.gallery_id, cgp.storage_key, cgp.filename, cgp.sort_order, cgp.created_at
+   FROM client_gallery_photos cgp
+   JOIN client_galleries cg ON cgp.gallery_id = cg.id
+   WHERE cg.client_site_id = ? AND cgp.deleted_at IS NULL AND cg.deleted_at IS NULL
+   ORDER BY cgp.created_at DESC`
+).bind(context.params.id).all();
+```
+
+Add a small helper:
+
+```ts
+async function getNextSortOrder(db: D1Database, galleryId: string): Promise<number> {
+  const row = await db.prepare(
+    `SELECT COALESCE(MAX(sort_order), -1) + 1 AS nextSortOrder
+     FROM client_gallery_photos
+     WHERE gallery_id = ? AND deleted_at IS NULL`
+  ).bind(galleryId).first<{ nextSortOrder: number }>();
+
+  return row?.nextSortOrder ?? 0;
+}
+```
+
+Suggested code pattern for functions/api/clients/[id]/galleries/[gid].ts upload path:
+
+```ts
+const photoId = crypto.randomUUID();
+const now = new Date().toISOString();
+const sortOrder = await getNextSortOrder(context.env.DB, gid);
+
+await context.env.DB.prepare(
+  `INSERT INTO client_gallery_photos
+    (id, gallery_id, storage_key, filename, width, height, file_size, sort_order, created_at)
+   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+).bind(
+  photoId,
+  gid,
+  storageKey,
+  file.name,
+  0,
+  0,
+  file.size,
+  sortOrder,
+  now
+).run();
+
+uploaded.push({
+  id: photoId,
+  storageKey,
+  filename: file.name,
+  url: `/api/media/photos/${storageKey}`,
+  sortOrder,
+  createdAt: now,
+});
+```
+
+Suggested code pattern for functions/api/clients/public/[slug]/galleries/[gid].ts:
+
+```ts
+const photos = await context.env.DB.prepare(
+  `SELECT id, storage_key, filename, sort_order, created_at
+   FROM client_gallery_photos
+   WHERE gallery_id = ? AND deleted_at IS NULL
+   ORDER BY sort_order ASC, created_at ASC`
+).bind(gid).all();
+
+return jsonResponse({
+  photos: photos.results.map((photo: any) => ({
+    id: photo.id,
+    url: `/api/media/photos/${photo.storage_key}`,
+    storageKey: photo.storage_key,
+    filename: photo.filename,
+    sortOrder: photo.sort_order,
+    createdAt: photo.created_at,
+  })),
+});
+```
+
+Regression test to add
+- Upload a photo to a client site gallery using a local D1 database.
+- Verify the row has id, filename, storage_key, created_at.
+- Verify the public gallery endpoint returns id, filename, url.
+
+
+2. Dashboard broken image on "games" block
+Priority: P0/P1
+
+What I found locally
+There is no current source component or route named game/games in src, functions, public, db, README, ARCHITECTURE, or AUDIT_REPORT.
+
+The template thumbnails used by the photographer dashboard are rendered in:
+- src/components/photographer/TemplatePicker.tsx
+
+The registry is in:
+- src/components/templates/types.ts
+
+I compared every registered template id against public/thumbnails/*.jpg:
+- Registered templates: 263.
+- Missing registered thumbnails: 0.
+
+So the broken image on production is probably one of these:
+- Production deploy is stale and missing an image that exists locally.
+- A saved user/profile/template value still points to an old id such as "clean-minimal".
+- A custom ad tile or dashboard tile points to an external image URL that the CSP blocks.
+- A database value contains a bad or deleted image URL.
+
+Fix old template id fallback first
+Several places still use "clean-minimal", but the current registry id appears to be "1-clean".
+
+Affected files:
+- src/pages/DashboardPage.tsx
+- src/pages/PhotographerProfilePage.tsx
+- src/components/photographer/TemplatePicker.tsx
+
+Add a central normalizer:
+
+```ts
+// src/lib/templateIds.ts
+import { TEMPLATE_REGISTRY } from "../components/templates/types";
+
+export const DEFAULT_TEMPLATE_ID = "1-clean";
+
+const TEMPLATE_ID_ALIASES: Record<string, string> = {
+  "clean-minimal": "1-clean",
+  "cinematic-dark": "2-cinematic",
+  "editorial-magazine": "3-editorial",
+  "instagram-grid": "4-instagram",
+  "masonry-wall": "5-masonry",
+  "split-hero": "6-split",
+  "vertical-scroll": "7-vertical",
+  "carousel-spotlight": "8-carousel",
+  "story-cards": "9-story-cards",
+  "brutalist-bold": "10-brutalist",
+};
+
+const TEMPLATE_IDS = new Set(TEMPLATE_REGISTRY.map((template) => template.id));
+
+export function normalizeTemplateId(value?: string | null): string {
+  if (!value) return DEFAULT_TEMPLATE_ID;
+  const resolved = TEMPLATE_ID_ALIASES[value] ?? value;
+  return TEMPLATE_IDS.has(resolved) ? resolved : DEFAULT_TEMPLATE_ID;
+}
+```
+
+Use it in DashboardPage.tsx:
+
+```ts
+import { DEFAULT_TEMPLATE_ID, normalizeTemplateId } from "../lib/templateIds";
+
+setProfile({
+  ...,
+  template: normalizeTemplateId(design.template),
+});
+
+<TemplatePicker
+  currentTemplate={normalizeTemplateId(profile.template)}
+  onSelectTemplate={handleTemplateChange}
+/>
+```
+
+Use it in PhotographerProfilePage.tsx:
+
+```ts
+const templateId = normalizeTemplateId(previewTemplate || profile.galleryConfig?.template);
+const TemplateComponent = templateComponents[templateId] || templateComponents[DEFAULT_TEMPLATE_ID];
+```
+
+Use it in TemplatePicker.tsx and add image fallback:
+
+```tsx
+const normalizedCurrent = normalizeTemplateId(currentTemplate);
+const [selected, setSelected] = useState(normalizedCurrent);
+
+useEffect(() => {
+  setSelected(normalizeTemplateId(currentTemplate));
+}, [currentTemplate]);
+
+<img
+  src={`/thumbnails/${template.id}.jpg`}
+  alt={template.name}
+  loading="lazy"
+  onError={(event) => {
+    event.currentTarget.onerror = null;
+    event.currentTarget.src = `/thumbnails/${DEFAULT_TEMPLATE_ID}.jpg`;
+  }}
+/>
+```
+
+Add a thumbnail smoke script:
+
+```js
+// scripts/check-template-thumbnails.mjs
+import { readdirSync } from "node:fs";
+import { resolve } from "node:path";
+
+const source = await import("../src/components/templates/types.ts");
+const ids = source.TEMPLATE_REGISTRY.map((template) => template.id);
+const files = new Set(readdirSync(resolve("public/thumbnails")));
+const missing = ids.filter((id) => !files.has(`${id}.jpg`));
+
+if (missing.length > 0) {
+  console.error("Missing thumbnails:", missing.join(", "));
+  process.exit(1);
+}
+```
+
+If the "games" block is actually an ad tile
+The CSP currently only allows images from self, data, blob, Unsplash, and Mapbox. Admin ad tiles allow arbitrary image URLs. That means an ad image hosted elsewhere will be blocked by the browser and look broken.
+
+Recommended safe fix:
+- Store ad tile images in R2 and serve them through /api/media/photos/... or a dedicated /api/media/ads/... route.
+- Or validate a short allow-list of image hosts at save time and add only those hosts to CSP.
+
+Do not solve this by adding every https image host to CSP unless the business accepts that risk.
+
+
+3. npm run lint fails
+Priority: P1
+
+The repo uses --max-warnings 0, so warnings are build/release blockers.
+
+Current lint failure categories:
+- @typescript-eslint/no-floating-promises
+- react-hooks/exhaustive-deps
+- one unused eslint-disable
+
+Recommended approach
+- Keep the strict lint rule.
+- For intentional fire-and-forget operations, use void and make sure the promise handles errors.
+- For hooks, use useCallback or include the actual dependency.
+
+Example pattern:
+
+```tsx
+const fetchMapData = useCallback(async () => {
+  const result = await api.get<MapData>("/api/events/map");
+  setMapData(result);
+}, []);
+
+useEffect(() => {
+  if (viewMode === "map") {
+    void fetchMapData();
+  }
+}, [viewMode, fetchMapData]);
+```
+
+Example event handler:
+
+```tsx
+const handleDelete = (id: string) => {
+  void deleteThing(id).catch((error) => {
+    console.error("Delete failed", error);
+    setError("Delete failed. Please try again.");
+  });
+};
+```
+
+Do not ignore no-floating-promises globally. It is catching real async UI failure cases.
+
+
+4. Mojibake and broken visible text
+Priority: P1
+
+Several files contain mojibake such as corrupted emoji/text sequences. This can make the UI look broken even when the underlying feature works.
+
+Search command:
+
+```bash
+rg -n "鈹|鈥|馃|锔" src functions db public --glob "!public/mockups-*.html"
+```
+
+Recommended fix
+- Replace corrupted visible labels with lucide icons or plain ASCII text.
+- Replace corrupted comments with plain English.
+- Do not rely on emoji in operational UI labels.
+
+Examples to clean:
+- Dashboard view toggle labels that render corrupted "Tiles" and "Map" emoji.
+- Client editor/demo labels with corrupted icons.
+- Photographer profile and template labels with corrupted icons.
+
+After cleanup, add a simple check:
+
+```json
+{
+  "scripts": {
+    "check:encoding": "rg -n \"鈹|鈥|馃|锔\" src functions db public --glob '!public/mockups-*.html' && exit 1 || exit 0"
+  }
+}
+```
+
+
+5. Client blog dates can render incorrectly
+Priority: P1/P2
+
+The blog schema does not include published_at, but endpoints map row.published_at to publishedAt.
+
+Affected files:
+- functions/api/clients/[id]/blog/index.ts
+- functions/api/clients/public/[slug].ts
+- src/pages/ClientEditorPage.tsx
+- src/pages/ClientSitePage.tsx
+
+Expected symptom
+- Blog posts may show null dates or Jan 1 1970 depending on frontend formatting.
+
+Recommended backend mapper:
+
+```ts
+function mapBlogPost(row: any) {
+  return {
+    id: row.id,
+    title: row.title,
+    slug: row.slug,
+    excerpt: row.excerpt || "",
+    content: row.content || "",
+    body: row.content || "",
+    featuredImage: row.featured_image || null,
+    status: row.status,
+    publishedAt: row.updated_at || row.created_at,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+```
+
+Recommended frontend guard:
+
+```tsx
+const displayDate = post.publishedAt || post.createdAt || post.updatedAt;
+
+{displayDate ? (
+  <time dateTime={displayDate}>
+    {new Date(displayDate).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })}
+  </time>
+) : null}
+```
+
+
+6. Upload endpoints should reject oversized bodies before request.formData()
+Priority: P1/P2
+
+Cloudflare Workers can buffer formData() in memory. Several upload endpoints check file size after parsing the request. Add a content-length guard before formData().
+
+Affected endpoints to inspect:
+- functions/api/clients/[id]/photos.ts
+- functions/api/clients/[id]/galleries/[gid].ts
+
+Pattern:
+
+```ts
+import { rejectOversizedRequest } from "../../../lib/upload-policy";
+
+const tooLarge = rejectOversizedRequest(context.request, 25 * 1024 * 1024);
+if (tooLarge) return tooLarge;
+
+const formData = await context.request.formData();
+```
+
+If the endpoint accepts multiple files, set the limit to the actual maximum total request size, not just single-file size.
+
+
+7. Mapbox token handling is inconsistent
+Priority: P1/P2
+
+Findings:
+- .env.example documents MAPBOX_PUBLIC_TOKEN.
+- src/lib/mapbox.ts reads VITE_MAPBOX_TOKEN and also has a hardcoded fallback token.
+- functions/lib/geocode.ts accepts a token but also falls back to a hardcoded token.
+- functions/api/events/[id].ts passes the env token during create, but update geocoding calls geocodeAddress(body.address) without the env token.
+
+Recommended fix
+- Use VITE_MAPBOX_TOKEN for frontend.
+- Use MAPBOX_API_KEY for backend.
+- Remove hardcoded fallback tokens from source.
+- Restrict the public Mapbox token by site URL in the Mapbox dashboard.
+
+src/lib/mapbox.ts:
+
+```ts
+export const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN ?? "";
+
+export function hasMapboxToken(): boolean {
+  return MAPBOX_TOKEN.length > 0;
+}
+```
+
+functions/lib/geocode.ts:
+
+```ts
+export async function geocodeAddress(address: string, mapboxToken?: string): Promise<GeocodeResult | null> {
+  if (!address.trim() || !mapboxToken) return null;
+
+  const url = new URL(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json`);
+  url.searchParams.set("access_token", mapboxToken);
+  url.searchParams.set("limit", "1");
+
+  const response = await fetch(url.toString());
+  if (!response.ok) return null;
+  ...
+}
+```
+
+functions/api/events/[id].ts update path:
+
+```ts
+const geo = await geocodeAddress(body.address, (context.env as any).MAPBOX_API_KEY);
+if (geo) {
+  updateFields.push("latitude = ?", "longitude = ?");
+  values.push(geo.latitude, geo.longitude);
+}
+```
+
+
+8. CSP can block valid business images
+Priority: P1/P2
+
+Current middleware CSP limits images to:
+- self
+- data
+- blob
+- images.unsplash.com
+- *.mapbox.com
+
+That is good for security, but it conflicts with arbitrary ad tile image URLs and some custom content.
+
+Recommended options
+1. Best: store uploaded/custom images in R2 and serve them from your own /api/media route.
+2. Good: validate image URL hosts server-side and add exactly those hosts to img-src.
+3. Avoid: broad img-src https: unless absolutely necessary.
+
+Add URL validation for ad tiles:
+
+```ts
+const ALLOWED_AD_IMAGE_HOSTS = new Set([
+  "images.unsplash.com",
+  "framenest.photos",
+]);
+
+function validateAdImageUrl(value: string): string {
+  const url = new URL(value);
+  if (url.protocol !== "https:" || !ALLOWED_AD_IMAGE_HOSTS.has(url.hostname)) {
+    throw new Error("Unsupported ad image host");
+  }
+  return url.toString();
+}
+```
+
+Then align functions/_middleware.ts CSP with the allow-list.
+
+
+9. Hardcoded live Stripe publishable key
+Priority: P2
+
+File:
+- src/components/commerce/BuyButton.tsx
+
+The code falls back to a live Stripe publishable key. A publishable key is not a secret, but this makes previews/local environments accidentally hit live Stripe and makes rotation harder.
+
+Recommended fix:
+
+```ts
+const STRIPE_PK = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? "";
+
+if (!STRIPE_PK) {
+  throw new Error("Missing VITE_STRIPE_PUBLISHABLE_KEY");
+}
+
+const stripePromise = loadStripe(STRIPE_PK);
+```
+
+Add VITE_STRIPE_PUBLISHABLE_KEY to .env.example, not the actual live value.
+
+
+10. Cloudflare Worker configuration is stale
+Priority: P2
+
+Findings:
+- wrangler.toml compatibility_date is 2025-06-09.
+- Current audit date is 2026-07-07.
+- package.json has @cloudflare/workers-types ^4.20260611.1.
+- npm reported the latest @cloudflare/workers-types as 5.20260707.1 during this audit.
+- functions/tsconfig.json references @cloudflare/workers-types/2023-07-01.
+
+Recommended fix
+- Update compatibility_date after testing.
+- Generate binding types with Wrangler instead of hand-maintaining Env shapes everywhere.
+- Enable Worker observability.
+
+Suggested wrangler.toml direction:
+
+```toml
+compatibility_date = "2026-07-07"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+head_sampling_rate = 1
+```
+
+Verify the exact TOML syntax with:
+
+```bash
+npx wrangler pages deploy ./dist --project-name photo --branch preview --dry-run
+```
+
+Generate types:
+
+```bash
+npx wrangler types
+```
+
+Then include the generated file in functions/tsconfig.json and replace duplicated ad hoc Env interfaces over time.
+
+Cloudflare docs used for this recommendation:
+- https://developers.cloudflare.com/workers/best-practices/workers-best-practices/
+
+
+11. Frontend bundle size should be reduced
+Priority: P2
+
+Build output:
+- Main index chunk is around 660 kB before gzip.
+- PhotoEditorModal chunk is around 950 kB before gzip.
+- Vite warns mapbox.ts cannot be split because it is both statically and dynamically imported.
+
+Recommended fix
+- Route-level lazy load admin/client/dashboard/profile pages.
+- Do not statically import Mapbox in pages that are supposed to lazy-load it.
+- Move template preview/editor code behind lazy imports.
+- Consider manual chunks for large vendor/editor packages.
+
+Example:
+
+```tsx
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const ClientEditorPage = lazy(() => import("./pages/ClientEditorPage"));
+const PhotoEditorModal = lazy(() => import("./components/photos/PhotoEditorModal"));
+```
+
+Wrap routes or modal boundaries in Suspense with a small real loading state.
+
+
+12. Rate limiting is duplicated on some auth paths
+Priority: P3
+
+The middleware applies rate limits to certain auth prefixes, and some auth handlers also call checkRateLimit. This can be okay, but it may create confusing buckets or double-increment behavior.
+
+Recommended fix
+- Decide which rate limits belong globally in middleware and which belong inside handlers.
+- Keep stricter login/gate/password-reset rate limits, but make bucket names obvious and avoid accidental double-counting for the same action.
+
+
+13. Password comparison helper can be modernized
+Priority: P3
+
+functions/lib/password.ts has a custom timingSafeEqual helper. Since stored password hashes are fixed length, this is probably acceptable, but modern Workers support stronger crypto primitives.
+
+Recommended improvement
+- Prefer Web Crypto APIs for fixed-length digest comparison where available.
+- Do not introduce string equality checks for secrets/hashes.
+
+
+Deployment checklist after fixes
+
+Run locally:
+
+```bash
+npm run build
+npm test -- --run
+npm run lint
+```
+
+Then verify Cloudflare/D1/R2 behavior:
+
+```bash
+npx wrangler d1 execute photo-db --local --file=./db/schema.sql
+npx wrangler types
+```
+
+Manual smoke tests:
+- Login.
+- Open /dashboard.
+- Confirm every dashboard/template image has either a real thumbnail or a fallback.
+- Upload client gallery photos.
+- Open a public client site gallery and inspect image URLs and file names.
+- Create/edit an event with an address and confirm map coordinates update.
+- Save an ad tile with an allowed image URL and confirm CSP does not block it.
+- Open a blog post and confirm the displayed date is correct.
+
+Suggested order for the AI coder
+1. Fix client gallery/photo schema drift first.
+2. Add template id normalization and image fallback.
+3. Fix CSP/ad image handling based on the real broken "games" tile source.
+4. Clean mojibake visible text.
+5. Fix lint warnings without weakening rules.
+6. Remove hardcoded public service fallbacks and align env names.
+7. Update Wrangler compatibility/types after tests pass.
+8. Improve bundle splitting.
