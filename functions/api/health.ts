@@ -42,6 +42,24 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
       }),
       await check("events-public-col", async () => { await db.prepare("SELECT public FROM events LIMIT 0").run(); }),
       await check("photos-fav-col", async () => { await db.prepare("SELECT favorite FROM photos LIMIT 0").run(); }),
+      await check("critical-columns", async () => {
+        const probes: Array<[string, string]> = [
+          ["users", "token_version"], ["users", "account_type"],
+          ["spaces", "hero_source"], ["spaces", "hero_style"],
+          ["events", "visibility"], ["events", "address"],
+          ["photographers", "slug"], ["photographers", "featured"],
+          ["photographers", "verified"],
+          ["client_galleries", "slug"],
+          ["client_gallery_photos", "caption"], ["client_gallery_photos", "uploaded_at"],
+          ["inspiration", "source"], ["inspiration", "score"],
+        ];
+        const missing: string[] = [];
+        for (const [table, col] of probes) {
+          try { await db.prepare(`SELECT ${col} FROM ${table} LIMIT 0`).run(); }
+          catch { missing.push(`${table}.${col}`); }
+        }
+        if (missing.length) throw new Error(`Missing columns: ${missing.join(", ")}`);
+      }),
     ];
 
     // Storage

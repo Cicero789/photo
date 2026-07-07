@@ -13,7 +13,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
   const a = await requireAuth(context.request, context.env);
   if (a instanceof Response) return a;
   const result = await context.env.DB!.prepare(
-    "SELECT a.*, (SELECT COUNT(*) FROM album_photos WHERE album_id = a.id) as photo_count FROM albums a WHERE a.user_id = ? ORDER BY a.created_at DESC"
+    "SELECT a.*, (SELECT COUNT(*) FROM album_photos WHERE album_id = a.id) as photo_count FROM albums a WHERE a.user_id = ? AND a.deleted_at IS NULL ORDER BY a.created_at DESC"
   ).bind(a.userId).all();
   const albums = (result.results || []).map((r: any) => ({
     id: r.id, name: r.name, shareToken: r.share_token, downloads: r.downloads,

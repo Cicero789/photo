@@ -49,7 +49,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
         return base;
       }));
 
-      return json({ event: { id: ev.id, spaceId: ev.space_id, title: ev.title, category: ev.category, eventDate: ev.event_date, description: ev.description, aiSummary: ev.ai_summary, coverPhotoId: ev.cover_photo_id, address: ev.address || "", addressLocked: (ev.address_locked as number) === 1, public: (ev.public as number) !== 0, createdAt: ev.created_at, updatedAt: ev.updated_at }, photos: photoList, videos: videoList });
+      return json({ event: { id: ev.id, spaceId: ev.space_id, title: ev.title, category: ev.category, eventDate: ev.event_date, description: ev.description, aiSummary: ev.ai_summary, coverPhotoId: ev.cover_photo_id, address: ev.address || "", addressLocked: (ev.address_locked as number) === 1, visibility: (ev.visibility as string) || "private", createdAt: ev.created_at, updatedAt: ev.updated_at }, photos: photoList, videos: videoList });
     }
 
     // Return scrubbed public data for readable non-owner events

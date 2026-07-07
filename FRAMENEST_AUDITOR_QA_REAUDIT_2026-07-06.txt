@@ -1,0 +1,720 @@
+FrameNest Auditor Questions and Re-Audit
+Date: 2026-07-06
+Repo: C:\Users\shant\photo
+Production checked: https://framenest.photos
+
+Short version
+The codebase is safer than the earlier audits: production static caching is fixed, album uploads now enforce a policy, token_version revocation exists for real users, member removal checks the actual owner, and health HEAD behavior is fixed.
+
+But I would still not treat the platform as customer-private-photo ready until the private media access layer is hardened. The most important privacy issue is signed media URLs: they are not kind-bound, use direct string comparison, and bypass database state once valid. The most important functional issue is still the client-gallery/schema mismatch.
+
+Commands run in this re-audit
+- git pull origin main: already up to date.
+- npm.cmd run build: passed.
+- npm.cmd test: passed, 5 test files, 61 tests.
+- npm.cmd run lint: failed with 67 warnings and --max-warnings 0.
+- npm.cmd audit --audit-level=moderate: failed with 5 vulnerabilities, 4 high.
+- npm.cmd outdated --long: packages still behind, including wrangler, workers-types, vite, zod, react-router-dom.
+- npx.cmd wrangler types --check: failed because worker-configuration.d.ts does not exist.
+- npm.cmd pack @cloudflare/workers-types@latest: latest fetched version was 5.20260706.1.
+- Production curl checks: home, asset, thumbnail, health, CORS.
+
+Sources checked
+- Cloudflare Workers best practices: https://developers.cloudflare.com/workers/best-practices/workers-best-practices/index.md
+- Cloudflare D1 limits: https://developers.cloudflare.com/d1/platform/limits/
+- Cloudflare Workers limits: https://developers.cloudflare.com/workers/platform/limits/
+- Cloudflare R2 pricing: https://www.cloudflare.com/products/r2/
+- web.dev Core Web Vitals: https://web.dev/articles/vitals
+
+Answers to the six auditor questions
+
+1. Single remaining issue before real customers upload private photos
+
+If I have to pick one privacy blocker, I would fix private media access revocation and signing before allowing real customers to upload private photos.
+
+Current issue:
+- functions/lib/signed-url.ts signs only storageKey and expires.
+- functions/lib/signed-url.ts verifies with expected === signature.
+- functions/api/media/[[path]].ts lets any valid signed URL bypass normal database authorization.
+- The signed URL does not include kind, so a valid signature is not explicitly bound to photos vs videos.
+- The signed URL does not re-check that the row is still present, private, not deleted, and still belongs to an allowed album/event/gallery.
+
+Why this matters:
+- Private photos are only as private as the media serving path.
+- A signed URL is currently a one-hour bearer credential.
+- If a photo is deleted, moved, made private, or removed from an album, an already-issued signed URL can continue to work until expiry.
+- The direct string compare is not ideal for HMACs.
+
+What I would do:
+- Sign v1:kind:storageKey:expires.
+- Verify in constant time.
+- Reduce default private media TTL to 10-15 minutes.
+- On signed URL requests, still do a cheap DB existence/deleted_at/visibility check for private media.
+- Add a test that a photos signature cannot fetch videos and that deleted media stops serving.
+
+Important nuance:
+If "private photos" means the client-gallery product path, there is also a functional launch blocker: client gallery endpoints still reference columns not present in db/schema.sql. That will likely 500 unless production D1 has an untracked migration. But the privacy blocker I would fix first is signed media access.
+
+Suggested signed URL code
+
+```ts
+type MediaKind = "photos" | "videos";
+
+function mediaPayload(kind: MediaKind, storageKey: string, expires: number): string {
+  return `v1:${kind}:${storageKey}:${expires}`;
+}
+
+async function hmacHex(secret: string, data: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(data));
+  return Array.from(new Uint8Array(sig))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function timingSafeStringEqual(a: string, b: string): Promise<boolean> {
+  const encoder = new TextEncoder();
+  const [aHash, bHash] = await Promise.all([
+    crypto.subtle.digest("SHA-256", encoder.encode(a)),
+    crypto.subtle.digest("SHA-256", encoder.encode(b)),
+  ]);
+  return crypto.subtle.timingSafeEqual(aHash, bHash);
+}
+
+export async function signMediaUrl(
+  storageKey: string,
+  secret: string,
+  ttlSeconds = 900,
+  kind: MediaKind = "photos"
+): Promise<string> {
+  const expires = Math.floor(Date.now() / 1000) + ttlSeconds;
+  const sig = await hmacHex(secret, mediaPayload(kind, storageKey, expires));
+  return `/api/media/${kind}/${encodeURIComponent(storageKey)}?expires=${expires}&sig=${sig}`;
+}
+
+export async function verifyMediaSignature(
+  storageKey: string,
+  kind: MediaKind,
+  signature: string,
+  expires: string,
+  secret: string
+): Promise<boolean> {
+  const exp = Number(expires);
+  if (!Number.isFinite(exp) || exp < Math.floor(Date.now() / 1000)) return false;
+
+  const expected = await hmacHex(secret, mediaPayload(kind, storageKey, exp));
+  return timingSafeStringEqual(expected, signature);
+}
+```
+
+2. Architecture choice I would undo without breaking compatibility
+
+I would undo localStorage bearer JWT auth as the primary web session model.
+
+Current design:
+- src/lib/api.ts stores photo_token in localStorage.
+- Many components read localStorage directly and send Authorization: Bearer.
+- JWTs embed role and space claims.
+- token_version now helps, but only after a server-side version bump.
+
+Replacement design:
+- Add HttpOnly, Secure, SameSite=Lax or Strict session cookies.
+- Keep Authorization bearer token support temporarily for backward compatibility.
+- Store session rows or jti rows server-side for admin sessions.
+- Keep token_version, but add a first-class "revoke all sessions" endpoint and UI.
+- Require step-up re-auth for platform_owner destructive actions.
+
+Why this is the design I would undo:
+- It directly controls stolen-token blast radius.
+- It reduces XSS impact.
+- It gives you server-side revocation instead of waiting for 24-hour JWT expiry.
+- It centralizes session behavior instead of every page manually touching localStorage.
+
+Backward-compatible migration:
+1. Login returns both the existing token and Set-Cookie.
+2. API accepts cookie first, then Authorization header.
+3. Frontend stops reading localStorage in new code.
+4. After one or two releases, remove localStorage token reads from components.
+
+3. One test that would have caught the most regressions
+
+The highest-value test is a real API contract smoke test that runs the actual Functions handlers against a fresh database created from db/schema.sql.
+
+It should not simulate policy helpers. It must run the same code path production runs.
+
+One test flow should cover:
+1. Create user/space/event rows in a fresh test DB.
+2. Login and verify token_version works for a real user.
+3. Gate login and then GET a gate event using the returned token.
+4. Upload a client-gallery photo, list it publicly, and fetch its media URL.
+5. Generate a private signed photo URL and prove it cannot be reused as a video URL.
+6. Soft-delete the media row and prove the signed URL no longer serves it if DB re-check is enabled.
+
+Why this catches the most:
+- It catches schema drift like client_galleries.slug and client_gallery_photos.caption/uploaded_at.
+- It catches the new gate-token regression from token_version.
+- It catches signed URL cross-kind mistakes.
+- It catches "tests passed but production SQL fails" problems.
+
+Simplest CI wiring:
+Add tests and lint before deploy in .github/workflows/deploy.yml.
+
+```yaml
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm audit --audit-level=moderate
+      - run: npm run build
+```
+
+Current blocker:
+- npm run lint currently fails with 67 warnings.
+- npm audit currently fails.
+- Either fix those first or add a separate PR workflow that runs tests immediately and gates deploy after warnings are cleaned up.
+
+Suggested runtime:
+- Best long-term: @cloudflare/vitest-pool-workers with D1/R2 bindings.
+- Fastest incremental path: a Vitest test using the real route handlers plus a minimal D1 adapter seeded from db/schema.sql and a mock R2 bucket.
+
+4. Where this architecture breaks first at scale
+
+It breaks on active media workflows, not raw registered user count.
+
+If the project is on Workers Free:
+- The first hard limit can be Function request volume.
+- Cloudflare Workers Free has 100,000 requests/day.
+- Because /api/media serves private media through a Function, photo-heavy browsing can eat that faster than ordinary page views.
+
+If the project is on Workers Paid:
+- R2 and Cloudflare edge request throughput are not the first concern.
+- Cloudflare Workers scale broadly, and R2 has no egress fee.
+- The first real application bottleneck is the single D1 database during bursts of writes and metadata reads.
+
+Why D1 breaks first:
+- Cloudflare documents that each individual D1 database processes queries one at a time.
+- Throughput is tied to query duration: a 1 ms average can be around 1,000 qps, while a 100 ms average is around 10 qps.
+- Upload workflows write one D1 row per photo/video plus event/cover metadata.
+- Admin dashboards and list pages also do count queries and joined reads.
+
+Rough practical estimate:
+- 1,000 to 10,000 registered users is probably fine if daily active uploaders are low.
+- 50 to 100 simultaneous uploaders, each uploading 20 to 100 files, is where D1 write queues and metadata latency become visible.
+- 10,000+ daily active users browsing media-heavy private albums through /api/media can make Function request count and R2 Class B operations a cost/monitoring concern.
+
+What I would change before that:
+- Direct-to-R2 upload URLs with a finalize endpoint.
+- Queue thumbnail/metadata processing.
+- Batch D1 writes where safe.
+- Add per-space quotas and circuit breakers.
+- Cache public media aggressively and keep private media short-TTL signed.
+- Consider per-tenant D1 databases or partitioning once a few large customers dominate traffic.
+
+5. Stolen valid admin JWT: blast radius and cheapest fix
+
+Blast radius today:
+- A stolen platform_owner JWT can perform platform_owner API actions until token expiry or token_version changes.
+- It can list and update users.
+- It can change roles/emails/names.
+- It can delete non-platform-owner users.
+- It can access admin stats, orders, content tools, ads, pins, and photographer approval.
+- It can read/manage events across spaces because platform_owner passes the policy helpers.
+- It can likely issue or retrieve private media URLs through admin-visible event data.
+- It can change public content and custom domains.
+- It can reset space content through admin endpoints.
+
+Things that currently limit blast radius:
+- JWT expiry is 24 hours.
+- token_version now exists and requireAuth checks it for real users.
+- Password reset increments token_version.
+
+What is missing:
+- No jti denylist/session table.
+- No "log out all devices" UI.
+- No short-lived admin access token.
+- No step-up re-auth for destructive platform_owner operations.
+- Tokens live in localStorage, so a successful XSS can read them.
+
+Cheapest fix:
+Add an authenticated "revoke sessions" endpoint that increments token_version, then add a platform-owner UI button for it. Then add shorter platform_owner token TTL and step-up re-auth for dangerous actions.
+
+Suggested endpoint
+
+```ts
+export async function onRequestPost(context: {
+  request: Request;
+  env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string };
+}): Promise<Response> {
+  const a = await requireAuth(context.request, context.env);
+  if (a instanceof Response) return a;
+
+  await context.env.DB!.prepare(
+    "UPDATE users SET token_version = token_version + 1 WHERE id = ?"
+  ).bind(a.userId).run();
+
+  return json({ success: true });
+}
+```
+
+Better fix:
+- Introduce a sessions table with jti, user_id, created_at, expires_at, revoked_at, device_label.
+- Check jti in requireAuth.
+- Store web sessions in HttpOnly cookies.
+- Add re-auth for: role changes, delete user, reset space, custom domain changes, password changes, media export, billing/Stripe actions.
+
+6. Unknown unknowns I suspect are broken without authenticated production access
+
+Most suspected broken:
+- Client gallery photo upload and public gallery display.
+
+Why:
+- db/schema.sql has no client_galleries.slug.
+- db/schema.sql has no client_gallery_photos.caption.
+- db/schema.sql has no client_gallery_photos.uploaded_at.
+- functions/api/clients/[id]/photos.ts queries and inserts those columns.
+- functions/api/clients/[id]/galleries/[gid].ts inserts those columns.
+- functions/api/clients/public/[slug]/galleries/[gid].ts selects those columns.
+
+I could verify the code/schema mismatch locally, but I cannot prove production behavior without an authenticated photographer/client-site flow or remote D1 schema. If production D1 has an untracked migration, schema.sql is stale. If production D1 matches schema.sql, these routes will fail.
+
+Second suspected broken:
+- Gate-key event access.
+
+Why:
+- functions/api/auth/gate.ts signs a JWT with userId: "viewer", role: "viewer", tokenVersion: 0.
+- functions/lib/auth.ts now checks users.token_version for every JWT when env.DB exists.
+- There is no users row with id "viewer".
+- Therefore requireAuth likely returns "Session expired" for gate tokens.
+- functions/api/events/[id].ts uses requireAuth to build the actor for gate/private event reads.
+- The existing tests simulate viewer policy and do not run this real requireAuth path.
+
+Re-audit findings
+
+Fixed or improved since earlier audits
+
+1. Static asset caching is fixed in production.
+- /assets/index-Dk0tTWEL.js now returns Cache-Control: public, max-age=31536000, immutable.
+- /thumbnails/travel-3.jpg now returns Cache-Control: public, max-age=604800, stale-while-revalidate=86400.
+- public/_headers exists with those rules.
+
+2. Album upload got a basic upload policy.
+- functions/api/albums/[id]/photos.ts uses rejectOversizedRequest.
+- It checks PHOTO_MIME_TYPES.
+- It enforces MAX_ALBUM_PHOTO_BYTES.
+- It validates content bytes.
+
+3. token_version exists for real users.
+- db/schema.sql has users.token_version.
+- functions/lib/auth.ts checks token_version.
+- functions/api/auth/reset-password.ts increments token_version.
+
+4. Space member delete logic is improved.
+- functions/api/spaces/members.ts now checks spaces.owner_id instead of treating every page_admin as undeletable.
+- It also handles globally existing users better when adding members.
+
+5. Production API health HEAD is fixed.
+- curl -I https://framenest.photos/api/health returned 401 JSON headers, not SPA HTML.
+
+6. Production CORS still looks sane.
+- Random Origin did not get Access-Control-Allow-Origin on public API.
+- Allowed Origin https://framenest.photos did get CORS on preflight.
+
+Highest remaining findings
+
+Critical: client gallery schema drift remains
+
+Evidence:
+- db/schema.sql client_galleries columns: id, client_site_id, name, created_at, updated_at, deleted_at.
+- db/schema.sql client_gallery_photos columns: id, gallery_id, storage_key, filename, width, height, file_size, sort_order, created_at, deleted_at.
+- functions/api/clients/[id]/photos.ts uses client_galleries.slug and inserts slug.
+- functions/api/clients/[id]/photos.ts inserts caption and uploaded_at.
+- functions/api/clients/[id]/galleries/[gid].ts inserts caption and uploaded_at.
+- functions/api/clients/public/[slug]/galleries/[gid].ts selects caption and uploaded_at.
+
+Suggested schema-aligned code
+
+```ts
+async function getOrCreateDefaultGallery(db: D1Database, clientSiteId: string): Promise<string> {
+  const existing = await db.prepare(
+    "SELECT id FROM client_galleries WHERE client_site_id = ? AND name = ? AND deleted_at IS NULL"
+  ).bind(clientSiteId, "Photos").first<{ id: string }>();
+
+  if (existing) return existing.id;
+
+  const id = crypto.randomUUID();
+  const now = new Date().toISOString();
+  await db.prepare(
+    "INSERT INTO client_galleries (id, client_site_id, name, created_at, updated_at) VALUES (?, ?, ?, ?, ?)"
+  ).bind(id, clientSiteId, "Photos", now, now).run();
+
+  return id;
+}
+```
+
+```ts
+const photoId = crypto.randomUUID();
+const now = new Date().toISOString();
+
+await db.prepare(`
+  INSERT INTO client_gallery_photos
+    (id, gallery_id, storage_key, filename, width, height, file_size, sort_order, created_at)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+`).bind(
+  photoId,
+  galleryId,
+  storageKey,
+  file.name,
+  0,
+  0,
+  file.size,
+  sortOrder,
+  now
+).run();
+```
+
+If captions/slugs are intended product features, add a migration and update schema.sql. Do not leave production and schema.sql disagreeing.
+
+High: gate-key JWTs likely broke after token_version
+
+Suggested fix:
+- Add explicit tokenType to JWT payload: "user" or "gate".
+- Add spaces.gate_version and include it in gate tokens.
+- requireAuth should check users.token_version for user tokens and spaces.gate_version for gate tokens.
+- Increment gate_version when gateKey changes.
+
+Suggested schema
+
+```sql
+ALTER TABLE spaces ADD COLUMN gate_version INTEGER NOT NULL DEFAULT 0;
+```
+
+Suggested JWT payload shape
+
+```ts
+interface JWTPayload {
+  userId: string;
+  spaceId: string;
+  role: string;
+  tokenType: "user" | "gate";
+  tokenVersion?: number;
+  gateVersion?: number;
+  jti: string;
+  iat: number;
+  exp: number;
+}
+```
+
+Suggested requireAuth logic
+
+```ts
+if (payload.tokenType === "gate") {
+  const space = await db.prepare(
+    "SELECT gate_version FROM spaces WHERE id = ?"
+  ).bind(payload.spaceId).first<{ gate_version: number }>();
+
+  if (!space || (payload.gateVersion ?? 0) !== space.gate_version) {
+    return json({ error: "Session expired" }, 401);
+  }
+
+  return {
+    userId: payload.userId,
+    spaceId: payload.spaceId,
+    role: "viewer",
+    jti: payload.jti,
+  };
+}
+
+const user = await db.prepare(
+  "SELECT token_version FROM users WHERE id = ?"
+).bind(payload.userId).first<{ token_version: number }>();
+
+if (!user || (payload.tokenVersion ?? 0) !== user.token_version) {
+  return json({ error: "Session expired" }, 401);
+}
+```
+
+High: signed media URLs still need hardening
+
+Evidence:
+- functions/lib/signed-url.ts signs `${storageKey}:${expires}`.
+- It returns expected === signature.
+- functions/api/media/[[path]].ts accepts signed URL as sufficient authorization.
+
+Fix:
+- Use the signed URL code above.
+- Update media handler to pass kind into verifyMediaSignature.
+- Add DB re-check for deleted/private media.
+- Add tests for wrong-kind signatures and deleted rows.
+
+High: deploy CI does not run tests, lint, or audit
+
+Evidence:
+- .github/workflows/deploy.yml runs npm ci, npm run build, then deploy.
+- Existing npm test passes locally but is not wired into deploy.
+- npm run lint fails locally.
+- npm audit fails locally.
+
+Suggested CI:
+
+```yaml
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm audit --audit-level=moderate
+      - run: npm run build
+```
+
+High: npm audit has high-severity dev dependency vulnerabilities
+
+Observed:
+- esbuild via wrangler has arbitrary file read risk when running dev server on Windows.
+- undici has multiple high advisories.
+- ws has high memory exhaustion DoS advisory.
+- npm audit says fix is available via npm audit fix.
+
+Practical fix:
+- Upgrade wrangler from 4.99.0 to at least the patched current wanted/latest version.
+- Re-run npm audit.
+- Re-run build, tests, lint.
+
+Medium-high: custom domains are still unverified
+
+Evidence:
+- functions/api/spaces/[slug].ts writes custom_domain directly.
+- functions/api/clients/[id].ts writes custom_domain directly.
+- functions/_middleware.ts routes based on custom_domain.
+
+Fix:
+- Normalize hostnames.
+- Add unique indexes.
+- Add DNS TXT verification token.
+- Only route custom domains after verified_at is set.
+
+Suggested validation helper
+
+```ts
+export function normalizeCustomDomain(input: unknown): string | null {
+  if (typeof input !== "string") return null;
+  const value = input.trim();
+  if (!value) return null;
+
+  let host: string;
+  try {
+    const url = value.includes("://") ? new URL(value) : new URL(`https://${value}`);
+    host = url.hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+
+  const labels = host.split(".");
+  const valid = labels.length >= 2 && labels.every((label) =>
+    label.length > 0 &&
+    label.length <= 63 &&
+    !label.startsWith("-") &&
+    !label.endsWith("-") &&
+    /^[a-z0-9-]+$/.test(label)
+  );
+
+  if (!valid) return null;
+  if (host === "framenest.photos" || host.endsWith(".framenest.photos")) return null;
+  return host;
+}
+```
+
+Medium: photo/video uploads improved but still need count and total controls
+
+Evidence:
+- functions/api/photos/upload.ts now rejects Content-Length over 500 MB.
+- functions/api/videos/upload.ts now rejects Content-Length over 500 MB.
+- They still do not cap file count.
+- They still do not compute and reject total parsed file bytes.
+- Client gallery upload routes still parse formData without rejectOversizedRequest.
+
+Fix:
+- Add MAX_FILES and MAX_TOTAL_BYTES to shared upload policy.
+- Use it in photo, video, client-gallery, and portfolio upload routes.
+- Move large production uploads to direct-to-R2 signed upload flow with finalize endpoint.
+
+Medium: activity logging still uses floating promises instead of waitUntil
+
+Evidence:
+- functions/lib/activity.ts returns void and calls .run().catch internally.
+- functions/api/connections/index.ts and functions/api/bookings/inquire.ts call logActivity without waitUntil.
+
+Fix:
+- Make logActivity return Promise<unknown>.
+- Pass it to context.waitUntil at call sites.
+
+Suggested helper
+
+```ts
+export function logActivity(
+  db: D1Database,
+  userId: string,
+  type: string,
+  message: string,
+  link?: string
+): Promise<unknown> {
+  return db.prepare(
+    "INSERT INTO activity_log (id, user_id, type, message, link, read, created_at) VALUES (?,?,?,?,?,0,?)"
+  ).bind(
+    crypto.randomUUID(),
+    userId,
+    type,
+    message,
+    link || null,
+    new Date().toISOString()
+  ).run();
+}
+```
+
+Medium: Cloudflare config and types are stale
+
+Evidence:
+- wrangler.toml compatibility_date is 2025-06-09.
+- functions/tsconfig.json uses @cloudflare/workers-types/2023-07-01.
+- npx wrangler types --check fails because worker-configuration.d.ts does not exist.
+- Latest @cloudflare/workers-types fetched during re-audit was 5.20260706.1.
+- No observability config exists.
+
+Fix:
+- Generate worker-configuration.d.ts.
+- Include it in TypeScript.
+- Upgrade workers-types and wrangler.
+- Update compatibility_date in a preview branch after tests.
+- Add observability logs/traces.
+
+Medium: lint is still failing
+
+Observed:
+- 67 warnings.
+- Main groups: no-floating-promises and react-hooks/exhaustive-deps.
+
+Fix:
+- Add void plus .catch for intentional fire-and-forget UI calls.
+- Convert effect-loaded functions to useCallback or move logic inside effects.
+- Remove unused eslint-disable comment.
+
+Medium: frontend bundle is still large
+
+Observed build output:
+- dist/assets/index-Dk0tTWEL.js: 660.42 kB minified, 168.10 kB gzip.
+- dist/assets/PhotoEditorModal-flRIlY0E.js: 950.32 kB minified, 278.36 kB gzip.
+
+Root cause:
+- src/App.tsx eagerly imports all pages.
+- PhotoEditorModal is already split, but the main route bundle is not.
+
+Fix:
+- Lazy-load route pages with React lazy/Suspense.
+- Keep home/login/gate/auth layout small.
+- Lazy-load admin, dashboard, maps, client editor, and gallery pages.
+
+Medium: CSP conflicts with template Google Fonts
+
+Evidence:
+- Production CSP font-src is 'self'.
+- style-src does not include fonts.googleapis.com.
+- Many src/components/templates files import Google Fonts.
+- public mockup files also reference Google Fonts.
+
+Fix:
+- Best: self-host fonts or remove remote imports from production templates.
+- Acceptable: add fonts.googleapis.com and fonts.gstatic.com to CSP.
+
+Medium: Mapbox token is hardcoded
+
+Evidence:
+- functions/lib/geocode.ts has a fallback pk token.
+- src/pages/InspirationMapPage.tsx has a pk token.
+- src/components/map/EventMap.tsx and SpaceEventMap.tsx have pk tokens.
+
+Fix:
+- Move to env/public config.
+- Restrict frontend token by allowed URLs in Mapbox dashboard.
+- Remove server fallback token and require env.MAPBOX_API_KEY.
+
+Medium: localStorage token storage remains
+
+Evidence:
+- src/lib/api.ts initializes authToken from localStorage.
+- Multiple components read localStorage directly.
+
+Fix:
+- Migrate to HttpOnly cookie sessions.
+- Keep Authorization backward compatibility temporarily.
+- Add session revoke UI.
+
+Low-medium: source encoding/mojibake remains
+
+Evidence:
+- Several files print corrupted comment glyphs such as "鈥" and box drawing replacements.
+- This is mostly maintainability, but it makes reviews harder.
+
+Fix:
+- Normalize source to UTF-8.
+- Replace corrupted comments with plain ASCII.
+
+Production observations
+
+Good:
+- GET /api/health returned 401 JSON unauthenticated.
+- HEAD /api/health returned 401 JSON class.
+- Allowed CORS origin preflight works.
+- Random CORS origin did not get ACAO.
+- Security headers are present.
+- Static asset and thumbnail cache headers are now good.
+
+Still worth changing:
+- Root HTML still has Cache-Control: public, max-age=0, must-revalidate, which is fine for SPA deploy freshness.
+- CSP should be reconciled with actual font/template behavior.
+- Core Web Vitals were not measured because Chrome DevTools performance MCP was unavailable in this session. web.dev targets remain LCP <= 2.5s, INP <= 200ms, CLS <= 0.1 at the 75th percentile.
+
+Dependency updates to plan
+
+Current outdated highlights:
+- @cloudflare/workers-types 4.20260611.1, latest 5.20260706.1.
+- wrangler 4.99.0, wanted/latest 4.107.0.
+- @stripe/stripe-js 9.8.0 -> 9.9.0.
+- @tailwindcss/vite 4.3.0 -> 4.3.2.
+- @tanstack/react-query 5.101.0 -> 5.101.2.
+- @typescript-eslint packages 8.61.1 -> 8.62.1.
+- eslint 10.5.0 -> 10.6.0.
+- puppeteer 25.1.0 -> 25.3.0.
+- react-router-dom 7.17.0 -> 7.18.1.
+- sharp 0.35.2 -> 0.35.3.
+- tailwindcss 4.3.0 -> 4.3.2.
+- Vite/plugin-react, TypeScript, and zod have larger major-version jumps. Do those separately.
+
+Recommended next fix order
+
+1. Fix signed media URL kind binding, constant-time verify, and DB re-check.
+2. Fix gate-token auth after token_version.
+3. Fix client gallery schema/code drift.
+4. Add real API contract smoke test and wire npm test into CI.
+5. Upgrade wrangler/miniflare-related deps and clear npm audit.
+6. Fix lint warnings.
+7. Add session revoke UI and short platform_owner TTL.
+8. Add custom domain verification.
+9. Add route-level code splitting.
+10. Generate Cloudflare types and update compatibility_date in preview.
+
+Release gate I would use
+
+Before real customer private-photo upload:
+- npm run build passes.
+- npm test passes.
+- npm run lint passes.
+- npm audit --audit-level=moderate passes or has documented exceptions.
+- Gate login can open a gate event and its media.
+- Client gallery upload/list works against db/schema.sql.
+- Private signed photo URL cannot be replayed as video.
+- Deleted/private media cannot be served by a stale signed URL after revocation logic.
+- Platform owner can revoke all sessions.
+- A stolen old token fails after token_version increment.
+

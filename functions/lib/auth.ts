@@ -12,12 +12,19 @@ export async function requireAuth(request: Request, env?: AuthEnv): Promise<Auth
     const payload = await verifyToken(authHeader.slice(7), secret);
     if (!payload) return json({ error: "Invalid or expired token" }, 401);
 
-    // Check token_version for revocation
-    if (env?.DB) {
-      const db = env.DB as any;
-      const user = await db.prepare("SELECT token_version FROM users WHERE id = ?").bind(payload.userId).first();
-      if (!user || (payload.tokenVersion ?? 0) !== (user.token_version ?? 0)) {
-        return json({ error: "Session expired" }, 401);
+    // Check token_version for revocation.
+    // Gate sessions (userId "viewer") have no users row — skip check (see P0-2).
+    if (env?.DB && payload.userId !== "viewer") {
+      try {
+        const db = env.DB as any;
+        const user = await db.prepare("SELECT token_version FROM users WHERE id = ?").bind(payload.userId).first();
+        if (!user) return json({ error: "Session expired" }, 401);
+        if ((payload.tokenVersion ?? 0) !== (user.token_version ?? 0)) {
+          return json({ error: "Session expired" }, 401);
+        }
+      } catch (err) {
+        // Schema drift (missing column) must not brick every request.
+        console.error("token_version check skipped:", err);
       }
     }
 

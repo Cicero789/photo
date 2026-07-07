@@ -27,7 +27,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
       return json({ success: true });
     }
     const userId = crypto.randomUUID(); const memberId = crypto.randomUUID(); const passwordHash = await hashPassword(body.password);
-    await db.prepare("INSERT INTO users (id, email, name, password_hash, role, space_id) VALUES (?, ?, ?, ?, ?, ?)").bind(userId, body.email, body.name, passwordHash, body.role, authResult.spaceId).run();
+    await db.prepare("INSERT INTO users (id, email, name, password_hash, role, space_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)").bind(userId, body.email, body.name, passwordHash, body.role, authResult.spaceId, new Date().toISOString()).run();
     await db.prepare("INSERT INTO space_members (id, space_id, user_id, role) VALUES (?, ?, ?, ?)").bind(memberId, authResult.spaceId, userId, body.role).run();
     return json({ member: { id: memberId, userId, spaceId: authResult.spaceId, role: body.role, name: body.name, email: body.email } }, 201);
   } catch (err) { console.error("Add member error:", err); return json({ error: "Something went wrong" }, 500); }

@@ -2,7 +2,7 @@ import { json } from "../../lib/response"; import { generateSummary } from "../.
 
 function getDeepSeekKey(env?: { DEEPSEEK_API_KEY?: string }): string { return env?.DEEPSEEK_API_KEY ?? ""; }
 
-interface EventRow { id: string; space_id: string; title: string; category: string; event_date: string; description: string; ai_summary: string | null; cover_photo_id: string | null; address: string; address_locked: number; public: number; latitude: number | null; longitude: number | null; created_at: string; updated_at: string; }
+interface EventRow { id: string; space_id: string; title: string; category: string; event_date: string; description: string; ai_summary: string | null; cover_photo_id: string | null; address: string; address_locked: number; public: number; visibility: string; latitude: number | null; longitude: number | null; created_at: string; updated_at: string; }
 
 export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string; DEEPSEEK_API_KEY?: string } }): Promise<Response> {
   try {
@@ -44,7 +44,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     const result = await db.prepare("SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND deleted_at IS NULL) as photo_count, (SELECT storage_key FROM photos WHERE event_id = e.id AND id = e.cover_photo_id LIMIT 1) as cover_key FROM events e WHERE e.space_id = ? AND e.deleted_at IS NULL ORDER BY e.event_date DESC").bind(targetSpaceId).all<EventRow & {photo_count: number; cover_key: string | null}>();
     const events = result.results ?? [];
     const enriched = events.map((e) => {
-      return { id: e.id, spaceId: e.space_id, title: e.title, category: e.category, eventDate: e.event_date, description: e.description, aiSummary: e.ai_summary, coverPhotoId: e.cover_photo_id, coverPhotoUrl: e.cover_key ? `/api/media/photos/${e.cover_key}` : null, photoCount: e.photo_count ?? 0, address: e.address || "", addressLocked: e.address_locked === 1, public: e.public !== 0, latitude: e.latitude, longitude: e.longitude, createdAt: e.created_at, updatedAt: e.updated_at };
+      return { id: e.id, spaceId: e.space_id, title: e.title, category: e.category, eventDate: e.event_date, description: e.description, aiSummary: e.ai_summary, coverPhotoId: e.cover_photo_id, coverPhotoUrl: e.cover_key ? `/api/media/photos/${e.cover_key}` : null, photoCount: e.photo_count ?? 0, address: e.address || "", addressLocked: e.address_locked === 1, visibility: (e.visibility as string) || "private", latitude: e.latitude, longitude: e.longitude, createdAt: e.created_at, updatedAt: e.updated_at };
     });
     return json({ events: enriched });
   } catch (err) { console.error("List events error:", err); return json({ error: "Something went wrong" }, 500); }

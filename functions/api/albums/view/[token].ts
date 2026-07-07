@@ -8,7 +8,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
   if (!token) return json({ error: "Token required" }, 400);
 
   const album = await context.env.DB!.prepare(
-    "SELECT a.*, u.name as owner_name FROM albums a JOIN users u ON a.user_id = u.id WHERE a.share_token = ?"
+    "SELECT a.*, u.name as owner_name FROM albums a JOIN users u ON a.user_id = u.id WHERE a.share_token = ? AND a.deleted_at IS NULL"
   ).bind(token).first() as any;
   if (!album) return json({ error: "Album not found" }, 404);
 
