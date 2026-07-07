@@ -181,6 +181,9 @@ export function EventDetailPage() {
             <option value="public">🌐 Public</option>
           </select>
         )}
+        {!spaceSlug && (
+          <DeleteEventButton eventId={event.id} eventTitle={event.title} />
+        )}
       </div>
 
       {/* Address — editable by logged-in users */}
@@ -466,5 +469,29 @@ export function EventDetailPage() {
         </Suspense>
       )}
     </div>
+  );
+}
+
+function DeleteEventButton({ eventId, eventTitle }: { eventId: string; eventTitle: string }) {
+  const [step, setStep] = useState<"hidden" | "confirm">("hidden");
+
+  if (step === "hidden") {
+    return (
+      <button onClick={() => setStep("confirm")}
+        className="mt-3 text-xs text-neutral-300 hover:text-red-400 transition-colors">
+        Delete event
+      </button>
+    );
+  }
+
+  return (
+    <span className="mt-3 inline-flex items-center gap-2 text-xs">
+      <span className="text-red-500">Delete "{eventTitle}"?</span>
+      <button onClick={async () => {
+        try { await api.delete(`/events/${eventId}`); window.history.back(); }
+        catch (err: any) { alert(err.message || "Failed to delete"); }
+      }} className="text-red-600 font-semibold hover:underline">Yes, delete</button>
+      <button onClick={() => setStep("hidden")} className="text-neutral-400 hover:underline">Cancel</button>
+    </span>
   );
 }

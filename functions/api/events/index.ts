@@ -1,4 +1,4 @@
-import { json } from "../../lib/response"; import { generateSummary } from "../../lib/deepseek"; import { requireAuth, requireRole, requireSpaceOwnership } from "../../lib/auth"; import { geocodeAddress } from "../../lib/geocode"; import { toPublicEventDto } from "../../lib/event-dto";
+import { json } from "../../lib/response"; import { generateSummary } from "../../lib/deepseek"; import { requireAuth, requireRole, requireSpaceOwnership } from "../../lib/auth"; import { geocodeAddress } from "../../lib/geocode"; import { toPublicEventDto } from "../../lib/event-dto"; import { signMediaUrl } from "../../lib/signed-url";
 
 function getDeepSeekKey(env?: { DEEPSEEK_API_KEY?: string }): string { return env?.DEEPSEEK_API_KEY ?? ""; }
 
@@ -43,9 +43,17 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     if (spaceId && !isPlatformOwner) { const spaceCheck = requireSpaceOwnership(authResult, spaceId); if (spaceCheck) return spaceCheck; }
     const result = await db.prepare("SELECT e.*, (SELECT COUNT(*) FROM photos WHERE event_id = e.id AND deleted_at IS NULL) as photo_count, (SELECT storage_key FROM photos WHERE event_id = e.id AND id = e.cover_photo_id LIMIT 1) as cover_key FROM events e WHERE e.space_id = ? AND e.deleted_at IS NULL ORDER BY e.event_date DESC").bind(targetSpaceId).all<EventRow & {photo_count: number; cover_key: string | null}>();
     const events = result.results ?? [];
-    const enriched = events.map((e) => {
-      return { id: e.id, spaceId: e.space_id, title: e.title, category: e.category, eventDate: e.event_date, description: e.description, aiSummary: e.ai_summary, coverPhotoId: e.cover_photo_id, coverPhotoUrl: e.cover_key ? `/api/media/photos/${e.cover_key}` : null, photoCount: e.photo_count ?? 0, address: e.address || "", addressLocked: e.address_locked === 1, visibility: (e.visibility as string) || "private", latitude: e.latitude, longitude: e.longitude, createdAt: e.created_at, updatedAt: e.updated_at };
-    });
+    const secret = (context.env as any).MEDIA_SIGNING_SECRET || (context.env as any).JWT_SECRET || "";
+    const enriched = await Promise.all(events.map(async (e) => {
+      let coverPhotoUrl: string | null = null;
+      if (e.cover_key) {
+        const isPrivate = (e.visibility as string) !== "public";
+        coverPhotoUrl = isPrivate && secret
+          ? await signMediaUrl(e.cover_key, secret, 3600)
+          : `/api/media/photos/${e.cover_key}`;
+      }
+      return { id: e.id, spaceId: e.space_id, title: e.title, category: e.category, eventDate: e.event_date, description: e.description, aiSummary: e.ai_summary, coverPhotoId: e.cover_photo_id, coverPhotoUrl, photoCount: e.photo_count ?? 0, address: e.address || "", addressLocked: e.address_locked === 1, visibility: (e.visibility as string) || "private", latitude: e.latitude, longitude: e.longitude, createdAt: e.created_at, updatedAt: e.updated_at };
+    }));
     return json({ events: enriched });
   } catch (err) { console.error("List events error:", err); return json({ error: "Something went wrong" }, 500); }
 }

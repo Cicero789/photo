@@ -197,13 +197,6 @@ export function DashboardPage() {
           accountMode={accountMode}
           onCreateClick={() => setShowCreateEvent(true)}
           onEventsRefresh={setEvents}
-          onDeleteEvent={async (id: string) => {
-            if (!confirm(accountMode === "pro" ? "Delete this event?" : "Delete this memory?")) return;
-            try {
-              await api.delete(`/events/${id}`);
-              await fetchEvents();
-            } catch {}
-          }}
         />
       )}
       {activeTab === "stats" && <StatsTab />}
@@ -259,7 +252,6 @@ function EventsTabContent({
   accountMode,
   onCreateClick,
   onEventsRefresh,
-  onDeleteEvent,
 }: {
   events: GridEvent[];
   loading: boolean;
@@ -267,7 +259,6 @@ function EventsTabContent({
   accountMode: "personal" | "pro";
   onCreateClick: () => void;
   onEventsRefresh?: (events: GridEvent[]) => void;
-  onDeleteEvent?: (id: string) => void;
 }) {
   const [viewMode, setViewMode] = useState<"tile" | "map">("tile");
   const [mapPhotos, setMapPhotos] = useState<Photo[]>([]);
@@ -320,7 +311,7 @@ function EventsTabContent({
       </div>
 
       {viewMode === "tile" ? (
-        <EventGrid events={events} ads={ads} onDelete={onDeleteEvent} emptyMessage={accountMode === "pro" ? "No events yet. Create your first event to start building your photo collection!" : "No memories yet. Create your first memory to start building your photo collection!"} />
+        <EventGrid events={events} ads={ads} emptyMessage={accountMode === "pro" ? "No events yet. Create your first event to start building your photo collection!" : "No memories yet. Create your first memory to start building your photo collection!"} />
       ) : mapLoading ? (
         <div className="flex items-center justify-center py-20"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" /></div>
       ) : (

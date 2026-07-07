@@ -26,10 +26,9 @@ interface EventGridProps {
   ads?: AdTile[];
   spaceSlug?: string;
   emptyMessage?: string;
-  onDelete?: (id: string) => void;
 }
 
-export function EventGrid({ events, ads = [], spaceSlug, emptyMessage, onDelete }: EventGridProps) {
+export function EventGrid({ events, ads = [], spaceSlug, emptyMessage }: EventGridProps) {
   // Build tiles: inject ad tiles at every 9th position
   const tiles: (GridEvent | { _ad: true; ad: AdTile })[] = [...events];
 
@@ -77,7 +76,6 @@ export function EventGrid({ events, ads = [], spaceSlug, emptyMessage, onDelete 
             key={item.id}
             {...item}
             spaceSlug={spaceSlug}
-            onDelete={onDelete}
           />
         );
       })}
