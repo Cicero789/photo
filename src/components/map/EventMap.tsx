@@ -51,8 +51,8 @@ export function EventMap({ photos, className }: EventMapProps) {
       const mapboxgl = window.mapboxgl;
       if (!mapboxgl) return;
 
-      // Public token (pk.*) — restricted by domain in Mapbox dashboard
-      mapboxgl.accessToken = "pk.eyJ1IjoiY2ljZXJvNzg5IiwiYSI6ImNtcThtanB1NTA3bGYycXB2c2R0bHk2bmgifQ.fEmRx2lBgLW6v4bNQdjn5w";
+      const { MAPBOX_TOKEN } = await import("../../lib/mapbox");
+      mapboxgl.accessToken = MAPBOX_TOKEN;
 
       const map = new mapboxgl.Map({
         container: mapContainer.current!,

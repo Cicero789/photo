@@ -11,8 +11,7 @@ interface InspirationItem {
   source?: string; score?: number; author?: string; licenseUrl?: string; thumbnailUrl?: string;
 }
 
-// Public token (pk.*) — restricted by domain in Mapbox dashboard
-const MAPBOX_TOKEN = "pk.eyJ1IjoiY2ljZXJvNzg5IiwiYSI6ImNtcThtanB1NTA3bGYycXB2c2R0bHk2bmgifQ.fEmRx2lBgLW6v4bNQdjn5w";
+import { MAPBOX_TOKEN } from "../lib/mapbox";
 
 const CATEGORIES = ["general","wedding","nature","urban","golden_hour","night","portrait","event"];
 const SEASONS = ["","spring","summer","fall","winter"];

@@ -29,7 +29,7 @@ function addSecurityHeaders(headers: Headers): void {
   headers.set("X-Frame-Options", "DENY");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
-  headers.set("Content-Security-Policy", "default-src 'self'; script-src 'self' https://api.mapbox.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://api.mapbox.com; img-src 'self' data: blob: https://images.unsplash.com https://*.mapbox.com; connect-src 'self' https://api.mapbox.com https://*.stripe.com; frame-src https://js.stripe.com https://connect.stripe.com; font-src 'self'; worker-src 'self' blob:");
+  headers.set("Content-Security-Policy", "default-src 'self'; script-src 'self' https://api.mapbox.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://api.mapbox.com; img-src 'self' data: blob: https://images.unsplash.com https://*.mapbox.com; connect-src 'self' https://api.mapbox.com https://events.mapbox.com https://*.stripe.com; frame-src https://js.stripe.com https://connect.stripe.com; font-src 'self'; worker-src 'self' blob:");
 }
 
 function addCorsHeaders(response: Response, origin: string): Response {
@@ -129,7 +129,9 @@ export async function onRequest(
   if (isRateLimited(request) && env.DB) {
     const ip = getClientIP(request);
     const url = new URL(request.url);
-    const endpoint = url.pathname.replace(/^\/api\//, "");
+    // Map client-site photo/gallery uploads to a shared "uploads" rate bucket
+    const rawEndpoint = url.pathname.replace(/^\/api\//, "");
+    const endpoint = /^\/api\/clients\/[^/]+\/(photos|galleries)/.test(url.pathname) ? "uploads" : rawEndpoint;
     const limit = await checkRateLimit(env.DB, ip, endpoint);
     if (!limit.allowed) {
       const res = json(

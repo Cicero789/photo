@@ -3,10 +3,9 @@
  * Token expires after 7 days and is single-use (deleted on redeem).
  */
 
-import { getUserById } from "../../lib/db";
 import { signToken, getJwtSecret } from "../../lib/jwt";
 import { json } from "../../lib/response";
-import { hashToken } from "../../lib/password";
+import { hashToken, hashPassword } from "../../lib/password";
 
 export async function onRequestPost(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string } }): Promise<Response> {
   try {
@@ -22,8 +21,30 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     if (!conn) return json({ error: "Invalid or expired token" }, 400);
 
     const email = conn.to_email as string;
-    const user = await db.prepare("SELECT * FROM users WHERE email = ?").bind(email).first<Record<string,unknown>>();
-    if (!user) return json({ error: "Account not found" }, 404);
+    let user = await db.prepare("SELECT * FROM users WHERE email = ?").bind(email).first<Record<string,unknown>>();
+    if (!user) {
+      // Auto-provision account for invitee (the invite email promised this)
+      const userId = crypto.randomUUID();
+      const spaceId = crypto.randomUUID();
+      const now = new Date().toISOString();
+      const namePart = email.split("@")[0] || "Friend";
+      const randomSecret = crypto.randomUUID() + crypto.randomUUID();
+      const passwordHash = await hashPassword(randomSecret);
+      const gateHash = await hashPassword(crypto.randomUUID());
+      let slug = namePart.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40) || "friend";
+      const clash = await db.prepare("SELECT id FROM spaces WHERE slug = ?").bind(slug).first();
+      if (clash) slug = `${slug}-${crypto.randomUUID().slice(0, 6)}`;
+      await db.batch([
+        db.prepare("INSERT INTO users (id, email, name, password_hash, role, space_id, created_at) VALUES (?,?,?,?,?,?,?)")
+          .bind(userId, email, namePart, passwordHash, "page_admin", spaceId, now),
+        db.prepare("INSERT INTO spaces (id, name, slug, password_hash, owner_id, created_at, updated_at) VALUES (?,?,?,?,?,?,?)")
+          .bind(spaceId, `${namePart}'s Space`, slug, gateHash, userId, now, now),
+        db.prepare("INSERT INTO space_members (id, space_id, user_id, role) VALUES (?,?,?,?)")
+          .bind(crypto.randomUUID(), spaceId, userId, "page_admin"),
+      ]);
+      user = await db.prepare("SELECT * FROM users WHERE id = ?").bind(userId).first<Record<string,unknown>>();
+      if (!user) return json({ error: "Account creation failed" }, 500);
+    }
 
     // Auto-accept + clear token (single-use)
     if (conn.status === "pending") {

@@ -5,6 +5,7 @@
 
 export async function geocodeAddress(address: string, mapboxToken?: string): Promise<{ lat: number; lng: number } | null> {
   if (!address || address.trim().length < 3) return null;
+  // Pass MAPBOX_API_KEY from env in route handlers; fallback for local dev only
   const token = mapboxToken || "pk.eyJ1IjoiY2ljZXJvNzg5IiwiYSI6ImNtcThtanB1NTA3bGYycXB2c2R0bHk2bmgifQ.fEmRx2lBgLW6v4bNQdjn5w";
 
   try {

@@ -64,7 +64,7 @@ export async function onRequestPost(context: { request: Request; env: { DB?: D1D
     // Geocode address if provided
     let lat: number | null = null; let lng: number | null = null;
     if (body.address && body.address.trim()) {
-      const geo = await geocodeAddress(body.address);
+      const geo = await geocodeAddress(body.address, (context.env as any).MAPBOX_API_KEY);
       if (geo) { lat = geo.lat; lng = geo.lng; }
     }
 

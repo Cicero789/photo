@@ -80,3 +80,34 @@ export async function onRequestPost(context: {
 
   return json({ uploaded: results.length, photos: results }, 201);
 }
+
+export async function onRequestGet(context: {
+  request: Request; env: { DB?: D1Database; MEDIA_SIGNING_SECRET?: string; JWT_SECRET?: string }; params: { id: string };
+}): Promise<Response> {
+  const a = await requireAuth(context.request, context.env);
+  if (a instanceof Response) return a;
+  const db = context.env.DB!;
+  const site = await db.prepare("SELECT id, published FROM client_sites WHERE id = ? AND photographer_id = ? AND deleted_at IS NULL")
+    .bind(context.params.id, a.userId).first() as any;
+  if (!site) return json({ error: "Client site not found" }, 404);
+
+  const rows = await db.prepare(
+    `SELECT cgp.storage_key, cgp.caption as filename, cgp.sort_order, cgp.uploaded_at as created_at, cgp.gallery_id
+     FROM client_gallery_photos cgp
+     JOIN client_galleries g ON g.id = cgp.gallery_id
+     WHERE g.client_site_id = ? AND cgp.deleted_at IS NULL AND g.deleted_at IS NULL
+     ORDER BY cgp.uploaded_at DESC`
+  ).bind(context.params.id).all();
+
+  const secret = context.env.MEDIA_SIGNING_SECRET || context.env.JWT_SECRET || "";
+  const photos = await Promise.all((rows.results || []).map(async (p: any) => {
+    let url = `/api/media/photos/${p.storage_key}`;
+    if (site.published !== 1 && secret) {
+      const { signMediaUrl } = await import("../../../lib/signed-url");
+      url = await signMediaUrl(p.storage_key, secret, 3600);
+    }
+    return { storageKey: p.storage_key, filename: p.filename || "", url, sortOrder: p.sort_order, galleryId: p.gallery_id, createdAt: p.created_at };
+  }));
+
+  return json({ photos });
+}
