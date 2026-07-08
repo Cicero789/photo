@@ -1,0 +1,502 @@
+================================================================================
+FRAMENEST — STUDIO GUIDE + FULL SITE IMPROVEMENT PLAN
+Date: 2026-07-08
+Repo: Cicero789/photo @ db973ff (main)
+Companion file: AUDIT-2026-07-07.txt (deep technical audit with per-fix code)
+Audience: you (studio owner) + your AI coder
+================================================================================
+
+CONTENTS
+  PART 1 — How your site works (the mental model)
+  PART 2 — Studio workflow playbook (recommended day-to-day use)
+  PART 3 — The template system: how to use it (all 263 templates)
+  PART 4 — Current status: what is fixed vs still broken
+  PART 5 — New findings from this pass (not in the previous audit)
+  PART 6 — Full improvement suggestions (product, UX, technical, security)
+  PART 7 — Prioritized roadmap
+  PART 8 — Quick reference (URLs, commands, secrets)
+
+================================================================================
+PART 1 — HOW YOUR SITE WORKS (THE MENTAL MODEL)
+================================================================================
+
+FrameNest is three products sharing one login:
+
+1. PERSONAL SHARING (family/friends)
+   - Your SPACE lives at framenest.photos/s/<your-slug>. It has a GATE KEY
+     (a password) — anyone with the key can view "gate"-visibility events.
+   - EVENTS are the containers (birthday, trip, wedding...). Each event has a
+     visibility: private (only you/your team), gate (anyone with the gate
+     key), public (anyone on the internet).
+   - MEMBERS: you can add teammates to your space with roles
+     (page_admin > staff > viewer). Staff can create events and upload.
+   - CONNECTIONS: invite family/friends by email; accepted connections see
+     each other's PUBLIC events in a feed.
+
+2. PRO STUDIO (you, the photographer)
+   - Switch on in Dashboard → Settings → "Account mode" → Switch to Pro.
+     (This creates your professional profile; platform_owner accounts are
+     auto-approved, others need approval in /citysite.)
+   - Your PUBLIC PROFILE renders at framenest.photos/<your-slug> using a
+     TEMPLATE (see Part 3), with tagline, specialties, portfolio, pricing,
+     reviews, and a Hire button.
+   - ALBUMS are your client-delivery tool: create an album, upload finals,
+     send the client one link (framenest.photos/album/<token>), optionally
+     with password + expiry + download toggle.
+   - PRICING + STRIPE: connect Stripe in the dashboard, set your prices
+     (single download / full gallery / prints), and the Buy button on your
+     profile charges clients with a 5% platform fee.
+   - STATS: profile views, inquiries, orders, revenue, album views, map pins.
+
+3. WEBSITES FOR LOCAL BUSINESSES (your agency arm)
+   - "My Clients" tab: create a client site for a dentist/salon/restaurant,
+     pick one of the industry templates, fill in their content, blog posts,
+     and photo galleries, publish → the business's site is live at
+     framenest.photos/<their-slug> (or /site/<their-slug>).
+   - You charge them setup + monthly fees (fields exist per client site).
+   - This is the revenue multiplier: one photo shoot for a business can turn
+     into a recurring website customer.
+
+Also on the platform: the INSPIRATION MAP (/inspiration, 100+ scenic photo
+locations with tips — good for planning shoots and for SEO), and the ADMIN
+panel at /citysite (approve photographers, manage users/spaces/ads/orders).
+
+================================================================================
+PART 2 — STUDIO WORKFLOW PLAYBOOK
+================================================================================
+
+ONE-TIME SETUP (do these once, in order)
+  [ ] 1. Dashboard → Settings → Switch to Pro.
+  [ ] 2. In /citysite/people approve your own photographer entry (or verify
+         it shows approved), give it a good slug — this becomes your public
+         URL: framenest.photos/<slug>.
+  [ ] 3. Settings → Photographer profile: tagline + specialties
+         ("Weddings, Portraits, Events").
+  [ ] 4. Pick your template + color scheme + font pairing (Part 3).
+  [ ] 5. Set pricing (single download / full gallery / print sizes).
+  [ ] 6. Connect Stripe (Settings → Stripe connect) so Buy/Hire work.
+  [ ] 7. Set your space gate key to something you can share verbally at
+         events ("the gate key is our wedding date").
+  NOTE: portfolio photo upload currently has NO UI — see finding N-3 in
+  Part 5. Until that's built, templates render with placeholder images.
+
+WORKFLOW A — PRIVATE FAMILY/EVENT SHARING (personal mode or pro)
+  1. Dashboard → Events → New event, set visibility = "gate".
+  2. Upload photos (drag & drop; they're resized client-side, EXIF GPS is
+     extracted so photos appear on the map).
+  3. Share: give guests framenest.photos/s/<your-slug> + the gate key.
+  4. Guests browse every gate event in your space. No accounts needed.
+  CAUTION: the gate-viewer flow is currently broken server-side (see
+  AUDIT P0-2) — fix that before relying on this workflow.
+
+WORKFLOW B — CLIENT DELIVERY (the money workflow)
+  1. Shoot → cull/edit in your normal tools.
+  2. Albums page (/albums) → New album → name it after the client,
+     set a password and an expiry (e.g. 90 days), downloads on.
+  3. Upload the finals into the album.
+  4. Copy link → send to client: framenest.photos/album/<token> + password.
+  5. Album viewer counts views; client sees a clean dark gallery with
+     downloads (if enabled).
+  CAUTION: uploading many photos currently trips the rate limiter and
+  fails silently after ~10 photos/minute — see finding N-2. Fix before
+  using albums for real deliveries.
+
+WORKFLOW C — PUBLIC MARKETING
+  1. Set your best events to visibility = "public" — they're browsable by
+     anyone and shared via your space URL.
+  2. Add pins to the Inspiration Map for your city's best photo spots —
+     each pin carries your name (author) in front of every visitor.
+  3. Ask happy clients to leave a review on your profile (they need a free
+     account; rating 1-5 + comment, one per client).
+
+WORKFLOW D — BUSINESS WEBSITES (agency)
+  1. Dashboard → My Clients → New client (name + slug + industry).
+  2. Editor tabs:
+     Content  — business name, about, services, contact, hours
+     Photos   — upload the shoot you did for them (photo pool)
+     Galleries— organize photos into named galleries shown on their site
+     Blog     — write/publish posts (public at /blog/<site>/<post>)
+     Domain   — their custom domain (NOT functional yet — AUDIT P1-9)
+  3. Set the template/design in the site's gallery_config (industry
+     templates: restaurant, medical, legal, beauty... — Part 3).
+  4. Publish → site is live at framenest.photos/<their-slug>.
+  5. Bill them setup + monthly (fields: setup_fee_cents, monthly_fee_cents).
+  CAUTION: gallery photo upload + the public gallery page are currently
+  broken by a schema mismatch (AUDIT P0-3) — this workflow needs those
+  fixes first.
+
+================================================================================
+PART 3 — THE TEMPLATE SYSTEM: HOW TO USE IT
+================================================================================
+
+WHERE: Dashboard → Settings → Photographer profile card → template picker
+(for your own profile), or per client site via its design config.
+
+WHAT YOU GET: 263 templates, verified 1:1 against their thumbnails (parity
+is now enforced by an automated test — tests/template-registry.test.ts).
+
+  Category           Count   Use for
+  ----------------------------------------------------------------------
+  base                 10    YOUR photographer profile. The core looks:
+                             1-clean (Clean Minimal), 2-cinematic (dark +
+                             gold), 3-editorial (magazine), 4-instagram
+                             (grid), 5-masonry, 6-split, 7-vertical,
+                             8-carousel, 9-story-cards, 10-brutalist.
+  portraits/sports/
+  street               2 ea  Specialty photographer profiles.
+  engagement/family    2 ea  Session-type landing looks.
+  spring/summer/fall/
+  winter/holiday(+season) 2 ea Seasonal campaign looks (mini-sites,
+                             seasonal promos).
+  events               12    Wedding vendors: DJ, florist, venue, planner,
+                             caterer, officiant, rentals...
+  medical              17    Dentist, chiro, PT, therapy, telehealth...
+  home-services        15    Plumber, roofer, landscaping, cleaning...
+  legal                14    Attorney, CPA, notary, insurance...
+  creative             14    Designers, writers, musicians, web devs...
+  restaurant           13    Cafe, bakery, food truck, fine dining...
+  teaching             13    Tutors, music lessons, test prep...
+  beauty / retail /
+  influencer           12 ea Salons & shops & creators.
+  marketing / offices  11 ea Agencies; venue/studio rentals.
+  coaching / childcare /
+  specialty / tech     10 ea Life coaches, daycare, PI/translator, IT...
+  pet-services          9    Groomer, walker, vet...
+  fitness / real-estate/
+  travel                8 ea Trainers, agents, hotels/BnBs.
+  corporate             2    Corporate photography.
+
+HOW TO CHOOSE (recommendation for your studio):
+  - Your own profile: start with 2-cinematic (dark, dramatic — great for
+    weddings/events) or 1-clean (bright, minimal — great for portraits and
+    families). Preview both with YOUR portfolio before saving.
+  - Color scheme: light/dark/etc — dark schemes flatter photography;
+    light schemes read better for service businesses.
+  - Font pairing: "classic" (serif) for weddings/editorial; "modern"
+    (sans) for everything else.
+  - Client sites: match the industry template to the business, then let
+    the photos carry it — that's your differentiator vs Wix/Squarespace:
+    every site you sell ships with professional photography built in.
+
+MECHANICS (for your AI coder):
+  - Registry: src/components/templates/types.ts (TEMPLATE_REGISTRY —
+    id/name/category/description). Components: templates/index.ts (lazy,
+    code-split — each template is its own JS chunk).
+  - Picker: src/components/photographer/TemplatePicker.tsx. Thumbnails at
+    /thumbnails/<id>.jpg (263 files, exact match).
+  - Saving writes {"template","colorScheme","fontPairing"} JSON into
+    photographers.gallery_config (yes, the column name is misleading —
+    never rename it) via PUT /api/photographers/config {design: "..."}.
+  - Rendering: PhotographerProfilePage / ClientSitePage look up
+    templateComponents[resolveTemplateId(stored)] — legacy pre-rename IDs
+    (cinematic-dark, masonry-wall, ...) resolve via LEGACY_TEMPLATE_ALIASES.
+  - RULES: never change an existing template ID; add new templates by
+    creating the component + registry entry + /thumbnails/<id>.jpg — the
+    parity test fails the build if any of the three is missing.
+  - Template CTAs/forms are partly decorative (known quirk) — before
+    selling a client site, click every button on the chosen template and
+    wire or hide dead ones.
+
+================================================================================
+PART 4 — CURRENT STATUS: FIXED vs STILL BROKEN
+================================================================================
+
+FIXED AND MERGED TO MAIN (commit db973ff):
+  ✔ Template/thumbnail parity verified (263/263), 239 orphan files removed
+  ✔ Legacy template IDs resolve (LEGACY_TEMPLATE_ALIASES + resolveTemplateId)
+  ✔ Broken "clean-minimal" default on PhotographerProfilePage
+  ✔ Parity regression test added (npm test: 67/67)
+
+DEPLOY NOTE (important): the repo HAS a GitHub Actions workflow
+(.github/workflows/deploy.yml) that builds and deploys to Cloudflare Pages
+on every push to main, and syncs JWT_SECRET / DEEPSEEK_API_KEY /
+ZOHO_API_KEY / EMAIL_FROM from GitHub repo secrets to the Pages project.
+So the merge of db973ff likely ALREADY deployed. Check the repo's Actions
+tab — if the run is green, production is current; if it's red, the run's
+log says why (usually a missing CLOUDFLARE_API_TOKEN repo secret).
+
+STILL PENDING — the P0/P1 fixes from AUDIT-2026-07-07.txt (all suggested
+code is in that file):
+  P0-1  Schema-drift migration 006 + defensive requireAuth
+        (users.token_version can 500 every logged-in request)
+  P0-2  Gate-key viewers rejected with "Session expired" (regression)
+  P0-3  Client galleries: code vs schema mismatch (uploads + public
+        gallery page 500)
+  P0-4  Add-member INSERT missing users.created_at (always fails)
+  P1-5  Invites to brand-new emails dead-end at magic-login
+  P1-6  Gate-event photos 403 in <img> tags (need signed URLs)
+  P1-7  Entering a gate key logs the real user out (token overwrite)
+  P1-8  Event visibility never round-trips to the owner UI
+  P1-9  Client-site custom domains saved but never routed
+  P1-10 Client photo-pool uploads invisible (no list endpoint/UI)
+  P2-11..18  logout revocation, health column checks, constant-time
+        compare, album delete semantics, rate limits, Mapbox token,
+        dead code, CSP/fonts
+
+================================================================================
+PART 5 — NEW FINDINGS FROM THIS PASS (not in the previous audit)
+================================================================================
+
+N-1  THE COMMUNITY FEED IS UNREACHABLE
+  WHERE: src/pages/DashboardPage.tsx:56 declares Tab type incl. "feed" and
+  renders <CommunityFeed/> when activeTab === "feed" — but NEITHER tab list
+  (pro or personal, ~line 168) includes a Feed tab. The feature (feed API +
+  CommunityFeed component) is fully built and completely invisible.
+  FIX (1 line, personal list — where it matters most):
+    [{ key: "events", label: "Memories" }, { key: "feed", label: "Feed" },
+     { key: "members", label: "Members" }, ...]
+  (add to the pro list too if you want it there).
+
+N-2  ALBUM DELIVERY COLLIDES WITH THE RATE LIMITER  ← blocks Workflow B
+  WHERE: src/pages/AlbumsPage.tsx:55-69 uploads ONE photo per request to
+  /api/albums/:id/photos; middleware rate-limits the /api/albums prefix at
+  10 requests/min and 30/hour per IP; and the page swallows failures
+  (`catch {}`) then refreshes. Deliver a 40-photo album → photos 11+ that
+  minute 429, no error shown, album silently arrives incomplete.
+  FIX (do both):
+  (a) Batch endpoint — accept multiple files like photos/upload does.
+      In functions/api/albums/[id]/photos.ts multipart branch:
+        const files = form.getAll("file").concat(form.getAll("files")) as File[];
+        if (!files.length) return json({ error: "No file provided" }, 400);
+        // validate ALL first (type, size, magic bytes), then loop:
+        //   put R2 → INSERT album_photos (existing per-file code in a loop)
+        return json({ photos: uploadedList }, 201);
+      In AlbumsPage.tsx: one FormData with all files appended as "files",
+      one fetch; show per-batch progress and surface errors:
+        if (!res.ok) { const e = await res.json().catch(()=>({}));
+          alert(e.error ?? `Upload failed (${res.status})`); }
+  (b) Raise upload limits per AUDIT P2-15 (per-endpoint limit table).
+
+N-3  NO WAY TO UPLOAD PORTFOLIO PHOTOS  ← your public profile shows
+     placeholders
+  WHERE: POST /api/photographers/portfolio exists and works, but NOTHING in
+  the UI calls it. TemplatePicker previews fall back to Unsplash stock
+  photos; your real profile page renders whatever is in
+  photographer_portfolio — i.e. nothing.
+  FIX: add a "Portfolio" card in Dashboard → Settings (pro mode) that
+  reuses the PhotoUploader drop-zone pattern and POSTs to
+  /api/photographers/portfolio (multipart, field "files"), plus a grid of
+  current portfolio photos with delete. Suggested component sketch:
+    - GET /photographers/portfolio → {photos:[{id,url,filename}]}
+    - POST multipart files → append
+    - DELETE /photographers/portfolio?id=... → needs a small new handler
+      (onRequestDelete: verify owner via email join, delete R2 object +
+      row). Follow the existing POST handler's ownership pattern.
+
+N-4  HERO PHOTOS HAVE NO WRITER
+  WHERE: photographers.hero_photos is read by config GET and profile page,
+  but PUT /api/photographers/config ignores any hero field — no UI or API
+  can ever set it.
+  FIX: in functions/api/photographers/config.ts onRequestPut add:
+    if (body.hero !== undefined) {
+      try {
+        const arr = JSON.parse(body.hero);
+        if (!Array.isArray(arr) || arr.length > 8) throw new Error();
+        parts.push("hero_photos = ?"); vals.push(JSON.stringify(arr));
+      } catch { return json({ error: "hero must be a JSON array of up to 8 photo URLs" }, 400); }
+    }
+  ...and in the profile card UI let the user pick up to 8 portfolio photos
+  as hero images (depends on N-3).
+
+N-5  REVIEWS ARE OPEN TO ANYONE
+  Any logged-in account can review any photographer (one review each, no
+  relationship check). Fine to launch with, but plan a "verified client"
+  gate: only allow reviews from users who have an order or a booking
+  inquiry with that photographer:
+    const worked = await db.prepare(
+      "SELECT 1 FROM orders WHERE buyer_user_id = ? AND photographer_id = ? AND status IN ('paid','fulfilled') LIMIT 1"
+    ).bind(a.userId, photographer.id).first();
+    if (!worked) return json({ error: "Reviews are limited to verified clients" }, 403);
+
+N-6  EVENT MESSAGES API IS DEAD CODE (still)
+  functions/api/messages/[eventId].ts has GET/POST but no UI. Either add a
+  comments panel to EventDetailPage (nice for family spaces: “love this
+  one!”) or delete the endpoint. If building: simple list + input, POST
+  {message}, render newest-first; it already scopes to event access.
+
+N-7  DASHBOARD PICKER DEFAULT still says "clean-minimal"
+  src/pages/DashboardPage.tsx:722 passes currentTemplate={profile.template
+  || "clean-minimal"} — harmless now (resolveTemplateId maps it), but
+  change to "1-clean" for tidiness when touching that file.
+
+N-8  CI EXISTS BUT RUNS NO TESTS
+  .github/workflows/deploy.yml builds and deploys on push to main but does
+  NOT run `npm test` — a red test suite deploys anyway. Add after build:
+      - run: npm test
+  (one line, prevents deploying regressions; the parity test then actively
+  protects the template system on every deploy).
+
+================================================================================
+PART 6 — FULL IMPROVEMENT SUGGESTIONS
+================================================================================
+
+A. MAKE-IT-WORK (functional integrity — do these first)
+  1. Apply AUDIT P0-1..P0-4 (schema migration + auth fixes). Everything
+     else sits on top of working auth + schema.
+  2. N-2 album batching (unblocks your delivery workflow).
+  3. P1-6 + P1-8 (photos visible + visibility round-trip).
+  4. N-3 portfolio upload UI (unblocks your public profile).
+  5. N-8 add tests to CI.
+
+B. STUDIO / PRODUCT IMPROVEMENTS (revenue + client experience)
+  1. CLIENT PROOFING: let album viewers mark favorites ("pick 20 for the
+     album"). Needs: album_photo_picks table (album_id, storage_key,
+     picked_at, client_note), a picks endpoint keyed by share token (no
+     account needed), heart toggle in AlbumViewerPage, and a picks report
+     in AlbumsPage. This is the single highest-value pro feature — it
+     replaces Pixieset/Pic-Time for basic proofing.
+  2. ZIP DOWNLOAD: "Download all" on albums — a Worker endpoint that
+     streams a zip of the album's R2 objects (use the `client-zip` npm
+     package or manual zip streaming; R2 body streams pipe cleanly).
+  3. WATERMARKED PREVIEWS: until an order is paid, serve gallery images
+     through a resizing/watermark path (Cloudflare Image Resizing:
+     /cdn-cgi/image/width=1200,quality=80/<media-url> once enabled on the
+     zone) and reserve originals for signed post-purchase links.
+  4. EMAIL THE THINGS THAT MATTER: sendEmail() is wired only for invites +
+     password resets. Add:
+       - booking inquiry → email you (currently in-app bell only; you WILL
+         miss leads)
+       - order paid (webhook) → receipt to buyer, notification to you
+       - album delivered → optional "your photos are ready" email to client
+     All three are ~10 lines each using functions/lib/email.ts.
+  5. PER-GALLERY SHARE LINKS for client sites (mirror the album token
+     system) so a business can share "Spring menu shoot" privately before
+     publishing.
+  6. BOOKING UPGRADE: inquiry form works but is anonymous-hostile (requires
+     an account — a dentist inquiring about headshots won't sign up).
+     Allow unauthenticated inquiries with an email field + rate limit +
+     honeypot; store client_user_id nullable (schema needs
+     client_user_id to become nullable OR a separate contact_email column
+     — add via migration).
+  7. ONBOARDING CHECKLIST: after signup show a 4-step card on the dashboard
+     (create first event → upload photos → set gate key → share link).
+     Biggest lever for activation; pure frontend.
+  8. SEO FOR PROFILES + CLIENT SITES: the SPA serves the same <title> and
+     meta for every route. Add a Pages Function HTML-rewriter for
+     /:slug, /site/:slug, /blog/* that injects title/description/OG image
+     from D1 into index.html (HTMLRewriter is built into Workers; ~40
+     lines). Then list profiles + published client sites + blog posts in
+     sitemap.xml (generate from D1 daily via a scheduled function).
+     Without this, the 263 templates are invisible to Google.
+  9. PRICING PRESETS + CURRENCY: pricing panel is free-form; add presets
+     ("Mini session $150 / Full day $1200") and a currency setting
+     (checkout currently assumes one currency).
+ 10. ADS: every 9th dashboard tile is an ad slot — for YOUR studio, use
+     these to cross-sell your own services (mini-session announcements,
+     print sale) rather than third-party ads. Manage in /citysite/ads.
+
+C. TECHNICAL IMPROVEMENTS
+  1. BUNDLE: index chunk is 660 KB (168 KB gz), mostly mapbox-gl. Move
+     mapbox-gl to a dynamic import inside the 3 map components (it already
+     caches the instance) and add vite manualChunks for react/router. Gets
+     first paint of non-map pages down substantially. PhotoEditorModal is
+     already lazy — good.
+  2. THUMBNAILS FOR GALLERIES: event grids load original files. Enable
+     Cloudflare Image Resizing and swap grid <img> srcs to
+     /cdn-cgi/image/width=600,fit=cover/<url>, keeping originals for the
+     lightbox — cuts gallery bandwidth ~10x and speeds mobile massively.
+     (The photos.thumbnail_key column exists but is never populated —
+     resizing at the edge avoids building an upload pipeline.)
+  3. SELF-HOST FONTS (AUDIT P2-18): pick the 6-8 families the templates
+     use, @font-face them in src/index.css with woff2 in public/fonts/,
+     strip Google Fonts links from templates with a codemod. Kills a
+     console full of CSP errors and makes templates actually render their
+     intended type.
+  4. SCHEDULED D1 BACKUPS: `npm run db:backup` exists but only runs when a
+     human remembers. Add a GitHub Actions cron (daily) that runs
+     `wrangler d1 export` and uploads the dump as an artifact (30-day
+     retention) — restores have saved every photo business that ever
+     needed one.
+  5. OBSERVABILITY: add `wrangler pages deployment tail` to your debugging
+     habit; longer term enable Workers Logpush or at least a
+     /api/health cron ping (GitHub Actions schedule hitting /api/health,
+     failing the run if status != ok) so YOU know before clients do.
+  6. MIGRATION DISCIPLINE: after applying migration 006 (AUDIT P0-1),
+     make `npm run db:migrate -- <file>` record into _migrations, and add
+     the PRAGMA column checks to /api/health (AUDIT P2-12) so drift is
+     visible on the /health admin page.
+
+D. SECURITY (beyond the audit items)
+  1. Apply P2-11 (logout revocation) and P2-13 (constant-time compare).
+  2. Rotate any API key that has ever been pasted into a chat/committed —
+     and URL-restrict the Mapbox public token (P2-16).
+  3. Admin hardening: /citysite is role-gated but single-factor; consider
+     requiring a fresh login (short-lived token) for destructive admin
+     actions (user delete, space reset).
+  4. Set MEDIA_SIGNING_SECRET distinct from JWT_SECRET (both work today
+     via fallback, but separate secrets let you rotate one without
+     invalidating the other).
+
+================================================================================
+PART 7 — PRIORITIZED ROADMAP
+================================================================================
+
+NOW (this week) — "make the site work"
+  1. Verify the Actions deploy of db973ff is green (Part 4 deploy note).
+  2. Run the PRAGMA snapshot + apply migration 006 (AUDIT Appendix B/P0-1).
+  3. Ship AUDIT P0-2, P0-3, P0-4 + defensive requireAuth.
+  4. N-2 album batch upload + limits. N-8 tests in CI.
+  5. Smoke test the four workflows in Part 2 end-to-end.
+
+NEXT 2 WEEKS — "make it usable as a studio"
+  6. N-3 portfolio upload UI + N-4 hero photos → your profile looks real.
+  7. P1-6/P1-8 event photo/visibility fixes; N-1 feed tab.
+  8. B-4 emails (bookings + orders) — stop missing leads.
+  9. B-7 onboarding checklist.
+ 10. P1-5 invite auto-account, P1-7 gate token storage.
+
+30-60 DAYS — "make it sellable"
+ 11. B-1 client proofing picks + B-2 zip download (album parity with
+     Pixieset basics).
+ 12. B-8 SEO head injection + sitemap from D1.
+ 13. C-1 bundle split + C-2 edge-resized thumbnails (mobile speed).
+ 14. P1-9 client-site custom domains (or hide the tab until then).
+ 15. C-3 self-hosted fonts so templates render as designed.
+
+60-90 DAYS — "grow"
+ 16. B-3 watermarked previews + post-purchase originals.
+ 17. N-5 verified-client reviews; N-6 event comments.
+ 18. B-6 anonymous booking; B-9 pricing presets.
+ 19. C-4/C-5 backups cron + health monitoring.
+
+================================================================================
+PART 8 — QUICK REFERENCE
+================================================================================
+
+URLs
+  Your space:            framenest.photos/s/<space-slug>
+  Your pro profile:      framenest.photos/<photographer-slug>
+  Client site:           framenest.photos/<client-slug>  (also /site/<slug>)
+  Client blog post:      framenest.photos/blog/<site-slug>/<post-slug>
+  Album delivery:        framenest.photos/album/<token>
+  Admin:                 framenest.photos/citysite
+  Health check:          framenest.photos/api/health (also /health page)
+
+COMMANDS (run locally, in the repo)
+  npm run build              # typecheck + bundle
+  npm test                   # 67 tests incl. template parity guard
+  npm run deploy:safe        # build + test + D1 backup + deploy
+  npm run db:backup          # export production D1
+  npx wrangler d1 execute photo-db --remote --command "PRAGMA table_info(users)"
+  npx wrangler pages secret list --project-name photo
+  npx wrangler pages deployment tail --project-name photo   # live logs
+
+SECRETS THAT MUST EXIST (Pages project; several sync from GitHub secrets
+via the deploy workflow):
+  JWT_SECRET (required), MEDIA_SIGNING_SECRET (recommended),
+  ZOHO_API_KEY (emails), DEEPSEEK_API_KEY (AI summaries),
+  EMAIL_FROM (optional), STRIPE_SECRET_KEY + STRIPE_WEBHOOK_SECRET
+  (payments — NOT in the workflow's sync list; set them manually with
+  `wrangler pages secret put`).
+GitHub repo secrets for CI deploys: CLOUDFLARE_API_TOKEN (+ optionally
+  CLOUDFLARE_ACCOUNT_ID), plus the four synced app secrets above.
+
+FILES
+  AUDIT-2026-07-07.txt   — deep technical audit, per-fix suggested code
+  THIS FILE              — workflows, template guide, product plan
+  ARCHITECTURE.md        — code map, contracts, do-not rules
+  db/migrations/         — forward-only migrations (006 pending, see audit)
+
+================================================================================
+END
+================================================================================
