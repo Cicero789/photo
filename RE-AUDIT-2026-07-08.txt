@@ -1,0 +1,199 @@
+================================================================================
+FRAMENEST — RE-AUDIT (VERIFICATION PASS)
+Date: 2026-07-08
+Verified against: origin/main @ db973ff (the branch production deploys from)
+Companion files: AUDIT-2026-07-07.txt, STUDIO-GUIDE-AND-IMPROVEMENT-PLAN.txt
+================================================================================
+
+TL;DR — THE FIXES WERE NOT IMPLEMENTED ON GITHUB.
+
+I re-verified every finding, file by file, against the current main branch.
+main has not received a single new commit since the template-thumbnail fixes
+(db973ff). Every P0/P1/P2 finding from AUDIT-2026-07-07.txt and every N-*
+finding from the studio guide is still present, byte-for-byte, in the code
+that GitHub Actions deploys to framenest.photos.
+
+If an AI coder reported "implemented", its work never left its own machine
+or session: nothing matching those fixes exists on ANY branch of
+Cicero789/photo. Section 3 explains where the work might be and how to
+recover it.
+
+================================================================================
+1. VERIFICATION TABLE — main @ db973ff
+================================================================================
+Legend: ✔ fixed on main · ✘ NOT fixed (verified present, evidence given)
+
+AUDIT-2026-07-07.txt findings
+  P0-1  Schema-drift migration + defensive requireAuth        ✘ NOT FIXED
+        db/migrations/ still ends at 005; functions/lib/auth.ts:15-21
+        still runs the unguarded token_version query on every request.
+  P0-2  Gate viewers rejected ("Session expired")              ✘ NOT FIXED
+        auth.ts has no gate-session skip; gate.ts still mints
+        userId "viewer" with no users row.
+  P0-3  client_galleries/client_gallery_photos mismatch        ✘ NOT FIXED
+        clients/[id]/photos.ts still queries slug='photos' and INSERTs
+        caption/uploaded_at (3 occurrences verified).
+  P0-4  Add-member INSERT missing users.created_at             ✘ NOT FIXED
+        spaces/members.ts:30 column list unchanged.
+  P1-5  Invite dead-end for new users                          ✘ NOT FIXED
+        magic-login.ts:26 still returns 404 "Account not found".
+  P1-6  Gate-event photos 403 in <img> tags                    ✘ NOT FIXED
+        events/[id].ts:56-57 scrubbed branch still returns plain URLs.
+  P1-7  Gate key overwrites real login token                   ✘ NOT FIXED
+        SpacePage.tsx:94 still setToken(data.token).
+  P1-8  visibility missing from owner event DTOs               ✘ NOT FIXED
+        events/[id].ts owner DTO + events/index.ts enriched map unchanged.
+  P1-9  client_sites.custom_domain never routed                ✘ NOT FIXED
+        _middleware.ts contains zero references to client_sites.
+  P1-10 Client photo pool has no GET/list                      ✘ NOT FIXED
+        clients/[id]/photos.ts still exports onRequestPost only.
+  P2-11 Logout doesn't revoke                                  ✘ NOT FIXED
+        logout.ts is still the 2-line no-op.
+  P2-12 Health check can't see column drift                    ✘ NOT FIXED
+  P2-13 Signed-URL compare not constant-time                   ✘ NOT FIXED
+        signed-url.ts:20 still `expected === signature`.
+  P2-14 Albums delete/list soft-delete inconsistency           ✘ NOT FIXED
+        albums/index.ts has zero deleted_at references.
+  P2-15 Flat rate limits (30/hour) on uploads                  ✘ NOT FIXED
+        rate-limit.ts:1 unchanged.
+  P2-16 Hardcoded Mapbox token                                 ✘ NOT FIXED
+        Still present in 4 files.
+  P2-17 Dead/broken helpers (lib/db.ts createUser etc.)        ✘ NOT FIXED
+  P2-18 CSP / Google Fonts / Mapbox telemetry                  ✘ NOT FIXED
+
+STUDIO-GUIDE findings (Part 5)
+  N-1   Community Feed tab unreachable                         ✘ NOT FIXED
+        DashboardPage tab lists still lack { key: "feed" }.
+  N-2   Album upload vs rate limiter (silent 429s)             ✘ NOT FIXED
+        AlbumsPage.tsx:58 still one-request-per-file, errors swallowed.
+  N-3   No portfolio upload UI                                 ✘ NOT FIXED
+  N-4   hero_photos has no writer                              ✘ NOT FIXED
+        photographers/config.ts PUT still ignores hero.
+  N-5   Reviews open to anyone                                 ✘ open (by design until changed)
+  N-6   messages API dead code                                 ✘ NOT FIXED
+  N-7   Dashboard picker default "clean-minimal"               ✘ cosmetic, unchanged
+  N-8   CI deploys without running tests                       ✘ NOT FIXED
+        deploy.yml has no `npm test` step.
+
+Previously fixed and still verified good on main:
+  ✔ Template/thumbnail parity (263/263) + legacy-ID aliases + parity tests
+  ✔ events/[id].ts deleted_at filters
+  ✔ Build passes; all 67 tests pass on main @ db973ff.
+
+PRODUCTION IMPLICATION: .github/workflows/deploy.yml deploys main on every
+push. Since main is unchanged, framenest.photos is still running with every
+open bug above — including the P0 auth/schema issues.
+
+================================================================================
+2. WHAT'S ACTUALLY ON GITHUB — BRANCH MAP
+================================================================================
+  main                              db973ff  Jul 7  CANONICAL. Audit findings
+                                                    all still present.
+  claude/photo-site-audit-e8yfbr    84b31a7  Jul 8  main + studio guide txt
+                                                    (this session's branch).
+  claude/review-photo-repo-0p8y5b   afd782e  Jul 4  A DIFFERENT audit session
+        (predates my audit). Contains 3 of its own audit txt files, deletes
+        one dead endpoint, and adds db/migrations/006_client_site_integrity.sql
+        — a small, GOOD migration (client_gallery_photos.deleted_at +
+        storage-key indexes for media lookups + magic_token index). Never
+        merged. Its 006 covers ~10% of what my proposed 006_schema_parity
+        covers; the storage-key indexes are worth keeping (see Section 4).
+  claude/bold-mayer-mvssdu          2cad0b1  —      Stale; 15 commits behind
+                                                    main, nothing unique.
+  claude/ecstatic-albattani-dbsxx3  a135c82  Jun 11 Orphan history ("Initial
+        commit" snapshot + 2 fixes). Superseded by main long ago.
+  master                            a14909b  —      Legacy duplicate of old
+                                                    main (known quirk #4).
+  v2                                2c17d1b  Jul 6  ⚠ A COMPLETE REWRITE —
+        one squashed commit, ~160 files, new structure (packages/, docs/),
+        unrelated git history. This is a parallel FrameNest, not a fix of
+        the current site. Nothing from it is deployed, and my audits do
+        not apply to it.
+
+NONE of these branches contain the P0/P1 fixes from AUDIT-2026-07-07.txt.
+
+================================================================================
+3. WHERE DID THE "IMPLEMENTED" WORK GO, AND HOW TO RECOVER
+================================================================================
+Most likely explanations, in order of probability:
+
+  a) The AI coder worked in a LOCAL clone or its own sandbox and never ran
+     `git push`. Recovery: reopen that session/machine and run
+       git status && git log --oneline -10
+     If the commits are there:
+       git push -u origin <its-branch>       # then merge to main
+  b) The coder worked on the v2 rewrite instead of the live codebase.
+     Check whether the "fixes" it described are v2 files (packages/...).
+     If so: the live site got nothing — decide the v2 question first
+     (Section 4.3) before spending more effort either way.
+  c) The coder edited files but never committed (changes lost when its
+     container/session ended). Recovery: none — re-implement.
+
+FASTEST PATH FORWARD: the complete, copy-paste-ready fixes for every P0/P1
+finding are already written in AUDIT-2026-07-07.txt (sections P0-1..P1-10,
+Appendix B/C). Hand that file to a fresh coder session with the one-line
+instruction: "Implement every fix in this file on a branch off main, run
+npm run build && npm test, push the branch." Or tell this session
+("implement the P0 and P1 fixes") and I will do it and push it for review.
+
+VERIFY-IT-LANDED CHECKLIST (run after any future "implemented" claim —
+each must return the NEW state):
+  git fetch origin && git log --oneline origin/main -3
+      → must show new fix commits
+  ls db/migrations/            → must include a 006 migration
+  grep -n 'userId !== "viewer"' functions/lib/auth.ts   → must match
+  grep -c "caption" "functions/api/clients/[id]/photos.ts" → must be 0
+  grep -o "INSERT INTO users ([^)]*)" functions/api/spaces/members.ts
+      → must include created_at
+  grep -n "npm test" .github/workflows/deploy.yml → must match
+  ...and the deploy: repo → Actions tab → latest "Deploy to Cloudflare
+  Pages" run must be green AFTER the merge commit.
+
+================================================================================
+4. HOUSEKEEPING RECOMMENDATIONS (multi-AI hygiene)
+================================================================================
+The branch map above is the classic multi-AI failure mode: four assistants,
+four parallel universes, three separate audit reports (mine plus
+FRAMENEST_AUDIT/FIXPACK/REAUDIT_2026-07-04 on the review branch, plus
+FRAMENEST_AI_CODER_AUDIT_2026-07-04.txt already on main). Suggested cleanup:
+
+  1. SALVAGE: cherry-pick the storage-key indexes from the review branch's
+     migration (they make every image request faster) into the eventual
+     006 migration:
+       CREATE INDEX IF NOT EXISTS idx_photos_storage_key    ON photos(storage_key);
+       CREATE INDEX IF NOT EXISTS idx_videos_storage_key    ON videos(storage_key);
+       CREATE INDEX IF NOT EXISTS idx_portfolio_storage_key ON photographer_portfolio(storage_key);
+       CREATE INDEX IF NOT EXISTS idx_cgp_storage_key       ON client_gallery_photos(storage_key);
+       CREATE INDEX IF NOT EXISTS idx_album_photos_key      ON album_photos(storage_key);
+       CREATE INDEX IF NOT EXISTS idx_connections_magic     ON connections(magic_token);
+  2. DELETE stale branches after salvage: bold-mayer, ecstatic-albattani,
+     review-photo-repo (after step 1), and master (fix-queue item #2 —
+     verify nothing deploys from it first).
+  3. DECIDE ON v2: a parallel rewrite silently forked on Jul 6. Either
+     commit to it (then STOP fixing v1 beyond P0s) or park it explicitly
+     (rename to archive/v2-experiment). Two live codebases with the same
+     name is how the next month of AI work gets lost too.
+  4. CONSOLIDATE audit docs: keep AUDIT-2026-07-07.txt + the studio guide +
+     this file; delete the July-4 audit txts from main and the review
+     branch once their content is confirmed absorbed (the fix queue in
+     ARCHITECTURE.md is the single running tracker).
+  5. ENFORCE the CLAUDE.md workflow on every AI session: branch from
+     fresh main, push the branch, merge via PR — and END each session by
+     pasting the `git log --oneline origin/<branch> -3` output as proof
+     the work is actually on GitHub.
+
+================================================================================
+5. BOTTOM LINE
+================================================================================
+  - Nothing from the audit was implemented on GitHub; production still has
+    every open bug. The "implemented" work must be found (Section 3) or
+    redone.
+  - main itself is healthy at the build level: compiles clean, 67/67 tests
+    green — the bugs are runtime/contract issues, exactly as documented.
+  - The fastest route to a working site remains: implement AUDIT
+    P0-1..P0-4 (with the salvaged indexes folded into migration 006),
+    merge to main, let Actions deploy, then run the smoke tests in
+    STUDIO-GUIDE Part 2.
+================================================================================
+END
+================================================================================
