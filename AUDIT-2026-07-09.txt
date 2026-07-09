@@ -1,0 +1,231 @@
+================================================================================
+FRAMENEST — RE-AUDIT: WHAT'S STILL BROKEN
+Date: 2026-07-09
+Audited: Cicero789/photo main = master @ 79bfc3a (v2 skipped as instructed)
+Build: PASSES · Tests: 67/67 PASS
+================================================================================
+
+SCOPE NOTE: per your instruction this report covers only what is STILL broken
+or newly broken. For the record, I verified these are genuinely fixed at
+79bfc3a and say nothing more about them: defensive requireAuth + gate-session
+skip, member-add created_at, magic-login auto-account, event visibility in
+DTOs, client photo-pool GET (with signed URLs for drafts), logout revocation,
+health critical-columns probe, constant-time signature compare, album
+soft-delete + list/viewer filters, per-endpoint rate limits + client-uploads
+bucket, geocode/Mapbox/Stripe keys moved to env, portfolio gated to approved
+photographers, signed dashboard covers with newest-photo fallback, template-ID
+normalization on all read paths, events.mapbox.com in CSP, password length
+caps, gallery-upload size guard (buggy — see R-2), event delete confirm UX.
+
+The client-galleries schema war was resolved by declaring the PRODUCTION shape
+canonical (client_galleries.slug; client_gallery_photos composite PK
+gallery_id+storage_key with caption/uploaded_at). schema.sql, the code, and
+the health probes now agree. Two stragglers missed that memo — R-3 and R-7.
+
+--------------------------------------------------------------------------------
+STILL BROKEN — ordered by user impact
+--------------------------------------------------------------------------------
+
+R-1  THERE IS STILL NO MIGRATION FILE — PRODUCTION DRIFT IS DETECTED, NOT CURED
+  db/migrations/ still ends at 005. schema.sql was edited (good), but editing
+  schema.sql never ALTERs existing production tables. The new health probe
+  will now TELL you which columns production is missing — but nothing adds
+  them. Until a migration runs, any column the probe lists as missing means
+  dead features (mode switch, hero settings, photographer slugs, inspiration
+  extras...), just without the 500s now that requireAuth fails soft.
+  DO THIS FIRST:
+    1. Open https://framenest.photos/api/health → read "critical-columns".
+    2. For each missing column, add the matching ALTER to a new
+       db/migrations/006_schema_parity.sql (write it from the current
+       schema.sql definitions — under the NEW canon, e.g. client_galleries
+       needs `slug TEXT NOT NULL DEFAULT ''` if missing, client_gallery_photos
+       needs caption/uploaded_at/deleted_at).
+    3. Include the never-merged indexes from the July-4 branch (they speed up
+       EVERY media request):
+       CREATE INDEX IF NOT EXISTS idx_photos_storage_key    ON photos(storage_key);
+       CREATE INDEX IF NOT EXISTS idx_videos_storage_key    ON videos(storage_key);
+       CREATE INDEX IF NOT EXISTS idx_portfolio_storage_key ON photographer_portfolio(storage_key);
+       CREATE INDEX IF NOT EXISTS idx_cgp_storage_key       ON client_gallery_photos(storage_key);
+       CREATE INDEX IF NOT EXISTS idx_album_photos_key      ON album_photos(storage_key);
+       CREATE INDEX IF NOT EXISTS idx_connections_magic     ON connections(magic_token);
+    4. npm run db:backup, then
+       npx wrangler d1 execute photo-db --remote --file=./db/migrations/006_schema_parity.sql
+    5. Re-check /api/health → critical-columns must pass.
+
+R-2  NEW BUG: CLIENT GALLERY UPLOAD 413s ON NORMAL BATCHES
+  functions/api/clients/[id]/galleries/[gid].ts:58 caps the WHOLE multipart
+  request at 25 MB — but line 70 allows single files up to 50 MB, and the
+  endpoint accepts multiple files. Five 6-MB JPEGs → 413 "Upload too large".
+  A single 30-MB file passes the per-file check but can never arrive.
+  FIX (match the per-file policy, like photos/upload.ts does):
+    const tooLarge = rejectOversizedRequest(context.request, 50 * 1024 * 1024 * 4);
+    // or: import MAX limits from upload-policy and use maxFiles * maxBytes
+  ...and enforce a max file count explicitly:
+    if (files.length > 20) return json({ error: "Max 20 photos per upload" }, 400);
+
+R-3  LATENT BUG: GALLERY PHOTO DELETE QUERIES A COLUMN THAT NO LONGER EXISTS
+  functions/api/clients/[id]/galleries/[gid]/photos/[photoId].ts filters
+  `WHERE cgp.id = ?` and `DELETE ... WHERE id = ?` — under the new canonical
+  schema client_gallery_photos has NO id column (composite PK). Today nothing
+  in the UI calls this endpoint (that's why it hasn't burned you), but the
+  moment per-photo delete is wired into ClientEditorPage it will 500.
+  FIX: key by storage_key within the owned gallery:
+    async function getOwnedGalleryPhoto(db, clientSiteId, galleryId, storageKey, userId) {
+      return await db.prepare(
+        `SELECT cgp.gallery_id, cgp.storage_key FROM client_gallery_photos cgp
+         JOIN client_galleries g ON cgp.gallery_id = g.id
+         JOIN client_sites cs ON g.client_site_id = cs.id
+         WHERE cgp.storage_key = ? AND g.id = ? AND cs.id = ? AND cs.photographer_id = ?
+           AND cgp.deleted_at IS NULL AND g.deleted_at IS NULL AND cs.deleted_at IS NULL`
+      ).bind(storageKey, galleryId, clientSiteId, userId).first();
+    }
+    // route param stays, but treat :photoId as the URL-encoded storage key,
+    // soft-delete instead of hard delete:
+    await db.prepare("UPDATE client_gallery_photos SET deleted_at = datetime('now') WHERE gallery_id = ? AND storage_key = ?")
+      .bind(gid, key).run();
+
+R-4  GATE VIEWERS STILL CAN'T SEE GATE-EVENT PHOTOS (P1-6, last auth gap)
+  The gate login itself works now, and the event LIST shows (with signed
+  covers). But EventDetailPage for a non-owner still gets plain URLs:
+  functions/api/events/[id].ts:57 returns toPublicPhotoDto (unsigned
+  /api/media/... URLs). <img> sends no auth header → media endpoint sees an
+  anonymous request → canReadEvent(null, gate) = false → 403 on every photo.
+  FIX in the scrubbed branch (same pattern the owner branch already uses):
+    const isPublicEvent = (ev.visibility as string) === "public";
+    const secret = context.env.MEDIA_SIGNING_SECRET || context.env.JWT_SECRET || "";
+    const publicPhotos = await Promise.all((photos.results ?? []).map(async (p: any) => {
+      const dto = toPublicPhotoDto(p);
+      if (!isPublicEvent && secret) dto.url = await signMediaUrl(p.storage_key, secret, 3600);
+      return dto;
+    }));
+    return json({ event: toPublicEventDto(ev), photos: publicPhotos, videos: [] });
+
+R-5  ENTERING A GATE KEY STILL LOGS THE REAL USER OUT (P1-7)
+  src/pages/SpacePage.tsx:94 still runs setToken(data.token), replacing the
+  logged-in user's JWT with the viewer token. Side effect of the (correct)
+  me.ts refactor: after reload the owner is now silently "logged in" as the
+  synthetic viewer (empty name, role viewer) instead of being logged out —
+  arguably more confusing. Fix as previously specified: store gate tokens
+  per-space (photo_gate_<slug>) and only claim the global token slot when
+  no user session exists; pass the gate token explicitly on gated-space
+  fetches.
+
+R-6  ALBUM DELIVERY STILL HITS THE RATE LIMITER (N-2)
+  src/pages/AlbumsPage.tsx:55-69 still uploads ONE file per request with
+  errors swallowed (`catch {}`), and /api/albums/:id/photos maps to the
+  DEFAULT bucket (10/min, 30/hour) — the new "uploads" bucket regex only
+  covers /api/clients/*. A 40-photo album delivery still silently loses
+  photos.
+  FIX (all three):
+  (a) _middleware.ts — extend the bucket mapping:
+      const endpoint = /^\/api\/(clients\/[^/]+\/(photos|galleries)|albums\/[^/]+\/photos)/.test(url.pathname)
+        ? "uploads" : rawEndpoint;
+  (b) Batch the endpoint: accept form.getAll("files") in
+      albums/[id]/photos.ts (loop the existing single-file logic).
+  (c) AlbumsPage: send one FormData with all files; surface failures:
+      if (!res.ok) { const e = await res.json().catch(() => ({}));
+        alert(e.error ?? `Upload failed (${res.status})`); }
+
+R-7  SOFT-DELETED PHOTOS STILL SHOW ON PUBLIC CLIENT GALLERIES
+  functions/api/clients/public/[slug]/galleries/[gid].ts:19 has no
+  deleted_at filter (every other reader got one):
+    "SELECT storage_key, caption, sort_order, uploaded_at FROM client_gallery_photos
+     WHERE gallery_id = ? AND deleted_at IS NULL ORDER BY sort_order, uploaded_at"
+  Also add ["client_gallery_photos","deleted_at"] to the health probe list —
+  it's the one drift-critical column the probe doesn't check.
+
+R-8  ALBUM "SOFT" DELETE STILL DESTROYS THE FILES
+  functions/api/albums/[id]/index.ts now soft-deletes the DB row (good) but
+  STILL hard-deletes the R2 objects first (lines 14-21). Restoring the album
+  row would restore a gallery of broken images — the soft-delete recovery
+  window is an illusion.
+  FIX: remove the R2 loop from DELETE; purge objects later (e.g. when a
+  scheduled cleanup removes rows whose deleted_at is >30 days old, or on the
+  admin's permanent-delete path in admin/content.ts).
+
+R-9  CONFIG DEPENDENCY: MAPBOX_API_KEY SECRET — GEOCODING DIES SILENTLY WITHOUT IT
+  geocode.ts now (correctly) refuses to run without a token, and handlers
+  pass context.env.MAPBOX_API_KEY. But that secret is NOT in the deploy
+  workflow's sync list and may never have been set on the Pages project.
+  If missing: new/edited event addresses silently stop geocoding → no map
+  pins. VERIFY:
+    npx wrangler pages secret list --project-name photo   # must show MAPBOX_API_KEY
+    # if absent:
+    npx wrangler pages secret put MAPBOX_API_KEY --project-name photo
+  (Optionally add it to deploy.yml's sync loop alongside ZOHO_API_KEY.)
+
+R-10 CONFIG DEPENDENCY: VITE_STRIPE_PUBLISHABLE_KEY — BUY BUTTON DIES WITHOUT IT
+  BuyButton.tsx now reads import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY with
+  fallback "" (the hardcoded pk_live was removed — right call). But it's a
+  BUILD-time variable: it must exist wherever the bundle is built (GitHub
+  Actions env / Cloudflare Pages build config / local .env). Nothing sets it
+  today → STRIPE_PK is "" → checkout redirect fails for every buyer.
+  FIX: add to deploy.yml's build step:
+    - run: npm run build
+      env:
+        VITE_STRIPE_PUBLISHABLE_KEY: ${{ secrets.VITE_STRIPE_PUBLISHABLE_KEY }}
+  ...and document it in .env.example (same for VITE_MAPBOX_TOKEN, which
+  currently only works because the old pk token remains as a fallback in
+  src/lib/mapbox.ts).
+
+R-11 CI STILL DEPLOYS WITHOUT RUNNING TESTS (N-8)
+  .github/workflows/deploy.yml runs npm ci + build + deploy. One line:
+    - run: npm test
+  after the build step. You have 67 green tests including the template
+  parity guard — they protect nothing if deploys skip them.
+
+R-12 COMMUNITY FEED IS STILL UNREACHABLE (N-1)
+  DashboardPage.tsx still renders <CommunityFeed/> only for a "feed" tab
+  that is in neither tab list. Add { key: "feed", label: "Feed" } to the
+  personal (and optionally pro) tab arrays — the feature is already built.
+
+R-13 PORTFOLIO/HERO UPLOAD UI STILL MISSING (N-3, N-4)
+  POST /api/photographers/portfolio still has zero callers in src/, and
+  PUT /api/photographers/config still ignores any hero field. Consequence
+  unchanged: every public profile renders templates with placeholder images.
+  This is now the single biggest gap between "site works" and "site sells" —
+  the fix sketches are in STUDIO-GUIDE Part 5 (N-3/N-4).
+
+R-14 TWO PARALLEL TEMPLATE-ID RESOLVERS — MERGE THEM
+  src/lib/templateIds.ts (normalizeTemplateId; used by DashboardPage,
+  PhotographerProfilePage) and src/components/templates/index.ts
+  (resolveTemplateId; used by TemplatePicker, ClientSitePage) carry two
+  copies of the same alias map. The next alias added to one and not the
+  other reintroduces the broken-template bug on half the pages.
+  FIX: keep lib/templateIds.ts as the single source (it has the registry
+  membership check), re-export it from templates/index.ts for compat:
+    export { normalizeTemplateId as resolveTemplateId, DEFAULT_TEMPLATE_ID } from "../../lib/templateIds";
+  ...delete the local map, and extend tests/template-registry.test.ts to
+  import both names and assert they're the same function.
+
+R-15 FONTS/CSP QUIRK UNRESOLVED (KNOWN QUIRK #9)
+  font-src is still 'self', there is no public/fonts/ and no @font-face in
+  src/index.css — so all 262 industry templates still fall back to system
+  fonts and spray CSP errors in the console. Not a functional break; it is
+  the main remaining gap between the templates as designed and as rendered.
+  (Self-hosting plan: STUDIO-GUIDE Part 6 C-3.)
+
+--------------------------------------------------------------------------------
+SUGGESTED ORDER
+--------------------------------------------------------------------------------
+  1. R-1  migration 006 (+ read /api/health first) — everything else assumes it
+  2. R-9 / R-10  the two config secrets (5 minutes; two silently dead features)
+  3. R-2  gallery upload cap (1 line) · R-7 public gallery filter (1 line)
+       · R-11 CI test step (1 line)
+  4. R-4  signed URLs for gate viewers · R-6 album batching
+  5. R-5  gate-token storage · R-8 album R2 retention · R-3 photoId delete
+  6. R-12 feed tab · R-13 portfolio UI · R-14 resolver merge · R-15 fonts
+
+VERIFY AFTER DEPLOYING (2-minute smoke):
+  /api/health → all checks pass, critical-columns clean
+  Gate flow: unlock a space in a private window → open a gate event → photos
+    render (R-4 fixed) — and your own logged-in tab stays logged in (R-5)
+  Album: upload 15 photos in one go → all 15 appear (R-6)
+  Client editor: upload 5 photos to a gallery (R-2), publish, view public
+    gallery, soft-delete one photo, confirm it disappears publicly (R-7)
+  Buy button on a profile with pricing + Stripe connected → reaches Stripe
+    checkout (R-10)
+  Create an event with an address → pin appears on the map (R-9)
+================================================================================
+END
+================================================================================
