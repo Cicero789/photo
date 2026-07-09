@@ -374,11 +374,23 @@ function ContentTab({
   );
 }
 
+interface ClientPhoto { storageKey: string; filename: string; url: string; sortOrder: number; galleryId: string; createdAt: string; }
+
 // ─── Photos Tab ───
 function PhotosTab({ clientId, onUploaded }: { clientId: string; onUploaded: () => void }) {
   const [uploading, setUploading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [previewFiles, setPreviewFiles] = useState<{ id: string; file: File; preview: string }[]>([]);
+  const [photos, setPhotos] = useState<ClientPhoto[]>([]);
+  const [loadingPhotos, setLoadingPhotos] = useState(true);
+
+  const fetchPhotos = useCallback(async () => {
+    setLoadingPhotos(true);
+    try { const data = await api.get<{ photos: ClientPhoto[] }>(`/clients/${clientId}/photos`); setPhotos(data.photos); }
+    finally { setLoadingPhotos(false); }
+  }, [clientId]);
+
+  useEffect(() => { fetchPhotos(); }, [fetchPhotos]);
 
   const handleFiles = (files: FileList | File[]) => {
     const images = Array.from(files).filter((f) => f.type.startsWith("image/"));
@@ -404,6 +416,7 @@ function PhotosTab({ clientId, onUploaded }: { clientId: string; onUploaded: () 
       });
       if (!res.ok) throw new Error("Upload failed");
       setPreviewFiles([]);
+      await fetchPhotos();
       onUploaded();
     } catch (err) {
       alert(err instanceof Error ? err.message : "Upload failed");
@@ -490,8 +503,27 @@ function PhotosTab({ clientId, onUploaded }: { clientId: string; onUploaded: () 
         </div>
       )}
 
+      {/* Existing photos grid */}
+      {loadingPhotos ? (
+        <p className="mt-6 text-center text-sm text-neutral-400">Loading photos...</p>
+      ) : photos.length > 0 && (
+        <div className="mt-6">
+          <p className="mb-3 text-sm font-medium text-neutral-700">{photos.length} photo{photos.length !== 1 ? "s" : ""} in pool</p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {photos.map((photo) => (
+              <div key={photo.storageKey} className="overflow-hidden rounded-lg border border-border bg-white">
+                <div className="aspect-square bg-neutral-100">
+                  <img src={photo.url} alt={photo.filename || ""} className="h-full w-full object-cover" loading="lazy" />
+                </div>
+                <div className="truncate px-2 py-1.5 text-xs text-neutral-500">{photo.filename || "Photo"}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* No photos message */}
-      {previewFiles.length === 0 && (
+      {!loadingPhotos && photos.length === 0 && previewFiles.length === 0 && (
         <p className="mt-6 text-center text-sm text-neutral-400">
           No photos uploaded yet. Drag and drop above to get started.
         </p>

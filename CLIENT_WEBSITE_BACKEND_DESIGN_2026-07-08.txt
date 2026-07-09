@@ -1,0 +1,369 @@
+FrameNest Client Website Backend Design
+Date: 2026-07-08
+
+Goal
+Build the client-facing website product around this promise:
+- A business client gets a polished public website with no FrameNest branding.
+- A photographer can build and maintain that site without blind spots.
+- Public visitors can see content, galleries, lightbox photos, blog posts, and the client's custom domain.
+
+Current Verdict
+The public website side is already close to sellable:
+- GET /api/clients/public/:slug returns site content, blog posts, and gallery counts.
+- GET /api/clients/public/:slug/galleries/:gid returns gallery photos for the lightbox.
+- GET /api/blog/:siteSlug/:postSlug returns public blog posts.
+- /api/media/photos/<storage_key> can serve client gallery photos publicly when the site is published.
+
+The biggest gaps are photographer-facing:
+- The Photos tab uploads to the backend but does not call GET /api/clients/:id/photos, so uploaded photos disappear from the editor.
+- The Galleries tab lists gallery counts but has no private gallery detail view, so a photographer cannot inspect photos inside a gallery.
+- Gallery deletion UI says photos are "unlinked but not deleted", but the backend currently deletes R2 objects.
+- Gallery photo deletion endpoint references cgp.id, but the schema uses PRIMARY KEY (gallery_id, storage_key) and has no id column.
+- Client custom domains are stored in client_sites.custom_domain, but custom-domain lookup currently only checks spaces.custom_domain.
+
+Recommended Backend Model
+Short-term MVP: keep the current tables and make the editor able to browse what is already stored.
+
+Existing tables:
+- client_sites: one public website per business client.
+- blog_posts: blog content for a client site.
+- client_galleries: named gallery buckets for a client site.
+- client_gallery_photos: image records inside galleries; current schema identifies photos by (gallery_id, storage_key).
+
+Better v2 model, when ready:
+- client_photo_assets
+  id TEXT PRIMARY KEY
+  client_site_id TEXT NOT NULL
+  storage_key TEXT NOT NULL UNIQUE
+  filename TEXT
+  mime_type TEXT
+  size_bytes INTEGER
+  width INTEGER
+  height INTEGER
+  alt_text TEXT DEFAULT ''
+  caption TEXT DEFAULT ''
+  uploaded_by TEXT
+  created_at TEXT NOT NULL
+  deleted_at TEXT
+
+- client_galleries
+  id TEXT PRIMARY KEY
+  client_site_id TEXT NOT NULL
+  name TEXT NOT NULL
+  slug TEXT NOT NULL
+  description TEXT DEFAULT ''
+  cover_photo_id TEXT
+  sort_order INTEGER DEFAULT 0
+  published INTEGER DEFAULT 1
+  created_at TEXT NOT NULL
+  updated_at TEXT NOT NULL
+  deleted_at TEXT
+
+- client_gallery_items
+  gallery_id TEXT NOT NULL
+  photo_id TEXT NOT NULL
+  caption_override TEXT DEFAULT ''
+  sort_order INTEGER DEFAULT 0
+  created_at TEXT NOT NULL
+  PRIMARY KEY (gallery_id, photo_id)
+
+Why v2 is better:
+- One uploaded file can appear in many galleries without duplicate R2 objects.
+- Deleting a gallery only unlinks photos; it does not destroy the client's photo library.
+- Photos can have alt text, dimensions, captions, and future AI tags.
+- Gallery cover photos become simple and reliable.
+
+MVP Endpoint Contract
+Keep these public endpoints:
+- GET /api/clients/public/:slug
+- GET /api/clients/public/:slug/galleries/:gid
+- GET /api/blog/:siteSlug/:postSlug
+- GET /api/media/photos/:storageKey
+
+Strengthen these private editor endpoints:
+- GET /api/clients/:id/photos
+  Returns the photo pool grid for the Photos tab.
+
+- POST /api/clients/:id/photos
+  Uploads photos to the default "Photos" gallery/pool.
+
+- GET /api/clients/:id/galleries
+  Returns galleries with photoCount and coverUrl.
+
+- POST /api/clients/:id/galleries
+  Creates a gallery. Must write a slug because schema requires it.
+
+- GET /api/clients/:id/galleries/:gid
+  Returns gallery metadata plus photos for the private editor.
+
+- POST /api/clients/:id/galleries/:gid
+  Existing direct-upload endpoint can stay for MVP.
+
+- DELETE /api/clients/:id/galleries/:gid/photos
+  Use a JSON body { "storageKey": "..." } for MVP because current photos have no id column.
+
+- DELETE /api/clients/:id/galleries/:gid
+  Soft-delete the gallery and photo links. Do not delete R2 objects unless the UI says this is permanent.
+
+Specific Code Suggestions
+
+1. Fix gallery creation so it writes slug.
+File: functions/api/clients/[id]/galleries/index.ts
+
+Add helpers:
+
+function slugify(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "gallery";
+}
+
+async function uniqueGallerySlug(db: D1Database, clientSiteId: string, name: string) {
+  const base = slugify(name);
+  let slug = base;
+  let suffix = 2;
+  while (await db.prepare(
+    "SELECT id FROM client_galleries WHERE client_site_id = ? AND slug = ? AND deleted_at IS NULL"
+  ).bind(clientSiteId, slug).first()) {
+    slug = `${base}-${suffix++}`;
+  }
+  return slug;
+}
+
+Then in onRequestPost:
+
+const slug = await uniqueGallerySlug(context.env.DB!, id, body.name.trim());
+await context.env.DB!.prepare(
+  "INSERT INTO client_galleries (id, client_site_id, name, slug, created_at, updated_at) VALUES (?,?,?,?,?,?)"
+).bind(galleryId, id, body.name.trim(), slug, now, now).run();
+
+
+2. Add private gallery detail GET.
+File: functions/api/clients/[id]/galleries/[gid].ts
+
+export async function onRequestGet(context: {
+  request: Request;
+  env: { DB?: D1Database; MEDIA_SIGNING_SECRET?: string; JWT_SECRET?: string };
+  params: { id: string; gid: string };
+}): Promise<Response> {
+  const a = await requireAuth(context.request, context.env);
+  if (a instanceof Response) return a;
+
+  const { id, gid } = context.params;
+  const gallery = await getOwnedGallery(context.env.DB!, id, gid, a.userId);
+  if (!gallery) return json({ error: "Gallery not found or access denied" }, 404);
+
+  const rows = await context.env.DB!.prepare(
+    `SELECT storage_key, caption, sort_order, uploaded_at
+     FROM client_gallery_photos
+     WHERE gallery_id = ? AND deleted_at IS NULL
+     ORDER BY sort_order, uploaded_at`
+  ).bind(gid).all();
+
+  return json({
+    id: gallery.id,
+    name: gallery.name,
+    slug: gallery.slug,
+    photos: (rows.results || []).map((p: any) => ({
+      storageKey: p.storage_key,
+      filename: p.caption || "",
+      caption: p.caption || "",
+      sortOrder: p.sort_order,
+      uploadedAt: p.uploaded_at,
+      url: `/api/media/photos/${p.storage_key}`,
+    })),
+  });
+}
+
+
+3. Replace the broken gallery photo delete route.
+Current problem:
+- functions/api/clients/[id]/galleries/[gid]/photos/[photoId].ts expects cgp.id.
+- client_gallery_photos has no id column.
+
+MVP replacement:
+File: functions/api/clients/[id]/galleries/[gid]/photos.ts
+
+export async function onRequestDelete(context: {
+  request: Request;
+  env: { DB?: D1Database; JWT_SECRET?: string };
+  params: { id: string; gid: string };
+}): Promise<Response> {
+  const a = await requireAuth(context.request, context.env);
+  if (a instanceof Response) return a;
+
+  const { id, gid } = context.params;
+  const body = await context.request.json().catch(() => ({})) as { storageKey?: string };
+  if (!body.storageKey) return json({ error: "storageKey required" }, 400);
+
+  const row = await context.env.DB!.prepare(
+    `SELECT cgp.storage_key
+     FROM client_gallery_photos cgp
+     JOIN client_galleries g ON g.id = cgp.gallery_id
+     JOIN client_sites cs ON cs.id = g.client_site_id
+     WHERE cgp.gallery_id = ?
+       AND cgp.storage_key = ?
+       AND cs.id = ?
+       AND cs.photographer_id = ?
+       AND cgp.deleted_at IS NULL
+       AND g.deleted_at IS NULL
+       AND cs.deleted_at IS NULL`
+  ).bind(gid, body.storageKey, id, a.userId).first();
+
+  if (!row) return json({ error: "Photo not found or access denied" }, 404);
+
+  await context.env.DB!.prepare(
+    "UPDATE client_gallery_photos SET deleted_at = ? WHERE gallery_id = ? AND storage_key = ?"
+  ).bind(new Date().toISOString(), gid, body.storageKey).run();
+
+  return json({ success: true });
+}
+
+
+4. Make gallery delete match the UI promise.
+File: functions/api/clients/[id]/galleries/[gid].ts
+
+If the UI says "unlinked but not deleted", do not delete R2 objects. Soft delete:
+
+const now = new Date().toISOString();
+await context.env.DB!.prepare(
+  "UPDATE client_gallery_photos SET deleted_at = ? WHERE gallery_id = ? AND deleted_at IS NULL"
+).bind(now, gid).run();
+await context.env.DB!.prepare(
+  "UPDATE client_galleries SET deleted_at = ? WHERE id = ?"
+).bind(now, gid).run();
+
+
+5. Add coverUrl to gallery lists.
+Files:
+- functions/api/clients/[id]/galleries/index.ts
+- functions/api/clients/public/[slug].ts
+
+Use the first active gallery photo as the cover:
+
+`SELECT g.*,
+        (SELECT COUNT(*) FROM client_gallery_photos WHERE gallery_id = g.id AND deleted_at IS NULL) as photo_count,
+        (SELECT storage_key FROM client_gallery_photos WHERE gallery_id = g.id AND deleted_at IS NULL ORDER BY sort_order, uploaded_at LIMIT 1) as cover_storage_key
+ FROM client_galleries g
+ WHERE g.client_site_id = ? AND g.deleted_at IS NULL
+ ORDER BY g.created_at DESC`
+
+Map response:
+
+coverUrl: g.cover_storage_key ? `/api/media/photos/${g.cover_storage_key}` : null
+
+
+6. Fix client custom-domain resolution.
+Current issue:
+- src/App.tsx calls /api/spaces/by-domain.
+- functions/_middleware.ts only checks spaces.custom_domain.
+- Client site domains live on client_sites.custom_domain.
+
+Suggested endpoint:
+File: functions/api/clients/by-domain.ts
+
+import { json } from "../../lib/response";
+
+export async function onRequestGet(context: {
+  request: Request;
+  env: { DB?: D1Database };
+}): Promise<Response> {
+  const domain = new URL(context.request.url).searchParams.get("domain")?.toLowerCase();
+  if (!domain) return json({ error: "Domain required" }, 400);
+
+  const site = await context.env.DB!.prepare(
+    "SELECT slug FROM client_sites WHERE lower(custom_domain) = ? AND published = 1 AND deleted_at IS NULL"
+  ).bind(domain).first<{ slug: string }>();
+
+  if (!site) return json({ slug: null }, 404);
+  return json({ slug: site.slug, type: "client" });
+}
+
+Then update src/App.tsx CustomDomainRedirect:
+
+fetch(`/api/clients/by-domain?domain=${host}`)
+  .then((r) => r.ok ? r.json() : null)
+  .then((d) => {
+    if (d?.slug && location.pathname === "/") navigate(`/${d.slug}`, { replace: true });
+    else setChecked(true);
+  })
+  .catch(() => setChecked(true));
+
+If you still need space custom domains, check client first, then fall back to /api/spaces/by-domain.
+
+
+7. Wire the Photos tab to the existing backend.
+File: src/pages/ClientEditorPage.tsx
+
+Add type:
+
+interface ClientPhoto {
+  storageKey: string;
+  filename: string;
+  url: string;
+  sortOrder: number;
+  galleryId: string;
+  createdAt: string;
+}
+
+Inside PhotosTab:
+
+const [photos, setPhotos] = useState<ClientPhoto[]>([]);
+const [loadingPhotos, setLoadingPhotos] = useState(true);
+
+const fetchPhotos = useCallback(async () => {
+  setLoadingPhotos(true);
+  try {
+    const data = await api.get<{ photos: ClientPhoto[] }>(`/clients/${clientId}/photos`);
+    setPhotos(data.photos);
+  } finally {
+    setLoadingPhotos(false);
+  }
+}, [clientId]);
+
+useEffect(() => { fetchPhotos(); }, [fetchPhotos]);
+
+After upload succeeds:
+
+setPreviewFiles([]);
+await fetchPhotos();
+onUploaded();
+
+Render a grid below the upload area:
+
+{loadingPhotos ? (
+  <p className="mt-6 text-center text-sm text-neutral-400">Loading photos...</p>
+) : photos.length === 0 ? (
+  <p className="mt-6 text-center text-sm text-neutral-400">No photos uploaded yet.</p>
+) : (
+  <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+    {photos.map((photo) => (
+      <div key={photo.storageKey} className="overflow-hidden rounded-lg border border-border bg-white">
+        <div className="aspect-square bg-neutral-100">
+          <img src={photo.url} alt={photo.filename || ""} className="h-full w-full object-cover" loading="lazy" />
+        </div>
+        <div className="truncate px-2 py-1.5 text-xs text-neutral-500">{photo.filename || "Photo"}</div>
+      </div>
+    ))}
+  </div>
+)}
+
+
+Priority Order
+1. Wire Photos tab grid using existing GET /api/clients/:id/photos.
+2. Add private GET /api/clients/:id/galleries/:gid and show gallery photos in the editor.
+3. Fix gallery create slug.
+4. Fix gallery photo delete to use storageKey, not id.
+5. Change gallery delete to soft-delete/unlink only, or change the UI copy if it remains destructive.
+6. Return coverUrl for galleries and use it on public and editor gallery cards.
+7. Add client custom-domain lookup so drsmithdentistry.com can resolve to the client site at /.
+8. Later, migrate to client_photo_assets + client_gallery_items for a real reusable photo library.
+
+Product Guidance
+This is enough to sell now if the public site works. The buyer sees a polished dentist site, not the editor. But for retention and lower support burden, fix the two blind editor gaps quickly:
+- Photo pool grid.
+- Gallery detail/photo view.
+
+Those two changes will make the product feel complete to the photographer without changing the public website promise.

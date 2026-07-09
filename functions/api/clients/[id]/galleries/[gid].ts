@@ -11,6 +11,27 @@ async function getOwnedGallery(db: D1Database, clientSiteId: string, galleryId: 
   return gallery || null;
 }
 
+export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; MEDIA_SIGNING_SECRET?: string; JWT_SECRET?: string }; params: { id: string; gid: string } }): Promise<Response> {
+  const a = await requireAuth(context.request, context.env);
+  if (a instanceof Response) return a;
+  const gallery = await getOwnedGallery(context.env.DB!, context.params.id, context.params.gid, a.userId);
+  if (!gallery) return json({ error: "Gallery not found or access denied" }, 404);
+
+  const rows = await context.env.DB!.prepare(
+    `SELECT storage_key, caption, sort_order, uploaded_at
+     FROM client_gallery_photos WHERE gallery_id = ? AND deleted_at IS NULL ORDER BY sort_order, uploaded_at`
+  ).bind(context.params.gid).all();
+
+  return json({
+    id: gallery.id, name: gallery.name, slug: gallery.slug,
+    photos: (rows.results || []).map((p: any) => ({
+      storageKey: p.storage_key, filename: p.caption || "", caption: p.caption || "",
+      sortOrder: p.sort_order, uploadedAt: p.uploaded_at,
+      url: `/api/media/photos/${p.storage_key}`,
+    })),
+  });
+}
+
 export async function onRequestPut(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string; ENVIRONMENT?: string }; params: { id: string; gid: string } }): Promise<Response> {
   const a = await requireAuth(context.request, context.env);
   if (a instanceof Response) return a;
@@ -26,22 +47,16 @@ export async function onRequestPut(context: { request: Request; env: { DB?: D1Da
   return json({ success: true, id: gid });
 }
 
-export async function onRequestDelete(context: { request: Request; env: { DB?: D1Database; PHOTOS?: R2Bucket; JWT_SECRET?: string; ENVIRONMENT?: string }; params: { id: string; gid: string } }): Promise<Response> {
+export async function onRequestDelete(context: { request: Request; env: { DB?: D1Database; JWT_SECRET?: string }; params: { id: string; gid: string } }): Promise<Response> {
   const a = await requireAuth(context.request, context.env);
   if (a instanceof Response) return a;
-  const { id, gid } = context.params;
-  const gallery = await getOwnedGallery(context.env.DB!, id, gid, a.userId);
+  const gallery = await getOwnedGallery(context.env.DB!, context.params.id, context.params.gid, a.userId);
   if (!gallery) return json({ error: "Gallery not found or access denied" }, 404);
 
-  // Delete photos from R2
-  const photos = await context.env.DB!.prepare("SELECT storage_key FROM client_gallery_photos WHERE gallery_id = ?").bind(gid).all();
-  if (context.env.PHOTOS) {
-    for (const p of (photos.results || []) as any[]) {
-      try { await context.env.PHOTOS.delete(p.storage_key); } catch {}
-    }
-  }
-  await context.env.DB!.prepare("DELETE FROM client_gallery_photos WHERE gallery_id = ?").bind(gid).run();
-  await context.env.DB!.prepare("UPDATE client_galleries SET deleted_at = ? WHERE id = ?").bind(new Date().toISOString(), gid).run();
+  // Soft-delete — unlink photos from gallery, keep R2 objects for recovery
+  const now = new Date().toISOString();
+  await context.env.DB!.prepare("UPDATE client_gallery_photos SET deleted_at = ? WHERE gallery_id = ? AND deleted_at IS NULL").bind(now, context.params.gid).run();
+  await context.env.DB!.prepare("UPDATE client_galleries SET deleted_at = ? WHERE id = ?").bind(now, context.params.gid).run();
 
   return json({ success: true });
 }
