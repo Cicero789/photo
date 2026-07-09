@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback, type FormEvent } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { BlockEditor } from "@/components/editor/BlockEditor";
+import type { ContentBlock } from "@/components/editor/types";
+import { saveSiteContent, getContentVersions, restoreContentVersion } from "@/lib/git-content";
 
 // ─── Types ───
 interface ClientSiteData {
@@ -12,6 +15,7 @@ interface ClientSiteData {
   customDomain: string | null;
   status: "published" | "draft";
   galleryConfig: string | null;
+  content: any;
   bio: string;
   services: string;
   pricing: string;
@@ -60,9 +64,7 @@ export function ClientEditorPage() {
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // Tab data states
-  const [bio, setBio] = useState("");
-  const [services, setServices] = useState("");
-  const [pricing, setPricing] = useState("");
+  const [blocks, setBlocks] = useState<ContentBlock[]>([]);
   const [customDomain, setCustomDomain] = useState("");
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [galleries, setGalleries] = useState<ClientGallery[]>([]);
@@ -71,10 +73,20 @@ export function ClientEditorPage() {
     try {
       const data = await api.get<{ client: ClientSiteData }>(`/clients/${id}`);
       setClient(data.client);
-      setBio(data.client.bio || "");
-      setServices(data.client.services || "");
-      setPricing(data.client.pricing || "");
       setCustomDomain(data.client.customDomain || "");
+      // Parse blocks from content JSON, fall back to legacy bio/services/pricing
+      try {
+        const content = typeof data.client.content === "string" ? JSON.parse(data.client.content || "{}") : (data.client.content || {});
+        if (content.blocks?.length) setBlocks(content.blocks);
+        else if (data.client.bio || data.client.services || data.client.pricing) {
+          // Legacy migration: convert old text fields to blocks
+          const legacy: ContentBlock[] = [];
+          if (data.client.bio) legacy.push({ id: crypto.randomUUID(), type: "text", data: { html: data.client.bio } });
+          if (data.client.services) legacy.push({ id: crypto.randomUUID(), type: "services", data: { items: [{ name: data.client.services, description: "", price: "" }] } });
+          if (data.client.pricing) legacy.push({ id: crypto.randomUUID(), type: "pricing", data: { heading: "Pricing", items: [{ name: "Standard", price: data.client.pricing }] } });
+          setBlocks(legacy);
+        }
+      } catch { setBlocks([]); }
     } catch {
       navigate("/dashboard", { replace: true });
     } finally {
@@ -108,8 +120,13 @@ export function ClientEditorPage() {
     setSaving(true);
     setMessage(null);
     try {
-      await api.put(`/clients/${id}`, { content: { bio, services, pricing } });
-      setMessage({ type: "success", text: "Content saved! Changes are live on the public site." });
+      await api.put(`/clients/${id}`, { content: JSON.stringify({ blocks }) });
+      // Also save to git-backed content system for version history
+      if (client) {
+        const gc = typeof client.galleryConfig === "string" ? JSON.parse(client.galleryConfig || "{}") : (client.galleryConfig || {});
+        saveSiteContent(client.slug, client.name, blocks, gc.template).catch(() => {});
+      }
+      setMessage({ type: "success", text: "Content saved! Version recorded." });
     } catch (err) {
       setMessage({ type: "error", text: err instanceof Error ? err.message : "Failed to save" });
     } finally {
@@ -253,16 +270,20 @@ export function ClientEditorPage() {
       {/* Tab Content */}
       <div className="rounded-2xl border border-border bg-white p-6 sm:p-8">
         {activeTab === "content" && (
-          <ContentTab
-            bio={bio}
-            services={services}
-            pricing={pricing}
-            onChangeBio={setBio}
-            onChangeServices={setServices}
-            onChangePricing={setPricing}
-            onSave={saveContent}
-            saving={saving}
-          />
+          <div>
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-neutral-900">Page Builder</h3>
+                <p className="text-sm text-neutral-500">Build your page with blocks. Changes go live when you save.</p>
+              </div>
+              <button onClick={saveContent} disabled={saving}
+                className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-50">
+                {saving ? "Saving..." : "Save Page"}
+              </button>
+            </div>
+            <BlockEditor blocks={blocks} onChange={setBlocks} galleries={galleries.map(g => ({ id: g.id, name: g.name, photoCount: g.photoCount }))} />
+            {client && <VersionHistory slug={client.slug} onRestore={(restoredBlocks) => setBlocks(restoredBlocks)} />}
+          </div>
         )}
 
         {activeTab === "photos" && (
@@ -296,81 +317,6 @@ export function ClientEditorPage() {
         )}
       </div>
     </div>
-  );
-}
-
-// ─── Content Tab ───
-function ContentTab({
-  bio,
-  services,
-  pricing,
-  onChangeBio,
-  onChangeServices,
-  onChangePricing,
-  onSave,
-  saving,
-}: {
-  bio: string;
-  services: string;
-  pricing: string;
-  onChangeBio: (v: string) => void;
-  onChangeServices: (v: string) => void;
-  onChangePricing: (v: string) => void;
-  onSave: (e: FormEvent) => void;
-  saving: boolean;
-}) {
-  return (
-    <form onSubmit={onSave}>
-      <h3 className="text-lg font-semibold text-neutral-900">Site Content</h3>
-      <p className="mt-1 text-sm text-neutral-500">
-        Edit the bio, services, and pricing displayed on the client's public site.
-      </p>
-
-      <div className="mt-6 space-y-5">
-        <div>
-          <label className="block text-sm font-medium text-neutral-700">Bio / About</label>
-          <textarea
-            value={bio}
-            onChange={(e) => onChangeBio(e.target.value)}
-            rows={6}
-            placeholder="Tell visitors about this client site..."
-            className="mt-1 block w-full rounded-lg border border-border bg-white px-3 py-2 text-sm focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-100 resize-y"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-neutral-700">Services</label>
-          <textarea
-            value={services}
-            onChange={(e) => onChangeServices(e.target.value)}
-            rows={4}
-            placeholder="Services offered (one per line)..."
-            className="mt-1 block w-full rounded-lg border border-border bg-white px-3 py-2 text-sm focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-100 resize-y"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-neutral-700">Pricing</label>
-          <textarea
-            value={pricing}
-            onChange={(e) => onChangePricing(e.target.value)}
-            rows={4}
-            placeholder="Pricing information..."
-            className="mt-1 block w-full rounded-lg border border-border bg-white px-3 py-2 text-sm focus:border-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-100 resize-y"
-          />
-        </div>
-      </div>
-
-      <div className="mt-6">
-        <button
-          type="submit"
-          disabled={saving}
-          className="rounded-lg bg-neutral-900 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 disabled:opacity-50"
-        >
-          {saving ? "Saving..." : "Save content"}
-        </button>
-      </div>
-    </form>
   );
 }
 
@@ -947,5 +893,49 @@ function DomainTab({
         </button>
       </div>
     </form>
+  );
+}
+
+// ─── Version History Panel ───
+function VersionHistory({ slug, onRestore }: { slug: string; onRestore: (blocks: ContentBlock[]) => void }) {
+  const [versions, setVersions] = useState<Array<{ hash: string; date: string; author: string; message: string }>>([]);
+  const [open, setOpen] = useState(false);
+  const [restoring, setRestoring] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) getContentVersions(slug).then(setVersions);
+  }, [open, slug]);
+
+  const handleRestore = async (hash: string) => {
+    setRestoring(hash);
+    const restored = await restoreContentVersion(slug, hash);
+    if (restored?.blocks) { onRestore(restored.blocks); }
+    setRestoring(null);
+  };
+
+  return (
+    <div className="mt-8 border-t border-border pt-6">
+      <button onClick={() => setOpen(!open)}
+        className="flex items-center gap-2 text-sm font-medium text-neutral-600 hover:text-neutral-900">
+        {open ? "▼" : "▶"} Version History ({versions.length})
+      </button>
+      {open && (
+        <div className="mt-3 space-y-2">
+          {versions.length === 0 && <p className="text-sm text-neutral-400">No versions yet. Versions are created on each save.</p>}
+          {versions.map(v => (
+            <div key={v.hash} className="flex items-center justify-between rounded-lg border border-border bg-neutral-50 px-3 py-2">
+              <div>
+                <p className="text-sm font-medium text-neutral-700">{new Date(v.date).toLocaleString()}</p>
+                <p className="text-xs text-neutral-400">{v.hash.slice(0, 8)}</p>
+              </div>
+              <button onClick={() => handleRestore(v.hash)} disabled={restoring === v.hash}
+                className="rounded bg-white px-3 py-1 text-xs font-medium text-neutral-600 border border-neutral-200 hover:bg-neutral-100 disabled:opacity-50">
+                {restoring === v.hash ? "Restoring..." : "Restore"}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

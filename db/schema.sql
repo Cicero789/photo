@@ -371,6 +371,18 @@ CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON blog_posts(slug);
 CREATE INDEX IF NOT EXISTS idx_client_galleries_site ON client_galleries(client_site_id);
 CREATE INDEX IF NOT EXISTS idx_client_gallery_photos_gallery ON client_gallery_photos(gallery_id);
 
+-- ─── Content Version History (git-backed CMS) ───
+
+CREATE TABLE IF NOT EXISTS content_versions (
+  id              TEXT PRIMARY KEY,
+  slug            TEXT NOT NULL,
+  content         TEXT NOT NULL,
+  previous_content TEXT,
+  updated_by      TEXT,
+  created_at      TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_content_versions_slug ON content_versions(slug);
+
 -- ─── Migration Tracking ───
 
 CREATE TABLE IF NOT EXISTS _migrations (
