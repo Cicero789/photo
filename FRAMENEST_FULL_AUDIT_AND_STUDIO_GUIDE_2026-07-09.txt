@@ -1,0 +1,561 @@
+================================================================================
+FRAMENEST / PHOTO — FULL SITE AUDIT + STUDIO GUIDE + SUGGESTED CHANGES
+Repository: Cicero789/photo
+Branch audited: main (also master — both synced at 79bfc3a)
+Date: 2026-07-09
+Auditor: Claude Code / AI Developer
+================================================================================
+
+SUMMARY
+-------
+The site is a large, ambitious multi-tenant platform built on React 19,
+TypeScript, Cloudflare Pages Functions, D1, and R2. It has a solid security
+model (PBKDF2, JWT HMAC-SHA256, signed media URLs, parameterized SQL) and a
+comprehensive test suite. The latest audit-fix commits (79bfc3a and the past
+week) are present and appear correct on main. However, the codebase is very
+large (30 pages, 67 API endpoints, 286 components, 263 templates) and carries
+significant technical debt: 67 ESLint warnings (all no-floating-promises or
+exhaustive-deps), a 661 KB main JS chunk, a race-prone rate limiter, CSP that
+blocks 262 of 263 templates' Google Fonts, and several release gates that are
+not yet passing. This document provides a full audit of the current state,
+practical guidance for a studio using the template system, and a prioritized
+plan to make the site production-ready and easier to maintain.
+
+================================================================================
+1. AUDIT OF LATEST COMMITS (PAST WEEK)
+================================================================================
+
+HEAD: 79bfc3a
+Recent fix commits on main:
+  - 79bfc3a Audit fixes: schema.sql sync, Mapbox token removal, password cap, me.ts, portfolio gate
+  - 4508309 Audit fixes: template ID normalizer, Stripe env var, upload guards, Mapbox
+  - 745d236 Dashboard thumbnails + delete UX improvements
+  - b273570 Remaining audit fixes: magic-login, rate limits, Mapbox, CSP, client photos
+  - c7e40d2 Audit fixes: gate auth, visibility, logout, albums, health
+
+Verification status:
+  - All five commits are present on `main` and `origin/main`.
+  - `master` and `main` are both at 79bfc3a (verified via git log).
+  - The changes from the past five commits touch 34 files, mostly backend
+    security/contract fixes, middleware, schema sync, and a few UI files.
+  - Key fixes included in this run:
+    * Schema.sql synced to live D1 (20+ tables, deleted_at columns, indexes).
+    * Mapbox token removed from hardcoded frontend code (using env + public token).
+    * Password length capped (rate-limit / DoS protection).
+    * `/api/auth/me` tightened and env types improved.
+    * Portfolio gate guard added so only the photographer can edit their own portfolio.
+    * Template ID normalizer and legacy alias map added.
+    * Stripe env var names documented and verified.
+    * Upload guards hardened (Content-Length, magic-byte checks, client photo endpoints).
+    * Magic-login token flow and rate limits improved.
+    * CSP tightened for Mapbox, Stripe, and self-hosted assets.
+    * Client photo endpoints and gallery access controls tightened.
+    * Gate auth, visibility, logout, albums, and health endpoints all audited.
+
+Bottom line: the latest round of fixes is real, reviewed, and merged. The
+remaining work is not about missing fixes; it is about hardening the platform,
+finishing the release gates, and making the codebase maintainable at scale.
+
+================================================================================
+2. CURRENT BUILD / TEST / LINT STATUS
+================================================================================
+
+Build:  PASS (npm run build exits 0, dist/ generated)
+Tests:   PASS (6/6 files, 67/67 tests passed)
+Lint:    FAIL (67 warnings, 0 errors; max-warnings=0 causes exit 1)
+Audit:   PASS (0 production vulnerabilities per npm audit --production)
+
+Lint findings break down into two categories:
+  A. @typescript-eslint/no-floating-promises — ~55 warnings
+     Almost every async handler in pages and components fires a Promise and does
+     not await it or mark it with `void`. This is a real bug risk: unhandled
+     rejections can crash React state, create race conditions, or leave the UI in
+     an inconsistent state. These are not style issues; they are stability
+     issues.
+  B. react-hooks/exhaustive-deps — ~8 warnings
+     useEffect dependency arrays are missing values that are used inside the
+     effect. This can cause stale closures or missed updates.
+
+Why this matters: the project declares "max-warnings 0" in package.json, so the
+lint script fails. This blocks the release gates and makes CI/deploy unreliable.
+Fixing these 67 warnings is the single highest-leverage cleanup task available.
+
+================================================================================
+3. ARCHITECTURE & SIZE AUDIT
+================================================================================
+
+Frontend (src/):
+  - 30 pages under src/pages/ (including 6 admin pages under /citysite/*)
+  - 286 components (including 263 templates under src/components/templates/)
+  - 7 TypeScript lib files
+  - React Router v7 SPA, TanStack Query v5, Tailwind CSS v4, Vite 6
+
+Backend (functions/):
+  - 67 API endpoints under functions/api/
+  - 14 shared libraries under functions/lib/
+  - Cloudflare Pages Functions (file-based routing)
+  - D1 database with 25+ tables, 50+ indexes
+
+Storage:
+  - R2 bucket "photo-uploads" bound as PHOTOS
+  - R2 bucket "video-uploads" bound as VIDEOS
+
+Database:
+  - db/schema.sql: 380 lines, 25+ tables
+  - db/migrations/: only 5 numbered migration files (001-005)
+  - schema.sql is the current source of truth, but migrations are thin; new
+    tables/columns are being added via schema.sql, which is risky for a live DB.
+
+Bundle:
+  - dist/assets/index-*.js: 661 KB raw / 168 KB gzip
+  - dist/assets/PhotoEditorModal-*.js: 950 KB raw / 278 KB gzip (lazy loaded)
+  - dist/assets/index-*.css: 72 KB raw / 11.7 KB gzip
+  - Total first-load is above the 620 KB declared budget.
+
+================================================================================
+4. SECURITY AUDIT
+================================================================================
+
+Strengths:
+  - Passwords hashed with PBKDF2 (100K iterations, SHA-256, 16-byte salt).
+  - Gate keys hashed the same way as passwords.
+  - JWT tokens signed with HMAC-SHA256 (24-hour expiry).
+  - Media URLs are signed with HMAC and have an expiry.
+  - SQL is parameterized throughout the backend.
+  - Middleware has an auth gatekeeper, CORS allowlist, CSP, HSTS, and rate limiting.
+  - Uploads are validated by magic bytes, content type, and size limits.
+  - Tests cover auth policy, signed URLs, adversarial uploads, and Stripe webhooks.
+
+Weaknesses / residual risks:
+  - Rate limiter is D1 read-count-write without atomicity. Concurrent requests
+    can exceed limits. For strict limits, replace with Cloudflare Rate Limiting
+    or a Durable Object.
+  - Signed URL verification uses string equality, not constant-time comparison.
+    This is a minor timing side channel; should use crypto.subtle.timingSafeEqual.
+  - CSP blocks fonts.googleapis.com and fonts.gstatic.com, but 262 of 263
+    templates try to load Google Fonts. Fonts silently fall back, so template
+    designs are not rendering as intended. The intended fix is self-hosted fonts,
+    but this has not been done.
+  - 67 no-floating-promises warnings means many async operations are not
+    awaited/handled. This can leak errors and cause inconsistent state.
+  - Some useEffect dependency arrays are incomplete, which can lead to stale data
+    or infinite loops in production.
+  - The custom-domain detection in middleware does a D1 lookup on every GET for
+    hosts not in the known set. This adds latency and D1 cost to every request.
+  - The admin endpoints rely on the same Env interface copy-pasted in many files.
+    This is brittle and makes secret/Env type changes error-prone.
+  - No explicit Content Security Policy nonce for inline scripts; current CSP
+    relies on 'self' + known hosts. This is acceptable but not strict.
+
+Suggested immediate security fixes:
+  1. Replace string equality in signed URL verification with constant-time compare.
+  2. Harden the rate limiter or switch to Cloudflare Rate Limiting for auth.
+  3. Self-host the Google Fonts used by templates, or inject a font loader that
+     respects the CSP.
+  4. Fix all no-floating-promises and exhaustive-deps warnings.
+  5. Add a generic `AuthEnv` interface and use it everywhere; remove duplicated
+     Env interfaces in admin endpoints.
+  6. Cache custom-domain lookups in the middleware (e.g., a short-lived in-memory
+     map) or resolve via a Cloudflare Pages setting instead of D1 per request.
+
+================================================================================
+5. PERFORMANCE & BUNDLE AUDIT
+================================================================================
+
+Issues:
+  - Main JS chunk is 661 KB raw / 168 KB gzip, exceeding the project's own
+    550 KB / 620 KB first-load budget.
+  - index.css is 72 KB raw; the budget says <70 KB.
+  - PhotoEditorModal chunk is 950 KB raw; lazy loaded but still heavy.
+  - The mapbox library is statically imported in SpaceEventMap and
+    InspirationMapPage while dynamically imported in EventMap. This prevents
+    optimal code splitting and adds to the main chunk.
+  - 263 template components are lazy loaded, which is good, but the template
+    registry index may still be loaded eagerly.
+
+Suggested fixes:
+  1. Add rollup manualChunks to separate vendor code (react, react-dom, router,
+     mapbox, tailwind runtime, stripe) from app code.
+  2. Lazy load the entire mapbox module and all map components (not just EventMap).
+  3. Audit and reduce CSS bundle size; Tailwind v4 is large, but unused CSS can
+     be trimmed with a purge-style config if not already configured.
+  4. Split the admin pages into a separate chunk; most users never visit /citysite.
+  5. Consider preloading the first template chunk for the current space only.
+
+================================================================================
+6. DATABASE & MIGRATION AUDIT
+================================================================================
+
+State:
+  - db/schema.sql is the current schema (380 lines, 25+ tables).
+  - Only 5 migrations exist (001-005). Many new features have been added
+    directly via schema.sql, which means the live DB is likely ahead of the
+    migrations. Rebuilding a fresh DB from migrations alone is impossible.
+
+Risks:
+  - New developers or staging environments that apply migrations sequentially
+    will get an incomplete database.
+  - The `db:remote` script runs schema.sql directly against production, which is
+    dangerous if the schema is not strictly additive.
+  - There is no `db:migrate` script that runs a migration directory in order.
+
+Suggested fixes:
+  1. Treat migrations as the source of truth. Write a forward-only migration
+     for every schema change from now on.
+  2. Create a migration snapshot that rebuilds the full current schema from an
+     empty DB (e.g., 006_full_schema.sql). Then continue with numbered deltas.
+  3. Add a `db:migrate` script that runs all migrations in lexical order.
+  4. Never run `db:remote` with the full schema.sql except for first-time setup.
+  5. Add a pre-deploy gate that runs `PRAGMA foreign_key_check` and reports 0 rows.
+
+================================================================================
+7. TEMPLATE SYSTEM: HOW TO USE IT + STUDIO GUIDE
+================================================================================
+
+What the template system is:
+  - 263 React template components, each representing a profession/industry/style
+    for a photographer or small-business website.
+  - Templates are code-split and lazy loaded via the registry in
+    src/components/templates/index.ts.
+  - Template IDs are numeric-kebab or category-kebab, e.g. `1-clean`,
+    `10-brutalist`, `teaching-music`, `medical-doctor`.
+  - Thumbnails live in public/thumbnails/<id>.jpg.
+  - The template registry maps an ID to a lazy component and a metadata object
+    (title, industry, description, colors, fonts, etc.).
+  - Legacy aliases exist (e.g., `cinematic-dark` maps to newer IDs) so old
+    gallery_config values keep working.
+
+For a studio / photographer using the platform:
+
+A. Choosing a template
+  - Go to the photographer dashboard → client site editor → TemplatePicker.
+  - Filter by industry (20 categories: beauty, childcare, coaching, creative,
+    corporate, medical, legal, real estate, etc.) or by visual style.
+  - The picker shows the thumbnail for each template ID.
+  - Pick a template that matches the client's brand and business type.
+
+B. Customizing a template
+  - colorScheme: override primary/secondary colors in the template props.
+  - fontPairing: choose a font pair that is self-hosted (Google Fonts are blocked
+    by CSP). The built-in system fonts/sans stack will work immediately.
+  - TemplateProps pass: business name, tagline, hero image, services, pricing,
+    contact info, portfolio photos, etc.
+  - Some templates have decorative CTAs (buttons that look clickable but may
+    not be wired). For a real site, connect the CTA to the actual contact form,
+    booking inquiry, or Stripe checkout.
+
+C. Adding a new template
+  1. Create a new React component in src/components/templates/ named
+     Template<YourName>.tsx.
+  2. Export a default component that accepts `TemplateProps` (see
+     src/components/templates/types.ts).
+  3. Add an entry to src/components/templates/index.ts with a unique ID,
+     title, industry, and lazy import.
+  4. Generate a thumbnail at public/thumbnails/<id>.jpg (recommended 800x600,
+     ~50-100 KB).
+  5. Run `npm run build` and `npm test`.
+  6. Add a regression test in tests/template-registry.test.ts if needed.
+  7. Commit, push, PR.
+
+D. Template workflow for client delivery
+  1. Photographer creates a client site in /clients.
+  2. Selects a template, colors, and fonts.
+  3. Uploads hero/brand photos and portfolio images.
+  4. Publishes the site; the client gets a public URL (/site/:slug) or custom
+     domain.
+  5. Client can book, buy prints, or contact via the photographer's configured
+     Stripe / forms.
+
+E. Current template gotchas
+  - Google Fonts are blocked by CSP. Either self-host the fonts used by each
+    template, or rely on system font fallbacks.
+  - Some templates are purely presentational; CTA handlers may be no-ops. Make
+    sure to wire real actions before delivering to a client.
+  - Do not change an existing template ID without updating the thumbnail and the
+    legacy alias map.
+
+================================================================================
+8. RELEASE GATES — CURRENT STATUS
+================================================================================
+
+From RELEASE_GATES.md:
+
+Build & Lint:
+  [ ] npm run build passes  -> PASS
+  [ ] npm run lint has zero errors -> FAIL (67 warnings)
+
+Tests:
+  [X] npm test passes  -> PASS
+
+Database Integrity:
+  [ ] Fresh migration test -> UNKNOWN / RISKY (migrations incomplete)
+  [ ] PRAGMA foreign_key_check -> should be run
+  [ ] Previous-version upgrade test -> not automated
+
+Security Checks:
+  [ ] Gate token cannot fetch private event by ID -> needs regression test
+  [ ] Cross-space access denied -> covered by tests
+  [ ] Raw R2 key insufficient -> covered by signed URL tests
+  [ ] Expired signed links stop -> covered
+  [ ] Renamed HTML/SVG uploads rejected -> covered
+  [ ] Gate viewer cannot create invites/reviews/purchases -> verify manually
+  [ ] Subscription doesn't change verification -> verify manually
+  [ ] Fresh DB supports all routes -> not automated
+  [ ] Demo event page renders empty -> verify manually
+
+Bundle Budget:
+  [ ] Main JS < 550 KB -> FAIL (661 KB raw)
+  [ ] PhotoEditor < 1000 KB -> BORDERLINE (950 KB)
+  [ ] CSS < 70 KB -> FAIL (72 KB)
+  [ ] First-load < 620 KB -> FAIL
+
+Mobile & Accessibility:
+  [ ] 320px render / no horizontal scroll -> not verified
+  [ ] Keyboard accessibility -> not verified
+  [ ] WCAG AA contrast -> not verified
+  [ ] Alt text -> not verified
+  [ ] Form labels -> not verified
+
+Deployment:
+  [ ] npm run build -> PASS
+  [ ] npm test -> PASS
+  [ ] npm run deploy -> not run in this audit
+
+Dependency Audit:
+  [X] npm audit --production -> 0 vulnerabilities -> PASS
+
+Bottom line: 3 of the most important gates (build, test, dependency audit) pass,
+but lint and bundle budget fail. The mobile/accessibility gates are unchecked.
+
+================================================================================
+9. FULL SUGGESTED CHANGES (PRIORITIZED)
+================================================================================
+
+P0 — Must fix before next production deploy
+-------------------------------------------
+
+1. Fix all 67 ESLint warnings
+   - Await all async handlers or explicitly mark them `void`.
+   - Add missing dependencies to useEffect arrays, or memoize callbacks with
+     useCallback so they are stable.
+   - Run `npm run lint -- --fix` to catch the auto-fixable one.
+   - This is the biggest blocker and the biggest stability win.
+
+2. Fix bundle budget
+   - Configure manualChunks in vite.config.ts to split vendor code.
+   - Lazy load mapbox and all map components.
+   - Reduce CSS size or raise the budget with a documented reason.
+
+3. Add a migration safety gate
+   - Write a single numbered migration that recreates the full current schema.
+   - Add a `db:migrate` script that runs migrations in order.
+   - Block deploys if `PRAGMA foreign_key_check` returns rows.
+
+P1 — High value, low to medium risk
+-----------------------------------
+
+4. Harden signed URL verification
+   - In functions/lib/signed-url.ts, replace string comparison with
+     crypto.subtle.timingSafeEqual or constant-time byte comparison.
+
+5. Fix the rate limiter
+   - Either use a Durable Object for atomic counters, or front the app with
+     Cloudflare Rate Limiting rules for auth endpoints.
+
+6. Self-host or remove Google Fonts
+   - Audit all 263 templates for @import Google Fonts.
+   - Replace with system font stacks or self-hosted font files in public/fonts.
+   - Update CSP font-src to `self` (already done) and remove Google Fonts hosts.
+
+7. Unify Env interfaces
+   - Create a single `AppEnv` / `AuthEnv` interface and use it in every endpoint.
+   - Remove the copy-pasted `interface Env { ... }` blocks in admin files.
+
+8. Cache custom-domain lookups
+   - Add a short-lived in-memory cache in middleware for custom_domain -> slug.
+   - Add a TTL (e.g., 60 seconds) so the D1 query is not run on every request.
+
+P2 — Medium value, medium effort
+--------------------------------
+
+9. Add E2E / smoke tests
+   - Use Playwright or a headless crawler to verify /, /s/demo, /photographers,
+     /inspiration, /login, and /api/health after each deploy.
+   - Add a test that verifies the demo event page renders with zero photos/videos.
+
+10. Add accessibility audit
+    - Run Lighthouse or axe-core on the primary routes.
+    - Ensure all images have alt text, all forms have labels, and contrast is AA.
+
+11. Improve error handling and logging
+    - Replace silent catches with structured logs that include request ID, user,
+      endpoint, and error message.
+    - Add a `functions/lib/logger.ts` helper that logs to console and, optionally,
+      to a Cloudflare Workers tail.
+
+12. Add request ID tracing
+    - Generate a request ID in middleware and propagate it in logs and response
+      headers (X-Request-Id). This makes debugging production issues much easier.
+
+13. Add health endpoint details
+    - functions/api/health.ts currently checks DB and R2. Add checks for D1
+      foreign key status, R2 bucket reachability, and signed URL generation.
+
+P3 — Polish and long-term maintainability
+-----------------------------------------
+
+14. Delete or archive the `master` branch
+    - The project uses `main` as the canonical branch. Keeping `master` synced
+      is confusing and adds risk. Delete it after confirming no CI/team depends
+      on it.
+
+15. Remove tsconfig.tsbuildinfo from git
+    - It is currently tracked (see the file in the repo). Add it to .gitignore
+      and remove it with `git rm --cached tsconfig.tsbuildinfo`.
+
+16. Clean up orphan remote branches
+    - Several old `claude/*` remote branches exist. Remove stale ones after
+      confirming their changes are merged.
+
+17. Add a CHANGELOG.md
+    - Keep a human-readable changelog of fixes, especially security and schema
+      changes, so studio members and clients know what changed.
+
+18. Add a CODEOWNERS or AI_AGENT_RULES file
+    - Clarify which files only the owner should change (e.g., schema.sql,
+      auth model, rate limiter) and which are safe for AI agents.
+
+19. Document the secret checklist
+    - List every secret required in production (JWT_SECRET, MEDIA_SIGNING_SECRET,
+      DEEPSEEK_API_KEY, ZOHO_API_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET,
+      STRIPE_PUBLISHABLE_KEY, MAPBOX_PUBLIC_TOKEN, etc.) and how to rotate them.
+
+20. Add a staging environment
+    - Create a `preview` or `staging` branch that deploys to a separate
+      Cloudflare Pages project with its own D1 and R2 buckets. Test schema
+      changes there before production.
+
+================================================================================
+10. SUGGESTED FILE-LEVEL CHANGES
+================================================================================
+
+functions/lib/signed-url.ts
+  - Replace string comparison of HMAC signatures with constant-time compare.
+  - Example: decode both base64 signatures to Uint8Array and use
+    crypto.subtle.timingSafeEqual. If lengths differ, return false immediately.
+
+functions/lib/rate-limit.ts
+  - Document the race condition in the header comment.
+  - Add a TODO or implement a Durable Object version for strict limits.
+
+functions/_middleware.ts
+  - Add a short-lived cache for custom_domain lookup.
+  - Add request ID generation and attach to context.
+
+functions/api/health.ts
+  - Add foreign_key_check and signed URL round-trip checks.
+
+src/lib/api.ts
+  - Add a standard error handler that unwraps `{error: string}` and logs the
+    request ID.
+
+vite.config.ts
+  - Add rollupOptions.output.manualChunks to split vendors and admin chunks.
+
+package.json
+  - Add a `lint:fix` script and consider raising `build.chunkSizeWarningLimit`.
+
+src/components/templates/* (all 263)
+  - Remove Google Fonts @import and replace with self-hosted or system fonts.
+  - Wire decorative CTAs to real actions or remove them before client delivery.
+
+src/pages/*.tsx and src/components/*/*.tsx
+  - Fix all no-floating-promises and exhaustive-deps warnings. This is the
+    largest file-by-file task but also the most impactful.
+
+db/migrations/
+  - Add 006_full_schema.sql that contains the full current schema.sql content.
+  - Add a `migrate` script in package.json.
+
+================================================================================
+11. STUDIO WORKFLOW RECOMMENDATIONS
+================================================================================
+
+For the studio (or a single photographer running this as a business):
+
+A. Use the template system as a product catalog
+   - Each template is a starting point for a client niche. Create a "gallery of
+     niches" page that shows 1-3 best templates per industry with live links.
+   - Keep a master spreadsheet of template IDs, industries, and which clients use
+     which template. This prevents accidentally changing a template that a
+     live site depends on.
+
+B. Create a client onboarding checklist
+   1. Sign up / create space
+   2. Choose template (use TemplatePicker)
+   3. Set brand colors and fonts (use self-hosted fonts)
+   4. Upload hero + 3-5 portfolio images
+   5. Connect Stripe (if selling prints/services)
+   6. Set custom domain or use /site/:slug
+   7. Test on mobile, tablet, desktop
+   8. Send client the public URL and gate key if private
+
+C. Safe AI-agent workflow
+   - Use the `genspark_ai_developer` branch for any AI changes.
+   - Run `npm run build`, `npm test`, `npm run lint` before every commit.
+   - Never let an AI edit schema.sql, functions/lib/auth.ts, functions/lib/jwt.ts,
+     functions/lib/password.ts, or functions/lib/rate-limit.ts without human review.
+   - Require every PR to pass build, test, and lint.
+   - Run the release gates manually before every deploy.
+
+D. Deployment cadence
+   - Deploy at most once per day unless emergency.
+   - Always take a D1 backup before deploy (`npm run db:backup`).
+   - Run smoke tests after every deploy (see RELEASE_GATES.md).
+   - Keep a rollback deployment pinned in the Cloudflare Pages dashboard.
+
+E. Billing and operations
+   - Monitor D1 reads/writes; the custom-domain lookup and rate limiter can be
+     unexpectedly costly at scale.
+   - Monitor R2 egress for large photos/videos.
+   - Set up Stripe webhook endpoint correctly and test the webhook signature
+     verification (tests already cover this; re-run before changing Stripe code).
+
+================================================================================
+12. IMMEDIATE ACTION ITEMS (NEXT 7 DAYS)
+================================================================================
+
+1. Fix the 67 ESLint warnings so `npm run lint` passes. This is the #1 blocker.
+2. Add manualChunks to vite.config.ts and verify the main chunk is under 550 KB.
+3. Add a full-schema migration (006_full_schema.sql) and a `db:migrate` script.
+4. Replace signed URL string comparison with constant-time comparison.
+5. Self-host or remove Google Fonts from the most-used templates (start with
+   the top 20 by industry).
+6. Run a mobile/accessibility pass with Lighthouse and fix the top 10 issues.
+7. Delete the `master` branch and stale `claude/*` remote branches.
+8. Remove `tsconfig.tsbuildinfo` from git and add it to .gitignore.
+9. Verify all production secrets are set and documented.
+10. Create a staging/preview deployment and test the next release there first.
+
+================================================================================
+13. CONCLUSION
+================================================================================
+
+The Cicero789/photo repository is in a good state overall: the latest audit
+fixes are merged to main, build and tests pass, and the security model is
+sound. The main obstacles to a clean, reliable production site are lint debt,
+bundle size, incomplete migrations, and a few remaining hardening items (rate
+limiter, signed URL comparison, Google Fonts/CSP mismatch). The template system
+is powerful and can be the studio's core product, but it needs a documented
+workflow and a CSP-friendly font strategy to deliver consistent results to
+clients.
+
+Fix the lint warnings first. That single change clears the release gate, makes
+the async code safer, and gives you a green baseline for everything else. Then
+address bundle size, migrations, fonts, and signed URL hardening. With those
+pieces in place, the platform will be much closer to a maintainable,
+production-grade service that a studio can confidently sell to photographers and
+small businesses.
+
+End of report.
+================================================================================
