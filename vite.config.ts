@@ -6,12 +6,19 @@ import path from "path";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
+    alias: { "@": path.resolve(__dirname, "./src") },
   },
-  server: {
-    port: 3000,
-    open: false,
+  server: { port: 3000, open: false },
+  build: {
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ["react", "react-dom", "react-router-dom"],
+          query: ["@tanstack/react-query"],
+          stripe: ["@stripe/stripe-js"],
+        },
+      },
+    },
   },
 });

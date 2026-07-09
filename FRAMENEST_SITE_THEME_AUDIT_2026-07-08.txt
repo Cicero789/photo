@@ -1,0 +1,441 @@
+FrameNest Site + Theme Audit
+Date: 2026-07-08
+Scope: React app, Cloudflare Pages Functions, production smoke checks, templates/theme system.
+
+Executive Summary
+The app builds and tests successfully, and the template registry/thumbnails are now consistent. The biggest remaining problems are in the theme/rendering pipeline:
+
+1. Production CSP blocks Google Fonts, so many template fonts silently fall back.
+2. Only 10 of 263 template components consume colorScheme/fontPairing.
+3. Public renderers do not pass saved color/font theme values into templates.
+4. Lint fails on a real React hook rule violation in DashboardPage.
+5. Many templates use @ts-nocheck, allowing template UI bugs to survive build/tests.
+6. Most templates do not render an h1, which hurts accessibility and SEO.
+
+Verification Run
+- npm run build: PASS
+  - Existing warnings: Mapbox static/dynamic import conflict; large chunks for main bundle and PhotoEditorModal.
+- npm test: PASS
+  - 5 test files, 61 tests.
+- npm run audit:thumbnails: PASS
+  - 263 registered templates audited.
+  - 536 thumbnail JPEGs audited.
+- npm run lint: FAIL
+  - 2 errors, 69 warnings.
+  - Blocking errors are in src/pages/DashboardPage.tsx for conditional React hooks.
+- Production smoke checked:
+  - https://framenest.photos/
+  - https://framenest.photos/photographers
+  - https://framenest.photos/candlevision
+
+Good News
+- Template registry count: 263.
+- Lazy component map count: 263.
+- Thumbnail map count: 263.
+- Missing registered components: 0.
+- Missing thumbnail map entries: 0.
+- Production /candlevision currently renders template 9-story-cards.
+- Home and photographers pages have an h1 and no basic unnamed-button/img-alt failures in the smoke check.
+
+P0 - Fix CSP Blocking Template Fonts
+Evidence:
+- Production console on /candlevision reports Google Fonts stylesheet blocked by CSP.
+- functions/_middleware.ts currently sets:
+  font-src 'self'
+  style-src 'self' 'unsafe-inline' https://api.mapbox.com
+- src/components/templates/theme.ts and many templates import https://fonts.googleapis.com.
+
+Impact:
+- The stylish fonts selected for templates do not reliably load in production.
+- Users see fallback fonts, which explains "font does not work" reports.
+
+Short-term code change:
+In functions/_middleware.ts, update the CSP to allow Google font CSS and font files:
+
+  headers.set(
+    "Content-Security-Policy",
+    [
+      "default-src 'self'",
+      "script-src 'self' https://api.mapbox.com https://js.stripe.com",
+      "style-src 'self' 'unsafe-inline' https://api.mapbox.com https://fonts.googleapis.com",
+      "img-src 'self' data: blob: https://images.unsplash.com https://*.mapbox.com",
+      "connect-src 'self' https://api.mapbox.com https://events.mapbox.com https://*.stripe.com",
+      "frame-src https://js.stripe.com https://connect.stripe.com",
+      "font-src 'self' https://fonts.gstatic.com data:",
+      "worker-src 'self' blob:",
+    ].join("; ")
+  );
+
+Better long-term change:
+- Self-host the approved font families under /fonts.
+- Replace Google @import calls with a single app-level CSS font-face file.
+- This improves CSP, performance, privacy, and consistency.
+
+P0 - Remove Blocked Inline Stripe Script
+Evidence:
+- Production console on every checked page reports:
+  "Executing inline script violates CSP..."
+- index.html contains a hardcoded inline window.STRIPE_PK script.
+- src/components/commerce/BuyButton.tsx does not read window.STRIPE_PK; it reads VITE_STRIPE_PUBLISHABLE_KEY.
+
+Impact:
+- Every page logs a CSP error.
+- The key is duplicated in source.
+- Payment config can appear broken/noisy even if the actual code path uses Vite env.
+
+Suggested code change:
+1. Remove this line from index.html:
+
+  <script>window.STRIPE_PK = "...";</script>
+
+2. Set VITE_STRIPE_PUBLISHABLE_KEY in Cloudflare Pages build vars.
+3. Keep BuyButton.tsx using:
+
+  const STRIPE_PK =
+    (typeof import.meta !== "undefined" &&
+      (import.meta as any).env?.VITE_STRIPE_PUBLISHABLE_KEY) ||
+    "";
+
+P0 - Fix Dashboard Conditional Hooks
+Evidence:
+- npm run lint fails with:
+  src/pages/DashboardPage.tsx:127:43 React Hook "useState" is called conditionally.
+  src/pages/DashboardPage.tsx:128:3 React Hook "useEffect" is called conditionally.
+- In DashboardPage, `if (!user) return null;` occurs before randomPhotos useState/useEffect.
+
+Impact:
+- Can cause runtime hook-order bugs after auth state changes.
+- Build passes, so this can reach production unnoticed.
+
+Suggested code change:
+Move the randomPhotos state/effect above the early return, and guard inside the effect:
+
+  const [randomPhotos, setRandomPhotos] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!user?.spaceId) return;
+    const heroSource = (spaceInfo as any)?.hero_source || "off";
+    if (heroSource !== "random") return;
+
+    let alive = true;
+    const fetchRandom = async () => {
+      try {
+        const data = await api.get<{ urls: string[] }>(
+          `/photos/hero?spaceId=${user.spaceId}`
+        );
+        if (alive) setRandomPhotos(data.urls || []);
+      } catch {
+        // silent
+      }
+    };
+
+    void fetchRandom();
+    const timer = window.setInterval(fetchRandom, 60_000);
+    return () => {
+      alive = false;
+      window.clearInterval(timer);
+    };
+  }, [spaceInfo, user?.spaceId]);
+
+  if (!user) return null;
+
+P1 - Theme Values Are Not Passed Into Public Templates
+Evidence:
+- src/pages/PhotographerProfilePage.tsx defines galleryConfig?: { template?: string; colorScheme?: string; fontPairing?: string }
+- It renders TemplateComponent without colorScheme/fontPairing props.
+- src/pages/ClientSitePage.tsx also renders TemplateComp without colorScheme/fontPairing props.
+- TemplateProps expects:
+  colorScheme?: { bg: string; text: string; accent: string }
+  fontPairing?: { heading: string; body: string }
+
+Impact:
+- Saved theme controls can exist in data but not affect live pages.
+- Users think font/color controls are broken.
+
+Suggested code change:
+Create src/lib/templateTheme.ts:
+
+  export const COLOR_SCHEMES = {
+    light: { bg: "#ffffff", text: "#111827", accent: "#2563eb" },
+    dark: { bg: "#111827", text: "#ffffff", accent: "#f59e0b" },
+    warm: { bg: "#fff7ed", text: "#3e2723", accent: "#d97706" },
+    soft: { bg: "#fdf2f8", text: "#3b1d2a", accent: "#db2777" },
+  } as const;
+
+  export const FONT_PAIRINGS = {
+    modern: { heading: "Inter", body: "Inter" },
+    classic: { heading: "Playfair Display", body: "Inter" },
+    elegant: { heading: "Cormorant Garamond", body: "DM Sans" },
+    bold: { heading: "Bebas Neue", body: "Inter" },
+    warm: { heading: "Lora", body: "Poppins" },
+  } as const;
+
+  export function resolveTemplateTheme(config: any) {
+    const colorKey = typeof config?.colorScheme === "string" ? config.colorScheme : "";
+    const fontKey = typeof config?.fontPairing === "string" ? config.fontPairing : "";
+    return {
+      colorScheme:
+        COLOR_SCHEMES[colorKey as keyof typeof COLOR_SCHEMES] ??
+        (typeof config?.colorScheme === "object" ? config.colorScheme : undefined),
+      fontPairing:
+        FONT_PAIRINGS[fontKey as keyof typeof FONT_PAIRINGS] ??
+        (typeof config?.fontPairing === "object" ? config.fontPairing : undefined),
+    };
+  }
+
+Then in PhotographerProfilePage.tsx:
+
+  const templateId = normalizeTemplateId(
+    previewTemplate || profile.galleryConfig?.template
+  );
+  const theme = resolveTemplateTheme(profile.galleryConfig);
+
+  <TemplateComponent
+    ...
+    colorScheme={theme.colorScheme}
+    fontPairing={theme.fontPairing}
+  />
+
+Then in ClientSitePage.tsx:
+
+  const templateId = normalizeTemplateId(config.template);
+  const theme = resolveTemplateTheme(config);
+
+  <TemplateComp
+    ...
+    colorScheme={theme.colorScheme}
+    fontPairing={theme.fontPairing}
+  />
+
+P1 - Only Base Templates Use Theme Props
+Evidence:
+- 263 template files scanned.
+- uses colorScheme: 10.
+- uses fontPairing: 10.
+- no color/font support: 253.
+
+Impact:
+- Template theme controls are effectively only for the 10 base templates.
+- Specialized templates like beauty, legal, medical, real estate, restaurants, etc. remain hardcoded.
+
+Recommended architecture:
+- Keep each specialized template's unique design, but route its main colors/fonts through CSS variables.
+- Do not force all 263 templates into identical palettes.
+- Add a small helper that maps incoming theme props to safe defaults.
+
+Suggested per-template pattern:
+
+  const bg = colorScheme?.bg ?? "#ffffff";
+  const text = colorScheme?.text ?? "#111827";
+  const accent = colorScheme?.accent ?? "#2563eb";
+  const headingFont = fontPairing?.heading ?? "Space Grotesk";
+  const bodyFont = fontPairing?.body ?? "Inter";
+
+  <section
+    style={{
+      "--tpl-bg": bg,
+      "--tpl-text": text,
+      "--tpl-accent": accent,
+      "--tpl-heading": fontFamily(headingFont),
+      "--tpl-body": fontFamily(bodyFont),
+    } as React.CSSProperties}
+  >
+
+Then update internal CSS to use:
+
+  background: var(--tpl-bg);
+  color: var(--tpl-text);
+  font-family: var(--tpl-body);
+
+P1 - Fix Invalid "9-story" Bulk Apply ID
+Evidence:
+- src/pages/StudioTemplatesPage.tsx includes:
+  "9-story"
+- The real id is:
+  "9-story-cards"
+- normalizeTemplateId has alias "story-cards", but not "9-story".
+
+Impact:
+- Bulk apply can save an invalid template id.
+- Later rendering can fall back to the default clean template.
+
+Suggested code change:
+Replace:
+
+  "9-story"
+
+with:
+
+  "9-story-cards"
+
+Also normalize the current site list display:
+
+  template: normalizeTemplateId(parsed.template)
+
+P1 - Normalize Client Template IDs Before Rendering
+Evidence:
+- src/pages/ClientSitePage.tsx uses:
+  const templateId = config.template || "1-clean";
+- Other pages use normalizeTemplateId.
+
+Impact:
+- Old aliases and bad saved ids do not get normalized on public client sites.
+
+Suggested code change:
+
+  import { normalizeTemplateId } from "@/lib/templateIds";
+
+  const templateId = normalizeTemplateId(config.template);
+
+P1 - Most Templates Lack H1
+Evidence:
+- 263 templates scanned.
+- Templates with h1: 54.
+- Templates without h1: 209.
+- Production /candlevision h1Count: 0.
+
+Impact:
+- Poor accessibility and SEO for public client/photographer pages.
+- Screen readers have weaker page structure.
+
+Suggested code change:
+- Every template should render exactly one primary h1 for the person/business/site name or the main public headline.
+- Example for Template9StoryCards:
+
+  <h1
+    style={{
+      margin: "6px 0",
+      color: text,
+      font: `600 clamp(43px, 6vw, 82px)/.95 ${fontFamily(headingFont, "serif")}`,
+    }}
+  >
+    {tagline || name}
+  </h1>
+
+If the template currently has an h2 as its main hero headline, change that h2 to h1.
+
+P1 - Many Templates Disable Type Checking
+Evidence:
+- 101 of 263 template components contain @ts-nocheck.
+- 94 template files contain optional .filename references that may be legitimate for photos, but several generated content arrays appear to use filename where title/name was intended.
+- Example confirmed bug:
+  src/components/templates/TemplatePortraitHeadshot.tsx
+  - packages define `title`
+  - render uses `pkg?.filename`
+  - React key also uses `pkg?.filename`
+
+Impact:
+- Build/tests miss real UI bugs.
+- Headings/labels can render blank.
+- Duplicate undefined keys can cause React warnings.
+
+Suggested code change for TemplatePortraitHeadshot.tsx:
+
+  {packages.map((pkg) => (
+    <div key={pkg.title}>
+      ...
+      <h3>{pkg.title}</h3>
+      ...
+    </div>
+  ))}
+
+Process recommendation:
+- Remove @ts-nocheck in batches by category.
+- Start with templates that are visible in production or in the base/studio flows.
+- Add a small template smoke test that renders every template with placeholder data and fails on console errors.
+
+P2 - Font Loading Is Duplicated And Too Heavy
+Evidence:
+- src/components/templates/theme.ts imports a very large combined Google Fonts URL.
+- 74 template files also contain direct Google font imports.
+- Some tech templates include BASE_TEMPLATE_FONT_IMPORT plus another Google @import.
+
+Impact:
+- Slower template rendering.
+- More font request churn.
+- Harder to reason about CSP and actual font display.
+
+Suggested direction:
+- Pick one strategy:
+  1. Single global/self-hosted approved font set, or
+  2. Per-template minimal imports with CSP support.
+- Avoid mixing both.
+- Remove empty `<style></style>` placeholders from generated templates.
+
+P2 - Production Profile Route Does A Noisy 404 Probe
+Evidence:
+- Visiting /candlevision triggers:
+  GET /api/clients/public/candlevision -> 404
+  then falls back to photographer profile.
+
+Impact:
+- Not user-breaking.
+- Adds console/network noise and one failed request for every photographer slug.
+
+Suggested options:
+- Keep as-is if acceptable.
+- Or create a unified public resolver endpoint:
+  GET /api/public-site/:slug -> { kind: "client" | "photographer", data }
+- Or try photographer first for known photographer links.
+
+P2 - Large Chunks
+Evidence:
+- Build warning:
+  dist/assets/index-*.js around 686 kB minified.
+  dist/assets/PhotoEditorModal-*.js around 950 kB minified.
+
+Impact:
+- Slower first load on mobile.
+
+Suggested code changes:
+- Keep Filerobot/image editor lazy-loaded.
+- Add manualChunks for large vendor libraries if useful.
+- Consider lazy-loading admin/studio/profile route groups.
+
+P2 - Lint Warning Debt
+Evidence:
+- npm run lint reports 69 warnings after the 2 hook errors.
+- Warnings are mostly no-floating-promises and missing hook dependencies.
+
+Impact:
+- Important runtime issues are buried.
+- CI cannot use lint as a release gate until warnings are reduced.
+
+Suggested approach:
+- Fix the 2 hook errors first.
+- Then either:
+  1. Fix no-floating-promises with `void` for intentional fire-and-forget, or
+  2. Catch/report errors where failures matter.
+- Fix hook dependency warnings by moving fetch functions into useCallback or into effects.
+
+Suggested Release Gates
+Before deploying theme/template work:
+
+  npm run build
+  npm test
+  npm run audit:thumbnails
+  npm run lint
+
+Add next:
+
+  npm run audit:templates
+
+Suggested audit:templates checks:
+- registry count equals lazy component count.
+- registry count equals thumbnail map count.
+- every registered template renders with placeholder props.
+- no console errors during render.
+- every template has an h1.
+- no template uses @ts-nocheck unless listed in an allowlist.
+- no template imports fonts in a way blocked by CSP.
+
+Priority Order For AI Coder
+1. Fix CSP for fonts and remove index.html inline Stripe script.
+2. Fix DashboardPage hook-order lint errors.
+3. Pass resolved colorScheme/fontPairing into PhotographerProfilePage and ClientSitePage.
+4. Fix StudioTemplatesPage "9-story" to "9-story-cards" and normalize client template ids.
+5. Add h1 to base templates and the most-used specialized templates.
+6. Fix TemplatePortraitHeadshot pkg.title bug.
+7. Consolidate font loading.
+8. Remove @ts-nocheck by template category.
+
