@@ -1,0 +1,449 @@
+================================================================================
+FRAMENEST WEB BUILDER (GrapesJS) — UX AUDIT + MAKE-IT-FRIENDLY PLAN
+Date: 2026-07-10
+Audited: Cicero789/photo main @ 491e173
+Build: PASSES (after npm ci) · Tests: 66/67 — 1 FAILING (see B-8)
+================================================================================
+
+WHY THE BUILDER FEELS HARD TO USE — THE SHORT VERSION
+
+1. There are now FIVE content-editing systems in the codebase and none of
+   them fully reaches the public site. A user can pour an hour into the
+   Design Builder, hit "Save Page", read "✅ Saved! Live at /site/home" —
+   and NOTHING they built appears anywhere. That's not a UX papercut; the
+   core promise of the builder is broken (B-1).
+2. The GrapesJS canvas loads its base stylesheet from a CDN that your CSP
+   blocks in production, so blocks render unstyled while editing (B-5).
+3. Draft-site images 403 inside the editor (unsigned URLs), so uploads
+   "disappear" (B-4).
+4. The editor ships with the raw grapesjs-preset-webpage UI: 40+ style
+   sectors, layers panel, code export, trait manager — an interface built
+   for web developers, shown to photographers and dentists (U-2).
+5. No autosave, no preview, no real publish flow, a generic purple starter
+   page instead of the industry template the user already picked (U-5..U-8).
+
+Fix B-1 through B-5 first — no amount of UI polish helps while saving is a
+dead end. Then apply Part 3, which is the actual "user friendly" redesign.
+
+================================================================================
+PART 1 — WHAT EXISTS TODAY (the five content systems)
+================================================================================
+
+  System            Editor UI             Storage                Public render?
+  ------------------------------------------------------------------------------
+  1. Legacy content  ClientEditorPage      client_sites.content   YES — templates
+     (heroPhotos etc.)  (Content tab, old)                        read content JSON
+  2. Block editor    BlockEditor.tsx       client_sites.content   NO — BlockRenderer.tsx
+     ("Content" tab)  (9 block types)      {blocks:[...]}         has ZERO consumers
+  3. GrapesJS        GrapesBuilder.tsx     client_pages           NO — published_html
+     ("Design         ("Design Builder"    (builder_json, css,    has ZERO consumers
+     Builder" tab)    tab)                 published_html)
+  4. Git-backed CMS  saveSiteContent()     content_versions +     NO (versions only;
+     (versions)       fire-and-forget      /api/content/*         and saves 401 — B-3)
+  5. CloudCMS        /admin/content        /api/content/*         NO
+     (TinaCMS alt)    (TinaAdminPage)
+
+  Plus dead weight: tina/config.ts + content/sites/candlevision.mdx +
+  TinaSidebar.tsx (zero imports), StudioOverviewPage / StudioTemplatesPage /
+  MyProfilePage (built, never routed), THUMBNAIL_MAP in src/lib/thumbnail-map.ts
+  (zero imports; maps to beauty-0.jpg etc. — 229 of its files don't even exist).
+
+  RECOMMENDATION (the single most important UX decision): ONE site = ONE
+  editing model. Keep TWO modes and delete the rest:
+    - "Edit content"  → BlockEditor (simple, structured, safe) — the default
+    - "Design freely" → GrapesJS (full control) — opt-in "advanced" mode
+  A page is EITHER block-based OR builder-based (store `editor_mode` on
+  client_pages). CloudCMS/Tina/mdx/git-content: fold version history into the
+  normal save path (B-3) and delete the rest. Every removed system is one
+  less place for users (and future AI coders) to get lost.
+
+================================================================================
+PART 2 — BROKEN PIPELINE (fix before any polish)
+================================================================================
+
+B-1  BUILDER PAGES ARE NEVER SERVED — THE #1 ISSUE
+  client_pages.published_html has no consumers: not in
+  functions/api/clients/public/[slug].ts, not in ClientSitePage.tsx, no
+  standalone route. "Save Page" writes to a table nothing reads.
+  FIX — serve builder pages as real HTML documents from a Pages Function
+  (cleaner than injecting into the SPA, no dangerouslySetInnerHTML, no CSP
+  fights, instant load). New file functions/site/[slug].ts:
+
+    /** Serve published GrapesJS pages as full HTML — GET /site/:slug */
+    export async function onRequestGet(context: {
+      env: { DB?: D1Database }; params: { slug: string }; next: () => Promise<Response>;
+    }): Promise<Response> {
+      const db = context.env.DB!;
+      const site = await db.prepare(
+        "SELECT id, name FROM client_sites WHERE slug = ? AND published = 1 AND deleted_at IS NULL"
+      ).bind(context.params.slug).first<{ id: string; name: string }>();
+      if (!site) return context.next(); // fall through to the SPA (template sites)
+      const page = await db.prepare(
+        "SELECT published_html, css, title FROM client_pages WHERE client_site_id = ? AND slug = 'home' AND status = 'published'"
+      ).bind(site.id).first<{ published_html: string; css: string; title: string }>();
+      if (!page?.published_html) return context.next(); // no builder page → SPA
+      const html = `<!doctype html><html lang="en"><head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>${escapeHtml(page.title || site.name)}</title>
+    <style>${page.css || ""}</style></head>
+    <body>${page.published_html}</body></html>`;
+      return new Response(html, { headers: { "Content-Type": "text/html; charset=utf-8",
+        "Cache-Control": "public, max-age=300" } });
+    }
+    function escapeHtml(s: string) { return s.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]!)); }
+
+  Notes: (a) this makes /site/<clientSlug> the real page and keeps the SPA
+  fallback for template-mode sites — the decision in Part 1 becomes literal
+  routing; (b) SECURITY: published_html is author-supplied — it runs on your
+  origin, so keep builder access limited to the site owner (it already is)
+  and strip <script> on save (see B-2 fix) since photographers' clients may
+  eventually get logins; (c) multi-page later: functions/site/[slug]/[page].ts.
+
+B-2  /api/clients/:id/pages/:slug GET HAS NO OWNERSHIP CHECK (IDOR)
+  functions/api/clients/[id]/pages/[slug].ts onRequestGet does no auth at
+  handler level — the middleware only requires "any valid token" (a gate
+  viewer's token qualifies), so ANY authenticated user can read ANY site's
+  draft builder_json by guessing/obtaining a site id. Mirror the PUT's
+  ownership check:
+
+    export async function onRequestGet(context: { ... env: { DB?: D1Database; JWT_SECRET?: string } ... }) {
+      const a = await requireAuth(context.request, context.env);
+      if (a instanceof Response) return a;
+      const site = await context.env.DB!.prepare(
+        "SELECT id FROM client_sites WHERE id = ? AND photographer_id = ? AND deleted_at IS NULL"
+      ).bind(context.params.id, a.userId).first();
+      if (!site) return json({ error: "Not found" }, 404);
+      ... existing SELECT ...
+    }
+
+  While in that file, sanitize on save (PUT): strip script tags before
+  storing published_html:
+    const safeHtml = (body.html || "").replace(/<script[\s\S]*?<\/script>/gi, "");
+
+B-3  VERSION HISTORY SAVES SILENTLY 401 — "Version recorded" IS FALSE
+  src/lib/git-content.ts saveSiteContent() fetches PUT /api/content/:slug
+  with NO Authorization header; the handler requires auth → every call 401s;
+  ClientEditorPage swallows it (.catch(() => {})) and still tells the user
+  "Content saved! Version recorded." Fix the lib to use the api client:
+
+    import { api } from "@/lib/api";
+    export async function saveSiteContent(slug: string, name: string, blocks: ContentBlock[], template?: string) {
+      return api.put<{ success: boolean; version?: string }>(`/content/${slug}`, { name, blocks, template });
+    }
+    export async function getContentVersions(slug: string) {
+      return api.get<{ versions: ContentVersion[] }>(`/content/${slug}/versions`);
+    }
+
+  ...and in ClientEditorPage, await it and only claim a version when true:
+    const v = await saveSiteContent(...).catch(() => null);
+    setMessage({ type: "success", text: v ? "Content saved — version recorded." : "Content saved." });
+
+B-4  UPLOADED IMAGES 403 INSIDE THE BUILDER FOR DRAFT SITES
+  The asset-manager upload posts to /api/clients/:id/photos and adds the
+  returned URLs — but that POST returns UNSIGNED /api/media/photos/<key>
+  URLs, and media serving requires published=1 for anonymous <img> requests
+  (the editor canvas iframe sends no auth header). The pool GET already
+  signs URLs for drafts; make the POST match. In
+  functions/api/clients/[id]/photos.ts onRequestPost, select `published`
+  in the site lookup, then build the response url like the GET does:
+
+    const secret = context.env.MEDIA_SIGNING_SECRET || context.env.JWT_SECRET || "";
+    const url = site.published === 1 || !secret
+      ? `/api/media/photos/${storageKey}`
+      : await signMediaUrl(storageKey, secret, 3600);
+    results.push({ storageKey, filename: file.name, url });
+
+  (Signed URLs expire in 1h — fine for editing; the SAVED page should embed
+  the plain URL, which works once the site is published. GrapesJS stores
+  whatever URL the asset had — so on save, normalize:
+    const html = editorRef.current.getHtml().replace(/\/api\/media\/photos\/([^?"' ]+)\?[^"' ]*/g, "/api/media/photos/$1");)
+
+B-5  CANVAS STYLESHEET IS CSP-BLOCKED + WYSIWYG MISMATCH
+  GrapesBuilder sets canvas.styles to Tailwind v2 from cdn.jsdelivr.net.
+  Your CSP style-src is 'self' 'unsafe-inline' api.mapbox.com — jsdelivr is
+  blocked, so in production the canvas renders WITHOUT that stylesheet. And
+  even if it loaded, the published page (B-1) doesn't include Tailwind — so
+  what users see while editing would never match what visitors see.
+  FIX: drop the CDN dependency entirely. The starter blocks are all inline-
+  styled already, so the only thing the canvas actually needs is a reset:
+
+    canvas: {
+      styles: [],           // no external CSS — inline styles only
+      // or self-host: put a small reset at public/builder-canvas.css and use
+      // styles: ["/builder-canvas.css"],   // same-origin → CSP-clean
+    },
+
+  Rule going forward: every custom block you register (U-3) uses inline
+  styles or classes defined via GrapesJS's own CssComposer — both are
+  captured by editor.getCss() and shipped with the published page, so
+  editor and public page always match.
+
+B-6  MIGRATION 006 DOESN'T MIGRATE
+  db/migrations/006_full_schema.sql is a snapshot of schema.sql — all
+  CREATE TABLE IF NOT EXISTS, ZERO ALTER statements. Running it creates the
+  two NEW tables (client_pages, content_versions — good, needed for the
+  builder) but changes nothing on existing tables, so any column drift the
+  health probe reports remains uncured. Keep the file (it bootstraps the new
+  tables) but re-check https://framenest.photos/api/health → critical-columns
+  and write ALTERs for anything still listed (the R-1 procedure from
+  AUDIT-2026-07-09.txt stands).
+
+B-7  STARTER PAGE IGNORES THE SITE NAME (stale closure)
+  GrapesBuilder fetches the site name into state, but initBuilder runs from
+  the pages-fetch callback and reads the INITIAL siteName ("Your Business").
+  Fix by passing the name through instead of reading state:
+
+    useEffect(() => {
+      ...
+      Promise.all([
+        fetch(`/api/clients/${clientId}`, { headers }).then(r => r.json()).catch(() => ({})),
+        fetch(`/api/clients/${clientId}/pages/${pageSlug}`, { headers }).then(r => r.json()).catch(() => ({})),
+      ]).then(([c, p]) => {
+        const name = c.client?.name || "Your Business";
+        setSiteName(name);
+        initBuilder(p.page?.builder_json ? JSON.parse(p.page.builder_json) : null, name);
+      });
+    }, [clientId, pageSlug]);
+    async function initBuilder(storedData: unknown, name: string) { ... editor.setComponents(STARTER_HTML(name)); ... }
+
+B-8  THE TEST SUITE IS RED ON MAIN (and CI still doesn't run it)
+  tests/template-registry.test.ts › "has no orphan thumbnail files" FAILS:
+  34 category-index thumbnails (base-0..9, corporate-0/1, seasonal pairs)
+  were re-added alongside the ID-named ones. Nothing references them
+  (THUMBNAIL_MAP is dead code, and 229 of the files it names don't exist).
+  FIX: delete the 34 re-added orphans + src/lib/thumbnail-map.ts +
+  scripts/sync-thumbnails.ts, or — if you actually want the map — regenerate
+  it against the REAL ID-named files and update the parity test. Either way:
+  add `- run: npm test` to .github/workflows/deploy.yml (still missing —
+  this is exactly the regression it would have caught).
+
+B-9  MISLEADING SAVE MESSAGE
+  "✅ Saved! Live at /site/" + pageSlug produces "/site/home" — wrong on
+  two counts (page ≠ site slug; and nothing is live until B-1 ships + the
+  site is published). After B-1:
+    setMessage(`✅ Saved${client.status === "published" ? ` — live at /site/${client.slug}` : " as draft — publish the site to go live"}`);
+  (pass the site slug/status into GrapesBuilder as props).
+
+================================================================================
+PART 3 — MAKING IT USER-FRIENDLY (the redesign)
+================================================================================
+
+U-1  ONE ENTRY, TWO MODES, PLAIN WORDS
+  Rename tabs for humans: "Content" and "Design Builder" side by side is a
+  riddle ("which one edits my site?"). Suggested:
+    Website  (BlockEditor — default)  ·  Photos · Galleries · Blog · Settings
+  Inside Website, an "Advanced: open visual designer" button opens GrapesJS
+  full-screen. First time, show a one-line choice:
+    "Edit sections (recommended)  |  Design from scratch (advanced)"
+  Store the choice per page (client_pages.editor_mode TEXT DEFAULT 'blocks')
+  so the public renderer knows which pipeline wins, and users never see two
+  competing editors for the same page again.
+
+U-2  STRIP THE GRAPESJS UI DOWN TO WHAT A NON-DEVELOPER NEEDS
+  grapesjs-preset-webpage ships developer chrome. Replace the init with a
+  curated config — this alone transforms the feel of the product:
+
+    const editor = grapesjs.init({
+      container: containerRef.current!,
+      height: "100%", width: "auto",
+      storageManager: false,
+      plugins: [presetWebpage],
+      pluginsOpts: { "grapesjs-preset-webpage": {
+        blocks: [],                    // we register our own blocks (U-3)
+        modalImportButton: false,      // no "import code" for end users
+        showStylesOnChange: true,
+      }},
+      // Fewer, friendlier style controls (instead of ~40 sectors):
+      styleManager: {
+        sectors: [
+          { name: "Text",    open: true,  buildProps: ["font-size","font-weight","text-align","color","line-height"] },
+          { name: "Colors",  open: false, buildProps: ["background-color"] },
+          { name: "Spacing", open: false, buildProps: ["padding","margin"] },
+          { name: "Corners & Shadow", open: false, buildProps: ["border-radius","box-shadow"] },
+        ],
+      },
+      // Kill the developer panels; keep undo/redo, devices, preview:
+      panels: { defaults: [
+        { id: "options", buttons: [
+          { id: "undo",  className: "fa fa-undo",  command: "core:undo",  attributes: { title: "Undo" } },
+          { id: "redo",  className: "fa fa-repeat", command: "core:redo", attributes: { title: "Redo" } },
+          { id: "preview", className: "fa fa-eye", command: "core:preview", attributes: { title: "Preview" } },
+        ]},
+        { id: "devices", buttons: [
+          { id: "device-desktop", command: "set-device-desktop", className: "fa fa-desktop", active: true },
+          { id: "device-mobile",  command: "set-device-mobile",  className: "fa fa-mobile" },
+        ]},
+      ]},
+      deviceManager: { devices: [
+        { name: "Desktop", width: "" },
+        { name: "Mobile",  width: "375px", widthMedia: "480px" },
+      ]},
+      canvas: { styles: [] },  // B-5
+    });
+    editor.Commands.add("set-device-desktop", { run: e => e.setDevice("Desktop") });
+    editor.Commands.add("set-device-mobile",  { run: e => e.setDevice("Mobile") });
+    // Hide the code-export & settings buttons the preset still injects:
+    ["export-template", "gjs-open-import-webpage"].forEach(id => {
+      const btn = editor.Panels.getButton("options", id); if (btn) editor.Panels.removeButton("options", id);
+    });
+
+U-3  PHOTOGRAPHY-FIRST BLOCKS (this is what sells the product)
+  Generic "1 column / text / video" blocks mean nothing to your users.
+  Register blocks in their language — each one pre-styled, inline CSS,
+  ready to type into:
+
+    const bm = editor.BlockManager;
+    bm.getAll().reset();   // drop preset blocks entirely
+    bm.add("hero-photo", {
+      label: "Hero with photo", category: "Sections", media: "🖼️",
+      content: `<section style="position:relative;min-height:70vh;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;background:#222 url('https://images.unsplash.com/photo-1519741497674-611481863552?w=1600') center/cover">
+        <div style="background:rgba(0,0,0,.45);position:absolute;inset:0"></div>
+        <div style="position:relative;padding:24px"><h1 style="font-size:3rem;margin:0 0 12px">Your headline</h1>
+        <p style="font-size:1.2rem;opacity:.9;margin:0 0 24px">A sentence about this business.</p>
+        <a href="#contact" style="display:inline-block;padding:14px 36px;background:#fff;color:#111;border-radius:10px;text-decoration:none;font-weight:700">Book now</a></div></section>`,
+    });
+    bm.add("photo-grid", {
+      label: "Photo grid (3-up)", category: "Sections", media: "▦",
+      content: `<section style="padding:64px 20px;max-width:1100px;margin:0 auto"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
+        ${[1,2,3].map(() => `<img src="https://via.placeholder.com/600x400?text=Drop+a+photo" style="width:100%;border-radius:12px;aspect-ratio:3/2;object-fit:cover" alt=""/>`).join("")}
+      </div></section>`,
+    });
+    bm.add("services-3", { label: "Services (3 cards)", category: "Sections", media: "📋", content: /* the services markup from STARTER_HTML */ });
+    bm.add("testimonial", {
+      label: "Testimonial", category: "Sections", media: "💬",
+      content: `<section style="padding:64px 20px;background:#f8f9fa;text-align:center"><blockquote style="max-width:640px;margin:0 auto;font-size:1.3rem;font-style:italic;color:#333">"They were wonderful to work with — the photos are stunning."</blockquote><p style="margin-top:16px;font-weight:600;color:#666">— Happy Client</p></section>`,
+    });
+    bm.add("contact-cta", {
+      label: "Contact / Booking", category: "Sections", media: "📅",
+      content: `<section id="contact" style="padding:72px 20px;text-align:center"><h2 style="font-size:2rem;margin:0 0 10px">Ready to get started?</h2><p style="color:#666;margin:0 0 24px">Tell us about your project.</p><a href="mailto:hello@example.com" style="display:inline-block;padding:14px 40px;background:#111;color:#fff;border-radius:10px;text-decoration:none;font-weight:700">Get in touch</a></section>`,
+    });
+    bm.add("hours-map", { label: "Hours & location", category: "Sections", media: "📍", content: `...address + opening hours two-column section...` });
+  Later upgrade: a "Gallery" block whose trait picks one of the client's
+  real galleries and renders its photos — that's the moment the builder
+  beats Wix for your users, because their shoot is already in the library.
+
+U-4  PRELOAD THEIR PHOTO LIBRARY INTO THE ASSET MANAGER
+  Right now the asset panel starts empty even when the client already has a
+  photo pool. After init:
+
+    fetch(`/api/clients/${clientId}/photos`, { headers })
+      .then(r => r.json())
+      .then(d => { if (d.photos?.length) editor.AssetManager.add(d.photos.map((p: any) => ({ src: p.url, name: p.filename }))); })
+      .catch(() => {});
+
+  Combined with B-4 (signed URLs) the "double-click an image → pick from
+  your shoot" flow finally works, which is the single most-used action in
+  any site builder.
+
+U-5  AUTOSAVE + HONEST SAVE STATE
+  Nobody should lose 40 minutes of dragging because they never found the
+  Save button. Use GrapesJS's own storage hooks:
+
+    storageManager: {
+      type: "remote", autosave: true, stepsBeforeSave: 3,   // save every 3 changes
+      options: { remote: {
+        onStore: (data: any) => ({ builderJson: JSON.stringify(data),
+          html: editor.getHtml(), css: editor.getCss(), title: pageSlug }),
+      }},
+    },
+    // wire the actual transport:
+    editor.Storage.add("remote", {
+      async store(payload: any) {
+        const res = await fetch(`/api/clients/${clientId}/pages/${pageSlug}`, {
+          method: "PUT", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify(payload) });
+        if (!res.ok) throw new Error("save failed");
+      },
+      async load() { return storedData ?? {}; },
+    });
+    editor.on("storage:store", () => setMessage("Saved just now"));
+    editor.on("storage:error", () => setMessage("⚠ Not saved — check connection"));
+
+  Keep the manual button as "Save & publish" (U-6). Add a beforeunload
+  guard when there are unsaved changes:
+    editor.on("update", () => { window.onbeforeunload = () => "Unsaved changes"; });
+    editor.on("storage:store", () => { window.onbeforeunload = null; });
+
+U-6  A REAL PREVIEW → PUBLISH FLOW
+  Replace the single "Save Page" button with the three states users expect:
+    [ Preview ]  [ Save draft ]  [ Publish ]
+  - Preview: editor.runCommand("core:preview") for in-canvas, PLUS an
+    "Open preview in new tab" that hits /site/<slug>?preview=1 where the
+    B-1 function accepts status='draft' when the request carries the
+    owner's token (or a short-lived signed preview query param).
+  - Publish: PUT the page with status:"published" AND flip the site's
+    published flag if it's still draft — one button, both switches:
+      body: JSON.stringify({ ...payload, status: "published" })
+      await api.put(`/clients/${clientId}`, { published: true });
+    then show the REAL link: `Live at framenest.photos/site/${siteSlug}` with
+    a copy button.
+
+U-7  START FROM THE INDUSTRY, NOT FROM PURPLE
+  The client already chose an industry when the site was created — the
+  builder should open with a starter that looks like THEIR business, not a
+  generic gradient. Cheap version: keyed starter HTML —
+    const STARTERS: Record<string, (n: string) => string> = {
+      restaurant: n => `...menu-hero starter...`,
+      medical:    n => `...calm clinic starter...`,
+      beauty:     n => `...salon starter...`,
+      default:    STARTER_HTML,
+    };
+    editor.setComponents((STARTERS[industry] || STARTERS.default)(name));
+  Better version (roadmap): "Start from your template" — render the chosen
+  React template's sections once to static HTML and import as the initial
+  canvas, so builder mode begins from the design they already picked.
+
+U-8  FIRST-RUN GUIDANCE (3 tooltips, not a manual)
+  One-time overlay on first open (localStorage flag builder_tour_done):
+    1 → point at block panel: "Drag a section onto the page"
+    2 → point at canvas: "Click any text to edit it"
+    3 → point at Publish: "Publish when you're ready — nothing is live
+        until you do"
+  ~40 lines with absolutely-positioned divs; no library needed. Also set
+  the empty-canvas placeholder so a blank page isn't scary:
+    editor.setComponents(...) only when storedData is null — already done;
+    otherwise show "Your saved page loaded — click anything to edit."
+
+U-9  MOBILE HONESTY
+  GrapesJS is unusable on phones. Detect small screens in the Design
+  Builder tab and say so instead of rendering a broken editor:
+    if (window.innerWidth < 900) return <p className="p-8 text-center text-sm text-neutral-500">
+      The visual designer needs a larger screen — use a laptop or tablet in
+      landscape. You can still edit your content in the Website tab.</p>;
+
+U-10 CLEANUP THAT REMOVES USER-FACING CONFUSION
+  - Delete or route the dead pages (StudioOverviewPage, StudioTemplatesPage,
+    MyProfilePage) and dead components (TinaSidebar, BlockRenderer — or wire
+    BlockRenderer into ClientSitePage so the Content tab actually renders,
+    which is the other half of the Part-1 decision).
+  - Remove tina/config.ts + tinacms/@tinacms/cli deps if CloudCMS is the
+    chosen admin (tinacms alone added hundreds of packages to the install)
+    — or remove CloudCMS if Tina wins. Not both.
+  - Move `import "grapesjs/dist/css/grapes.min.css"` into initBuilder via
+    `await import(...)` so the 70KB editor CSS doesn't ship to every visitor.
+  - The main JS chunk grew from 660KB → 1.0MB with this release; the tiptap
+    editor imports in ClientEditorPage/BlockEditor are static — lazy-load
+    RichTextEditor (`const RichTextEditor = lazy(...)`) to pull tiptap out
+    of the entry bundle.
+
+================================================================================
+PART 4 — ORDER OF WORK
+================================================================================
+  Day 1 (pipeline): B-1 serve published pages · B-2 auth the pages GET +
+    strip scripts on save · B-4 signed draft images · B-9 honest messages
+  Day 2 (integrity): B-3 version saves · B-5 canvas CSS · B-7 starter name ·
+    B-8 delete re-added orphans + npm test in CI · B-6 verify health/columns
+  Week 2 (friendliness): U-1 mode decision + tab rename · U-2 simplified UI ·
+    U-3 photography blocks · U-4 asset preload · U-5 autosave · U-6 publish flow
+  Week 3 (delight): U-7 industry starters · U-8 first-run tour · U-9 mobile
+    guard · U-10 dead-code cleanup + bundle diet
+
+  ACCEPTANCE TEST (do this as a naive user): create a new client site →
+  open Design Builder → drag "Hero with photo" → double-click the image →
+  pick a photo from the library (it renders) → edit the headline → walk
+  away 10 minutes (autosave) → Publish → open framenest.photos/site/<slug>
+  in a private window → the page you built is there, styled identically.
+  Until every step of that sentence works, keep polishing nothing else.
+================================================================================
+END
+================================================================================
