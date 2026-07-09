@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { BlockEditor } from "@/components/editor/BlockEditor";
+import { GrapesBuilder } from "@/components/editor/GrapesBuilder";
 import type { ContentBlock } from "@/components/editor/types";
 import { saveSiteContent, getContentVersions, restoreContentVersion } from "@/lib/git-content";
 
@@ -42,10 +43,11 @@ interface ClientGallery {
   photoCount: number;
 }
 
-type EditorTab = "content" | "photos" | "galleries" | "blog" | "domain";
+type EditorTab = "content" | "photos" | "galleries" | "blog" | "domain" | "builder";
 
 const TABS: { key: EditorTab; label: string }[] = [
   { key: "content", label: "Content" },
+  { key: "builder", label: "Design Builder" },
   { key: "photos", label: "Photos" },
   { key: "galleries", label: "Galleries" },
   { key: "blog", label: "Blog" },
@@ -304,6 +306,12 @@ export function ClientEditorPage() {
             blogs={blogs}
             onRefresh={fetchBlogs}
           />
+        )}
+
+        {activeTab === "builder" && (
+          <div className="rounded-xl border border-border bg-white overflow-hidden" style={{ minHeight: "70vh" }}>
+            <GrapesBuilder clientId={id!} />
+          </div>
         )}
 
         {activeTab === "domain" && (

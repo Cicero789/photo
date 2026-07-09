@@ -1,10 +1,14 @@
 /** GET /api/content/:slug/versions[?restore=hash] — version history or restore */
 import { json } from "../../../lib/response";
+import { requireAuth } from "../../../lib/auth";
 
 export async function onRequestGet(context: {
   request: Request; env: { DB?: D1Database };
   params: { slug: string };
 }): Promise<Response> {
+  const a = await requireAuth(context.request, context.env);
+  if (a instanceof Response) return a;
+
   const url = new URL(context.request.url);
   const restoreHash = url.searchParams.get("restore");
 

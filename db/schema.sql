@@ -371,6 +371,22 @@ CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON blog_posts(slug);
 CREATE INDEX IF NOT EXISTS idx_client_galleries_site ON client_galleries(client_site_id);
 CREATE INDEX IF NOT EXISTS idx_client_gallery_photos_gallery ON client_gallery_photos(gallery_id);
 
+-- ─── GrapesJS Builder Pages ───
+
+CREATE TABLE IF NOT EXISTS client_pages (
+  id              TEXT PRIMARY KEY,
+  client_site_id  TEXT NOT NULL REFERENCES client_sites(id),
+  slug            TEXT NOT NULL,
+  title           TEXT NOT NULL DEFAULT 'Home',
+  builder_json    TEXT,
+  css             TEXT,
+  published_html  TEXT,
+  status          TEXT DEFAULT 'draft',
+  updated_at      TEXT NOT NULL,
+  UNIQUE(client_site_id, slug)
+);
+CREATE INDEX IF NOT EXISTS idx_client_pages_site ON client_pages(client_site_id);
+
 -- ─── Content Version History (git-backed CMS) ───
 
 CREATE TABLE IF NOT EXISTS content_versions (

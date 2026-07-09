@@ -96,7 +96,7 @@ export async function onRequestGet(context: {
              FROM client_gallery_photos cgp
              JOIN client_galleries cg ON cg.id = cgp.gallery_id
              JOIN client_sites cs ON cs.id = cg.client_site_id
-             WHERE cgp.storage_key = ?`
+             WHERE cgp.storage_key = ? AND cgp.deleted_at IS NULL`
           ).bind(storageKey).first() as any;
 
           if (cgp) {

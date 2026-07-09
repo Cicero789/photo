@@ -12,7 +12,8 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     const db = context.env.DB!;
 
     const r = await db.prepare(
-      `SELECT s.*, u.name as owner_name, u.email as owner_email,
+      `SELECT s.id, s.name, s.slug, s.custom_domain, s.logo_url, s.theme_color, s.owner_id, s.created_at, s.updated_at, s.hero_enabled, s.hero_source, s.hero_style,
+              u.name as owner_name, u.email as owner_email,
         (SELECT COUNT(*) FROM events WHERE space_id = s.id AND deleted_at IS NULL) as event_count,
         (SELECT COUNT(*) FROM photos WHERE space_id = s.id AND deleted_at IS NULL) as photo_count
        FROM spaces s JOIN users u ON s.owner_id = u.id

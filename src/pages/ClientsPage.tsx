@@ -316,6 +316,13 @@ function ClientCard({ client, onClick, onTogglePublish }: { client: ClientSite; 
         >
           Edit Site
         </button>
+        <a
+          href={`/admin/content?site=${client.slug}`}
+          onClick={(e) => e.stopPropagation()}
+          className="rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 transition-colors hover:bg-neutral-100"
+        >
+          📝 CMS
+        </a>
         <button
           onClick={(e) => { e.stopPropagation(); onClick(); }}
           className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-neutral-600 transition-colors hover:bg-neutral-50"

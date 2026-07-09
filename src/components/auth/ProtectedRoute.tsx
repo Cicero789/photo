@@ -22,15 +22,20 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
-  if (requiredRole && user.role !== requiredRole && user.role !== "platform_owner") {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-neutral-700">Access denied</h2>
-          <p className="mt-2 text-neutral-500">You don&apos;t have permission to view this page.</p>
+  if (requiredRole) {
+    const roleRank: Record<string, number> = { viewer: 0, staff: 1, page_admin: 2, platform_owner: 3 };
+    const requiredRank = roleRank[requiredRole] ?? 0;
+    const userRank = roleRank[user.role] ?? 0;
+    if (userRank < requiredRank) {
+      return (
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="text-center">
+            <h2 className="text-xl font-semibold text-neutral-700">Access denied</h2>
+            <p className="mt-2 text-neutral-500">You need {requiredRole} or higher. Your role: {user.role}.</p>
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   }
 
   return <>{children}</>;

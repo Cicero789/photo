@@ -16,7 +16,7 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
   if (!gallery) return json({ error: "Gallery not found" }, 404);
 
   const photos = await db.prepare(
-    "SELECT storage_key, caption, sort_order, uploaded_at FROM client_gallery_photos WHERE gallery_id = ? ORDER BY sort_order, uploaded_at"
+    "SELECT storage_key, caption, sort_order, uploaded_at FROM client_gallery_photos WHERE gallery_id = ? AND deleted_at IS NULL ORDER BY sort_order, uploaded_at"
   ).bind(gid).all();
 
   return json({
