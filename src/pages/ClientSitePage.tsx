@@ -1,7 +1,5 @@
-import { Suspense, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { templateComponents, resolveTemplateId } from "@/components/templates";
-import { COLOR_SCHEMES, FONT_PAIRINGS } from "@/components/photographer/TemplatePicker";
 import { PhotographerProfilePage } from "./PhotographerProfilePage";
 
 // ─── Types ───
@@ -81,75 +79,17 @@ export function ClientSitePage() {
   // If not a client site, delegate to photographer profile
   if (site === null) return <PhotographerProfilePage />;
 
-  // Parse gallery config — handle both string and object forms
-  let config: any = {};
-  if (typeof site.galleryConfig === "string") {
-    try { config = JSON.parse(site.galleryConfig || "{}"); } catch {}
-  } else if (site.galleryConfig && typeof site.galleryConfig === "object") {
-    config = site.galleryConfig;
-  }
-
-  const templateId = resolveTemplateId(config.template);
-  const TemplateComp = templateComponents[templateId];
-
-  const schemeKey = config.colorScheme || "light";
-  const fontKey = config.fontPairing || "modern";
-  const schemes = COLOR_SCHEMES.default!;
-  const scheme = schemes.find((s: any) => s.key === schemeKey) ?? schemes[0]!;
-  const font = FONT_PAIRINGS.find((f: any) => f.key === fontKey) ?? FONT_PAIRINGS[0]!;
-
-  // Build portfolio from hero photos in content
-  const heroPhotos: string[] = site.content?.heroPhotos || [];
-  const portfolio = heroPhotos.map((url: string, i: number) => ({
-    id: `hero-${i}`,
-    url,
-    filename: `Photo ${i + 1}`,
-  }));
-
   const tagline = site.content?.hero?.subheading || site.industryId || "";
-  const specialties = site.industryId ? [site.industryId] : [];
-  // Public renderer reads the actual content model the editor saves: { bio, services, pricing }
-  const bio = site.content?.bio || "";
+  const portfolio = (site.content?.heroPhotos || []).map((url: string, i: number) => ({ id: `h${i}`, url, filename: `Photo ${i+1}` }));
 
   return (
     <div>
-      {TemplateComp ? (
-        <Suspense fallback={<LoadingSpinner />}>
-          <div
-            style={{
-              "--theme-bg": scheme.bg,
-              "--theme-text": scheme.text,
-              "--theme-accent": scheme.accent,
-              "--theme-heading-font": `"${font.heading}", sans-serif`,
-              "--theme-body-font": `"${font.body}", sans-serif`,
-            } as React.CSSProperties}
-          >
-            <TemplateComp
-              name={site.name}
-              tagline={tagline}
-              specialties={specialties}
-              bio={bio}
-              website={site.customDomain ? `https://${site.customDomain}` : ""}
-              serviceArea=""
-              verified={false}
-              pricing={{}}
-              portfolio={portfolio}
-              onHire={() => {}}
-              onPhotoClick={(i: number) => setLightbox({ galleryIndex: -1, photoIndex: i })}
-              colorScheme={{ bg: scheme.bg, text: scheme.text, accent: scheme.accent }}
-              fontPairing={{ heading: font.heading, body: font.body }}
-            />
-          </div>
-        </Suspense>
-      ) : (
-        /* Fallback when template not found */
-        <section className="bg-white py-16">
-          <div className="mx-auto max-w-4xl px-4 text-center">
-            <h1 className="font-display text-3xl font-bold text-neutral-900">{site.name}</h1>
-            {tagline && <p className="mt-2 text-neutral-500">{tagline}</p>}
-          </div>
-        </section>
-      )}
+      <section className="bg-white py-16">
+        <div className="mx-auto max-w-4xl px-4 text-center">
+          <h1 className="font-display text-3xl font-bold text-neutral-900">{site.name}</h1>
+          {tagline && <p className="mt-2 text-neutral-500">{tagline}</p>}
+        </div>
+      </section>
 
       {/* Blog Section */}
       {site.blogs && site.blogs.length > 0 && (
@@ -265,7 +205,7 @@ function GallerySection({
             >
               <div className="aspect-video overflow-hidden bg-neutral-100">
                 <div className="flex h-full w-full items-center justify-center text-3xl text-neutral-300">
-                  🖼️
+                  🖼�?
                 </div>
               </div>
               <div className="p-4">

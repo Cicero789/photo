@@ -3,12 +3,13 @@ import { json } from "../../../lib/response";
 import { requireAuth } from "../../../lib/auth";
 import { validateUploadContent } from "../../../lib/upload-validate";
 import { rejectOversizedRequest } from "../../../lib/upload-policy";
+import { signMediaUrl } from "../../../lib/signed-url";
 
 const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif", "image/heic"];
 
 export async function onRequestPost(context: {
   request: Request;
-  env: { DB?: D1Database; PHOTOS?: R2Bucket };
+  env: { DB?: D1Database; PHOTOS?: R2Bucket; MEDIA_SIGNING_SECRET?: string; JWT_SECRET?: string };
   params: { id: string };
 }): Promise<Response> {
   const a = await requireAuth(context.request, context.env);
@@ -16,7 +17,7 @@ export async function onRequestPost(context: {
 
   const db = context.env.DB!;
   // Verify photographer owns this client site
-  const site = await db.prepare("SELECT id, slug FROM client_sites WHERE id = ? AND photographer_id = ? AND deleted_at IS NULL")
+  const site = await db.prepare("SELECT id, slug, published FROM client_sites WHERE id = ? AND photographer_id = ? AND deleted_at IS NULL")
     .bind(context.params.id, a.userId).first() as any;
   if (!site) return json({ error: "Client site not found" }, 404);
 
@@ -78,7 +79,11 @@ export async function onRequestPost(context: {
       return json({ error: "Failed to save photo" }, 500);
     }
 
-    results.push({ storageKey, filename: file.name, url: `/api/media/photos/${storageKey}` });
+    const secret = context.env.MEDIA_SIGNING_SECRET || context.env.JWT_SECRET || "";
+    const url = site.published === 1 || !secret
+      ? `/api/media/photos/${storageKey}`
+      : await signMediaUrl(storageKey, secret, 3600);
+    results.push({ storageKey, filename: file.name, url });
     sortOrder++;
   }
 
