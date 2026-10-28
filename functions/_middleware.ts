@@ -51,7 +51,7 @@ const RATE_LIMITED_PREFIXES = [
   "/api/auth/magic-login", "/api/auth/forgot-password", "/api/auth/reset-password", "/api/photographers",
   "/api/photos/upload", "/api/videos/upload", "/api/albums",
   "/api/albums/view", "/api/connections", "/api/bookings",
-  "/api/events", "/api/spaces/members", "/api/clients",
+  "/api/events", "/api/spaces/members", "/api/clients", "/api/studio/photos", "/api/studio/index",
 ];
 
 function isRateLimited(request: Request): boolean {

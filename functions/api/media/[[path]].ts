@@ -39,7 +39,11 @@ export async function onRequestGet(context: {
   const expires = url.searchParams.get("expires");
   const sig = url.searchParams.get("sig");
 
-  if (expires && sig) {
+  if (kind === "photos" && storageKey.startsWith("studio/")) {
+    const photo = await context.env.DB?.prepare("SELECT id FROM studio_photos WHERE storage_key = ?").bind(storageKey).first();
+    if (!photo) return new Response("Not found", { status: 404 });
+    isPublic = true;
+  } else if (expires && sig) {
     // Signed URL access
     const secret = context.env.MEDIA_SIGNING_SECRET || context.env.JWT_SECRET;
     if (!secret) return new Response(JSON.stringify({ error: "Service unavailable" }), { status: 503 });
@@ -74,12 +78,13 @@ export async function onRequestGet(context: {
       const albumPhoto = await db.prepare("SELECT album_id FROM album_photos WHERE storage_key = ?").bind(storageKey).first() as any;
       if (albumPhoto) {
         // Password-protected albums require signed URL
-        const album = await db.prepare("SELECT password FROM albums WHERE id = ?").bind(albumPhoto.album_id).first() as any;
-        if (album?.password) {
-          // Password-protected — must use signed URL (checked above, would have passed)
+        // Customer access always uses the signed URLs issued after validating
+        // the gallery key, password and expiration. A raw object key is not a gate.
+        const album = await db.prepare("SELECT user_id FROM albums WHERE id = ? AND deleted_at IS NULL").bind(albumPhoto.album_id).first<{ user_id: string }>();
+        const actor = await requireAuth(context.request, context.env);
+        if (!album || actor instanceof Response || actor.userId !== album.user_id) {
           return new Response(JSON.stringify({ error: "Forbidden" }), { status: 403, headers: { "Content-Type": "application/json" } });
         }
-        // No password — share link is sufficient, allow access
       } else {
         // Check photographer_portfolio
         const portfolioPhoto = await db.prepare(

@@ -1,0 +1,38 @@
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { api, getToken } from "../lib/api";
+import { defaultStudio, themes, type Studio, type StudioPhoto } from "../../shared/studio";
+import { AlbumsPage } from "./AlbumsPage";
+import { useAuth } from "../hooks/useAuth";
+import "./candle-vision.css";
+
+type StudioRequest = { id: string; kind: string; name: string; email: string; message: string; album_name: string | null; created_at: string; items: string };
+export function CandleVisionAdminPage() {
+  const [studio, setStudio] = useState<Studio>(defaultStudio);
+  const [photos, setPhotos] = useState<StudioPhoto[]>([]);
+  const [requests, setRequests] = useState<StudioRequest[]>([]);
+  const [tab, setTab] = useState("Website");
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [ready, setReady] = useState(false);
+  const { logout } = useAuth();
+  async function refresh() {
+    try {
+      const [site, inbox] = await Promise.all([api.get<{ studio: Studio; photos: StudioPhoto[] }>("/studio"), api.get<{ requests: StudioRequest[] }>("/studio/requests")]);
+      setStudio(site.studio); setPhotos(site.photos); setRequests(inbox.requests); setReady(true);
+    } catch (e) { setMessage(e instanceof Error ? e.message : "Unable to load studio."); }
+  }
+  useEffect(() => { void refresh(); }, []);
+  async function perform(action: () => Promise<unknown>, success: string, reload = false) {
+    setBusy(true); setMessage("");
+    try { await action(); setMessage(success); if (reload) await refresh(); }
+    catch (e) { setMessage(e instanceof Error ? e.message : "Please try again."); }
+    finally { setBusy(false); }
+  }
+  return <div className={`cv cv-${studio.theme} cv-admin`}><header className="cv-nav"><Link className="cv-brand" to="/candle-vision">◒ {studio.name}</Link><span>THE STUDIO</span><div><Link to="/candle-vision">View website ↗</Link><button onClick={logout}>Log out</button></div></header><main className="cv-section"><h1>Your creative space.</h1><p>Edit your website, share private galleries, and review customer requests.</p><div className="cv-filters">{["Website", "Portfolio", "Client galleries", "Inbox"].map(t => <button key={t} aria-pressed={tab === t} onClick={() => setTab(t)}>{t}{t === "Inbox" ? ` (${requests.length})` : ""}</button>)}</div><p role="status">{message}</p>{!ready ? <button onClick={() => void refresh()}>Retry loading studio</button> : <>
+      {tab === "Website" && <form className="cv-editor" onSubmit={e => { e.preventDefault(); void perform(() => api.put("/studio", studio), "Your website changes are live."); }}><fieldset disabled={busy}><div className="cv-theme-picker">{Object.entries(themes).map(([id, label]) => <label key={id} className={`cv-theme-option cv-${id}`}><input type="radio" name="theme" checked={studio.theme === id} onChange={() => setStudio({ ...studio, theme: id as Studio["theme"] })} /><span className="cv-swatches"><i /><i /><i /></span>{label}</label>)}</div><div className="cv-editor-grid">{([['name', 'Studio name'], ['location', 'Location'], ['email', 'Public contact email (optional)']] as const).map(([key, label]) => <label key={key}>{label}<input type={key === "email" ? "email" : "text"} value={studio[key]} onChange={e => setStudio({ ...studio, [key]: e.target.value })} required={key !== "email"} /></label>)}</div><label>Headline (one line per row)<textarea value={studio.headline} onChange={e => setStudio({ ...studio, headline: e.target.value })} maxLength={150} required /></label><label>Introduction<textarea value={studio.intro} onChange={e => setStudio({ ...studio, intro: e.target.value })} maxLength={800} /></label><label>About your approach<textarea rows={8} value={studio.about} onChange={e => setStudio({ ...studio, about: e.target.value })} maxLength={3000} /></label><h2>Sessions & rates</h2>{studio.services.map((service, i) => <div className="cv-service-editor" key={i}>{([['name', 'Session name'], ['rate', 'Price or quote label'], ['description', 'Description']] as const).map(([key, label]) => <label key={key}>{label}<input value={service[key]} required onChange={e => setStudio({ ...studio, services: studio.services.map((s, j) => j === i ? { ...s, [key]: e.target.value } : s) })} /></label>)}</div>)}<button className="cv-button">{busy ? "Saving…" : "Save website"}</button></fieldset></form>}
+      {tab === "Portfolio" && <div><h2>Your public portfolio</h2><p>Upload only photographs you want everyone to see. Client photos belong in Client galleries. Sample imagery disappears when you upload your first portfolio photo.</p><label className="cv-upload">Add photographs · JPEG, PNG or WebP, up to 20 MB each<input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={busy} onChange={e => { const files = Array.from(e.target.files || []); void perform(async () => { for (const file of files) { const body = new FormData(); body.append("file", file); const res = await fetch("/api/studio/photos", { method: "POST", headers: { Authorization: `Bearer ${getToken()}` }, body }); if (!res.ok) { const data = await res.json(); throw new Error(`${file.name}: ${data.error || "Upload failed"}`); } } }, "Photos uploaded.", true); e.target.value = ""; }} /></label><div className="cv-admin-photos">{photos.map(photo => <form key={photo.id} onSubmit={e => { e.preventDefault(); void perform(() => api.put("/studio/photos", photo), "Photo details saved."); }}><img src={photo.url} alt={photo.title} /><label>Title<input required maxLength={150} value={photo.title} onChange={e => setPhotos(photos.map(p => p.id === photo.id ? { ...p, title: e.target.value } : p))} /></label><label>Story / details<textarea maxLength={1000} value={photo.description} onChange={e => setPhotos(photos.map(p => p.id === photo.id ? { ...p, description: e.target.value } : p))} /></label><label>Category<select value={photo.category} onChange={e => setPhotos(photos.map(p => p.id === photo.id ? { ...p, category: e.target.value } : p))}>{["Families", "Couples", "Portraits", "Milestones"].map(c => <option key={c}>{c}</option>)}</select></label><div className="cv-actions"><button className="cv-button" disabled={busy}>Save details</button><button type="button" disabled={busy} onClick={() => { if (confirm(`Remove “${photo.title}” from your public portfolio?`)) void perform(() => api.delete("/studio/photos", { id: photo.id }), "Photo removed.", true); }}>Remove</button></div></form>)}</div></div>}
+      {tab === "Client galleries" && <><p>Each album gets a unique private link. Share it only with your customer; they can use the link or its final key in the website’s Client gallery section.</p><AlbumsPage /></>}
+      {tab === "Inbox" && <div><div className="cv-actions"><h2>Inquiries & photo requests</h2><button onClick={() => void refresh()}>Refresh inbox</button></div><p>Requests are stored here. Confirm prices, crops, payment, and production with the customer before fulfilling an order.</p>{requests.length === 0 && <p className="cv-empty">Your next story starts here. No requests yet.</p>}{requests.map(r => <article className="cv-request" key={r.id}><small>{r.kind === "inquiry" ? "SESSION INQUIRY" : "PHOTO SELECTION"} · {r.created_at} UTC</small><h3>{r.name}{r.album_name ? ` · ${r.album_name}` : ""}</h3><a href={`mailto:${r.email}`}>{r.email}</a><p style={{ whiteSpace: "pre-wrap" }}>{r.message}</p>{r.kind === "selection" && <ul>{(JSON.parse(r.items) as { filename: string; product: string; quantity: number }[]).map((item, i) => <li key={i}>{item.filename} — {item.product} × {item.quantity}</li>)}</ul>}<small>Reference: {r.id}</small></article>)}</div>}
+    </>}</main></div>;
+}
