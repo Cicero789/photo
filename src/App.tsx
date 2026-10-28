@@ -32,6 +32,8 @@ import { AdminCommercePage } from "./pages/admin/AdminCommercePage";
 import { AdminDiscoveryPage } from "./pages/admin/AdminDiscoveryPage";
 import { AdminSystemPage } from "./pages/admin/AdminSystemPage";
 import { MainLayout } from "./components/layout/MainLayout";
+import { CandleVisionPage } from "./pages/CandleVisionPage";
+import { CandleVisionAdminPage } from "./pages/CandleVisionAdminPage";
 
 function CustomDomainRedirect() {
   const navigate = useNavigate();
@@ -54,6 +56,8 @@ export default function App() {
       <CustomDomainRedirect />
       <Routes>
         {/* Standalone pages (no nav/footer) */}
+        <Route path="/candle-vision" element={<CandleVisionPage />} />
+        <Route path="/candle-vision/admin" element={<ProtectedRoute requiredRole="platform_owner"><CandleVisionAdminPage /></ProtectedRoute>} />
         <Route path="/album/:token" element={<AlbumViewerPage />} />
         <Route element={<MainLayout />}>
           <Route path="/" element={<HomePage />} />

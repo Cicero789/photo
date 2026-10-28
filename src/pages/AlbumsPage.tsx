@@ -18,6 +18,8 @@ export function AlbumsPage() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [error, setError] = useState("");
   const [creating, setCreating] = useState(false);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -26,7 +28,7 @@ export function AlbumsPage() {
 
   const fetchAlbums = () => {
     setLoading(true);
-    api.get<{ albums: Album[] }>("/albums").then(d => setAlbums(d.albums)).catch(() => {}).finally(() => setLoading(false));
+    api.get<{ albums: Album[] }>("/albums").then(d => setAlbums(d.albums)).catch(e => setError(e instanceof Error ? e.message : "Could not load galleries.")).finally(() => setLoading(false));
   };
 
   useEffect(fetchAlbums, []);
@@ -34,12 +36,14 @@ export function AlbumsPage() {
   const createAlbum = async () => {
     if (!newName.trim()) return;
     setCreating(true);
+    setError("");
     try {
-      await api.post("/albums", { name: newName.trim() });
+      await api.post("/albums", { name: newName.trim(), password: newPassword || undefined, downloads: false });
       setNewName("");
+      setNewPassword("");
       setShowCreate(false);
       fetchAlbums();
-    } catch {}
+    } catch (e) { setError(e instanceof Error ? e.message : "Could not create gallery."); }
     setCreating(false);
   };
 
@@ -48,21 +52,23 @@ export function AlbumsPage() {
     try {
       await api.delete(`/albums/${id}`);
       fetchAlbums();
-    } catch {}
+    } catch (e) { setError(e instanceof Error ? e.message : "Could not delete gallery."); }
   };
 
   const uploadPhotos = async (albumId: string, files: FileList) => {
     setUploading(true);
+    setError("");
     for (const file of Array.from(files)) {
       const form = new FormData();
       form.append("file", file);
       try {
-        await fetch(`/api/albums/${albumId}/photos`, {
+        const response = await fetch(`/api/albums/${albumId}/photos`, {
           method: "POST",
           headers: { Authorization: `Bearer ${localStorage.getItem("photo_token")}` },
           body: form,
         });
-      } catch {}
+        if (!response.ok) { const result = await response.json(); throw new Error(result.error || "Upload failed"); }
+      } catch (e) { setError(`${file.name}: ${e instanceof Error ? e.message : "Upload failed"}`); break; }
     }
     setUploading(false);
     fetchAlbums();
@@ -73,7 +79,7 @@ export function AlbumsPage() {
     navigator.clipboard.writeText(url).then(() => {
       setCopied(token);
       setTimeout(() => setCopied(null), 2000);
-    });
+    }).catch(() => setError(`Copy this gallery link: ${url}`));
   };
 
   if (loading) {
@@ -86,6 +92,7 @@ export function AlbumsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+      {error && <p role="alert" className="mb-4 text-red-700">{error}</p>}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -102,6 +109,7 @@ export function AlbumsPage() {
       {showCreate && (
         <div className="mt-6 rounded-xl border border-border bg-white p-6">
           <h3 className="text-sm font-semibold text-neutral-900">New Album</h3>
+          <label className="mt-3 block text-sm">Optional customer password<input type="password" autoComplete="new-password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="An extra layer of privacy" className="mt-1 block w-full border px-3 py-2" /></label>
           <div className="mt-3 flex gap-3">
             <input type="text" value={newName} onChange={e => setNewName(e.target.value)}
               placeholder="e.g. Johnson Wedding — Selects"

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { ClientSelections } from "../components/photos/ClientSelections";
+import { StudioLightbox } from "../components/photos/StudioLightbox";
 
 interface AlbumPhoto {
   key: string;
@@ -39,6 +41,7 @@ export function AlbumViewerPage() {
           setNeedsPassword(true);
           setPasswordName(data.name || "");
           setPasswordOwner(data.ownerName || "");
+          if (pw) setError("That password did not match. Please try again.");
           setLoading(false);
           return;
         }
@@ -68,12 +71,13 @@ export function AlbumViewerPage() {
               <p className="mt-4 text-sm text-neutral-600">This album is password protected.</p>
             </div>
             <form className="mt-6" onSubmit={(e) => { e.preventDefault(); fetchAlbum(password); }}>
+              {error && <p role="alert" className="mb-3 text-sm text-red-700">{error}</p>}
               <input type="password" value={password} onChange={e => setPassword(e.target.value)}
                 placeholder="Enter password"
                 autoFocus
                 className="block w-full rounded-lg border border-border bg-white px-4 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-400 focus:outline-none" />
-              <button type="submit" className="mt-3 w-full rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-800">
-                View Album
+              <button type="submit" disabled={loading} className="mt-3 w-full rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-neutral-800">
+                {loading ? "Opening…" : "View Album"}
               </button>
             </form>
           </div>
@@ -134,58 +138,11 @@ export function AlbumViewerPage() {
         </div>
       ) : (
         <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-            {album.photos.map((photo, i) => (
-              <div key={photo.key}
-                onClick={() => setLightbox(i)}
-                className="group relative cursor-pointer overflow-hidden rounded-lg bg-neutral-200 aspect-square">
-                <img src={photo.url} alt={photo.filename || `Photo ${i + 1}`}
-                  className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  loading="lazy" />
-                {album.downloads === 1 && (
-                  <div className="absolute inset-0 flex items-end justify-end bg-gradient-to-t from-black/30 to-transparent p-2 opacity-0 transition-opacity group-hover:opacity-100">
-                    <a href={photo.url} download={photo.filename || undefined}
-                      onClick={e => e.stopPropagation()}
-                      className="rounded-md bg-white/90 px-2 py-1 text-[10px] font-medium text-neutral-700 hover:bg-white">
-                      ↓
-                    </a>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+          <ClientSelections photos={album.photos} token={token!} password={password} onView={setLightbox} downloads={album.downloads === 1} />
         </main>
       )}
 
-      {/* Lightbox */}
-      {lightbox !== null && album.photos[lightbox] && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
-          onClick={() => setLightbox(null)}>
-          <button onClick={() => setLightbox(null)}
-            className="absolute right-4 top-4 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 text-lg">✕</button>
-          {lightbox > 0 && (
-            <button onClick={(e) => { e.stopPropagation(); setLightbox(lightbox - 1); }}
-              className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 text-xl">‹</button>
-          )}
-          {lightbox < album.photos.length - 1 && (
-            <button onClick={(e) => { e.stopPropagation(); setLightbox(lightbox + 1); }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white hover:bg-white/20 text-xl">›</button>
-          )}
-          <img src={album.photos[lightbox].url} alt=""
-            onClick={e => e.stopPropagation()}
-            className="max-h-[90vh] max-w-[90vw] rounded-lg object-contain" />
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4">
-            <span className="text-sm text-white/60">{lightbox + 1} / {album.photos.length}</span>
-            {album.downloads === 1 && (
-              <a href={album.photos[lightbox].url} download={album.photos[lightbox].filename || undefined}
-                onClick={e => e.stopPropagation()}
-                className="rounded-lg bg-white/10 px-3 py-1.5 text-sm text-white hover:bg-white/20">
-                ↓ Download
-              </a>
-            )}
-          </div>
-        </div>
-      )}
+      {lightbox !== null && <StudioLightbox photos={album.photos.map(p => ({ id: p.key, url: p.url, title: p.filename, description: "Return to the gallery to select this photo and choose your prints or keepsakes.", category: album.name }))} initial={lightbox} onClose={() => setLightbox(null)} />}
 
       {/* Footer */}
       <footer className="border-t border-border bg-white py-6">

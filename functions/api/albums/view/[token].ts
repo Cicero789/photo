@@ -2,6 +2,7 @@
 import { json } from "../../../lib/response";
 import { verifyPassword } from "../../../lib/password";
 import { signMediaUrl } from "../../../lib/signed-url";
+import { checkRateLimit, getClientIP } from "../../../lib/rate-limit";
 
 export async function onRequestGet(context: { request: Request; env: { DB?: D1Database; MEDIA_SIGNING_SECRET?: string; JWT_SECRET?: string }; params: { token: string } }): Promise<Response> {
   const { token } = context.params;
@@ -19,6 +20,8 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
 
   // Check password (if set, require it via query param or header)
   if (album.password) {
+    const limit = await checkRateLimit(context.env.DB!, getClientIP(context.request), "album-password");
+    if (!limit.allowed) return json({ error: "Too many password attempts. Please try again later." }, 429);
     const pw = context.request.headers.get("X-Album-Password") || "";
     if (!await verifyPassword(pw, album.password)) {
       return json({ needsPassword: true, name: album.name, ownerName: album.owner_name }, 401);
@@ -33,7 +36,8 @@ export async function onRequestGet(context: { request: Request; env: { DB?: D1Da
     "SELECT storage_key, filename, sort_order FROM album_photos WHERE album_id = ? ORDER BY sort_order, created_at"
   ).bind(album.id).all();
 
-  const secret = context.env.MEDIA_SIGNING_SECRET || context.env.JWT_SECRET || "";
+  const secret = context.env.MEDIA_SIGNING_SECRET || context.env.JWT_SECRET;
+  if (!secret) return json({ error: "Gallery service is not configured. Please contact the photographer." }, 503);
   const photos = await Promise.all((photosResult.results || []).map(async (p: any) => ({
     key: p.storage_key,
     filename: p.filename || "",
